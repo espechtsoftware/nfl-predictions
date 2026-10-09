@@ -66,7 +66,7 @@ from nfl_dfs.inference.mix_shapes import (RS_BOOK_ROWS as MS_RS_BOOK_ROWS, RS_TI
                                          block_positions as ms_block_positions, relaxations as ms_relaxations,
                                          tier_bans as ms_tier_bans)
 from nfl_dfs.inference.mix_shapes import (TOP_WR_RULE_CELLS as MS_TOP_WR_RULE_CELLS, top_receivers as ms_top_receivers,  # noqa: E402
-                                         bring_back_top_wr_rule as ms_bb_rule)
+                                         bring_back_top_wr_rule as ms_bb_rule, rule_applies as ms_rule_applies)
 from nfl_dfs.inference.mix_shapes import (MIX_CELLS, PORTFOLIOS, TAG_PREFIX, allocate as mix_allocate, interleave as mix_interleave,  # noqa: E402
                                            plan_weights as mix_weights, shape_violations, cell_of_tag)
 
@@ -492,7 +492,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
              rs_rows: int = 0, term_rows: int = 0,
              term_bonus: dict[str, float] | None = None,
              cell_quotas: dict[str, float] | None = None,
-             bring_back_top_wr: tuple[str, ...] = ()) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             bring_back_top_wr: tuple[str, ...] = (),
+             bring_back_top_wr_rows: int | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -574,7 +575,10 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     bb_cells = tuple(bring_back_top_wr or ())
     bb_top: dict[str, str] = {}
     bb_pairs: dict[tuple[str, str], float] = {}
-    bb_state: dict = {"phase": "book", "floored": Counter(), "fallbacks": []}
+    bb_state: dict = {"phase": "book", "floored": Counter(), "fallbacks": [], "floored_rows": [], "designated_unfloored": 0}
+    bb_cap = bring_back_top_wr_rows                            # study 71b (None = every designated solve, as before)
+    if bb_cap is not None and (not bb_cells or int(bb_cap) != bb_cap or bb_cap < 1):
+        raise ValueError(f"bring_back_top_wr_rows {bb_cap} needs bring_back_top_wr cells and an integer >= 1")
     if bb_cells:
         bad = [c for c in bb_cells if c not in MS_TOP_WR_RULE_CELLS]
         if portfolio != "mix" or bad or len(set(bb_cells)) != len(bb_cells):
@@ -584,10 +588,22 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         bb_pairs = {(p["id"], bb_top[str(p["opp"])]): 1.0 for p in pool if p["pos"] == "QB" and str(p["opp"]) in bb_top}
     name_of_id = {p["id"]: p.get("name") for p in pool}
 
+    def floor_open() -> bool:
+        """Study 71b, 84's definition exactly (nfl2 experiments/s71b_topbb_n.py, TopBBNBuilder.solve_with @ c2f5638): the
+        floor goes on a designated solve only while j < k AND fewer than N rows have been committed under it, where j =
+        len(prev), the rows committed BEFORE the solve -- the row index, not the phase flag. A floored solve that is
+        infeasible is re-solved plain and does not count. With a full book (a short MIX book is refused: "MIX MAIN
+        REFUSED" / check_main_rows) the spares start at j = k, so a spare never gets the rule under a cap; the phase flag
+        only labels the records. No cap: always open (every designated solve, the merged behaviour)."""
+        if bb_cap is None:
+            return True
+        return len(prev) < k and len(bb_state["floored_rows"]) < bb_cap
+
     def peek(name: str, extra_bans: frozenset = frozenset(), use_term: bool = False):
         """The cell's next row on the CURRENT state, not committed: (ids, objective value, fallback) or (None, None, None).
         use_term: on the term block's objective (projection + the capped term). fallback: None, or why a study-71 cell's
-        row was built WITHOUT the top-WR floor ("infeasible with the floor" / "no pairs")."""
+        row was built WITHOUT the top-WR floor ("infeasible with the floor" / "no pairs"), or "plain" for a designated solve
+        the study-71b cap left without it (not a fallback, not a violation)."""
         _, rules, qmax, which = cells[name]
         bans = {p for p, c in count.items() if exposure_cap is not None and c >= exposure_cap} | set(extra_bans)
         if dst_cap is not None:
@@ -598,12 +614,14 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         kw = dict(stack=StackRules(**rules), objective_col=use_obj, banned_lineups=prev, max_overlap=max_shared,
                   bans=bans or None, env=env, second_game_pair=games if which == "all" else None, qb_game_max=qmax)
         fb = None
-        if name in bb_cells:
+        if name in bb_cells and floor_open():
             lu = optimize(use_pool, interaction_floor_weights=bb_pairs, interaction_floor=1.0, **kw) if bb_pairs else None
             if lu is None:
                 fb = "infeasible with the floor" if bb_pairs else "no pairs"
                 lu = optimize(use_pool, **kw)
         else:
+            if name in bb_cells:                               # study 71b: the cap is closed (or a spare under a cap)
+                fb = "plain"
             lu = optimize(use_pool, **kw)
         if lu is None:
             return None, None, None
@@ -617,8 +635,15 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         if value is not None:
             row_value[tuple(ids)] = value
         if cell is not None and cell in bb_cells:              # study 71's record (nothing when off)
-            if fb is None:
+            if fb == "plain":                                  # study 71b: a designated row past the cap (or a spare), plain
+                if len(prev) - 1 < k:                          # a BOOK row by 84's definition (j < k)
+                    bb_state["designated_unfloored"] += 1
+            elif fb is None:
                 bb_state["floored"][bb_state["phase"]] += 1
+                if bb_cap is not None:                          # the floored rows' identities: the rule binds only these
+                    row = sorted(str(i) for i in ids)
+                    bb_state["floored_rows"].append({"cell": cell, "commit_index": len(prev) - 1, "kind": bb_state["phase"],
+                                                     "row": row, "row_sha256": hashlib.sha256(",".join(row).encode()).hexdigest()})
             else:
                 q = next((i for i in ids if i in qb_ids), None)
                 row = sorted(str(i) for i in ids)
@@ -852,6 +877,9 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             "qbs_without_top_wr_opponent": sorted(str(p.get("name")) for p in pool if p["pos"] == "QB" and str(p["opp"]) not in bb_top),
             "rows_floored": {"book": int(bb_state["floored"]["book"]), "spares": int(bb_state["floored"]["spare"])},
             "fallbacks": bb_state["fallbacks"]}
+        if bb_cap is not None:                                 # study 71b's delta (absent without a cap)
+            meta["bring_back_top_wr"].update({"rows_cap": int(bb_cap), "floored_rows": bb_state["floored_rows"],
+                                              "designated_unfloored": int(bb_state["designated_unfloored"])})
     return book, cell_of, meta, spare_rows
 
 
@@ -1012,6 +1040,16 @@ def parse_bring_back_top_wr(spec: str, main: str, portfolio: str | None) -> tupl
     return cells
 
 
+def parse_bring_back_top_wr_rows(rows: int | None, cells: tuple[str, ...]) -> int | None:
+    """--mix-bring-back-top-wr-rows (study 71b): None (unset) = every designated solve; else an integer >= 1, only with
+    --mix-bring-back-top-wr cells. SystemExit otherwise."""
+    if rows is None:
+        return None
+    if rows < 1 or not cells:
+        raise SystemExit(f"--mix-bring-back-top-wr-rows {rows}: an integer >= 1, with --mix-bring-back-top-wr (study 71b)")
+    return int(rows)
+
+
 def bring_back_top_wr_line(block: dict | None) -> str:
     """Study 71's printed line (and a CAPITALS banner line when any row was built without the floor)."""
     b = block or {}
@@ -1020,6 +1058,8 @@ def bring_back_top_wr_line(block: dict | None) -> str:
     cells = ",".join(b.get("cells") or [])
     line = (f"BRING-BACK TOP WR: cells {cells}; {rf.get('book', 0)} book rows + {rf.get('spares', 0)} spares floored; "
             f"{len(fb)} fallbacks")
+    if b.get("rows_cap") is not None:                          # study 71b
+        line += f"; rows cap {b['rows_cap']} ({b.get('designated_unfloored', 0)} designated book rows past it, built plain)"
     if fb:
         where = " ".join(f"{x['cell']}@{x['commit_index']}" for x in fb)
         line += f" (built without the floor: {where})"
@@ -1090,6 +1130,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="study 71 (default empty = off): a comma list of MIX cells from A1,B whose rows hold the QB's opponent's "
                          "top receiver (the highest-salaried WR in the buildable pool; ties projection, then id) through the "
                          "optimizer's interaction floor; a solve the floor makes infeasible is built without it and recorded")
+    ap.add_argument("--mix-bring-back-top-wr-rows", type=int, default=None,
+                    help="study 71b (default unset = every designated solve): the floor goes on designated solves only while "
+                         "fewer than N BOOK rows (row index < the book's K) have been committed under it; spares never; an "
+                         "infeasible floored solve is built plain, recorded, and does not count")
     ap.add_argument("--winner-select", type=Path, default=None,
                     help="study 48d: build the MIX book with its spares, then keep, per cell, its book count of the most "
                          "winner-like rows (study 48's frozen score) among the cell's book rows and spares; the rest become "
@@ -1188,6 +1232,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.mix_cover_games and (a.main != "mix" or a.mix_portfolio != "mix" or not 0 < a.mix_cover_games <= 8):
         raise SystemExit("--mix-cover-games N (1..8) needs --main mix with --mix-portfolio mix (study 43)")
     bb_cells = parse_bring_back_top_wr(a.mix_bring_back_top_wr, a.main, a.mix_portfolio)
+    bb_rows = parse_bring_back_top_wr_rows(a.mix_bring_back_top_wr_rows, bb_cells)
     if a.main == "mix" and (a.mix_plan is None or not a.mix_plan.is_file()):
         raise SystemExit(f"--main mix needs --mix-plan (the week's contests.json; got {a.mix_plan})")
     if a.main == "mix" and a.mix_portfolio is None:
@@ -1335,7 +1380,8 @@ def main(argv: list[str] | None = None) -> int:
                                                                        cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
                                                                        spares=0 if bonus else a.mix_spares,
                                                                        term_rows=term_rows, term_bonus=term_bonus,
-                                                                       cell_quotas=cell_quotas, bring_back_top_wr=bb_cells)
+                                                                       cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
+                                                                       bring_back_top_wr_rows=bb_rows)
             if bb_cells:
                 print(bring_back_top_wr_line(mix_meta.get("bring_back_top_wr")), flush=True)
             if a.term_block_rows:
@@ -1377,7 +1423,8 @@ def main(argv: list[str] | None = None) -> int:
                                                                       weights, exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap, bonus=bonus,
                                                                       portfolio=a.mix_portfolio, spares=a.mix_spares, fill=a.mix_fill,
                                                                       cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
-                                                                      cell_quotas=cell_quotas, bring_back_top_wr=bb_cells)
+                                                                      cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
+                                                                      bring_back_top_wr_rows=bb_rows)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
                 if bb_cells:
                     print("(the ownership-term book) " + bring_back_top_wr_line(own_mix.get("bring_back_top_wr")), flush=True)
@@ -1418,10 +1465,10 @@ def main(argv: list[str] | None = None) -> int:
             _sg = dict(zip(fr.id.astype(str), fr.game_id.astype(str)))
             _ss = dict(zip(fr.id.astype(str), pd.to_numeric(fr.salary, errors="coerce").fillna(0).astype(int)))
             dropped = []
-            _bt, _bc, _bx = ms_bb_rule({"config": {"union": {"mix": {"mix": mix_meta}}}})     # study 71 (off: {}, (), set())
+            _bt, _bc, _bx, _bq = ms_bb_rule({"config": {"union": {"mix": {"mix": mix_meta}}}})   # study 71 (off: {}, (), set(), None)
             for ids, cell in spare_rows:
                 v = list(validate_roster(ids, pos, _st, _so, _ss)) + list(_spare_v(ids, cell, pos, _st, _so, _sg, top_wr=_bt,
-                                                                                  top_wr_cells=() if frozenset(ids) in _bx else _bc))
+                                                                                  top_wr_cells=_bc if ms_rule_applies(ids, _bx, _bq) else ()))
                 if v or sum(_ss[p] for p in ids) < a.min_salary:
                     dropped.append({"cell": cell, "problems": v or ["salary floor"]})
                     continue
@@ -1503,7 +1550,7 @@ def main(argv: list[str] | None = None) -> int:
     _team = dict(zip(ids_, fr.team.astype(str))); _opp = dict(zip(ids_, fr.opp.astype(str)))
     _sal = dict(zip(ids_, pd.to_numeric(fr.salary, errors="coerce").fillna(0).astype(int)))
     contract = {"dk_contract": "dk_classic_v1", "strategy_contract": "house_qb2_bb1_floor49_v1", "dk_violations": 0, "strategy_violations": 0}
-    _bt, _bc, _bx = ms_bb_rule({"config": {"union": {"mix": {"mix": mix_meta}}}})            # study 71 (off: {}, (), set())
+    _bt, _bc, _bx, _bq = ms_bb_rule({"config": {"union": {"mix": {"mix": mix_meta}}}})       # study 71 (off: {}, (), set(), None)
     if a.main == "mix":
         contract["strategy_contract"] = "mix_cells_s18_v1 (house for untagged rows); floor49"
         _game = dict(zip(ids_, fr.game_id.astype(str)))
@@ -1513,7 +1560,7 @@ def main(argv: list[str] | None = None) -> int:
             raise SystemExit(f"written roster fails DK contract: {v_dk}")
         if a.main == "mix" and cell_of_tag(tags[i]) is not None:
             v_cell = shape_violations(rosters[i], cell_of_tag(tags[i]), pos, _team, _opp, _game, top_wr=_bt,
-                                      top_wr_cells=() if frozenset(rosters[i]) in _bx else _bc)
+                                      top_wr_cells=_bc if ms_rule_applies(rosters[i], _bx, _bq) else ())
             if v_cell:                                     # the solver produced a row its own cell forbids: fail closed
                 raise SystemExit(f"MIX MAIN REFUSED: row {rosters[i]} ({tags[i]}) breaks its cell: {v_cell}")
             if sum(_sal[p] for p in rosters[i]) < a.min_salary:

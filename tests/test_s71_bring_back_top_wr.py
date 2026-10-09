@@ -1,6 +1,8 @@
 """Study 71 (union_reselect --mix-bring-back-top-wr; production's agreed format with amendments a-d, 10-08): the top-receiver
 definition (parity with study 70's top_wr), mix_rows' interaction floor and its fallback record, the shape check, the ONE
-shared reader, vet_replace_v4's lenient house fallback and late-scratch rule, and the build audit. Offline: a stand-in
+shared reader, vet_replace_v4's lenient house fallback and late-scratch rule, and the build audit. Study 71b
+(--mix-bring-back-top-wr-rows N, 84's row choice): exactly N floored book rows, the rule binding only them everywhere, and
+parity with the lab's OWN term_book and row-choice code, pasted byte for byte and sha-pinned. Offline: a stand-in
 optimizer carrying the pinned lab's interaction-floor arguments (nfl2.core.lineup.optimize @ f69598b); no solver."""
 import dataclasses
 import hashlib
@@ -90,11 +92,11 @@ def _receipt(fallbacks=(), with_term_fallbacks=None):
 
 
 def test_the_one_reader():
-    assert M.bring_back_top_wr_rule({}) == ({}, (), set())
-    assert M.bring_back_top_wr_rule({"config": {"union": {"mix": {"mix": {"cells": {}}}}}}) == ({}, (), set())
-    top, cells, ex = M.bring_back_top_wr_rule(_receipt([ROW_WITHOUT], with_term_fallbacks=[ROW_WITH]),
+    assert M.bring_back_top_wr_rule({}) == ({}, (), set(), None)
+    assert M.bring_back_top_wr_rule({"config": {"union": {"mix": {"mix": {"cells": {}}}}}}) == ({}, (), set(), None)
+    top, cells, ex, req = M.bring_back_top_wr_rule(_receipt([ROW_WITHOUT], with_term_fallbacks=[ROW_WITH]),
                                               vet_receipt={"bring_back_top_wr_exempt": [{"row": sorted(["a", "b"]), "reason": "house fallback"}]})
-    assert top == TOP and cells == ("A1", "B")
+    assert top == TOP and cells == ("A1", "B") and req is None                      # no study-71b cap
     assert ex == {frozenset(ROW_WITHOUT), frozenset(ROW_WITH), frozenset({"a", "b"})}
 
 
@@ -218,7 +220,8 @@ def test_an_infeasible_floor_builds_without_it_and_records_the_row_by_identity(m
     assert {frozenset(f["row"]) for f in fb} <= built                               # each fallback is a real book row
     line = ur.bring_back_top_wr_line(meta["bring_back_top_wr"])
     assert line.startswith("BRING-BACK TOP WR: cells A1,B;") and "STUDY-71 ROW(S) BUILT WITHOUT THE TOP-WR FLOOR" in line
-    _, _, exempt = M.bring_back_top_wr_rule({"config": {"union": {"mix": {"mix": meta}}}})
+    _, _, exempt, required = M.bring_back_top_wr_rule({"config": {"union": {"mix": {"mix": meta}}}})
+    assert required is None
     assert exempt == {frozenset(f["row"]) for f in fb}
 
 
@@ -269,7 +272,8 @@ def test_vet_picks_the_lenient_house_row_when_nothing_fits_the_cell():
 
 def test_vet_script_wires_the_rule_record_and_the_reader():
     text = (ROOT / "scripts" / "vet_replace_v4.py").read_text()
-    assert "bb_top, bb_cells, bb_exempt = bring_back_top_wr_rule(src)" in text
+    assert "bb_top, bb_cells, bb_exempt, bb_required = bring_back_top_wr_rule(src)" in text
+    assert "_game_of_id, bb_live, bb_cells, bb_exempt, bb_required)" in text            # 71b: the cap reaches the cell check
     assert 'house_cell = "house" if bb_cells else "A1"' in text and 'fits.add("house")' in text
     assert "bb_live.clear(); bb_live.update({t: i for t, i in bb_top.items() if id_to_dk.get(i) not in E})" in text
     assert 'receipt["bring_back_top_wr_exempt"] = exempt_rows' in text and '"reason": "house fallback"' in text
@@ -302,3 +306,394 @@ def test_the_audit_holds_designated_rows_to_the_rule_and_exempts_fallbacks(tmp_p
     assert "stack_rules" not in _audit_run(tmp_path / "top", b_top, "mix_B", rec())["failed"]
     assert "stack_rules" not in _audit_run(tmp_path / "exempt", b_row, "mix_B", rec([b_row]))["failed"]
     assert "stack_rules" not in _audit_run(tmp_path / "scratched", b_row, "mix_B", rec(top="BINJ"))["failed"]   # proj 0: excluded
+
+
+
+# ================================================================ study 71b: the rows cap (84's definition, production's format)
+CHEAP_TERM = {f"p{k}": 2.0 for k in range(40) if (5000 + 37 * k) < 6000}           # a cheap-style block term on the fixture
+
+
+def _cap_run(monkeypatch, cap, optimize=None, term_rows=0, k=26, spares=15, weights=None):
+    calls = []
+    _install(monkeypatch, calls, optimize(calls) if optimize else None)
+    w = weights or ([3, 3] + [1] * (k - 2))
+    kw = dict(exposure_cap=13, dst_cap=6, fill="rr", spares=spares, bring_back_top_wr=("A1", "B"), bring_back_top_wr_rows=cap)
+    if term_rows:
+        kw.update(term_rows=term_rows, term_bonus=CHEAP_TERM)
+    rows, cells, meta, sp = ur.mix_rows(_frame(), set(), k, 4, 4, 49_000, w, **kw)
+    return rows, cells, meta, sp, calls
+
+
+def test_cap_unset_is_the_merged_flag_exactly(monkeypatch):
+    a = _cap_run(monkeypatch, None)
+    calls = []
+    _install(monkeypatch, calls)
+    b = ur.mix_rows(_frame(), set(), 26, 4, 4, 49_000, [3, 3] + [1] * 24, exposure_cap=13, dst_cap=6, fill="rr", spares=15,
+                    bring_back_top_wr=("A1", "B"))
+    assert a[:4] == b and a[4] == calls
+    assert not {"rows_cap", "floored_rows", "designated_unfloored"} & set(a[2]["bring_back_top_wr"])
+
+
+@pytest.mark.parametrize("cap", [2, 4])
+def test_cap_n_floors_exactly_n_book_rows_and_no_spare(monkeypatch, cap):
+    rows, cells, meta, spares, calls = _cap_run(monkeypatch, cap)
+    bb = meta["bring_back_top_wr"]
+    designated_book = sum(1 for c in cells if c in ("A1", "B"))
+    assert bb["rows_cap"] == cap and bb["rows_floored"] == {"book": cap, "spares": 0} and len(bb["floored_rows"]) == cap
+    assert bb["designated_unfloored"] == designated_book - cap and bb["fallbacks"] == []
+    assert sum(1 for c in calls if c["floor"] is not None) == cap                    # the floor reached the optimizer N times
+    assert all(f["commit_index"] < 26 and f["kind"] == "book" for f in bb["floored_rows"])
+    top = M.top_receivers(list(ur.frame_players(_frame()).values()))
+    opp = {p["id"]: p["opp"] for p in ur.frame_players(_frame()).values()}
+    for f in bb["floored_rows"]:
+        q = next(i for i in f["row"] if int(i[1:]) % 5 == 0 and i.startswith("p"))
+        assert top[opp[q]] in f["row"]
+    assert "rows cap %d" % cap in ur.bring_back_top_wr_line(bb)
+
+
+def test_cap_an_infeasible_floored_solve_does_not_count(monkeypatch):
+    rows, cells, meta, spares, calls = _cap_run(monkeypatch, 4, optimize=lambda c: _failing_floor(c, every=2))
+    bb = meta["bring_back_top_wr"]
+    assert bb["rows_floored"]["book"] == 4 and len(bb["floored_rows"]) == 4             # still exactly N floored
+    assert bb["fallbacks"] and all(f["reason"] == "infeasible with the floor" for f in bb["fallbacks"])
+    assert sum(1 for c in calls if c["floor"] is not None) == 4 + len(bb["fallbacks"])   # the next designated solve got the floor
+    fl = sorted(f["commit_index"] for f in bb["floored_rows"]); fb = sorted(f["commit_index"] for f in bb["fallbacks"])
+    assert not set(fl) & set(fb) and max(fb) < max(fl)                                # fallbacks sit inside the cap's run
+
+
+def test_cap_the_rule_binds_only_the_floored_rows_everywhere(monkeypatch, tmp_path):
+    rows, cells, meta, spares, _ = _cap_run(monkeypatch, 2)
+    top, cset, exempt, required = M.bring_back_top_wr_rule({"config": {"union": {"mix": {"mix": meta}}}})
+    floored = {frozenset(f["row"]) for f in meta["bring_back_top_wr"]["floored_rows"]}
+    assert required == floored and cset == ("A1", "B")
+    unfloored = [r for r, c in zip(rows, cells) if c in ("A1", "B") and frozenset(r) not in floored]
+    assert unfloored and all(not M.rule_applies(r, exempt, required) for r in unfloored)
+    assert all(M.rule_applies(r, exempt, required) for r in floored)
+    # vet: a replacement (a new row) is never "required"; a floored row that lost its top WR fails
+    assert V.cell_violations(ROW_WITHOUT, "A1", POS, TEAM, OPP, GAME, top_wr=TOP, rule_cells=("A1", "B"), required={frozenset(ROW_WITH)}) == \
+        M.shape_violations(ROW_WITHOUT, "A1", POS, TEAM, OPP, GAME)
+    assert "top-WR bring-back missing: O's top receiver o1" in V.cell_violations(
+        ROW_WITHOUT, "A1", POS, TEAM, OPP, GAME, top_wr=TOP, rule_cells=("A1", "B"), required={frozenset(ROW_WITHOUT)})
+
+
+def test_cap_the_audit_binds_only_floored_rows(tmp_path):
+    b_row = ["AQB", "AWR1", "BRB1", "CRB0", "DWR0", "CWR2", "DTE", "EWR1", "G_DST"]
+
+    def rec(floored):
+        blk = {"cells": ["A1", "B"], "top_wr": {"B": {"id": "BWR0", "name": "B top", "salary": 7000}}, "fallbacks": [],
+               "rows_cap": 2, "floored_rows": [{"row": sorted(r)} for r in floored], "designated_unfloored": 1}
+        return {"config": {"union": {"mix": {"mix": {"bring_back_top_wr": blk}}}}}
+    assert "stack_rules" not in _audit_run(tmp_path / "unfloored", b_row, "mix_B", rec([]))["failed"]      # past the cap: plain
+    assert "stack_rules" in _audit_run(tmp_path / "floored", b_row, "mix_B", rec([b_row]))["failed"]      # floored, lost its WR
+
+
+@pytest.mark.parametrize("rows_, cells_, ok", [(None, (), True), (None, ("A1", "B"), True), (2, ("A1", "B"), True),
+                                               (4, ("A1",), True), (0, ("A1", "B"), False), (2, (), False)])
+def test_cap_parse_and_mix_rows_refusals(monkeypatch, rows_, cells_, ok):
+    if ok:
+        assert ur.parse_bring_back_top_wr_rows(rows_, cells_) == rows_
+    else:
+        with pytest.raises(SystemExit, match="--mix-bring-back-top-wr-rows"):
+            ur.parse_bring_back_top_wr_rows(rows_, cells_)
+    _install(monkeypatch, [])
+    with pytest.raises(ValueError, match="bring_back_top_wr_rows"):
+        ur.mix_rows(_frame(), set(), 21, 7, 4, 49_000, W21, exposure_cap=10, dst_cap=5, bring_back_top_wr_rows=2)
+
+
+# ---- parity with the harness: the lab's OWN code (nfl2 c2f5638 = origin/production/s71b-topbb-n-20261008's code commit).
+# term_book (experiments/term_book.py, file sha256 62c2306e..., study 49's, the Week-5 live book's build) and
+# top_bring_back_n (experiments/s71b_topbb_n.py, file sha256 1592a9c8..., 84's row choice) are pasted below BYTE FOR BYTE
+# (test_the_vendored_harness_text_is_the_labs pins each function's text by sha256). They run on stand-ins for the lab's
+# S18 / S24 / S28 / S46: the same cells, quotas, allocate, interleave and block_positions production uses (mix_shapes'
+# verbatim copies, tested in test_mix_shapes.py) and a CapBuilder with the lab's commit contract whose optimize is an
+# OUTCOME ORACLE. Production's stand-in consults the same oracle rule, so when both builds make the same solves in the
+# same order they see the same outcomes; the test compares the build order (block, cell, row index j), the ruled rows
+# (cell, j) and the fallbacks (cell, j). A difference is a parity failure to report to production and 84, never to fix
+# here by editing the vendored text.
+from collections import Counter  # noqa: E402
+from contextlib import contextmanager  # noqa: E402
+from functools import partial  # noqa: E402
+
+HARNESS_TEXT_SHA256 = {"term_book": "36ba2e4016ff02b95f1764394658884297c5d00d397dc067d00cb0e65a1b9b42",
+                       "top_bring_back_n": "4b4977c0971f87ae0d6cc3923ab582fcaf44f5ed025930ccd513e4b704bbfdd6"}
+
+
+class _Oracle:
+    """Which solves fail, call by call: with a1, every A1 solve (a short book); every floor_every-th FLOORED solve (as
+    _failing_floor); every C solve after the first c_ok (C's quota passes to A1)."""
+
+    def __init__(self, floor_every=None, c_ok=None, a1=False):
+        self.floor_every, self.c_ok, self.a1 = floor_every, c_ok, a1
+        self.n_floor = self.n_c = 0
+
+    def fails(self, cell: str, floored: bool) -> bool:
+        if self.a1 and cell == "A1":
+            return True
+        if floored:
+            self.n_floor += 1
+            if self.floor_every and self.n_floor % self.floor_every == 0:
+                return True
+        if cell == "C":
+            self.n_c += 1
+            if self.c_ok is not None and self.n_c > self.c_ok:
+                return True
+        return False
+
+
+class _HStack:                                      # one object per cell: the wrapper finds A1 / B by identity, as the lab's
+    def __init__(self, cell):
+        self.cell = cell
+
+
+class _HLU:
+    def __init__(self, ids):
+        self.ids = ids
+
+
+class _HCapBuilder:
+    """S24.CapBuilder's contract: solve_with calls the module's optimize and COMMITS a solved row (prev / count)."""
+    last = None
+
+    def __init__(self, fr, base, lam, main_cap, dst_cap):
+        self.recs = [{"id": str(i), "obj": 0.0} for i in fr["id"]]
+        self.prev, self.count, self.log = [], Counter(), []
+        _HCapBuilder.last = self                    # the lab's wrapper subclasses this one: record on the base
+
+    def solve_with(self, stack, qb_game_max, pair, extra_bans):
+        lu = S24.optimize(self.recs, stack=stack, banned_lineups=self.prev)
+        if lu is not None:
+            self.prev.append(lu.ids); self.count.update(lu.ids); self.log.append((stack.cell, len(self.prev) - 1))
+        return lu
+
+
+def _h_optimize(oracle):
+    def optimize(recs, stack, banned_lineups, interaction_floor_weights=None, interaction_floor=None):
+        if oracle.fails(stack.cell, interaction_floor_weights is not None):
+            return None
+        return _HLU((f"h{len(banned_lineups)}",))
+    return optimize
+
+
+S18 = types.SimpleNamespace(CELLS={n: (q, _HStack(n), qmax, which) for n, (q, _, qmax, which) in M.MIX_CELLS.items()},
+                            allocate=M.allocate, interleave=M.interleave, pair_games=lambda fr, which: None)
+S28 = types.SimpleNamespace(NAMES=list(M.MIX_CELLS), QUOTAS=[M.MIX_CELLS[n][0] for n in M.MIX_CELLS])
+S46 = types.SimpleNamespace(block_positions=M.block_positions)
+S24 = types.SimpleNamespace(CapBuilder=_HCapBuilder, optimize=None)
+
+
+def term_book(fr, base, term, caps, weights: list[int], k_book: int, n_term: int, k: int) -> tuple[list, list[str], dict]:
+    """Production's term block (union_reselect mix_rows term_rows, 27b946b3) on study 46's block mechanics: one builder
+    state; the live block (k_book - n_term rows) first, study 42's round-robin on the quotas at its size, on `base`;
+    then the term block (n_term rows), the same at its size, on base + term (term: points per frame row, already capped);
+    positions S46.block_positions(k_book, n_term) (the term block takes the first list); each block interleaved on the
+    head weights of ITS positions; the spares after, study 28's, on `base`. Returns (book rows then spares, cells, meta
+    with each row's block: "L", "T" or "S")."""
+    names = S28.NAMES
+    b = S24.CapBuilder(fr, base, 0.0, *caps)          # inside S37.built_with(QB_CAP, ...): the QB cap 5 on every row
+    plain = [float(x) for x in base]
+    termed = [float(x) + float(t) for x, t in zip(base, term)]
+
+    def set_obj(vals):
+        for p, v in zip(b.recs, vals):
+            p["obj"] = v
+
+    def solve(name):
+        _, stack, qmax, which = S18.CELLS[name]
+        return b.solve_with(stack, qmax, S18.pair_games(fr, which), set())
+
+    def rollback(lu):                                  # undo solve_with's commit: the state is as before the peek
+        b.prev.pop(); b.count.subtract(lu.ids); b.count += Counter()
+
+    def commit(lu):
+        b.prev.append(lu.ids); b.count.update(lu.ids)
+
+    def fill_block(n_rows: int) -> tuple[dict, list[int], dict]:
+        """Study 42's round-robin (mix_fill's "rr" loop) on the quotas at the block's own size, on the shared state."""
+        target = S18.allocate(S28.QUOTAS, n_rows)
+        order = [names[i] for i in sorted(range(len(names)), key=lambda i: (-target[i], i))]
+        left = dict(zip(names, target)); rows: dict = {n: [] for n in names}
+        m = {"passes": 0, "dropped": 0, "fill_steps": 0}; rr_at = 0
+        while sum(left.values()) > 0:
+            m["fill_steps"] += 1
+            n = next(c for c in order[rr_at:] + order[:rr_at] if left[c] > 0)
+            rr_at = (order.index(n) + 1) % len(order)
+            lu = solve(n)
+            if lu is None:                             # the cell cannot solve on this state: its quota passes to A1
+                if n == "A1":
+                    m["dropped"] += left["A1"]; left["A1"] = 0
+                else:
+                    m["passes"] += left[n]; left["A1"] += left[n]; left[n] = 0
+                continue
+            rollback(lu)
+            commit(lu); rows[n].append(lu); left[n] -= 1
+        return rows, target, m
+
+    t_pos, live_pos = S46.block_positions(k_book, n_term)
+    set_obj(plain)
+    live_rows, live_t, live_m = fill_block(len(live_pos))            # the live block first, plain
+    set_obj(termed)
+    term_rows, term_t, term_m = fill_block(len(t_pos)) if t_pos else ({n: [] for n in names}, [0] * len(names), {})
+    set_obj(plain)                                                    # the spares on the plain objective
+    slots: dict = {}
+    for P, rows, tag in ((live_pos, live_rows, "L"), (t_pos, term_rows, "T")):     # each block on its own positions
+        got = [len(rows[n]) for n in names]
+        seq = S18.interleave(got, S28.QUOTAS, [weights[p] for p in P])
+        ptr = [0] * len(names)
+        for p, j in zip(P, seq):
+            slots[p] = (rows[names[j]][ptr[j]], names[j], tag); ptr[j] += 1
+    book, cells, blocks = [], [], []
+    for p in sorted(slots):                            # a short block leaves its last positions empty: the book closes up
+        lu, c, t = slots[p]; book.append(lu); cells.append(c); blocks.append(t)
+    spare_target = S18.allocate(S28.QUOTAS, max(0, k - len(book)))         # study 28's spares, unchanged
+    for i in sorted(range(len(names)), key=lambda i: (-spare_target[i], i)):
+        for _ in range(spare_target[i]):
+            cell, lu = names[i], solve(names[i])
+            if lu is None:
+                cell, lu = "A1", solve("A1")
+            if lu is None:
+                break
+            book.append(lu); cells.append(cell); blocks.append("S")
+    return book, cells, {"blocks": blocks, "term_positions": t_pos,
+                         "live_block": {"target_rows": dict(zip(names, live_t)), "cell_rows": {n: len(live_rows[n]) for n in names}, **live_m},
+                         "term_block": {"target_rows": dict(zip(names, term_t)), "cell_rows": {n: len(term_rows[n]) for n in names}, **term_m},
+                         "cell_rows": {n: len(live_rows[n]) + len(term_rows[n]) for n in names},
+                         "passes": live_m.get("passes", 0) + term_m.get("passes", 0),
+                         "dropped": live_m.get("dropped", 0) + term_m.get("dropped", 0)}
+
+
+@contextmanager
+def top_bring_back_n(cells: tuple[str, ...], qb_to_wr: dict[str, str], n_rows: int, k_book: int):
+    """Study 71's wrapper with the row cap: a solve with one of `cells`' StackRules (by identity) carries the interaction
+    floor only while j < k_book and fewer than n_rows book rows have been committed under the rule; infeasible -> the plain
+    solve, recorded, not counted. Yields the class (`satisfied` / `unsatisfied` lists of (cell, j))."""
+    orig_cls, orig_opt = S24.CapBuilder, S24.optimize
+    target = {id(S18.CELLS[c][1]): c for c in cells}
+
+    class TopBBNBuilder(orig_cls):
+        satisfied: list = []
+        unsatisfied: list = []
+
+        def __init__(self, fr, base, lam, main_cap, dst_cap):
+            super().__init__(fr, base, lam, main_cap, dst_cap)
+            ids = {str(p["id"]) for p in self.recs}
+            self.pairs = {(q, w): 1.0 for q, w in qb_to_wr.items() if q in ids and w in ids}
+
+        def solve_with(self, stack, qb_game_max, pair, extra_bans: set):
+            cell = target.get(id(stack))
+            j = len(self.prev)
+            if cell is None or j >= k_book or len(type(self).satisfied) >= n_rows:
+                return super().solve_with(stack, qb_game_max, pair, extra_bans)
+            lu = None
+            if self.pairs:
+                S24.optimize = partial(orig_opt, interaction_floor_weights=self.pairs, interaction_floor=1.0)
+                try:
+                    lu = super().solve_with(stack, qb_game_max, pair, extra_bans)
+                finally:
+                    S24.optimize = orig_opt
+            if lu is not None:
+                type(self).satisfied.append((cell, j))
+                return lu
+            type(self).unsatisfied.append((cell, j))
+            return super().solve_with(stack, qb_game_max, pair, extra_bans)
+
+    TopBBNBuilder.satisfied, TopBBNBuilder.unsatisfied = [], []
+    S24.CapBuilder = TopBBNBuilder
+    try:
+        yield TopBBNBuilder
+    finally:
+        S24.CapBuilder, S24.optimize = orig_cls, orig_opt
+
+
+def test_the_vendored_harness_text_is_the_labs():
+    import ast
+    src = (ROOT / "tests" / "test_s71_bring_back_top_wr.py").read_text()
+    lines = src.splitlines(keepends=True)
+    for node in ast.parse(src).body:
+        if isinstance(node, ast.FunctionDef) and node.name in HARNESS_TEXT_SHA256:
+            start = min([node.lineno] + [d.lineno for d in node.decorator_list])
+            text = "".join(lines[start - 1:node.end_lineno])
+            assert hashlib.sha256(text.encode()).hexdigest() == HARNESS_TEXT_SHA256[node.name], node.name
+
+
+def _harness_build(cap, n_term, oracle, k_book=26, k=41):
+    fr = _frame()
+    S24.optimize = _h_optimize(oracle)
+    with top_bring_back_n(("A1", "B"), {"p0": "p2"}, cap, k_book) as TB:
+        book, cells, meta = term_book(fr, [0.0] * len(fr), [0.0] * len(fr), (13, 6), [3, 3] + [1] * (k_book - 2), k_book, n_term, k)
+        log = list(_HCapBuilder.last.log)
+    n_live, n_t = sum(meta["live_block"]["cell_rows"].values()), sum(meta["term_block"]["cell_rows"].values())
+    tags = ["L"] * n_live + ["T"] * n_t + ["S"] * (len(log) - n_live - n_t)
+    committed = set(log)
+    return ([(t, c, j) for t, (c, j) in zip(tags, log)], [tuple(x) for x in TB.satisfied],
+            [tuple(x) for x in TB.unsatisfied if tuple(x) in committed], n_live + n_t)
+
+
+def _cell_of(stack) -> str:
+    return next(n for n, (_, rules, _, _) in M.MIX_CELLS.items() if all(getattr(stack, f) == v for f, v in rules.items()))
+
+
+def _cheap_file_term(tmp_path, points=2.0):
+    """A cheap-block file in cheap_block_file.py's columns for the fixture (every skill player; under $6,000 at +POINTS,
+    pred_own = POINTS / 0.20), read through production's own_bonus and capped as the union does (tilt 0.20, cap POINTS)."""
+    fr = _frame(); sk = fr[fr.pos != "DST"]
+    b = np.where(sk.salary < 6000, points, 0.0)
+    f = tmp_path / "cheap2.csv"
+    pd.DataFrame({"dk_player_id": range(1, len(sk) + 1), "id": sk.id, "display_name": sk.name, "pos": sk.pos, "team": sk.team,
+                  "opp": sk.opp, "pred_own": np.round(b / 0.20, 4), "bonus_points": b}).to_csv(f, index=False)
+    raw, _ = ur.own_bonus(f, fr, set(), 0.20, 0.5)
+    term = {i: min(v, points) for i, v in raw.items()}
+    assert term and set(term.values()) == {points}
+    return term
+
+
+def _production_build(monkeypatch, tmp_path, cap, n_term, oracle):
+    calls = []
+
+    def optimize(*args, **kw):
+        if oracle.fails(_cell_of(kw["stack"]), kw.get("interaction_floor_weights") is not None):
+            return None
+        return inner(*args, **kw)
+    inner = _stand_in(calls)
+    _install(monkeypatch, calls, optimize)
+    kw = dict(exposure_cap=13, dst_cap=6, fill="rr", spares=15, bring_back_top_wr=("A1", "B"), bring_back_top_wr_rows=cap)
+    if n_term:
+        kw.update(term_rows=n_term, term_bonus=_cheap_file_term(tmp_path))
+    rows, cells, meta, spares = ur.mix_rows(_frame(), set(), 26, 4, 4, 49_000, [3, 3] + [1] * 24, **kw)
+    order = [tuple(c.split(":")) if ":" in c else ("L", c) for c in meta["commit_order"]]
+    built = [(t, c, j) for j, (t, c) in enumerate(order)] + [("S", c, len(order) + s) for s, (_, c) in enumerate(spares)]
+    bb = meta["bring_back_top_wr"]
+    return (built, [(f["cell"], f["commit_index"]) for f in bb["floored_rows"]],
+            [(f["cell"], f["commit_index"]) for f in bb["fallbacks"]], len(rows), meta)
+
+
+@pytest.mark.parametrize("cap, n_term, oracle_kw", [
+    (2, 8, {}),                                     # Week 5's configuration (the cheap +2 block on 8 rows), TOPBB_N2
+    (4, 8, {}),                                     # TOPBB_N4
+    (4, 8, {"floor_every": 2}),                     # infeasible floored solves: re-solved plain, not counted
+    (4, 8, {"floor_every": 3, "c_ok": 3}),          # and C failing: its quota passes to A1 (both blocks, the spares)
+    (3, 0, {"c_ok": 2}),                            # no block: production's plain round-robin fill
+    (9, 8, {"a1": True}),                           # a SHORT book: the first spares sit at j < 26 (84's "book")
+])
+def test_cap_parity_with_the_labs_own_term_book_and_row_choice(monkeypatch, tmp_path, cap, n_term, oracle_kw):
+    built_h, sat, unsat, n_book_h = _harness_build(cap, n_term, _Oracle(**oracle_kw))
+    built_p, floored, fallbacks, n_book_p, meta = _production_build(monkeypatch, tmp_path, cap, n_term, _Oracle(**oracle_kw))
+    assert n_book_p == n_book_h
+    assert built_p[:n_book_p] == built_h[:n_book_h]                                # the same book, built in the same order
+    if n_book_p == 26:
+        assert built_p == built_h                                                  # and the same 15 spares
+    assert floored == sat and fallbacks == unsat                                   # the same ruled rows and fallbacks, by j
+    assert len(floored) == cap and all(j < 26 for _, j in floored)
+    if oracle_kw.get("floor_every"):
+        assert fallbacks and all(f["reason"] == "infeasible with the floor" for f in meta["bring_back_top_wr"]["fallbacks"])
+    if oracle_kw.get("a1"):                                                        # 84's j < K_book, not the phase flag:
+        kinds = {f["commit_index"]: f["kind"] for f in meta["bring_back_top_wr"]["floored_rows"]}
+        assert n_book_p < 26 and any(kinds[j] == "spare" for _, j in floored)      # a spare at j < 26 took the rule
+
+
+def test_cap_the_row_index_rule_with_a_full_book_floors_no_spare(monkeypatch, tmp_path):
+    """With a full book the spares start at j = 26: under a cap no spare takes the rule, whatever the cap."""
+    built, floored, _, n_book, meta = _production_build(monkeypatch, tmp_path, 40, 8, _Oracle())
+    bb = meta["bring_back_top_wr"]
+    designated = [j for _, c, j in built if c in ("A1", "B")]
+    assert n_book == 26 and [j for _, j in floored] == [j for j in designated if j < 26]
+    assert bb["rows_floored"]["spares"] == 0 and bb["designated_unfloored"] == 0
