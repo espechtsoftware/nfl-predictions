@@ -35,6 +35,12 @@ Q = [c[0] for c in M.MIX_CELLS.values()]
 
 
 # ---------------------------------------------------------------- a 6-game fixture (12 teams: QB, RB, WR, WR, TE, DST)
+# Each team's players sit TOGETHER in the objective order (team bases 2 points apart, offsets within 1.2), so a 9-player
+# window usually holds two or three pass catchers of one team: the rule BINDS here (test_the_rule_binds_on_this_fixture;
+# the first fixture, which spread a team's catchers 5 points apart, left it vacuous -- the 10-09 retest).
+OFFSET = {0: 1.5, 1: 0.3, 2: 1.2, 3: 1.1, 4: 1.0, 5: -4.0}
+
+
 def frame() -> pd.DataFrame:
     rows = []
     for t in range(12):
@@ -42,7 +48,8 @@ def frame() -> pd.DataFrame:
         for j, pos in enumerate(("QB", "RB", "WR", "WR", "TE", "DST")):
             pid = f"{team}.{pos}{j}"
             rows.append({"id": pid, "name": pid, "pos": pos, "team": team, "opp": opp, "game_id": g,
-                         "salary": 4000 + 100 * ((7 * t + 3 * j) % 40), "mean_projection": 5.0 + ((11 * t + 5 * j) % 23)})
+                         "salary": 4000 + 100 * ((7 * t + 3 * j) % 40),
+                         "mean_projection": 5.0 + 2.0 * ((7 * t) % 12) + OFFSET[j]})
     return pd.DataFrame(rows)
 
 
@@ -101,7 +108,9 @@ def production_opt(calls, fail):
             per = 1
             if fail():
                 return None
-        return T71.LU(pick(pool, objective_col, len(banned_lineups), bans, per))
+        lu = pick(pool, objective_col, len(banned_lineups), bans, per)
+        calls[-1]["ids"] = sorted(str(p["id"]) for p in lu)
+        return T71.LU(lu)
     return optimize
 
 
@@ -156,6 +165,26 @@ def test_the_first_n_b_c_book_solves_hold_one_catcher_per_team(monkeypatch, n, t
     assert all(b["row_sha256"] == hashlib.sha256(",".join(b["row"]).encode()).hexdigest() for b in oc["ruled_rows"])
     assert cells == off_cells                                                              # the cells and positions are unchanged
     assert ur.one_catcher_line(oc) == f"ONE CATCHER: {n} rows; ruled {n}, plain 0"
+
+
+@pytest.mark.parametrize("term", [True, False])
+def test_the_rule_binds_on_this_fixture(monkeypatch, term):
+    """Non-vacuity (production's spec 10-09): at the FIRST ruled j (the state before it is the same with and without the
+    rule) the OFF build's row holds two WR / TE of one team and the ruled row differs and holds none; OFF holds such a pair
+    at >= 3 of the 8 ruled j's; the books differ. So the parity below compares CONSTRAINED rows, not two copies of the
+    plain pick. (The stand-in ignores the stack rules, so "a pair away from the QB" is not defined in it; the laptop's W4
+    real-book check reads the non-QB pairs.)"""
+    fr = frame()
+    off_rows, _, _, _, off_calls = build(monkeypatch, 0, term=term)
+    on_rows, _, meta, _, on_calls = build(monkeypatch, 8, term=term)
+    off_at = {c["j"]: c["ids"] for c in off_calls}                                          # rr: one call per committed j
+    ruled = meta["one_catcher"]["ruled_rows"]
+    first = ruled[0]
+    assert max_per_team(off_at[first["commit_index"]], fr) >= 2
+    assert first["row"] != off_at[first["commit_index"]] and max_per_team(first["row"], fr) <= 1
+    assert sum(1 for b in ruled if max_per_team(off_at[b["commit_index"]], fr) >= 2) >= 3
+    assert all(max_per_team(b["row"], fr) <= 1 for b in ruled)
+    assert [sorted(r) for r in on_rows] != [sorted(r) for r in off_rows]
 
 
 def test_an_infeasible_ruled_solve_is_built_plain_and_the_slot_counts(monkeypatch):
