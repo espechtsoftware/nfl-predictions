@@ -8327,3 +8327,97 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
     - the structural gap is large (his book has about a 4% WR flex, the top 1% about 30%);
     - the lean holds in both read seasons;
     - a paper arm on his FP book tests the rule on his real base mix, which the harness could not.
+
+## Addendum 174 (2026-10-08): study 76 (QB + 1 with two bring-backs on the first 4 cell-B rows, the W4 winner's shape, the outside reviewer's test, in the harness): NO DIFFERENCE, leaning negative on the read (−1.4; seats ×0.89), not contradicted on 2022 (+3.7): ENTERABLE by the rule (his decision; no gain shown); recommendation off
+
+**Setup.**
+- **The question.** The operator, 10-08 night: "please look at the patterns of the winners over the past few weeks and
+  consider a variety of different tests we can do throughout the night". The outside reviewer measured the 2026 W1–4
+  Millionaires (aggregates only):
+  - 4+ players from one game: 41% of the top 1% against 29% of the field;
+  - the W4 winner was QB + 1 with 4+ from one game;
+  - his book reaches 4 in the QB's game only through A1 (QB + 2 + a bring-back).
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`; study 73
+  sha-pinned):
+  - LIVE_CB (the reference).
+  - B2BB4, the single decision: the first 4 cell-B book solves in build order. Each is solved at B's rules with
+    `bring_back_min` 2 and `qb_game_max` 4, i.e. QB + 1 + two opponents. The rows are dealt at book positions 2, 6, 12,
+    16, all big seats.
+  - Exploratory B2BB_ALL: all 7 B book solves, the 7th at non-big index 22.
+- **Preregistration:** `reports/2026-10-08-prereg-study76-two-bring-backs.md` (the outside reviewer's DRAFT `2c43582e`;
+  FROZEN `4eb877a7`, 10-08 21:56 CDT, before any scored bank).
+- **Panel:** banks 1653–1658, B 20,000, seed 20261121.
+- **Read:** the reader `0e436117`; READ `8c915862` (lab `7121c4c6`). The confirmatory census (`8950c309`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop** at `7121c4c6`: the raw files 1653–1658 pass `sha256sum -c` against
+  `RAW_s76_run.sha256`; the READ is `8c915862` and the confirmatory census `02cb8e7b` (cmp-identical).
+- **The prior, stated first:** NO DIFFERENCE.
+- **Census** (the binding census on bank 1406, 53 slate-banks):
+  - B2BB4: 4 of 4 ruled rows on every slate-bank, 0 infeasible.
+  - Rows with 4+ from the QB's game: 9.15 → 13.06 of 26.
+  - QB + 2 rows 12 in every arm.
+  - Projection cost −0.07 per row.
+  - Rows shared with LIVE_CB 4.1; dealt identical 0.000.
+  - The confirmatory census on the scored banks (318 slate-banks) agrees: 4 of 4 ruled, 0 infeasible, all at 2, 6, 12,
+    16; rows with 4+ from the QB's game 9.19 → 13.05; cost −0.06; rows shared 3.7.
+- **Disclosed (the derived-seed scan, the laptop):** bank 1653's simulation base (1703) coincides with bootstrap_seed=1703 in unrelated August production chains (the G2 QB-gumbel-factor and TD-ledger protocols). A seed coincidence, not a read of these banks; the lab repo is clean.
+
+**Reader output (verbatim):**
+```
+STUDY 76 READER  sha256 0e4361177cb2855fc81a6fd85502ef063a5ff594c4d0b7d2b9563cc943295aa2
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1653, 1654, 1655, 1656, 1657, 1658]  B 20000  seed 20261121  one decision arm against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the two-bring-back rule's constants, study 73's sha (twice, in the slots of study 48's and study 53's), live settings, QB cap, objective): [["LIVE_CB", "B2BB4", "B2BB_ALL"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "bring_back_min": 2, "cell": "B", "n_rows": {"B2BB4": 4, "B2BB_ALL": 99}, "qb_game_max": 4, "rows": "the first n_rows B book solves in build order; infeasible -> B's own rules, recorded"}, "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== B2BB4 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.01424  [-0.04978, +0.02011] (two-sided 0.95)  seasons 2023 -0.02949, 2024 +0.00102
+  GUARD 1 mean entry pct -0.00006  one-sided lower -0.00422  (must exceed -0.015)
+  GUARD 2 expected big seats 0.45628 vs 0.51032  ratio 0.894  (must be >= 0.80)
+  B2BB4 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.03664  [-0.00956, +0.08378] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TRIAL SUMMARY: B2BB4 ENTERABLE (his decision; one construction change a week)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  B2BB_ALL - LIVE_CB (v2, 2023-24): -0.00447  [-0.04376, +0.03291]  seasons 2023 -0.02372, 2024 +0.01477
+  B2BB_ALL - LIVE_CB (v2, 2022): +0.01694  [-0.03200, +0.06728]  seasons 2022 +0.01694
+  B2BB4 - LIVE_CB (the l02 field, 2023-24): -0.00994  [-0.04737, +0.02559]  seasons 2023 -0.02761, 2024 +0.00774
+  B2BB4 - LIVE_CB (the l02 field, 2022): +0.03728  [-0.01267, +0.08856]  seasons 2022 +0.03728
+  B2BB_ALL - LIVE_CB (the l02 field, 2023-24): -0.00437  [-0.04463, +0.03377]  seasons 2023 -0.02560, 2024 +0.01685
+  B2BB_ALL - LIVE_CB (the l02 field, 2022): +0.01650  [-0.03593, +0.07055]  seasons 2022 +0.01650
+  B2BB4 ruled solves built plain (infeasible): 0 of 1272 over 318 slate-banks
+  B2BB_ALL ruled solves built plain (infeasible): 0 of 2226 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.33024  expected big seats 0.51032  P(>=2) 0.11290  entry pct 0.51226  |  l02: P(>=1 big) 0.35832
+               book: projection per row 127.69  salary 49964  QB + 2 rows 12.0 of 26  rows with 4+ from the QB's game 9.2  B rows with 2+ bring-backs 0.0
+  B2BB4        v2: P(>=1 big) 0.31600  expected big seats 0.45628  P(>=2) 0.09955  entry pct 0.51220  |  l02: P(>=1 big) 0.34839
+               book: projection per row 127.63  salary 49962  QB + 2 rows 12.0 of 26  rows with 4+ from the QB's game 13.1  B rows with 2+ bring-backs 4.0
+  B2BB_ALL     v2: P(>=1 big) 0.32576  expected big seats 0.48140  P(>=2) 0.11030  entry pct 0.51184  |  l02: P(>=1 big) 0.35395
+               book: projection per row 127.57  salary 49960  QB + 2 rows 12.0 of 26  rows with 4+ from the QB's game 16.1  B rows with 2+ bring-backs 7.0
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.21690  expected big seats 0.30461  P(>=2) 0.06901  entry pct 0.46166  |  l02: P(>=1 big) 0.23493
+               book: projection per row 131.84  salary 49963  QB + 2 rows 12.0 of 26  rows with 4+ from the QB's game 9.2  B rows with 2+ bring-backs 0.0
+  B2BB4        v2: P(>=1 big) 0.25354  expected big seats 0.39828  P(>=2) 0.08917  entry pct 0.45969  |  l02: P(>=1 big) 0.27222
+               book: projection per row 131.76  salary 49958  QB + 2 rows 12.0 of 26  rows with 4+ from the QB's game 12.9  B rows with 2+ bring-backs 4.0
+  B2BB_ALL     v2: P(>=1 big) 0.23384  expected big seats 0.38130  P(>=2) 0.08841  entry pct 0.46006  |  l02: P(>=1 big) 0.25144
+               book: projection per row 131.68  salary 49957  QB + 2 rows 12.0 of 26  rows with 4+ from the QB's game 15.9  B rows with 2+ bring-backs 7.0
+```
+
+**Reading.**
+- **B2BB4 is slightly worse on the deciding seasons:**
+  - −1.4 points [−5.0, +2.0] (2023 −2.9, 2024 +0.1);
+  - expected big seats ×0.89 (0.456 against 0.510); P(≥ 2) 0.100 against 0.113;
+  - guard 1 holds (−0.0042).
+- **2022 leans the other way: +3.7 [−1.0, +8.4].** Study 51's rule therefore says not contradicted: ENTERABLE, his
+  decision ("no harm shown and no gain shown"). The earlier field (l02) agrees: −1.0 on the read, +3.7 on 2022.
+- **The concentration is real in the book** (rows with 4+ from the QB's game 9.2 → 13.1 of 26), so the lever was pulled
+  and did not pay on 2023–24.
+- **The picture matches tonight's other forced-stack ideas** (studies 71, 71b, 74). Each reads at or below the live book
+  on 2023–24 and above it on 2022.
+- **The exploratory B2BB_ALL** (all 7 B rows) reads −0.4 (2022 +1.7).
+- **Recommendation:** off. The rule permits it, but it shows no gain and costs about a tenth of the expected big seats on
+  the read.
