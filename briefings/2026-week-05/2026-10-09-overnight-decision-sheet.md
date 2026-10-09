@@ -9,7 +9,8 @@ test. **Every result below was read by the reviewer and re-run by the laptop wit
 - **84, the tight-end ban with them, with each, and alone:** by the order we read from your decisions, **nothing new enters this week.** Three versions passed your rule (the three without the ban +1.0; ban + one-catcher +0.3; ban + receiver-in-the-flex +3.3), but the order did not select them, and the ban alone came out −1.2.
 - **The most important finding of the night:** the SAME rule gave very different answers on two different sets of test draws. The tight-end ban alone read **+4.7** on one set (study 81) and **−1.2** on another (study 84); the three rules together read −1.9 and then +1.0. So the test's own ranges are too narrow, and **none of tonight's leans (77, 79, 75, the tight-end ban) is bigger than that run-to-run noise.**
 - **My recommendation now: keep the live book for Week 5** (with this week's cheap-player boost, as armed), and put anything you want to keep watching into the no-money paper test on the real weekly fields, where new games decide.
-- **Still running, as information for you:** study 85 (your experiment book) and study 86 (no player over $7,900).
+- **Still running, as information for you:** study 85 (your experiment book), study 86 (no player over $7,900) and study 87 (your second experiment book: "QB from one of top 4 point total games / TE <= 5000 / D <= 3000 / 1 WR <= 4500 / Top receiver same team as QB / WR or RB in Flex", at least one cheap receiver).
+- **How we will treat their results:** as information. If you want to act on one, it is first re-tested on a second, separate set of test draws (same code), and both answers go on your sheet before any switch is built. That is the lesson of study 84.
 - **On your real book** (no scores looked at): 85's two price limits alone cost about 0.7 projected points per lineup and change 24 of 26 lineups; the $7,900 cap costs about 0.2 and changes 17.
 
 ## Update: your decision (early morning)
