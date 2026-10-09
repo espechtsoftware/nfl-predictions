@@ -920,6 +920,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             meta["bring_back_top_wr"].update({"rows_cap": int(bb_cap), "floored_rows": bb_state["floored_rows"],
                                               "designated_unfloored": int(bb_state["designated_unfloored"])})
     if qa_n:                                                   # study 77's receipt block (absent when off)
+        qb_alone_close(qa_state, cell_of, spare_rows, commit_order)            # fail closed on a broken record (84, 10-09)
         meta["qb_alone"] = {"rows_cap": qa_n, "ruled": qa_state["ruled"], "plain": qa_state["plain"], "from_cell": MS_QA_FROM,
                             "shape": MS_QA, "rules": {"stack": qa_rules, "qb_game_max": qa_qmax, "second_game_pair": qa_pair},
                             "book_rows_tagged": int(sum(c == MS_QA for c in cell_of))}
@@ -1092,6 +1093,26 @@ def parse_bring_back_top_wr_rows(rows: int | None, cells: tuple[str, ...]) -> in
     if rows < 1 or not cells:
         raise SystemExit(f"--mix-bring-back-top-wr-rows {rows}: an integer >= 1, with --mix-bring-back-top-wr (study 71b)")
     return int(rows)
+
+
+def qb_alone_close(state: dict, cell_of: list[str], spare_rows: list, commit_order: list[str]) -> None:
+    """Study 77's record, checked before mix_rows returns (84's review 10-09: the build itself fails closed): no C0 solve
+    left uncommitted (a peek without a commit would mark the NEXT committed row, another cell's, as ruled); every attempt
+    ruled or plain; the rows labelled C0 (book and spares) exactly the ruled rows; every ruled BOOK j (j < len(commit_order);
+    a spare at j < k exists only in a short book, which the union refuses after) a C solve. ValueError otherwise. Correct today because the flag refuses every fill but rr, where each peek is committed at once."""
+    bad = []
+    if state["pending"] is not None:
+        bad.append(f"a C0 solve at j {state['pending']} was never committed")
+    if len(state["ruled"]) + len(state["plain"]) != state["used"]:
+        bad.append(f"{state['used']} attempts but {len(state['ruled'])} ruled + {len(state['plain'])} plain")
+    tagged = sum(c == MS_QA for c in cell_of) + sum(c == MS_QA for _, c in spare_rows)
+    if tagged != len(state["ruled"]) or len(state["rows"]) != len(state["ruled"]):
+        bad.append(f"{tagged} rows labelled {MS_QA} for {len(state['ruled'])} ruled ({len(state['rows'])} identities)")
+    wrong = [j for _, j in state["ruled"] if j < len(commit_order) and commit_order[j].split(":")[-1] != MS_QA_FROM]
+    if wrong:
+        bad.append(f"ruled rows at j {wrong} are not {MS_QA_FROM} solves")
+    if bad:
+        raise ValueError("QB ALONE RECORD BROKEN: " + "; ".join(bad))
 
 
 def qb_alone_max(quotas: list[float], k: int, term_rows: int = 0) -> int:
@@ -1314,7 +1335,7 @@ def main(argv: list[str] | None = None) -> int:
     bb_cells = parse_bring_back_top_wr(a.mix_bring_back_top_wr, a.main, a.mix_portfolio)
     bb_rows = parse_bring_back_top_wr_rows(a.mix_bring_back_top_wr_rows, bb_cells)
     qa_g = parse_qb_alone_rows(a.mix_qb_alone_rows, a.main, a.mix_portfolio, a.mix_fill, a.mix_cover_games, a.mix_rs_rows, a.entries,
-                               a.winner_select, list((cell_quotas or {n: c[0] for n, c in MIX_CELLS.items()}).values()),
+                               a.winner_select, [cell_quotas[n] if cell_quotas else c[0] for n, c in MIX_CELLS.items()],
                                a.term_block_rows)
     if a.main == "mix" and (a.mix_plan is None or not a.mix_plan.is_file()):
         raise SystemExit(f"--main mix needs --mix-plan (the week's contests.json; got {a.mix_plan})")

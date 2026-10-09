@@ -438,3 +438,37 @@ def test_parity_detects_a_wrong_stack_bound(monkeypatch):
     lineups_h, _, ruled_h, _, _ = harness(monkeypatch, 3, wrapper=ns["qb_alone"])
     lineups_p, _, ruled_p, _ = production(monkeypatch, 3)
     assert ruled_p == ruled_h and lineups_p != lineups_h
+
+
+# ---------------------------------------------------------------- the build fails closed on a broken record (84, 10-09)
+def _state(ruled, plain=(), used=None, pending=None):
+    return {"used": len(ruled) + len(plain) if used is None else used, "pending": pending, "ruled": [list(x) for x in ruled],
+            "plain": [list(x) for x in plain], "rows": {frozenset({f"r{j}"}) for _, j in ruled}}
+
+
+def test_a_clean_record_passes():
+    ur.qb_alone_close(_state([("C", 2), ("C", 6)], [("C", 9)]), ["A1", "C0", "B", "C0", "C"], [(["s"], "C")],
+                      ["A1", "B", "C", "A2", "A1", "B", "C", "A1", "B", "C"])
+
+
+@pytest.mark.parametrize("state, cells, order, msg", [
+    (_state([("C", 2)], pending=5), ["C0"], ["A1", "B", "C"], "never committed"),               # a peek with no commit
+    (_state([("C", 2)], used=3), ["C0"], ["A1", "B", "C"], "3 attempts but 1 ruled"),
+    (_state([("C", 2), ("C", 3)]), ["C0", "B"], ["A1", "B", "C", "A1"], "1 rows labelled C0 for 2 ruled"),
+    (_state([("C", 2), ("C", 3)]), ["C0", "C0"], ["A1", "B", "C", "A1"], r"ruled rows at j \[3\] are not C solves"),
+])
+def test_a_leaked_or_broken_record_raises(state, cells, order, msg):
+    """84's leak: a C0 peek left uncommitted marks the NEXT committed row (another cell's, here A1 at j 3) as ruled; the
+    build raises instead of returning a book whose record is wrong."""
+    with pytest.raises(ValueError, match="QB ALONE RECORD BROKEN: .*" + msg):
+        ur.qb_alone_close(state, cells, [], order)
+
+
+def test_mix_rows_runs_the_record_check(monkeypatch):
+    called = []
+    real = ur.qb_alone_close
+    monkeypatch.setattr(ur, "qb_alone_close", lambda *a: (called.append(a), real(*a)))
+    build(monkeypatch, 3)
+    assert len(called) == 1
+    called.clear(); build(monkeypatch, 0)
+    assert called == []                                                                     # off: never called
