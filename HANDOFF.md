@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (14:55 CDT) — laptop: his replay of the live version on this season (W3–W4); 6q acked; 91 merged; study 90 restarting
+
+- **The replay** (`reports/2026-10-09-package-replay/`, driver `515c0313`, report `5bef2c17`, sent to him). Descriptive,
+  partly in-sample; W1–2 cannot be built (no point-in-time ownership).
+  - **W4** (FP inputs), limited-entry: T50 53.7 pct / 8 top-10% / 2 cashes / 0.19×; PKG 55.4 / 13 / 3 / 0.29×; **PKGRR (armed)
+    58.7 / 20 / 6 / 0.57×**; entered 45.0 / 6 / 2 / 0.19×.
+  - **W3** (approximate): 43.7 / 40.8 / 41.4, a wash.
+  - No big win in any arm.
+  - The books are in `~/moneygate/books/w{3,4}/R10-*`; dollars in `~/private/moneygate/replay-10-09-dollars.json`.
+- **Study 38 6q** (lab `16d7b8fc`, module `5ad07e99`; prereg merged `7dc00df1`): acked. The gate pins `5ad07e99`; s38-prod-pin is at
+  FRIDAY_HEAD `f5f96468`.
+- **Study 91 records merged** (`2d5640d8`: Addendum 188; LEDGER `2515e42b`; the outside reviewer's limited-entry analysis,
+  aggregates).
+- **The machine:** back to the reviewer for study 90 (frozen 13:29, banks 1992–2003).
+- **Still today:** 16:33, the FP capture + the evening `--check` (scratch copy, Saturday's TERM settings); it must show the
+  package (0.35, own cap 15) AND ROW_RULES te1_low1.
+
 ## 2026-10-09 (14:45 CDT) — OPERATOR: test 2 GO LIVE (after the transfer caveat); the row rules merged, armed; FRIDAY_HEAD f5f96468
 
 - **Study 91 READ** (lab `a8024c8a`, READ_s91 `8672e057`) was reproduced byte-identically; the confirmatory census `48b71f9b`
