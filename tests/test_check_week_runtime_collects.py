@@ -251,6 +251,24 @@ def test_union_mix_qb_alone_rows_is_only_3_and_one_lever_a_week(tmp_path):
     assert not any("SECOND construction change" in f for f in _failures(_run(env)))   # no block: the one lever is the change
 
 
+def test_study83_rows_only_as_the_exact_combination(tmp_path):
+    """Study 83: the one-catcher and WR-flex rows are allowed only as QB alone 3 + one catcher 14 + flex 3 (never alone, never
+    another dose); on top of the live term block the combination still needs his recorded decision."""
+    env = _healthy(tmp_path); env.update({"UNION_MAIN": "mix", "UNION_MIX_PORTFOLIO": "mix", "UNION_MIX_FILL": "rr"})
+    env["UNION_MIX_ONE_CATCHER_ROWS"] = "14"
+    assert any("only study 83's combination" in f for f in _failures(_run(env)))                    # alone
+    env["UNION_MIX_QB_ALONE_ROWS"] = "3"; env["UNION_MIX_FLEX_WR_ROWS"] = "8"
+    assert any("only study 83's combination" in f for f in _failures(_run(env)))                    # another dose
+    env["UNION_MIX_FLEX_WR_ROWS"] = "3"
+    assert not any("only study 83's combination" in f for f in _failures(_run(env)))                # the triple
+    env["UNION_TERM_BLOCK_ROWS"] = "8"
+    assert any("is a SECOND construction change this week" in f for f in _failures(_run(env)))
+    env["SECOND_CHANGE_DECISION"] = "7473786e"
+    assert not any("SECOND construction change" in f for f in _failures(_run(env)))
+    env["UNION_MIX_ONE_CATCHER_ROWS"] = "0"; env["UNION_MIX_FLEX_WR_ROWS"] = "0"
+    assert not any("only study 83's combination" in f for f in _failures(_run(env)))                # C0 alone
+
+
 def test_union_mix_rs_rows_must_be_0_9_13_17_with_mix_rr_and_no_cover(tmp_path):
     """Study 46's switch: 0 (or unset) is off; 9 / 13 / 17 need the MIX portfolio, the round-robin fill and no cover."""
     env = _healthy(tmp_path); env["UNION_MIX_RS_ROWS"] = "0"

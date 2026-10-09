@@ -337,6 +337,10 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ "${UNION_MAIN:-mean}" == "mix" && -n "${UNION_MIX_CELL_QUOTAS:-}" ]] && UNION_ARGS+=(--mix-cell-quotas "$UNION_MIX_CELL_QUOTAS")
   # study 77 (the QB alone on the first N cell-C book rows; the operator decides 10-09); empty / 0 = off
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_QB_ALONE_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-qb-alone-rows "$UNION_MIX_QB_ALONE_ROWS")
+  # study 83 (the operator 10-09: "test all 3 and if it isn't negative use it in week 5"): with the C0 rows, one catcher per
+  # team on every B / C row and a WR flex on the first 3 rows; empty / 0 = off
+  [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_ONE_CATCHER_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-one-catcher-rows "$UNION_MIX_ONE_CATCHER_ROWS")
+  [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_FLEX_WR_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-flex-wr-rows "$UNION_MIX_FLEX_WR_ROWS")
   # priority-first dealing (the operator 10-07; default off): the main rows re-ordered by the frozen score, a live term block
   # kept at its positions (nfl_dfs.inference.priority_deal); the order is a refinement and never stops a union
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_PRIORITY_ORDER:-0}" == "1" ]] && UNION_ARGS+=(--priority-order)

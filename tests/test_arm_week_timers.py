@@ -264,6 +264,24 @@ def test_the_qb_alone_rows_ride_into_the_units_and_0_passes_nothing():
     assert "SECOND_CHANGE_DECISION=0123abcd" in _unit_line(r.stdout, "nfl-week4-t70-build")
 
 
+def test_the_study83_combination_rides_into_the_units_only_as_the_triple():
+    """Study 83's switches: UNION_MIX_ONE_CATCHER_ROWS / UNION_MIX_FLEX_WR_ROWS reach the build units; the host passes their
+    flags only when not 0; the Week-5 arm defaults both off and allows them only as the exact combination with the C0 rows."""
+    from pathlib import Path
+    r = _run(UNION_MIX_ONE_CATCHER_ROWS="14", UNION_MIX_FLEX_WR_ROWS="3")
+    line = _unit_line(r.stdout, "nfl-week4-t70-build")
+    assert "UNION_MIX_ONE_CATCHER_ROWS=14" in line and "UNION_MIX_FLEX_WR_ROWS=3" in line
+    root = Path(__file__).resolve().parents[1] / "scripts"
+    host = (root / "sunday_build_host.sh").read_text()
+    assert '"${UNION_MIX_ONE_CATCHER_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-one-catcher-rows "$UNION_MIX_ONE_CATCHER_ROWS")' in host
+    assert '"${UNION_MIX_FLEX_WR_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-flex-wr-rows "$UNION_MIX_FLEX_WR_ROWS")' in host
+    arm = (root / "arm_week5_saturday.sh").read_text()
+    assert '\nONE_CATCHER_ROWS=""' in arm and '\nFLEX_WR_ROWS=""' in arm
+    assert '"$QB_ALONE_ROWS" == 3 && "$ONE_CATCHER_ROWS" == 14 && "$FLEX_WR_ROWS" == 3' in arm
+    assert "UNION_MIX_ONE_CATCHER_ROWS=$ONE_CATCHER_ROWS UNION_MIX_FLEX_WR_ROWS=$FLEX_WR_ROWS" in arm
+    assert "-u UNION_MIX_ONE_CATCHER_ROWS -u UNION_MIX_FLEX_WR_ROWS" in arm
+
+
 def test_the_half_and_half_rides_into_the_units_and_0_passes_nothing():
     """Study 46's switch: UNION_MIX_RS_ROWS reaches the build units; the host passes --mix-rs-rows only when not 0."""
     from pathlib import Path

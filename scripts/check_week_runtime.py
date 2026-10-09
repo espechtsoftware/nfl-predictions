@@ -312,6 +312,11 @@ def main():
         fail(f"UNION_MIX_QB_ALONE_ROWS={_qa!r} must be empty / 0 or 3 (study 77's tested arm), with UNION_MAIN=mix, "
              f"UNION_MIX_PORTFOLIO=mix, UNION_MIX_FILL=rr and no half / cover / winner order or select / priority order / "
              f"whole-book ownership term")
+    _oc, _fx = os.environ.get("UNION_MIX_ONE_CATCHER_ROWS", ""), os.environ.get("UNION_MIX_FLEX_WR_ROWS", "")   # study 83
+    _oc_on, _fx_on = _oc not in ("", "0"), _fx not in ("", "0")
+    if (_oc_on or _fx_on) and not (_qa == "3" and _oc == "14" and _fx == "3"):
+        fail(f"UNION_MIX_ONE_CATCHER_ROWS={_oc!r} / UNION_MIX_FLEX_WR_ROWS={_fx!r}: only study 83's combination "
+             f"(UNION_MIX_QB_ALONE_ROWS=3, UNION_MIX_ONE_CATCHER_ROWS=14, UNION_MIX_FLEX_WR_ROWS=3), never alone")
     _levers = [n for n, on in (("UNION_MIX_BRING_BACK_TOP_WR", bool(os.environ.get("UNION_MIX_BRING_BACK_TOP_WR", ""))),
                                 ("UNION_MIX_QB_ALONE_ROWS", _qa not in ("", "0")),
                                 ("UNION_MIX_CELL_QUOTAS", bool(os.environ.get("UNION_MIX_CELL_QUOTAS", "")))) if on]
