@@ -26,6 +26,8 @@ You said: **"Let's do a test now of all 3 and if it isn't negative use it in wee
   3. Otherwise: the tight-end ban alone if it is not negative (you called this one a test, so please say whether you would enter it), else nothing new.
 - **Please weigh this plainly:** every tight-end version re-tests the ban on the same past games where it already read +4.7, so they are likely to pass, and a pass is not new evidence that the ban helps. Picking the best of several also flatters the winner. On your real book the ban alone changes 24 of 26 lineups and costs about 0.8 projected points per lineup.
 
+**Your fifth decision:** "As an experiment lets try an entire book like this: TE <= 5000 / D <= 3000 / 1 WR <= 4500 / WR or RB in Flex". The outside reviewer is confirming two details with you (whether "1 WR" means at least one or exactly one, and whether it is information only or uses your not-negative rule); it becomes study 85 after 84.
+
 ## What you decide this morning
 
 The book is ready as it stands. That is the default, and nothing changes unless you say so. **Two decisions:**
