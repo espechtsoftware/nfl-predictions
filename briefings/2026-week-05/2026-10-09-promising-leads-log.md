@@ -129,6 +129,20 @@ reviewer and updated as each study is read.
   **−3.1** against the live book (2022 +4.4) — about 3 points below, as on the first read. **No QB priced $7,000 or more, on top
   of it: −1.7 more** (2022 −3.3), 19% fewer expected big wins. A TE allowed in the flex: +0.2 (no change). Nothing for Week 5.
 
+- **Your 10-09 evening question — correlations that could give an edge (three quick screens on your real Weeks 1–4; the plan
+  was written down before any result was read):**
+  - *Defense strength normalized like DVOA:* already in our model (each defense's points allowed to a position, adjusted for
+    the offenses it faced, last six weeks), and it adds almost nothing; the plain matchup bonus read flat three times (studies
+    50, 51 and the Week-5 paper arms). Fantasy Points' projection prices matchups too.
+  - *A receiver's points per route against THIS defense's man / zone mix (Fantasy Points' coverage data):* **no signal** over
+    four weeks (−0.02; Week 3's hint did not hold).
+  - *Receivers whose route share just jumped or fell (regression to the mean):* **no signal** (−0.04).
+  - *Does the crowd know something? (ownership as a forecast):* **yes, against OUR old projections** — players the field liked
+    more than their projection and price said beat our projection (top fifth +0.8 points a player, bottom fifth −0.5; passed
+    its test), mostly in Weeks 1–2. **But against Fantasy Points' projection (Week 4, the only week with both) it adds nothing**
+    (+0.01): FP's projection already carries what the crowd knows. That is why switching to FP and the ownership cap point the
+    right way; it is not a new lever on top of them.
+
 ## Still running
 - **Study 94 (your "let's try each", item 5; running tonight):** on your armed version, (a) an RB as a stack mate — 4 lineups of
   the QB + one receiver + his own RB (the 2026 Week-2 Millionaire's winning shape), and (b) a defense with its own team's RB in
