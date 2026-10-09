@@ -304,6 +304,19 @@ def main():
     if _bbr and (_bbr != "4" or os.environ.get("UNION_MIX_BRING_BACK_TOP_WR") != "A1,B"):
         fail(f"UNION_MIX_BRING_BACK_TOP_WR_ROWS={_bbr!r} must be empty (every A1/B row) or 4 (study 71b's TOPBB_N4), with "
              f"UNION_MIX_BRING_BACK_TOP_WR=A1,B")
+    _qa = os.environ.get("UNION_MIX_QB_ALONE_ROWS", "")             # study 77: the tested decision arm only (NAKED3)
+    if _qa not in ("", "0") and (_qa != "3" or os.environ.get("UNION_MAIN") != "mix" or os.environ.get("UNION_MIX_PORTFOLIO") != "mix"
+                                 or os.environ.get("UNION_MIX_FILL") != "rr"
+                                 or any(os.environ.get(v, "0") not in ("", "0") for v in ("UNION_MIX_RS_ROWS", "UNION_MIX_COVER_GAMES",
+                                        "UNION_WINNER_ORDER", "UNION_WINNER_SELECT", "UNION_PRIORITY_ORDER", "UNION_MAIN_OWN_TILT"))):
+        fail(f"UNION_MIX_QB_ALONE_ROWS={_qa!r} must be empty / 0 or 3 (study 77's tested arm), with UNION_MAIN=mix, "
+             f"UNION_MIX_PORTFOLIO=mix, UNION_MIX_FILL=rr and no half / cover / winner order or select / priority order / "
+             f"whole-book ownership term")
+    _levers = [n for n, on in (("UNION_MIX_BRING_BACK_TOP_WR", bool(os.environ.get("UNION_MIX_BRING_BACK_TOP_WR", ""))),
+                                ("UNION_MIX_QB_ALONE_ROWS", _qa not in ("", "0")),
+                                ("UNION_MIX_CELL_QUOTAS", bool(os.environ.get("UNION_MIX_CELL_QUOTAS", "")))) if on]
+    if len(_levers) > 1:                                         # one new construction lever a week (the reviewer's advice;
+        fail(f"one new construction lever a week: {', '.join(_levers)} are all set")   # untested together)
     _ms = os.environ.get("UNION_MEAN_MAX_SHARED", "")
     if _ms and not (_ms.isdigit() and 3 <= int(_ms) <= 8):
         fail(f"UNION_MEAN_MAX_SHARED={_ms!r} must be an integer 3..8 (players a union row may share with every earlier row)")

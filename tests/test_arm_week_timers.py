@@ -240,6 +240,24 @@ def test_the_bring_back_rows_cap_rides_into_the_units_and_needs_the_rule():
     assert '"$BRING_BACK_TOP_WR_ROWS" == 4 && "$BRING_BACK_TOP_WR" == "A1,B"' in arm
 
 
+def test_the_qb_alone_rows_ride_into_the_units_and_0_passes_nothing():
+    """Study 77's switch: UNION_MIX_QB_ALONE_ROWS reaches the build units; the host passes --mix-qb-alone-rows only when
+    not 0; the Week-5 arm defaults it off, allows only 3 on the tested configuration, and holds one new lever a week (the
+    default cheap-block file is the week's trial and not counted)."""
+    from pathlib import Path
+    r = _run(UNION_MIX_QB_ALONE_ROWS="3")
+    assert "UNION_MIX_QB_ALONE_ROWS=3" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    root = Path(__file__).resolve().parents[1] / "scripts"
+    host = (root / "sunday_build_host.sh").read_text()
+    assert '"${UNION_MIX_QB_ALONE_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-qb-alone-rows "$UNION_MIX_QB_ALONE_ROWS")' in host
+    arm = (root / "arm_week5_saturday.sh").read_text()
+    assert '\nQB_ALONE_ROWS=""' in arm
+    assert "UNION_MIX_QB_ALONE_ROWS=$QB_ALONE_ROWS" in arm
+    assert '"$QB_ALONE_ROWS" == 3 && "$SHAPE" == mixt && "$MIX_FILL" == rr' in arm
+    assert 'for _l in "$BRING_BACK_TOP_WR" "$QB_ALONE_ROWS" "$MIX_QUOTAS"; do' in arm and "(( NLEV <= 1 ))" in arm
+    assert '[[ "$TERM_FILE" != reports/2026-10-08-live-block/cheap2-w5.csv ]] && NLEV=$((NLEV+1))' in arm
+
+
 def test_the_half_and_half_rides_into_the_units_and_0_passes_nothing():
     """Study 46's switch: UNION_MIX_RS_ROWS reaches the build units; the host passes --mix-rs-rows only when not 0."""
     from pathlib import Path

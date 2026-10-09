@@ -42,6 +42,9 @@ BRING_BACK_TOP_WR=""                # study 71 (the operator 10-08: "Why can't w
 BRING_BACK_TOP_WR_ROWS=""           # study 71b (the operator 10-08: "just do a very small percentage of these as a test"): "4" puts
                                     # the rule on only the first 4 A1 / B book rows (TOPBB_N4, only if ENTERABLE and rehearsed);
                                     # "" = every A1 / B row when BRING_BACK_TOP_WR is set
+QB_ALONE_ROWS=""                    # study 77 (NAKED3, the operator decides 10-09): "3" solves the first 3 cell-C book rows with
+                                    # the QB alone (no WR / TE of his team; C0, review/qb-alone-flag-20261008), only on HIS yes
+                                    # and a clean Friday A3 ON run; "" = off (the default)
 PRIORITY_ORDER=0                    # priority-first dealing (the operator 10-07: "Let's try to do this one this week"; the
                                     # outside reviewer's class-E proposal): the 18 non-block rows re-ordered among their own
                                     # positions by the frozen score (nfl_dfs.inference.priority_deal), the live block kept at
@@ -80,6 +83,12 @@ stop() { say "ARM STOPPED: $*"; exit 1; }
 [[ "$WINNER_ORDER" == 0 || ( "$WINNER_ORDER" == 1 && "$SHAPE" == mixt ) ]] || stop "WINNER_ORDER=$WINNER_ORDER: 0, or 1 with SHAPE=mixt"
 [[ -z "$BRING_BACK_TOP_WR" || ( "$BRING_BACK_TOP_WR" == "A1,B" && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_RS" == 0 && "$MIX_COVER" == 0 && "$WINNER_ORDER" == 0 && "$WINNER_SELECT" == 0 && "$PRIORITY_ORDER" == 0 ) ]] || stop "BRING_BACK_TOP_WR=$BRING_BACK_TOP_WR: empty, or A1,B with SHAPE=mixt, MIX_FILL=rr and no half / cover / winner order or select / priority order (study 71's tested arm)"
 [[ -z "$BRING_BACK_TOP_WR_ROWS" || ( "$BRING_BACK_TOP_WR_ROWS" == 4 && "$BRING_BACK_TOP_WR" == "A1,B" ) ]] || stop "BRING_BACK_TOP_WR_ROWS=$BRING_BACK_TOP_WR_ROWS: empty, or 4 with BRING_BACK_TOP_WR=A1,B (study 71b's tested dose)"
+[[ -z "$QB_ALONE_ROWS" || ( "$QB_ALONE_ROWS" == 3 && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_RS" == 0 && "$MIX_COVER" == 0 && "$WINNER_ORDER" == 0 && "$WINNER_SELECT" == 0 && "$PRIORITY_ORDER" == 0 ) ]] || stop "QB_ALONE_ROWS=$QB_ALONE_ROWS: empty, or 3 with SHAPE=mixt, MIX_FILL=rr and no half / cover / winner order or select / priority order (study 77's tested arm)"
+# one NEW construction lever a week (the reviewer's advice, untested together): the week's cheap block (the default TERM_FILE) is
+# the week's trial and is not counted; a second new lever needs his recorded decision and a code change, never a quiet edit
+NLEV=0; for _l in "$BRING_BACK_TOP_WR" "$QB_ALONE_ROWS" "$MIX_QUOTAS"; do [[ -n "$_l" ]] && NLEV=$((NLEV+1)); done
+[[ "$TERM_FILE" != reports/2026-10-08-live-block/cheap2-w5.csv ]] && NLEV=$((NLEV+1))
+(( NLEV <= 1 )) || stop "one new construction lever a week: set at most one of BRING_BACK_TOP_WR, QB_ALONE_ROWS, MIX_QUOTAS and a non-default TERM_FILE"
 [[ "$PRIORITY_ORDER" == 0 || ( "$PRIORITY_ORDER" == 1 && "$SHAPE" == mixt && "$MIX_RS" == 0 && "$MIX_COVER" == 0 && "$WINNER_ORDER" == 0 && "$WINNER_SELECT" == 0 ) ]] || stop "PRIORITY_ORDER=$PRIORITY_ORDER: 0, or 1 with SHAPE=mixt and no half / cover / winner order or select"
 [[ "$WINNER_SELECT" == 0 || ( "$WINNER_SELECT" == 1 && "$SHAPE" == mixt && "$WINNER_ORDER" == 0 ) ]] || stop "WINNER_SELECT=$WINNER_SELECT: 0, or 1 with SHAPE=mixt and WINNER_ORDER=0"
 [[ -z "$MIX_QUOTAS" || ( "$SHAPE" == mixt && "$MIX_QUOTAS" =~ ^A1=[0-9.]+,A2=[0-9.]+,B=[0-9.]+,C=[0-9.]+$ ) ]] || stop "MIX_QUOTAS='$MIX_QUOTAS': empty, or A1=..,A2=..,B=..,C=.. with SHAPE=mixt (study 56)"
@@ -144,7 +153,7 @@ arm_env() {
   # env takes every -u before any NAME=VALUE: build the two lists apart. The QB cap rides only when set (and ct + cap
   # never reaches here: the preamble stops it); unset otherwise, so check_week_runtime never sees a K without a cap.
   local u=() e=()
-  if [[ "$SHAPE" == mixt ]]; then e+=(UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_MIX_FILL=$MIX_FILL UNION_MIX_COVER_GAMES=$MIX_COVER UNION_MIX_RS_ROWS=$MIX_RS UNION_WINNER_ORDER=$WINNER_ORDER UNION_WINNER_SELECT=$WINNER_SELECT UNION_PRIORITY_ORDER=$PRIORITY_ORDER UNION_MIX_BRING_BACK_TOP_WR=$BRING_BACK_TOP_WR UNION_MIX_BRING_BACK_TOP_WR_ROWS=$BRING_BACK_TOP_WR_ROWS UNION_TERM_BLOCK_ROWS=$TERM_ROWS UNION_TERM_BLOCK_SOURCE=$P/$TERM_FILE UNION_TERM_BLOCK_TILT=0.20 UNION_TERM_BLOCK_CAP=$TERM_CAP UNION_TERM_BLOCK_SHA256=$TERM_SHA); [[ -n "$MIX_QUOTAS" ]] && e+=(UNION_MIX_CELL_QUOTAS=$MIX_QUOTAS) || u+=(-u UNION_MIX_CELL_QUOTAS); else u+=(-u UNION_MIX_CELL_QUOTAS -u UNION_PRIORITY_ORDER -u UNION_MIX_PORTFOLIO -u UNION_MIX_FILL -u UNION_MIX_COVER_GAMES -u UNION_MIX_RS_ROWS -u UNION_WINNER_ORDER -u UNION_WINNER_SELECT -u UNION_TERM_BLOCK_ROWS -u UNION_TERM_BLOCK_SOURCE -u UNION_TERM_BLOCK_TILT -u UNION_TERM_BLOCK_CAP -u UNION_TERM_BLOCK_SHA256); e+=(UNION_MAIN=pmo_x50); fi
+  if [[ "$SHAPE" == mixt ]]; then e+=(UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_MIX_FILL=$MIX_FILL UNION_MIX_COVER_GAMES=$MIX_COVER UNION_MIX_RS_ROWS=$MIX_RS UNION_WINNER_ORDER=$WINNER_ORDER UNION_WINNER_SELECT=$WINNER_SELECT UNION_PRIORITY_ORDER=$PRIORITY_ORDER UNION_MIX_BRING_BACK_TOP_WR=$BRING_BACK_TOP_WR UNION_MIX_BRING_BACK_TOP_WR_ROWS=$BRING_BACK_TOP_WR_ROWS UNION_MIX_QB_ALONE_ROWS=$QB_ALONE_ROWS UNION_TERM_BLOCK_ROWS=$TERM_ROWS UNION_TERM_BLOCK_SOURCE=$P/$TERM_FILE UNION_TERM_BLOCK_TILT=0.20 UNION_TERM_BLOCK_CAP=$TERM_CAP UNION_TERM_BLOCK_SHA256=$TERM_SHA); [[ -n "$MIX_QUOTAS" ]] && e+=(UNION_MIX_CELL_QUOTAS=$MIX_QUOTAS) || u+=(-u UNION_MIX_CELL_QUOTAS); else u+=(-u UNION_MIX_CELL_QUOTAS -u UNION_PRIORITY_ORDER -u UNION_MIX_PORTFOLIO -u UNION_MIX_FILL -u UNION_MIX_COVER_GAMES -u UNION_MIX_RS_ROWS -u UNION_WINNER_ORDER -u UNION_WINNER_SELECT -u UNION_TERM_BLOCK_ROWS -u UNION_TERM_BLOCK_SOURCE -u UNION_TERM_BLOCK_TILT -u UNION_TERM_BLOCK_CAP -u UNION_TERM_BLOCK_SHA256); e+=(UNION_MAIN=pmo_x50); fi
   if [[ -n "$QB_CAP_ROWS" ]]; then e+=(UNION_MAIN_QB_CAP_ROWS=$QB_CAP_ROWS UNION_MAIN_QB_CAP_K=$QB_CAP_K); else u+=(-u UNION_MAIN_QB_CAP_ROWS -u UNION_MAIN_QB_CAP_K); fi
   env "${u[@]}" "${e[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head PROD_ARMED_HEAD=$(git -C "$P" rev-parse HEAD) \
     D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \

@@ -227,6 +227,23 @@ def test_union_mix_bring_back_rows_is_only_4_with_the_rule(tmp_path):
     assert not any("UNION_MIX_BRING_BACK_TOP_WR_ROWS" in f for f in _failures(_run(env)))
 
 
+def test_union_mix_qb_alone_rows_is_only_3_and_one_lever_a_week(tmp_path):
+    """Study 77's switch: empty / 0 is off; only 3 (NAKED3) on the tested configuration; and at most one of the bring-back
+    rule, the QB-alone rows and the cell quotas at once (one new construction lever a week)."""
+    env = _healthy(tmp_path); env["UNION_MIX_QB_ALONE_ROWS"] = "0"
+    assert not any("UNION_MIX_QB_ALONE_ROWS" in f for f in _failures(_run(env)))
+    env["UNION_MIX_QB_ALONE_ROWS"] = "3"
+    assert any("UNION_MIX_QB_ALONE_ROWS='3' must be empty / 0 or 3" in f for f in _failures(_run(env)))   # no mix
+    env.update({"UNION_MAIN": "mix", "UNION_MIX_PORTFOLIO": "mix", "UNION_MIX_FILL": "rr"})
+    assert not any("UNION_MIX_QB_ALONE_ROWS" in f for f in _failures(_run(env)))
+    env["UNION_MIX_QB_ALONE_ROWS"] = "6"
+    assert any("UNION_MIX_QB_ALONE_ROWS='6'" in f for f in _failures(_run(env)))
+    env["UNION_MIX_QB_ALONE_ROWS"] = "3"; env["UNION_MIX_BRING_BACK_TOP_WR"] = "A1,B"
+    assert any("one new construction lever a week" in f for f in _failures(_run(env)))
+    env["UNION_MIX_QB_ALONE_ROWS"] = "0"
+    assert not any("one new construction lever a week" in f for f in _failures(_run(env)))
+
+
 def test_union_mix_rs_rows_must_be_0_9_13_17_with_mix_rr_and_no_cover(tmp_path):
     """Study 46's switch: 0 (or unset) is off; 9 / 13 / 17 need the MIX portfolio, the round-robin fill and no cover."""
     env = _healthy(tmp_path); env["UNION_MIX_RS_ROWS"] = "0"
