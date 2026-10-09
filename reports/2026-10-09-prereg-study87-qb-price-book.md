@@ -67,7 +67,10 @@ the cheap +2 block, on Rev6 (`plan-week5-rev6-s24.json` `ac10ddf6…`).
 - **THE CAPS, DISCLOSED (the reviewer's condition):** our standing rule is that studies of the live book build under
   production's caps (0.5 K per player, 0.25 K per DST, 5 per QB). This study lifts them on every arm except LIVE_CB, at his
   request. **The laptop's W4 real-book checks above ran WITH production's caps**, so their FP costs (−1.59 per row) do not
-  describe the uncapped arms; the uncapped W4 checks (NOCAP, BOOK87's bans uncapped) follow from the laptop after study 85's run.
+  describe the uncapped arms. **The uncapped W4 checks (the laptop, 10-09, after study 85's run):** NOCAP alone FP **+0.96** per
+  row, 12 of 26 rows change, the most-used QB 5 → 6 rows, player 13 → 21, DST 6 → 8, distinct QBs 9 → 12; BOOK87's bans uncapped
+  −1.41 per row vs NOCAP (−0.45 vs today's capped book), the most-used QB 8 rows, 6 distinct QBs, DST 11. So the caps explain
+  only about 0.2 of the capped −1.59: **the QB restriction itself is what costs.**
 - **Concentration is the new risk:** the census reports, per arm, the top QB's book rows and his share of the dealt entries,
   the most-used player's and DST's rows, distinct QBs and players; the overlap limit (4) is asserted on every arm; one QB on more
   than half the book on any slate-bank is flagged in the smoke.
