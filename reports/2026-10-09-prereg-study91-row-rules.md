@@ -1,9 +1,14 @@
-# Preregistration: study 91, at most one TE and at most one player under 3% projected ownership per lineup, on his armed Week-5 package, in the harness (DRAFT 2026-10-09)
+# Preregistration: study 91, at most one TE and at most one player under 3% projected ownership per lineup, on his armed Week-5 package, in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (13:29 CDT)** by the outside reviewer; the code and smoke are done (§6). The reviewer reviews, runs the
-binding census and FREEZES; the laptop acks. **Runs BEFORE study 90** (his order: a Week-5 decision with a Sunday deadline).
-- **Banks and seed:** **3000–3011** (set A 3000–3005, set B 3006–3011; sims bases 3050–3061, fields 3700–3711), seed 20261136 —
-  the reviewer's block, clean against the full used set by construction; the laptop scans it.
+**Status: FROZEN 2026-10-09 (13:51 CDT)** by the reviewer, after the outside reviewer's DRAFT, the smoke, the W4 real-book check
+and the binding census, before any scored bank. The text changed at the freeze in this status block and §6 only. The laptop
+acks. **Runs BEFORE study 90** (his order: a Week-5 decision with a Sunday deadline).
+- **Banks 3000–3011** (set A 3000–3005, set B 3006–3011), **seed 20261136**. The laptop's scan of both repositories (whole
+  repos; the larger blobs not searched) found the 3000 / 3700 hits to be salaries and sim counts (dst_max 3000.0, test
+  salaries, n_sims=3000), the rest 1–32 incidental counts, and the seed only in 91's prereg; its full-set check of {b, b + 50,
+  b + 700} over every used bank holds. (The block 2012–2023 was rejected: season years.)
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run (O-63), recorded in `RUN_ENV_s91.txt` committed with
+  the confirmatory census.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
 
@@ -77,6 +82,30 @@ imported); **every arm is his ARMED W5 package**: the player cap 0.35 (9 of 26 r
   identical 0.000; projection per row vs the package: TE1 −0.84, LOW1 +0.04, TE1_LOW1 −0.86; the full path: the reader exited 0
   (51 lines; 66 with the two-draw path on a copy); only those were read.
 - BLAS threads pinned to 1 (89's driver).
+- **The W4 real-book check of the package + both rules** (the laptop's, outcome-blind; production flag `e8c63263`, OFF `a4ab2839`;
+  `~/rehearsals/flagcheck-pkgTE1LOW1-20261009T183613Z`): FP per row 140.76 (the package) → 140.00 (−0.76); 21 of 26 rows differ;
+  TEs per row 1.654 → 1.000; low-owned (< 3% FP projected) per row 0.115 → 0.231 (the same as study 38 amendment 6p's smoke);
+  flex WR / TE / RB 0 / 17 / 9 → 7 / 0 / 19; distinct players 54 → 57; the rules applied on 26 solves, 0 re-solved; 163 of 235
+  pool skill players are low-owned by FP's projection.
+  - **Disclosed:** on his real book the low-ownership half barely binds (by FP's projections it holds 0.1–0.3 such players per
+    row); in the harness it binds (the blend's low tail: 0.89 per row in the package). The harness tests the rule as it would
+    act on blend-like projections, not exactly as it acts on FP's.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 36 slate-banks of 2023–24; code `41d2430f`
+  clean; PYTHONHASHSEED=0; 8 tests pass; lab `results/s91/CENSUS_s91_binding.txt` `69d969ad…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `173a303e…` with no outcome field, committed at `ae734c10`):
+  - every arm 41 rows within the package's caps (9 / 6, QB 5, overlap 4), 8 term rows, in the pool;
+  - **0 of 936 ruled solves infeasible** in every rule arm (re-solved without the rules: 0), and the ownership cap held on
+    every solve (0 re-solved without it); the pool per slate-bank: TEs 52.6 (min 38), skill players predicted < 3% 175.9 (min 113)
+    of 250.9;
+  - the package (CAP35_OWN15): rows with 2+ TEs 14.86, low-owned per row 0.893, rows with 2+ low-owned 6.36, flex WR / TE / RB
+    6.0 / 14.9 / 5.1, projection per row 125.03;
+  - TE1: 2+ TE rows 0, low-owned per row 1.027, flex 16.0 / 0 / 10.0, projection −0.44, rows shared with the package 3.28;
+  - LOW1: 2+ low rows 0, low-owned per row 0.594, projection −0.01, rows shared 11.83;
+  - **TE1_LOW1 (the decision):** 2+ TE rows 0, 2+ low rows 0, low-owned per row 0.639, flex 15.8 / 0 / 10.2, projection −0.44,
+    rows shared with the package 2.14; none dealt identical;
+  - **VACUITY of the low half on top of the TE rule:** TE1_LOW1 shares 9.28 of 26 rows with TE1, identical 0.000 (not a dead
+    change in the harness);
+  - **PARITY:** the package arm builds identical rows to study 89's binding census on all 36 slate-banks.
 - **Code:** nfl2 `production/s91-row-rules-20261009` @ `41d2430f` (branched from study 89's frozen branch `2fe958eb`):
   `experiments/s91_row_rules.py` `9cde18bd…`; `scripts/s91_drive.py` `1aed4f32…`; `scripts/s91_census.py` `ee9d2d84…`;
   **`scripts/s91_report.py` (the reader) `518067b8…`** (seed 20261136); `tests/test_s91_row_rules.py` `a0119b0b…` (8).
