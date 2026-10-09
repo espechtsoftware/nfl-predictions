@@ -120,3 +120,15 @@ def test_alignment_check_fails_closed_on_permuted_banks():
         C.check_alignment(1, fr, {"incumbent": inc[::-1], "hsim": hs})
     with pytest.raises(SystemExit):
         C.check_alignment(1, fr, {"incumbent": inc, "hsim": hs[rng.permutation(60)]})
+
+
+def test_empty_lineups_stay_in_the_field_at_zero_and_unknown_names_are_flagged():
+    row_of = {f"P{i}": i for i in range(12)}
+    rows = C.roster_rows([("",), tuple(f"P{i}" for i in range(9)), tuple(["Nobody"] + [f"P{i}" for i in range(8)])], row_of)
+    assert (rows[0] == C.EMPTY).all()
+    assert (rows[1] >= 0).all()
+    assert rows[2, 0] == C.UNKNOWN
+    known = (rows != C.UNKNOWN).all(axis=1)
+    assert known.tolist() == [True, True, False]
+    x = C.incidence(rows[known], 12)
+    assert x[0].sum() == 0 and x[1].sum() == 9

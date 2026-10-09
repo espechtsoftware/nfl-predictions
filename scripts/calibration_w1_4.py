@@ -21,8 +21,9 @@ opponents' rosters are not outcomes; this isolates the score model + our lineups
     field (disclosed: the deepest Milly ranks are then estimated, not counted).
   - FAIL CLOSED (the outside reviewer's review of fd09493b): bank row i must be frame row i (the incumbent bank's row means
     equal the frame's mean_projection; the hsim bank correlates >= 0.90 with it); every one of OUR entries must map to frame
-    players; a contest's field may hold at most --max-unknown (2%) lineups with a player not in the frame, and never none
-    scorable; every contest's entries must be in the field (history rows = placed + excluded; placed = the gate's 534).
+    players; a contest's field may hold at most --max-unknown (2%) lineups with a player not in the frame (one lineup is always
+    tolerated: a 23-entry W4 contest has one), and never none scorable; every contest's entries must be in the field
+    (history rows = placed + excluded; placed = the gate's 534).
     --prepass runs these checks without sims (seconds).
   - A field lineup holding a player who is not in the T-70 frame cannot be scored; it is left out of the sample and the
     known lineups stand for all others (exchangeability; the share is reported). Such a player is often a late scratch, so
@@ -77,15 +78,26 @@ def buckets(rank, cash, ticket, n_total: int) -> dict[str, np.ndarray]:
             "cash": (cash + ticket) > 1e-9, "big": (cash >= BIG_CASH - 1e-9) | (ticket >= BIG_TICKET - 1e-9)}
 
 
+UNKNOWN, EMPTY = -1, -2                     # a name not in the frame (or ambiguous there); an empty roster slot
+
+
 def roster_rows(names_col, row_of: dict[str, int]) -> np.ndarray:
-    """(n, 9) frame rows; -1 where a name is not in the frame (or is ambiguous there)."""
-    return np.array([[row_of.get(n, -1) for n in names] for names in names_col], dtype=np.int64).reshape(-1, 9)
+    """(n, 9) frame rows; UNKNOWN where a name is not in the frame (or is ambiguous there); EMPTY for the slots of a
+    lineup that was never set (W4's field has 314 such entries, 0 DK points; they stay in the field at 0)."""
+    out = np.full((len(names_col), 9), EMPTY, dtype=np.int64)
+    for i, names in enumerate(names_col):
+        nm = [n for n in names if n]
+        if len(nm) > 9:
+            raise SystemExit(f"a lineup with {len(nm)} players")
+        out[i, :len(nm)] = [row_of.get(n, UNKNOWN) for n in nm]
+    return out
 
 
 def incidence(rows: np.ndarray, n_players: int) -> np.ndarray:
     x = np.zeros((len(rows), n_players), dtype=np.float32)
     for k in range(rows.shape[1]):
-        np.add.at(x, (np.arange(len(rows)), rows[:, k]), 1.0)
+        m = rows[:, k] >= 0
+        np.add.at(x, (np.arange(len(rows))[m], rows[m, k]), 1.0)
     return x
 
 
@@ -170,7 +182,7 @@ def week_run(cfg: dict, w: int, cap: int, chunk: int, recon: pd.DataFrame, log, 
     ind = {b: {k: [] for k in BUCKETS} for b in BANKS}
     stats = {"alignment": align, "contests": 0, "contests_sampled": 0, "field_lineups": 0, "field_unknown": 0,
              "entries_placed": 0, "entries_missing_player": 0, "missing_names": {}, "ambiguous_frame_names": sorted(dup),
-             "max_contest_unknown_share": 0.0, "excluded_entries_by_reason": {}, "unknown_zero": unknown_zero}
+             "max_contest_unknown_share": 0.0, "field_empty_lineups": 0, "excluded_entries_by_reason": {}, "unknown_zero": unknown_zero}
     problems = []
     for cid in sorted(set(h.Contest_Key)):
         n_hist = int((h.Contest_Key == cid).sum())
@@ -190,24 +202,27 @@ def week_run(cfg: dict, w: int, cap: int, chunk: int, recon: pd.DataFrame, log, 
         if n_oth > cap:
             oth = oth.sample(n=cap, random_state=int(cid) % (2 ** 32)); stats["contests_sampled"] += 1
         fr_rows = roster_rows(oth.names, row_of)
-        known = (fr_rows >= 0).all(axis=1)
+        known = (fr_rows != UNKNOWN).all(axis=1)
         share = float((~known).mean()) if len(known) else 0.0
         stats["field_lineups"] += len(fr_rows); stats["field_unknown"] += int((~known).sum())
+        stats["field_empty_lineups"] += int((fr_rows == EMPTY).all(axis=1).sum())
         stats["max_contest_unknown_share"] = max(stats["max_contest_unknown_share"], round(share, 5))
         for names_t, ok in zip(oth.names, known):
             if not ok:
                 for n in names_t:
-                    if n not in row_of:
+                    if n and n not in row_of:
                         stats["missing_names"][n] = stats["missing_names"].get(n, 0) + 1
         my_rows = roster_rows(mine.names, row_of)
         ok_mine = (my_rows >= 0).all(axis=1)
         if (~ok_mine).any():
-            miss = sorted({n for names_t, ok in zip(mine.names, ok_mine) if not ok for n in names_t if n not in row_of})
+            miss = sorted({n or "(empty slot)" for names_t, ok in zip(mine.names, ok_mine) if not ok for n in names_t if n not in row_of})
             problems.append(f"W{w}: {int((~ok_mine).sum())} of our entries in a contest hold players not in the frame: {miss}")
         if not known.any() and len(known):
             problems.append(f"W{w}: a contest has no scorable field lineup")
-        if share > max_unknown and not unknown_zero:
-            problems.append(f"W{w}: a contest's field has {share:.1%} lineups with a player not in the frame (> {max_unknown:.0%})")
+        n_unk = int((~known).sum())
+        if n_unk > max(1, int(np.floor(max_unknown * len(known)))) and not unknown_zero:   # one lineup is always tolerated
+            problems.append(f"W{w}: a contest's field has {n_unk} of {len(known)} lineups ({share:.1%}) with a player not in "
+                            f"the frame (> {max_unknown:.0%} and > 1)")
         stats["entries_placed"] += len(mine); stats["entries_missing_player"] += int((~ok_mine).sum())
         stats["contests"] += 1
         if prepass:
@@ -225,7 +240,7 @@ def week_run(cfg: dict, w: int, cap: int, chunk: int, recon: pd.DataFrame, log, 
                     and abs(float(real["ticket"][i]) - float(r.ticket_calc)) < 0.005):
                 raise SystemExit(f"W{w}: the realized path disagrees with the reconcile file for an entry (known-answer gate)")
         if unknown_zero:
-            fr_rows = np.where(fr_rows >= 0, fr_rows, P)
+            fr_rows = np.where(fr_rows == UNKNOWN, P, fr_rows)
         else:
             fr_rows = fr_rows[known]
         scale = n_oth / max(len(fr_rows), 1)
@@ -311,7 +326,7 @@ def main() -> int:
         log(f"-- W{w} {time.time() - t0:6.1f}s: contests {st['contests']} (sampled {st['contests_sampled']}), entries placed "
             f"{st['entries_placed']}, excluded by reason {st['excluded_entries_by_reason']}, ours with a player not in the frame "
             f"{st['entries_missing_player']}, field lineups unscorable {st['field_unknown']} of {st['field_lineups']} "
-            f"(max contest share {st['max_contest_unknown_share']:.2%}), ambiguous frame names {st['ambiguous_frame_names']}, "
+            f"(max contest share {st['max_contest_unknown_share']:.2%}), empty field lineups (0 points) {st['field_empty_lineups']}, ambiguous frame names {st['ambiguous_frame_names']}, "
             f"alignment {st['alignment']}")
         log(f"   names not in the frame (field lineups holding each, top 20): {st['missing_names']}")
         if a.prepass and st.get("problems"):
