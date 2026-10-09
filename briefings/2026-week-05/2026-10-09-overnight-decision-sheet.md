@@ -14,6 +14,16 @@ You said: **"Let's do a test now of all 3 and if it isn't negative use it in wee
 - **If it passes:** the combined switch is built and tested this morning, merged before Friday's code freeze, rehearsed Friday afternoon, and armed Saturday with your decision recorded. **I'll ask you to confirm here before anything is merged**, because your decision reached me through the other session.
 - **If it fails:** nothing changes; Week 5 runs as armed.
 
+**Your second decision:** "It also appears that 81 was positive. So following the current test, we need to try a version including 81." You chose no tight end priced $5,000+ in any lineup, with the same rule.
+
+- **Your third and fourth decisions:** "If 83 comes back negative, but 84 beats 83, then let's try versions where the 5000+ TE rule is active along with each portion of what we tried in 83 separately." and "the final test of the week after that is just the 5000+ TE rule with the current book."
+- **The test (study 84, after 83):** all of it in one run, each version scored against your live book with your rule: the four rules together; the three without the tight-end ban; the tight-end ban with each of the three alone; and the tight-end ban alone.
+- **What you would enter (our reading; I'll confirm with you):**
+  1. If 83's three-rule version is not negative: the four-rule version if it is not negative, else the three-rule version.
+  2. If 83 is negative and the four-rule version beats the three-rule one: the best not-negative "tight-end ban + one piece" version.
+  3. Otherwise: the tight-end ban alone if it is not negative (you called this one a test, so please say whether you would enter it), else nothing new.
+- **Please weigh this plainly:** every tight-end version re-tests the ban on the same past games where it already read +4.7, so they are likely to pass, and a pass is not new evidence that the ban helps. Picking the best of several also flatters the winner. On your real book the ban alone changes 24 of 26 lineups and costs about 0.8 projected points per lineup.
+
 ## What you decide this morning
 
 The book is ready as it stands. That is the default, and nothing changes unless you say so. **Two decisions:**

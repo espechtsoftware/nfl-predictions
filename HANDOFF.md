@@ -12,6 +12,44 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (05:39 CDT) — OPERATOR (relayed): decisions 3 and 4 (before 83's READ); study 84 covers all four decisions in one run
+
+**His words** (in the outside reviewer's session, before 83's READ; relayed to the laptop verbatim):
+- Decision 3: "If 83 comes back negative, but 84 beats 83, then let's try versions where the 5000+ TE rule is active along
+  with each portion of what we tried in 83 separately."
+- Decision 4: "And the final test of the week after that is just the 5000+ TE rule with the current book."
+
+**Study 84's design** covers all four decisions in ONE run. The DRAFT prereg is `review/s84-prereg-20261009` @ `088da038`,
+pushed before 83's READ. The arms: LIVE_CB, COMBO81, COMBO, TE_C0, TE_ONEPC, TE_FLEX and TE_ONLY, with his rule printed per
+arm.
+
+**The entry order, as our reading** (the laptop confirms it with him before any money-path merge):
+1. If 83's COMBO is not negative: COMBO81 if not negative, else COMBO.
+2. If 83 is negative and COMBO81 − COMBO > 0: the best not-negative TE_X by the read's point estimate.
+3. Otherwise: TE_ONLY if not negative, else nothing. Decision 4 says "test"; whether a passing TE_ONLY is ENTERED is part
+   of the confirmation.
+
+**The same disclosure as for 84:** every TE arm re-tests 81-ALL's ban on the same slates and outcomes where it read +4.7, so
+a pass is not new evidence for the ban. On his real book the ban costs about −0.76 FP per row.
+
+## 2026-10-09 (05:36 CDT) — OPERATOR (relayed): a version including 81 (no $5k+ TE in any lineup), the same "not negative" rule
+
+**His words** (in the outside reviewer's session, minutes before this entry; relayed to the laptop verbatim): "It also
+appears that 81 was positive. So following the current test, we need to try a version including 81."
+
+- **The reading he had first** (the outside reviewer): NOTE5K8 was flat; NOTE5K_ALL's +4.7 was a side measurement among
+  about 35; on his W4 book it changes 24 of 26 rows at −0.76 FP per row.
+- **Asked which dose,** he chose "No $5k+ TE in any lineup", with the same rule: use in Week 5 if it isn't negative against
+  his live book.
+- **The test:** study 84 COMBO81 = study 83's COMBO + 81's ban of every pool TE ≥ $5,000 on every book solve (s81's frozen
+  banned_rows inside s83's frozen combo). Exploratory: COMBO on the same banks. Banks 1713–1718, seed 20261129.
+- **Our reading of his two decisions** (to confirm with him): if COMBO81 passes his rule, enter COMBO81; else, if study 83's
+  COMBO passed, enter COMBO; else nothing new.
+- **Disclosed:** 81-ALL is re-tested on the SAME slates and outcomes on which it read +4.7 (new banks change only the
+  draws), so a pass here is not new evidence that the TE ban helps.
+- **Production:** the outside reviewer extends the combined branch with the TE ban, with parity against s84's
+  composition. The laptop runs the real-book check of all four rules.
+
 ## 2026-10-09 (05:16 CDT) — OPERATOR (relayed): test 75 + 77 + 79 together; "if it isn't negative use it in week 5"
 
 **His words** (given in the outside reviewer's session shortly before this entry, and relayed to the laptop verbatim; the relay said "05:20 CDT", later than this entry's clock time, so that time is the relay's, not the clock's): "Let's do a test now
