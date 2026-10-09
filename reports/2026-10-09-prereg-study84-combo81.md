@@ -1,8 +1,11 @@
-# Preregistration: study 84, the no-expensive-TE rule (study 81's every-row version) with study 83's rules, with each of them, and alone, in the harness, with his "not negative" rule (DRAFT 2026-10-09)
+# Preregistration: study 84, the no-expensive-TE rule (study 81's every-row version) with study 83's rules, with each of them, and alone, in the harness, with his "not negative" rule (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (05:39 CDT)** by the outside reviewer — **THE DESIGN IS COMMITTED BEFORE STUDY 83'S READ** (study
-83's run is on the same slates; the reviewer holds 83's reader until this draft is on origin). The code shas follow in the
-next commit; the reviewer reviews, runs the binding census and FREEZES; the laptop acks.
+**Status: FROZEN 2026-10-09 (06:14 CDT)** by the reviewer, after the outside reviewer's DRAFT. THE DESIGN (`088da038`, 05:39) was
+committed BEFORE study 83's READ, on 83's slates (the reviewer held 83's reader until it was on origin). Then the code
+shas, the smoke and the binding census (§6), all before any scored bank.
+- The text changed at the freeze in §6 only (the census).
+- The module and the reader are the DRAFT's, unchanged. The laptop acks (shas, tests, the census re-run; the banks and the
+  seed were scanned clean overnight).
 - **Banks 1713–1718, seed 20261129** (the reviewer's; the laptop's scanned-clean block).
 - **Target:** this morning, after study 83's run.
 
@@ -96,7 +99,21 @@ next commit; the reviewer reviews, runs the binding census and FREEZES; the lapt
     1 / 14 / 11 → 6 / 5 / 15, QB + own-TE 12 → 9, **FP −0.53 per row**; the TE ban alone −0.76 per row (§4).
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 128 lines and 10 sections; only
   those were read.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `37365127` clean; 16 tests pass; lab `results/s84/CENSUS_s84_binding.txt` `10402f68…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `0eacf601…` with no outcome field, committed at `f67a4787`):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - 0 infeasible ruled solves in every arm (COMBO81 0 of 1,378; COMBO 0 of 795);
+  - $5k+ TE rows in a TE arm's book: 0 everywhere (no fallback fired); pool TEs priced ≥ $5,000 4.08 per slate-bank;
+  - vacuity at the ruled positions: c0 1.000, onepc 0.245, flex 0.792, note5k 0.303;
+  - per book (LIVE_CB / COMBO81 / COMBO / TE_C0 / TE_ONEPC / TE_FLEX / TE_ONLY):
+    - $5k+ TE rows 7.89 / 0 / 7.66 / 0 / 0 / 0 / 0;
+    - QB + TE rows 12.23 / 9.45 / 10.92 / 9.58 / 10.26 / 10.00 / 10.34;
+    - non-QB-pair rows 5.02 / 1.64 / 1.74 / 4.94 / 1.66 / 4.45 / 4.28;
+  - projection cost per row: COMBO81 −0.30, COMBO −0.01, TE_C0 −0.27, TE_ONEPC −0.36, TE_FLEX −0.37, TE_ONLY −0.32. His real
+    book pays −0.53 (COMBO81) and −0.76 (TE_ONLY): §4's transfer caveat;
+  - rows shared with LIVE_CB 1.7–8.8; dealt identical 0.000–0.151 (no dead lever);
+  - ruled rows read by a big contest 0.846 (every book row is ruled in the TE arms; positions 22–25 are non-big).
 - **Code:** nfl2 `production/s84-combo81-20261009` @ `37365127` (the outside reviewer's draft; branched from study 83's
   `45cd1a76`):
   - `experiments/s84_combo81.py` `40201328…` (the wrapper `combo81`, text `c38f27a7…`);
