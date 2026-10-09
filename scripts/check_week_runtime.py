@@ -312,8 +312,17 @@ def main():
         fail(f"UNION_MIX_TOP_GAME_QB1={_tg!r} must be empty / 0 or 5 (study 73's tested arm), with UNION_MAIN=mix, "
              f"UNION_MIX_PORTFOLIO=mix, UNION_MIX_FILL=rr and no half / cover / winner order or select / priority order / "
              f"whole-book ownership term")
+    _ts = os.environ.get("UNION_MIX_TOP_GAME_STACK", "")           # study 74: the tested decision arm only (G 4: STACK4_B)
+    if _ts not in ("", "0") and (_ts != "4" or os.environ.get("UNION_MAIN") != "mix" or os.environ.get("UNION_MIX_PORTFOLIO") != "mix"
+                                 or os.environ.get("UNION_MIX_FILL") != "rr"
+                                 or any(os.environ.get(v, "0") not in ("", "0") for v in ("UNION_MIX_RS_ROWS", "UNION_MIX_COVER_GAMES",
+                                        "UNION_WINNER_ORDER", "UNION_WINNER_SELECT", "UNION_PRIORITY_ORDER", "UNION_MAIN_OWN_TILT"))):
+        fail(f"UNION_MIX_TOP_GAME_STACK={_ts!r} must be empty / 0 or 4 (study 74's tested arm STACK4_B), with UNION_MAIN=mix, "
+             f"UNION_MIX_PORTFOLIO=mix, UNION_MIX_FILL=rr and no half / cover / winner order or select / priority order / "
+             f"whole-book ownership term")
     _levers = [n for n, on in (("UNION_MIX_BRING_BACK_TOP_WR", bool(os.environ.get("UNION_MIX_BRING_BACK_TOP_WR", ""))),
                                 ("UNION_MIX_TOP_GAME_QB1", _tg not in ("", "0")),
+                                ("UNION_MIX_TOP_GAME_STACK", _ts not in ("", "0")),
                                 ("UNION_MIX_CELL_QUOTAS", bool(os.environ.get("UNION_MIX_CELL_QUOTAS", "")))) if on]
     if len(_levers) > 1:                                         # the trial rule: one construction change a week
         fail(f"one construction change a week (study 51's trial rule): {', '.join(_levers)} are all set")

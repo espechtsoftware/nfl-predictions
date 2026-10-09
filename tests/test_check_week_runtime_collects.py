@@ -244,6 +244,17 @@ def test_union_mix_top_game_qb1_is_only_5_and_one_lever_a_week(tmp_path):
     assert not any("one construction change a week" in f for f in _failures(_run(env)))
 
 
+def test_union_mix_top_game_stack_is_only_4_and_counts_as_a_lever(tmp_path):
+    """Study 74's switch: empty / 0 is off; only 4 (STACK4_B) on the tested configuration; one construction change a week."""
+    env = _healthy(tmp_path)
+    env.update({"UNION_MAIN": "mix", "UNION_MIX_PORTFOLIO": "mix", "UNION_MIX_FILL": "rr", "UNION_MIX_TOP_GAME_STACK": "4"})
+    assert not any("UNION_MIX_TOP_GAME_STACK" in f or "one construction change" in f for f in _failures(_run(env)))
+    env["UNION_MIX_TOP_GAME_STACK"] = "5"
+    assert any("UNION_MIX_TOP_GAME_STACK='5'" in f for f in _failures(_run(env)))
+    env["UNION_MIX_TOP_GAME_STACK"] = "4"; env["UNION_MIX_TOP_GAME_QB1"] = "5"
+    assert any("one construction change a week" in f for f in _failures(_run(env)))
+
+
 def test_union_mix_rs_rows_must_be_0_9_13_17_with_mix_rr_and_no_cover(tmp_path):
     """Study 46's switch: 0 (or unset) is off; 9 / 13 / 17 need the MIX portfolio, the round-robin fill and no cover."""
     env = _healthy(tmp_path); env["UNION_MIX_RS_ROWS"] = "0"
