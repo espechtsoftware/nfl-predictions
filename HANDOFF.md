@@ -12,6 +12,42 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (16:46 CDT) — OPERATOR: "let's try each that you suggested" (the promising ideas still to try); the shape test on hold; study 38 6r acked and merged
+
+**His decision, made in the outside reviewer's session and relayed verbatim:**
+- His question: "is there anything in your log for things that seemed promising that we should still try?"
+- The outside reviewer listed five ideas:
+  1. a low-ownership limit that binds on the FP book (FP-raw 5% / 8% instead of 3%);
+  2. the QB alone in 3 lineups (study 77);
+  3. one receiver per team across all lineups (study 79);
+  4. a WR in the flex on some lineups (study 75);
+  5. an RB as a stack mate, a DST with its own RB, and dupe-aware dealing to one-seat satellites.
+- His answer: "let's try each that you suggested".
+- **The plan.** Every idea is re-read on top of the ARMED version:
+  - (1) becomes the reviewer's W5 / W6 paper arms (FP thresholds 5 / 8);
+  - (2)–(4) are the outside reviewer's STUDY 93, in the harness tonight;
+  - (5) is STUDY 94 (RB mate; DST + RB), in the harness next. Dupe-aware dealing is the laptop's real-field replay
+    measure next week.
+- Nothing live changes for W5; Saturday arms as decided. The machine slot follows the 6r smoke, coordinated with the
+  reviewer.
+
+**His shape question, in the laptop's session:**
+- His question: "We currently have several shapes of linups that we do in different percentages, I believe. Is that
+  correct? If so, can we do a test of each one as 100% in separate runs and determine if they all are still worth
+  doing?"
+- Then: "actually - before we try each at 100%, there are a few more tests I'd like to do. The outside reviewer will
+  share them once we work it out".
+- Yes: the W5 book deals four shapes (A1 30% / A2 14% / B 28% / C 28%). The test is study-list row 85, ON HOLD behind
+  the tests above. The reviewer has been told: no design work yet.
+
+**Study 38 amendment 6r acked and merged:**
+- Merge `30818c91` (prereg 551cdff9; lab 90a3053c, module 8ac57630).
+- 45 tests passed against f5f96468.
+- The smoke run.log is e8a25e6e: armed, mismatches none, the 26 pre-6r arms identical to 6q.
+- The gate now pins module 8ac576307b4d91a1892ddbe3d0508cbf2e55fb42764d41efd2e726bb2f56c11d, with s38-prod-pin at
+  FRIDAY_HEAD f5f96468.
+- Saturday: send the 10:30 canary's union dir to the reviewer for s38_build.py --snapshot at lab 90a3053c.
+
 ## 2026-10-09 (16:40 CDT) — laptop: study 92 READ -- S1 PAPER ONLY (worse), S2 worse too; nothing merges; Saturday's arm unchanged
 
 - **Study 92** (run 16:01–16:39, PYTHONHASHSEED=0). The READ (lab `8fbbe8f9`, READ_s92 `344de57b`) was reproduced
