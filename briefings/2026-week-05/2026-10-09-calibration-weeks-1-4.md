@@ -18,9 +18,14 @@ for Week 5. Written by the laptop agent; the outside reviewer approved the metho
   - about half the cashes it expected;
   - about a quarter of the top-10% finishes;
   - one top-1% finish where it expected about a dozen.
-- **Finding 2 means its 14% big-win chance was probably too high as well**, likely by a similar factor. So your true weekly
-  chance with the Weeks 1–4 construction was probably well under 14%; four weeks cannot say how far. A rough guide is
-  somewhere around 1 week in 10 to 1 in 20.
+- **Finding 2 means its 14% big-win chance was probably too high as well.** The shortfall grows with how high the finish
+  is:
+  - cashes came in at about half the expected rate (÷ 2.1);
+  - top-10% finishes at about a quarter (÷ 3.9);
+  - top-1% finishes far below (÷ 12.6), though that rests on a single finish, so it is noisy.
+
+  A big win is a deep finish. Dividing the 14% by the cash and top-10% shortfalls gives about 6.5% to 3.5% a week: **about 1
+  week in 15 to 1 in 30, possibly worse.** Four weeks cannot say exactly.
 
 ## What we compared
 
@@ -87,15 +92,15 @@ points per lineup):
 
 - **The model overrated how high your lineups would finish,** from Week 2 on: its scores for your players were too hopeful
   relative to the field's.
-- **The test model shares those player scores.** So its "chance of a big win" numbers are upper bounds too, before the easier
-  simulated field inflates them further.
+- **This is not what inflated the 25–30%.** The test model scores its books on real results, so this optimism is already
+  inside its numbers. What inflates them is its simulated field, easier than the real one, and a different contest mix.
 - **Week 5 is different in one way:** the book is now built on Fantasy Points' projections, not our own. This check tests
   the old model, so it cannot say whether Week 5's book is better calibrated.
 
 ## My recommendation
 
-- **Plan as if a big win comes roughly 1 week in 10 to 1 in 20**, not 1 in 3 or 4, and stake on that basis. How much is your
-  call.
+- **Plan as if a big win comes about 1 week in 15 to 1 in 30, possibly worse**, not 1 in 3 or 4, and stake on that basis.
+  How much is your call.
 - **Run this same check every Monday from Week 5** on the new book, with the scores re-centred on Fantasy Points'
   projections (the ones the book is now built on), beside the paper comparison. Within a few weeks we would learn whether
   the new setup is more honest about its chances. It takes about 5 minutes.
