@@ -254,7 +254,7 @@ def test_the_qb_alone_rows_ride_into_the_units_and_0_passes_nothing():
     assert '\nQB_ALONE_ROWS=""' in arm
     assert "UNION_MIX_QB_ALONE_ROWS=$QB_ALONE_ROWS" in arm
     assert '"$QB_ALONE_ROWS" == 3 && "$SHAPE" == mixt && "$MIX_FILL" == rr' in arm
-    assert 'for _l in "$BRING_BACK_TOP_WR" "$QB_ALONE_ROWS" "$MIX_QUOTAS"; do' in arm and "(( NLEV <= 1 ))" in arm
+    assert 'for _l in "$BRING_BACK_TOP_WR" "${QB_ALONE_ROWS}${ONE_CATCHER_ROWS}${FLEX_WR_ROWS}${NO_TE_ABOVE}" "$MIX_QUOTAS"; do' in arm and "(( NLEV <= 1 ))" in arm
     assert '[[ "$TERM_FILE" != reports/2026-10-08-live-block/cheap2-w5.csv ]] && NLEV=$((NLEV+1))' in arm
     # a new lever on top of the week's cheap block needs his recorded decision (the reviewer's code review 10-09)
     assert '\nSECOND_CHANGE_DECISION=""' in arm and "SECOND_CHANGE_DECISION=$SECOND_CHANGE_DECISION" in arm
@@ -277,7 +277,9 @@ def test_the_study83_combination_rides_into_the_units_only_as_the_triple():
     assert '"${UNION_MIX_FLEX_WR_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-flex-wr-rows "$UNION_MIX_FLEX_WR_ROWS")' in host
     arm = (root / "arm_week5_saturday.sh").read_text()
     assert '\nONE_CATCHER_ROWS=""' in arm and '\nFLEX_WR_ROWS=""' in arm
-    assert '"$QB_ALONE_ROWS" == 3 && "$ONE_CATCHER_ROWS" == 14 && "$FLEX_WR_ROWS" == 3' in arm
+    assert 'case "$RR" in "///"|"3///"|"3/14/3/"|"3/14/3/5000"|"3///5000"|"/14//5000"|"//3/5000"|"///5000") ;;' in arm
+    assert '\nNO_TE_ABOVE=""' in arm and "UNION_MIX_NO_TE_ABOVE=$NO_TE_ABOVE" in arm and "-u UNION_MIX_NO_TE_ABOVE" in arm
+    assert '"${UNION_MIX_NO_TE_ABOVE:-0}" != 0 ]] && UNION_ARGS+=(--mix-no-te-above "$UNION_MIX_NO_TE_ABOVE")' in host
     assert "UNION_MIX_ONE_CATCHER_ROWS=$ONE_CATCHER_ROWS UNION_MIX_FLEX_WR_ROWS=$FLEX_WR_ROWS" in arm
     assert "-u UNION_MIX_ONE_CATCHER_ROWS -u UNION_MIX_FLEX_WR_ROWS" in arm
 

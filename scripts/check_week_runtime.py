@@ -312,13 +312,18 @@ def main():
         fail(f"UNION_MIX_QB_ALONE_ROWS={_qa!r} must be empty / 0 or 3 (study 77's tested arm), with UNION_MAIN=mix, "
              f"UNION_MIX_PORTFOLIO=mix, UNION_MIX_FILL=rr and no half / cover / winner order or select / priority order / "
              f"whole-book ownership term")
-    _oc, _fx = os.environ.get("UNION_MIX_ONE_CATCHER_ROWS", ""), os.environ.get("UNION_MIX_FLEX_WR_ROWS", "")   # study 83
-    _oc_on, _fx_on = _oc not in ("", "0"), _fx not in ("", "0")
-    if (_oc_on or _fx_on) and not (_qa == "3" and _oc == "14" and _fx == "3"):
-        fail(f"UNION_MIX_ONE_CATCHER_ROWS={_oc!r} / UNION_MIX_FLEX_WR_ROWS={_fx!r}: only study 83's combination "
-             f"(UNION_MIX_QB_ALONE_ROWS=3, UNION_MIX_ONE_CATCHER_ROWS=14, UNION_MIX_FLEX_WR_ROWS=3), never alone")
+    _oc, _fx = os.environ.get("UNION_MIX_ONE_CATCHER_ROWS", ""), os.environ.get("UNION_MIX_FLEX_WR_ROWS", "")   # studies 83 / 84
+    _te = os.environ.get("UNION_MIX_NO_TE_ABOVE", "")
+    _rr = tuple(v if v not in ("", "0") else "" for v in (_qa, _oc, _fx, _te))
+    _tested = {("", "", "", ""): "off", ("3", "", "", ""): "C0 (77)", ("3", "14", "3", ""): "COMBO (83)",
+               ("3", "14", "3", "5000"): "COMBO81 (84)", ("3", "", "", "5000"): "TE_C0 (84)", ("", "14", "", "5000"): "TE_ONEPC (84)",
+               ("", "", "3", "5000"): "TE_FLEX (84)", ("", "", "", "5000"): "TE_ONLY (84)"}
+    if _rr not in _tested:
+        fail(f"the row rules QB_ALONE / ONE_CATCHER / FLEX_WR / NO_TE_ABOVE = {_rr}: only a tested set (studies 77 / 83 / 84): "
+             f"{', '.join(v for v in _tested.values() if v != 'off')}")
+    _rules_on = _rr != ("", "", "", "")
     _levers = [n for n, on in (("UNION_MIX_BRING_BACK_TOP_WR", bool(os.environ.get("UNION_MIX_BRING_BACK_TOP_WR", ""))),
-                                ("UNION_MIX_QB_ALONE_ROWS", _qa not in ("", "0")),
+                                ("the row rules (studies 77 / 83 / 84)", _rules_on),
                                 ("UNION_MIX_CELL_QUOTAS", bool(os.environ.get("UNION_MIX_CELL_QUOTAS", "")))) if on]
     if len(_levers) > 1:                                         # one new construction lever a week (the reviewer's advice;
         fail(f"one new construction lever a week: {', '.join(_levers)} are all set")   # untested together)

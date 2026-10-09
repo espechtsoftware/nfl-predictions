@@ -256,17 +256,26 @@ def test_study83_rows_only_as_the_exact_combination(tmp_path):
     another dose); on top of the live term block the combination still needs his recorded decision."""
     env = _healthy(tmp_path); env.update({"UNION_MAIN": "mix", "UNION_MIX_PORTFOLIO": "mix", "UNION_MIX_FILL": "rr"})
     env["UNION_MIX_ONE_CATCHER_ROWS"] = "14"
-    assert any("only study 83's combination" in f for f in _failures(_run(env)))                    # alone
+    assert any("only a tested set (studies 77 / 83 / 84)" in f for f in _failures(_run(env)))                    # alone
     env["UNION_MIX_QB_ALONE_ROWS"] = "3"; env["UNION_MIX_FLEX_WR_ROWS"] = "8"
-    assert any("only study 83's combination" in f for f in _failures(_run(env)))                    # another dose
+    assert any("only a tested set (studies 77 / 83 / 84)" in f for f in _failures(_run(env)))                    # another dose
     env["UNION_MIX_FLEX_WR_ROWS"] = "3"
-    assert not any("only study 83's combination" in f for f in _failures(_run(env)))                # the triple
+    assert not any("only a tested set (studies 77 / 83 / 84)" in f for f in _failures(_run(env)))                # the triple
     env["UNION_TERM_BLOCK_ROWS"] = "8"
     assert any("is a SECOND construction change this week" in f for f in _failures(_run(env)))
     env["SECOND_CHANGE_DECISION"] = "7473786e"
     assert not any("SECOND construction change" in f for f in _failures(_run(env)))
     env["UNION_MIX_ONE_CATCHER_ROWS"] = "0"; env["UNION_MIX_FLEX_WR_ROWS"] = "0"
-    assert not any("only study 83's combination" in f for f in _failures(_run(env)))                # C0 alone
+    assert not any("only a tested set (studies 77 / 83 / 84)" in f for f in _failures(_run(env)))                # C0 alone
+    # study 84's TE sets: the ban alone, or with exactly one piece, or with all three; only at 5000
+    env["UNION_MIX_QB_ALONE_ROWS"] = "0"; env["UNION_MIX_NO_TE_ABOVE"] = "5000"
+    assert not any("only a tested set" in f for f in _failures(_run(env)))                 # TE_ONLY
+    env["UNION_MIX_ONE_CATCHER_ROWS"] = "14"
+    assert not any("only a tested set" in f for f in _failures(_run(env)))                 # TE_ONEPC
+    env["UNION_MIX_FLEX_WR_ROWS"] = "3"
+    assert any("only a tested set" in f for f in _failures(_run(env)))                     # TE + two pieces: untested
+    env["UNION_MIX_ONE_CATCHER_ROWS"] = "0"; env["UNION_MIX_FLEX_WR_ROWS"] = "0"; env["UNION_MIX_NO_TE_ABOVE"] = "6000"
+    assert any("only a tested set" in f for f in _failures(_run(env)))                     # another salary
 
 
 def test_union_mix_rs_rows_must_be_0_9_13_17_with_mix_rr_and_no_cover(tmp_path):

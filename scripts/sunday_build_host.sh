@@ -341,6 +341,8 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   # team on every B / C row and a WR flex on the first 3 rows; empty / 0 = off
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_ONE_CATCHER_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-one-catcher-rows "$UNION_MIX_ONE_CATCHER_ROWS")
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_FLEX_WR_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-flex-wr-rows "$UNION_MIX_FLEX_WR_ROWS")
+  # study 84 (his decisions 2-4: the no-$5k-TE rule): every pool TE at or above the salary banned on every book row; empty / 0 = off
+  [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_NO_TE_ABOVE:-0}" != 0 ]] && UNION_ARGS+=(--mix-no-te-above "$UNION_MIX_NO_TE_ABOVE")
   # priority-first dealing (the operator 10-07; default off): the main rows re-ordered by the frozen score, a live term block
   # kept at its positions (nfl_dfs.inference.priority_deal); the order is a refinement and never stops a union
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_PRIORITY_ORDER:-0}" == "1" ]] && UNION_ARGS+=(--priority-order)
