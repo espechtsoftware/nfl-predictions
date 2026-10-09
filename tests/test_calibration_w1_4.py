@@ -89,3 +89,34 @@ def test_negative_lineup_totals_stay_in_their_column():
     for b in C.BUCKETS:
         assert np.array_equal(got[b], want[b])
     assert np.allclose(pit, wpit)
+
+
+def test_scaled_sample_equals_place_on_the_full_field():
+    """Review D: the field doubled (every roster twice) and half of it scored at scale 2 must equal place() on the full
+    doubled field, ties included."""
+    for seed in range(4):
+        bank, field, mine = _setup(seed)
+        lad = _ladder(); pct_real = np.linspace(10, 90, len(mine))
+        full = np.concatenate([field, field])
+        xf, xm = C.incidence(field, bank.shape[0]), C.incidence(mine, bank.shape[0])
+        got, pit = C.model_contest(bank, xf, xm, 2.0, len(full), len(full) + len(mine), lad, pct_real, 4)
+        want, wpit = _brute(bank, full, mine, lad, pct_real)
+        for b in C.BUCKETS:
+            assert np.array_equal(got[b], want[b]), (seed, b)
+        assert np.allclose(pit, wpit), seed
+
+
+def test_alignment_check_fails_closed_on_permuted_banks():
+    import pandas as pd
+    import pytest
+    rng = np.random.default_rng(3)
+    proj = rng.uniform(2, 25, 60)
+    inc = (proj[:, None] + rng.normal(0, 6, (60, 4000))).astype(np.float32)
+    inc += (proj - inc.mean(axis=1))[:, None].astype(np.float32)        # row means equal the projection
+    hs = (proj[:, None] * 1.1 + rng.normal(0, 6, (60, 4000))).astype(np.float32)
+    fr = pd.DataFrame({"mean_projection": proj})
+    C.check_alignment(1, fr, {"incumbent": inc, "hsim": hs})
+    with pytest.raises(SystemExit):
+        C.check_alignment(1, fr, {"incumbent": inc[::-1], "hsim": hs})
+    with pytest.raises(SystemExit):
+        C.check_alignment(1, fr, {"incumbent": inc, "hsim": hs[rng.permutation(60)]})
