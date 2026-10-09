@@ -9,6 +9,8 @@ the nine players, so this script recovers each entered lineup's build record by 
 settlement, from the money gate's settled field (moneygate_score.load_week: our entries by entry id, their names):
   book        a book row: its rank, tag (cell), and whether its position is in the cheap (term) block;
   tail        a tail-sleeve row;
+  replacement a Sunday replacement (the after-build chain's replace.json, --after): the removed row's cell (or "house" when
+              it fell back) and its union rank, so a cheap-block row replaced on Sunday stays in its block;
   spare       a mix spare (the Sunday replacement pool), tagged with its cell;
   corpus      any other union candidate (a Sunday replacement drawn from the corpus), with the candidate's tag;
   unmatched   none of the above (a hand-added lineup, or a late swap on DraftKings).
@@ -19,7 +21,7 @@ $500 or a ticket >= $300, his 10-05 rule).
 READ-ONLY: changes nothing in the build or the money path. Private rows (entry ids) go to --out (default
 ~/private/entry_tags/w<W>.csv); stdout carries aggregates only (counts per tag; no ids, no dollars).
 
-  python scripts/entry_tags.py --week 5 [--run <union run dir>] [--out <csv>]
+  python scripts/entry_tags.py --week 5 [--run <union run dir>] [--after <the T-70 after-build dir>] [--out <csv>]
 """
 from __future__ import annotations
 
@@ -36,7 +38,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import moneygate_score as MS  # noqa: E402  (the gate's config, settled field, entry history, canon)
 
 BIG_CASH, BIG_TICKET = 500.0, 300.0          # moneygate_describe.BIG_CASH / BIG_TICKET (his 10-05 rule)
-KINDS = ("book", "tail", "spare", "corpus", "unmatched")
+KINDS = ("book", "tail", "replacement", "spare", "corpus", "unmatched")
+REPLACE_DIRS = ("paid-vetted-replaced", "paid-vetted-replaced-fresh")   # sunday_after_build.sh / the run_promotion path
 
 
 def roster_key(names) -> frozenset:
@@ -48,8 +51,17 @@ def term_positions(receipt: dict) -> list[int]:
     return [int(p) for p in (term.get("term_positions") or [])]
 
 
-def build_index(book: dict, cands: pd.DataFrame, term_pos: list[int]) -> dict[frozenset, dict]:
-    """roster -> its build record; the first source in KINDS order wins (a book row is never re-labelled by the corpus)."""
+def replace_file(after: Path) -> Path | None:
+    """The after-build dir's replace.json (exactly one of REPLACE_DIRS), or None when the dir holds none."""
+    found = [after / d / "replace.json" for d in REPLACE_DIRS if (after / d / "replace.json").exists()]
+    if len(found) > 1:
+        raise SystemExit(f"{after}: more than one replace.json ({[str(f) for f in found]}); pass the one entered as --after's parent")
+    return found[0] if found else None
+
+
+def build_index(book: dict, cands: pd.DataFrame, term_pos: list[int], replacements: list[dict] = ()) -> dict[frozenset, dict]:
+    """roster -> its build record; the first source in KINDS order wins (a book row is never re-labelled by the corpus).
+    A replacement carries the removed row's union rank (source_rank, 1-based like book.json's rank) and cell."""
     idx: dict[frozenset, dict] = {}
     tset = set(term_pos)
     for e in book.get("entries") or []:
@@ -58,6 +70,12 @@ def build_index(book: dict, cands: pd.DataFrame, term_pos: list[int]) -> dict[fr
     for e in book.get("tail_sleeve") or []:
         idx.setdefault(roster_key(e["players"]), {"kind": "tail", "book_rank": int(e["rank"]), "tag": str(e.get("tag")),
                                                   "term": False, "source_run": e.get("source_run")})
+    for r in replacements:
+        rank = int(r["source_rank"]) if r.get("source_rank") is not None else None
+        idx.setdefault(roster_key(r["replacement"]), {"kind": "replacement", "book_rank": rank,
+                                                      "tag": f"mix_{r['cell']}" if r.get("cell") else None,
+                                                      "term": rank is not None and (rank - 1) in tset,
+                                                      "source_run": r.get("candidate_source"), "cell_fallback": bool(r.get("cell_fallback"))})
     src = cands.get("source_run", pd.Series([""] * len(cands))).astype(str)
     for names, tag, s in zip(cands["names"].astype(str), cands["tag"].astype(str), src):
         if s == "mix_spare":
@@ -90,6 +108,8 @@ def tag_entries(ours: pd.DataFrame, idx: dict[frozenset, dict], recon: pd.DataFr
 def label(row) -> str:
     if row["kind"] == "book":
         return f"{row['tag']}{' +cheap block' if row['term'] else ''}"
+    if row["kind"] == "replacement":
+        return f"replacement:{row['tag']}{' +cheap block' if row['term'] is True else ''}"
     return f"{row['kind']}:{row['tag']}" if isinstance(row["tag"], str) and row["tag"] else row["kind"]
 
 
@@ -106,6 +126,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--week", type=int, required=True)
     ap.add_argument("--run", type=Path, default=None, help="the union run dir (default: the week's entered_union, else t70_run)")
+    ap.add_argument("--after", type=Path, default=None, help="the entered after-build dir (its replace.json); read-only")
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args(argv)
     cfg = MS.load_config()
@@ -115,7 +136,12 @@ def main(argv=None) -> int:
     receipt = json.loads((run / "receipt.json").read_text())
     cands = pd.read_parquet(run / "candidates.parquet")
     tpos = term_positions(receipt)
-    idx = build_index(book, cands, tpos)
+    rf = replace_file(a.after) if a.after else None
+    rj = json.loads(rf.read_text()) if rf else {}
+    if rf and str(rj.get("status", "")).upper() == "FAILED":
+        raise SystemExit(f"{rf}: a FAILED replacement run; pass the after-build dir that was entered")
+    reps = rj.get("replacements") or []
+    idx = build_index(book, cands, tpos, reps)
     W = MS.load_week(cfg, a.week)
     ours = W.field[W.field.entry_id.isin(W.ours)]
     n_hist = len(W.history)
@@ -133,7 +159,8 @@ def main(argv=None) -> int:
     n_book_term = int((t.kind.eq("book") & t.term).sum())
     print(f"ENTRY TAGS W{a.week}: run {run.name}  entries {len(t)} (settled {int(t.settled.sum())})  "
           + "  ".join(f"{k} {kinds.get(k, 0)}" for k in KINDS)
-          + f"  cheap-block entries {n_book_term} (book positions in the block: {len(tpos)})  private rows -> {out}")
+          + f"  cheap-block entries {n_book_term} (book positions in the block: {len(tpos)})  replacements read {len(reps)}"
+          + f" ({rf if rf else 'no --after'})  private rows -> {out}")
     print("  by build group (settled entries; counts, no ids, no dollars):")
     for g in aggregates(t):
         print(f"    {g['group']:28s} entries {g['entries']:4d}  cash {g['cash']:3d}  top 10% {g['top10']:3d}  top 1% {g['top1']:2d}  big {g['big']}")
