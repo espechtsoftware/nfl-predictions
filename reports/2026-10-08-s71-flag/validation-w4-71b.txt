@@ -1,0 +1,41 @@
+# Study 71b rows cap: Week-4 validation on the real inputs (written 2026-10-08 19:07 CDT); aggregates + public NFL names only
+# runs: reports/2026-10-08-s71-flag/w4_union_run.sh <checkout> <out> [--mix-bring-back-top-wr A1,B [--mix-bring-back-top-wr-rows N]];
+#       the W5 arming on W4 inputs (mix, rr, ms4, QB cap 5, FP, cheap +2 block on 8 rows, 15 spares)
+
+## (a) UNSET = THE MERGED FLAG: this branch vs b672d396 (merged at bbef9c11), flag off and flag on without a cap
+off: book.csv sha256 a4ab283949254d12 = b672d396's a4ab283949254d12 (and integration 22c3bebe's); book.json, candidates.parquet, exposure_ledger.json, proj_source.csv, book_wemax.csv identical
+on:  book.csv sha256 6100b2e3bbdf68a2 = b672d396's 6100b2e3bbdf68a2; the same five files identical
+receipt.json by CONTENT, each: 5 differences, all timing or code identity: /built_utc, /config/union/mix/secs, /config/union/tool/{path, production_sha, sha256}
+
+## (b) THE CAP: the floor on the first N designated (A1 / B) solves in BUILD order, j < 26; the receipt lists the ruled rows
+N=4: book.csv sha256 ec554ced003e894b; rows_floored {'book': 4, 'spares': 0}; designated_unfloored 11; fallbacks 0; ruled build indices [0, 1, 4, 5] = the first 4 designated in the commit order (MATCH)
+   A1 j=0 (book): QB Trevor Lawrence; row sha256 a0b2f28e7785
+   B j=1 (book): QB Joe Burrow; row sha256 0c6de10b5192
+   A1 j=4 (book): QB Matthew Stafford; row sha256 6b94eca713ec
+   B j=5 (book): QB Kyler Murray; row sha256 3f524d3c8c81
+N=2: book.csv sha256 36b435593c170c46; rows_floored {'book': 2, 'spares': 0}; designated_unfloored 13; fallbacks 0; ruled build indices [0, 1] = the first 2 designated in the commit order (MATCH)
+   A1 j=0 (book): QB Trevor Lawrence; row sha256 a0b2f28e7785
+   B j=1 (book): QB Joe Burrow; row sha256 0c6de10b5192
+commit order (both caps; the W5 build: live block L first, then the 8-row term block T): L:A1 L:B L:C L:A2 L:A1 L:B L:C L:A2 L:A1 L:B L:C L:A2 L:A1 L:B L:C L:A1 L:B L:C T:A1 T:B T:C T:A2 T:A1 T:B T:C T:A1
+printed: BRING-BACK TOP WR: cells A1,B; 4 book rows + 0 spares floored; 0 fallbacks; rows cap 4 (11 designated book rows past it, built plain)
+         BRING-BACK TOP WR: cells A1,B; 2 book rows + 0 spares floored; 0 fallbacks; rows cap 2 (13 designated book rows past it, built plain)
+the union's own book check: strategy violations 0 in all four runs
+
+## (c) W4 OUTCOMES, the Milly (contest 196151357): mechanics only, never evidence (the rule came from W4)
+  off: Lamb 0, Collins 2, both 0, Stroud 2; mean projected sum 143.7
+   QBs {'Trevor Lawrence': 5, 'Joe Burrow': 5, 'Kyler Murray': 4, 'Josh Allen': 4, 'Jacoby Brissett': 3, 'C.J. Stroud': 2, 'Bo Nix': 1, 'Matthew Stafford': 1, 'Patrick Mahomes': 1}
+   cash rows 8, $70+ 1, $500+ 0; best 3: 181.1 (rank ~1,893); 174.3 (rank ~3,418); 166.0 (rank ~6,318)
+  on: Lamb 1, Collins 2, both 1, Stroud 1; mean projected sum 143.1
+   QBs {'Trevor Lawrence': 5, 'Joe Burrow': 5, 'Josh Allen': 4, 'Kyler Murray': 3, 'Matthew Stafford': 3, 'Jacoby Brissett': 2, 'Tyson Bagent': 2, 'C.J. Stroud': 1, 'Dak Prescott': 1}
+   cash rows 6, $70+ 1, $500+ 1; best 3: 222.2 (rank ~14); 163.9 (rank ~7,303); 159.9 (rank ~9,585)
+  cap4: Lamb 0, Collins 1, both 0, Stroud 1; mean projected sum 143.7
+   QBs {'Trevor Lawrence': 5, 'Joe Burrow': 5, 'Jacoby Brissett': 4, 'Josh Allen': 4, 'Kyler Murray': 3, 'Matthew Stafford': 1, 'Sam Darnold': 1, 'Patrick Mahomes': 1, 'Bo Nix': 1, 'C.J. Stroud': 1}
+   cash rows 7, $70+ 0, $500+ 0; best 3: 166.4 (rank ~6,138); 163.9 (rank ~7,303); 163.1 (rank ~7,743)
+  cap2: Lamb 0, Collins 1, both 0, Stroud 1; mean projected sum 143.7
+   QBs {'Trevor Lawrence': 5, 'Joe Burrow': 5, 'Josh Allen': 4, 'Jacoby Brissett': 3, 'Kyler Murray': 2, 'Sam Darnold': 2, 'Patrick Mahomes': 2, 'Tyson Bagent': 1, 'Bo Nix': 1, 'C.J. Stroud': 1}
+   cash rows 10, $70+ 0, $500+ 0; best 3: 175.3 (rank ~3,119); 173.4 (rank ~3,656); 157.2 (rank ~11,451)
+
+plain reading: the cap puts the rule on the first A1 / B rows built -- the top QBs (Lawrence, Burrow, Stafford, Murray).
+Stroud's row never takes it, so on W4 the N=4 / N=2 books do not build the Stroud + Collins + Lamb row the uncapped
+flag built. One outcome-chosen week cannot say whether that matters: the lab's 71b read (2023-24, with the 2022 go / no-go)
+decides.

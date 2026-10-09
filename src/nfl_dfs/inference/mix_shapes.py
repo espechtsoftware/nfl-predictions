@@ -119,22 +119,34 @@ def top_receivers(players) -> dict[str, str]:
     return {t: v[1] for t, v in sorted(best.items())}
 
 
-def bring_back_top_wr_rule(receipt: dict, vet_receipt: dict | None = None) -> tuple[dict[str, str], tuple[str, ...], set[frozenset]]:
+def bring_back_top_wr_rule(receipt: dict, vet_receipt: dict | None = None
+                           ) -> tuple[dict[str, str], tuple[str, ...], set[frozenset], set[frozenset] | None]:
     """Study 71's ONE reader (production's amendment d, 10-08): the union receipt's bring_back_top_wr block(s) ->
     (top_wr: team -> frame id, cells, exempt_rows: the rows built WITHOUT the floor, each a frozenset of frame ids).
     The book's own block sits at config.union.mix.mix.bring_back_top_wr; an ownership-term main adds the term call's block
     at config.union.mix.mix.with_term.bring_back_top_wr (its fallbacks are exempt too). vet_receipt (vet_replace_v4's
-    replace.json) adds its house-fallback rows (bring_back_top_wr_exempt), A1 WITHOUT the rule. Off / absent = ({}, (), set())."""
+    replace.json) adds its house-fallback rows (bring_back_top_wr_exempt), A1 WITHOUT the rule. The 4th value, required_rows,
+    is None without a study-71b cap (the rule binds every designated row but the exempt ones) and, with a cap, the
+    identities of the rows built UNDER the floor (the rule binds ONLY those). Off / absent = ({}, (), set(), None)."""
     union = ((receipt or {}).get("config") or {}).get("union") or {}
     mix = (union.get("mix") or {}).get("mix") or {}
     blocks = [b for b in (mix.get("bring_back_top_wr"), (mix.get("with_term") or {}).get("bring_back_top_wr")) if b]
     if not blocks:
-        return {}, (), set()
+        return {}, (), set(), None
     top = {str(t): str(v["id"]) for t, v in (blocks[0].get("top_wr") or {}).items()}
     cells = tuple(str(c) for c in blocks[0].get("cells") or ())
     exempt = {frozenset(str(i) for i in f["row"]) for b in blocks for f in (b.get("fallbacks") or [])}
     exempt |= {frozenset(str(i) for i in f["row"]) for f in ((vet_receipt or {}).get("bring_back_top_wr_exempt") or [])}
-    return top, cells, exempt
+    capped = [b for b in blocks if b.get("rows_cap") is not None]
+    required = {frozenset(str(i) for i in f["row"]) for b in capped for f in (b.get("floored_rows") or [])} if capped else None
+    return top, cells, exempt, required
+
+
+def rule_applies(row, exempt: set, required: set | None) -> bool:
+    """Study 71 / 71b: whether a designated-cell row is bound by the top-WR rule -- without a cap, every row but the exempt
+    ones; with a cap, ONLY the rows built under the floor (`required`)."""
+    r = frozenset(str(i) for i in row)
+    return (r in required) if required is not None else (r not in exempt)
 
 
 def shape_violations(ids, cell: str | None, pos: dict, team: dict, opp: dict, game: dict, *,

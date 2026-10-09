@@ -120,14 +120,14 @@ def source_summary(replaced: list[dict]) -> tuple[dict, str]:
     return n, f"; sources {n}" + (f" ({n['mix_control']} from the NO-TERM control main)" if n.get("mix_control") else "")
 
 
-def cell_violations(toks, cell, pos, team, opp, game, top_wr=None, rule_cells=(), exempt=frozenset()) -> list[str]:
+def cell_violations(toks, cell, pos, team, opp, game, top_wr=None, rule_cells=(), exempt=frozenset(), required=None) -> list[str]:
     """--main mix: what `toks` breaks of `cell` (mix_shapes.shape_violations), with study 71's rule when the union ran it
     (rule_cells non-empty): a designated cell needs its QB's opponent's top receiver (top_wr = the receipt's MINUS this
     step's exclusions) unless the row is exempt by identity; "house" (study 71's lenient house fallback) is A1 WITHOUT the
     rule. With the rule off (rule_cells empty) this is exactly shape_violations(toks, cell, ...)."""
-    from nfl_dfs.inference.mix_shapes import shape_violations
+    from nfl_dfs.inference.mix_shapes import rule_applies, shape_violations
     house = cell == "house"
-    on = bool(rule_cells) and not house and frozenset(toks) not in exempt
+    on = bool(rule_cells) and not house and rule_applies(toks, exempt, required)     # study 71b: only `required` under a cap
     return shape_violations(toks, "A1" if house else cell, pos, team, opp, game,
                             top_wr=top_wr if on else None, top_wr_cells=tuple(rule_cells) if on else ())
 
@@ -194,7 +194,7 @@ def main():
     # a top WR this step EXCLUDES drops the rule for his opponent (never promoting his team's next WR); and the HOUSE
     # fallback ("house") is A1 WITHOUT the rule -- a replacement must never fail because of study 71.
     from nfl_dfs.inference.mix_shapes import bring_back_top_wr_rule
-    bb_top, bb_cells, bb_exempt = bring_back_top_wr_rule(src)
+    bb_top, bb_cells, bb_exempt, bb_required = bring_back_top_wr_rule(src)       # 71b: a replacement is never "required"
     bb_live: dict[str, str] = dict(bb_top)                 # minus E, once E is known (below)
     house_cell = "house" if bb_cells else "A1"
     if _mix:
@@ -211,7 +211,7 @@ def main():
             print(f"REPLACEMENT FAILED: {e}", file=sys.stderr); sys.exit(2)
 
         def mix_violations(toks, cell):
-            return cell_violations(toks, cell, vr_args[0], vr_args[1], vr_args[2], _game_of_id, bb_live, bb_cells, bb_exempt)
+            return cell_violations(toks, cell, vr_args[0], vr_args[1], vr_args[2], _game_of_id, bb_live, bb_cells, bb_exempt, bb_required)
     game_arg = f.set_index("id")["game_id"].to_dict() if "game_id" in f.columns else None
 
     # ---- whole-slate statuses: report status (latest row per player) + QB classes ----
