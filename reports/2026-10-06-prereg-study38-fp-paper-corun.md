@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n and 6n's follow-up before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up and 6o before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -857,6 +857,78 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     3. the integrity gate on the live snapshot.
   - **Week 5 (10-09, after study 89's READ):** his rule kept the live cap at 0.5 (Addendum 186), so MIXT_QA0_CAP50 is not
     built in Week 5 and every other book is 6n's. The follow-up is kept for any week whose live cap is 0.35.
+
+- **Amendment 6o (2026-10-09, before Week 5's lock; no Week-5 outcome exists): his W5 package on paper.**
+  - **Why.** His decision (10-09, in the outside reviewer's session; HANDOFF `5380e0e7`): "Use the tested package (35% max +
+    each player capped at FantasyPros' projected ownership + 15 points) live in Week 5?" → "Live W5 trial if built in time
+    (Recommended)". The option: production builds it (default off), proves parity with the lab and checks his W4 book; armed
+    Saturday only if all of that passes, "with today's book scored on paper beside it". Under 6l's default-deny the new
+    flag would make the week INVALID.
+  - **What changes.**
+    - **Parity.** The four new union arguments (`--main-own-cap-delta`, `--main-own-cap-source`,
+      `--main-own-cap-min-coverage`, `--main-own-cap-fallback-share`) are "checked". Two live states are accepted:
+      - (0.5, off): today's book, also the host's fallback week;
+      - (0.35, delta 15 with a source, coverage 0.9, an EXPLICIT fallback share 0.5).
+      Everything else is a mismatch, an invalid week:
+      - the flat 35% alone (his rule: it never runs alone);
+      - 0.5 with the ownership cap;
+      - another delta, coverage or fallback;
+      - a package without the fallback share (production's default is none, and a refused cap would then build at 35%).
+    - **The caps.** Computed by PRODUCTION's `own_cap_rows` (the pinned checkout) on the snapshot's copy of the union's
+      own-cap file, with s38's own exclusions (the union's form). They are applied in the lab builder by study 89's
+      `own_caps` (`s89_own_cap.py` `92b09345`), pasted byte for byte; a test pins its text (`aec94b8b…`). It runs inside the
+      tiers' builder, on book solves only (spares never). An infeasible solve is re-solved without the ownership bans and
+      recorded per arm.
+    - **The live state comes from the union receipt,** not from the arguments alone: `own_cap_source.applied` and
+      `cap_share_used`.
+      - The paper build must agree on applied or refused, on the share used, and on the cap's identity (`source_sha256`,
+        `factor`, `matched_skill_players`, the coverage, `min_cap_rows` and the other meta keys present in both). If not,
+        the week is invalid.
+      - A cap refused by both means the live union built today's book (the fallback share 0.5, no cap), so the paper arms
+        do too.
+    - **Every paper arm follows the live ownership cap,** as 6n made them follow the player cap.
+    - **MIXT_QA0_TODAY** (exploratory; his named comparison, "today's book"): his live construction at 0.5 with NO ownership
+      cap. It is built only when the live book is not that, and read against MIXT_QA0 with both books' expected big seats.
+    - **MIXT_QA0_CAP50** keeps 6n's definition: 0.5 with the live ownership cap. In a package week it isolates the flat cap
+      inside the package. This supersedes the 6n follow-up's Week-5 line: if the package arms in Week 5, CAP50 and TODAY are
+      both built; if it does not, neither is.
+    - **The snapshot.** Production's `s38_snapshot.sh` copies the union's `--main-own-cap-source` as named (review
+      `bbc6581c`, merged with the flag and the host wiring), and s38_build resolves it as `own_cap_src`.
+  - **The smoke** (dry run on Week 4's frozen copies with 6n2's inputs; production at the flag `c948944d`;
+    `~/private/paper-corun/smoke-w4-amend6o/`, script `run.sh` `a5f9ce3a`, log `97c5a837`; lab `0cfc51c3`, production `680533c8`, union_reselect `3ff8f0d5`, the W4 file
+    `0ec90a6b`, PYTHONHASHSEED=0):
+    - 40 tests pass (rc 0).
+    - **pinN** (0.5, no own-cap flags): the 19 arms of 6n2's pin build are identical (rows and ranks); mismatches none;
+      CAP50 and TODAY recorded missing. (This checkout also builds the three TE-block arms, which the older pin lacked: 22.)
+    - **pkg** (0.35 + delta 15 + the W4 FP ownership file + coverage 0.9 + fallback 0.5): mismatches none; the cap applied
+      (factor 1.012781, 292 of 292 skill players matched, coverage 1.0, the minimum cap 3 rows).
+      - **MIXT_QA0_TODAY is identical, rows and ranks, to pinN's MIXT_QA0**: today's book exactly.
+      - Every capped arm: the most-used player at 9 rows, **0 skill players over their ownership cap**, 26 ruled solves,
+        0 re-solved without the ownership bans; 1.5–5.3 players banned per solve on average (max 16).
+      - MIXT_QA0_CAP50 (13 + the ownership cap): the most-used player at 11 rows, 0 over the cap.
+    - **pkgrec** (pkg + the laptop's W4 package-check receipt, `~/rehearsals/flagcheck-pkg035own15-20261009T173906Z/on/`,
+      applied, cap_share_used 0.35): mismatches none (the receipt and the paper build agree); the books equal pkg's.
+    - **refused** (a non-number fp_own_raw on one skill row; a receipt "applied false, 0.5"): both refused; mismatches none;
+      the paper arms at 0.5 with no cap; **all 22 books identical to pinN's**; CAP50 and TODAY missing.
+    - **disagree** (the refusing file; a receipt "applied true"): the mismatch "the union applied the ownership cap and the
+      paper build refused it" recorded.
+    - Parity only: the flat 35% alone and 0.5 with the package are each the expected mismatch.
+  - **Code:** lab `0cfc51c3` (`e050c730` the code, `e9a44d5b` and `0cfc51c3` the receipt keys; on 6n2's `dc6df978`):
+    - `experiments/s38_paper_corun.py` sha256 `238d7c1ea48fa67cee0b990022277d3b412e9c535583ace6a6d8b39b490360f1`;
+    - `scripts/s38_build.py` `15373e149d6e742a1ae83b7c3ab70ea9bc1f9be6f1037a0c367a1cb02c70e3c9`;
+    - `scripts/s38_score.py` `491ee2e3f210903172786677a2d7fe82c26a40af5615dc786146c887540ea603`;
+    - `scripts/s38_report.py` `b5449db4f23056d2ee48827ff5dffe0ee3ef34fa2c60e0d28b3d48c59c03f595`;
+    - `tests/test_s38_paper_corun.py` `e4743350d1da5e1ac3ec3c09818212329f40300fc35a47560462ba9459538c3c` (40 tests).
+    - Strict receipt keys: the exclusion-free meta (source_sha256, column, delta_pts, k, skill_sum_raw, rescale_to, factor,
+      matched / skill players, unnamed, rows_without_fp_own_raw, min_coverage) plus applied and cap_share_used; the coverage
+      and the pool's minimum cap depend on the T-70 exclusions and are recorded only (`info_differs`).
+  - **The integrity gate** pins this module sha in place of 6n2's `de777641…`, on the live snapshot.
+  - **Order:**
+    1. this amendment;
+    2. the laptop's ack (shas, tests, the smoke);
+    3. one merge batch before FRIDAY_HEAD (the flag, the host wiring, the snapshot change);
+    4. Saturday's arming, his package only if production's parity and the W4 check pass, else today's book (his option text);
+    5. the integrity gate on the live snapshot.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
