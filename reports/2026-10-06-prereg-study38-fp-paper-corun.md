@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p and 6q before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q and 6r before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -1028,6 +1028,46 @@ score. Nothing here enters a contest: the money path, its checkout and its files
   - **The integrity gate** pins this module sha in place of 6p's `ecc55fa0…`, on the live snapshot; `s38-prod-pin` moves to the new
     FRIDAY_HEAD (the classification is re-checked there).
   - **Order:** this amendment; the laptop's ack; the pin and the gate.
+
+- **Amendment 6r (2026-10-09, before Week 5's lock; no Week-5 outcome exists): his S1 and S2 on paper.**
+  - **Why.** His request (HANDOFF `2be97397`): "Test both tonight for live". S2 (one $8,000+ RB / WR / TE per row) FAILED its gate on
+    the laptop's W3 / W4 replay; S1 (shrink the projection toward the salary curve, k 0.7) failed his rule in study 92 (Addendum
+    190: −4.4, worse on both draws). **Neither is live in Week 5**; both are measured on its real fields here.
+  - **What changes.**
+    - **Classification:** production's `--proj-shrink-k`, `--proj-shrink-window`, `--mix-min-star` and `--mix-star-salary`
+      (the unmerged flag branch `b4934067`) are "checked", so a merge cannot make a week invalid. Accepted live states: the
+      shrink off, or k 0.7 / window 500 on his armed version (the receipt's `shrink` record must agree on k and window); S2
+      never live (any `--mix-min-star` is a mismatch; `--mix-star-salary` alone only at $8,000).
+    - **MIXT_QA0_STAR1** (exploratory, S2 on paper): his live construction plus at least one RB / WR / TE priced $8,000+ per book
+      row, added to the live row rules as ONE `set_constraints` list (an infeasible solve drops all of them, recorded).
+    - **MIXT_QA0_SHRINK07** (exploratory, S1 on paper; built only while the live book is not shrunk): his live construction on
+      the shrunk objective base (per skill position the median FP mean of the pool's same-position players within ± $500,
+      himself included; proj' = typical + 0.7 × (proj − typical); DSTs unchanged).
+    - **If S1 is ever live** (not in Week 5): every paper arm but TODAY and **MIXT_QA0_NOSHRINK** (the live book without the
+      shrink, then the paired book) is built on the shrunk base.
+    - The shrink and the star set are **study 92's frozen functions** (`s92_shrink_star.py` `7913aefc`), pasted byte for byte
+      (tests pin the text: `shrink` `95ac8553…`, `star_set` `5fb6e7b2…`).
+    - All read against MIXT_QA0, overall and per contest group (the reader's third 6r line per week).
+  - **The smoke** (dry run on Week 4's frozen copies; the armed state = 6q's (the package + the row rules) with the laptop's
+    receipts; production at FRIDAY_HEAD `f5f96468`; `~/private/paper-corun/smoke-w4-amend6r/`, script `run.sh` `bcb03a9e5ef2`, log `e8a25e6e63cb`;
+    lab `90a3053c`; PYTHONHASHSEED=0):
+    - 45 tests pass (rc 0).
+    - **The armed state (the shrink off), Week 5's form:** mismatches none; **all 26 pre-6r arms identical to 6q's armed build**;
+      MIXT_QA0_STAR1 built with a star in every row (1.038 per row against QA0's 0.769; 26 ruled, 0 re-solved; four stars in the
+      W4 pool); MIXT_QA0_SHRINK07 built (the shrink moves a skill projection by 0.395 on average); MIXT_QA0_NOSHRINK missing.
+    - **The shrink live** (the laptop's W4 armed + S1 receipt): mismatches none (the receipt agrees); **MIXT_QA0 is identical,
+      rows and ranks, to the armed state's MIXT_QA0_SHRINK07**; **MIXT_QA0_NOSHRINK is identical to the armed state's MIXT_QA0**;
+      TODAY identical; every arm shrunk except TODAY and NOSHRINK; SHRINK07 missing.
+    - S2 live (`--mix-min-star 1`): the mismatch "S2 failed its gate: never live".
+  - **Code:** lab `90a3053c` (on 6q's `16d7b8fc`):
+    - `experiments/s38_paper_corun.py` sha256 `8ac576307b4d91a1892ddbe3d0508cbf2e55fb42764d41efd2e726bb2f56c11d`;
+    - `scripts/s38_score.py` `f6e8585391ba0685c6c278a744f5be84c111b5d455e3081d89521f2840c77a9d`;
+    - `scripts/s38_report.py` `87e45c9d27e34e9884dd79b55bacbc86e45b9e2401c8d9d1324567c14db043ef`;
+    - `tests/test_s38_paper_corun.py` `c816a7fad3b56b4c7df2ef3c0835763a4ffe7910e91c2561565a05373be1b960` (45 tests);
+    - `scripts/s38_build.py` unchanged (`15373e14…`).
+  - **The integrity gate** pins this module sha in place of 6q's `5ad07e99…`, on the live snapshot (`s38-prod-pin` at FRIDAY_HEAD
+    `f5f96468`; the classification there is clean).
+  - **Order:** this amendment; the laptop's ack; the gate pin.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
