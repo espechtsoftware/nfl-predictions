@@ -81,13 +81,14 @@ reviewer and updated as each study is read.
 - No player over $7,900 in the book (86): **−4.9** (2023 −4.4, 2024 −5.5); about 18% fewer expected big wins; 2022 −0.3. Its
   real-book cost is small (−0.18 projected points per lineup; 17 of 26 lineups change), but the test model reads it clearly
   worse — the stars are worth keeping.
+- Your study-87 book (87), all built without the usage caps: **the whole book −3.3** (2023 −9.0, 2024 +2.5; 2022 +3.5); about
+  8% fewer expected big wins. **The price half −6.1** (2023 −6.7, 2024 −5.5; 2022 +3.6), the clearest negative of the morning,
+  23% fewer expected big wins — the same as study 85's −3.1 for the same price rules. **The QB half** (top-4-game QB with his
+  top receiver) **−2.3**, and below on 2022 too (−1.5). Removing the caps alone: −1.7. Against the no-caps book, the price
+  rules cost −4.4 and the QB rules −0.6. Without the QB cap, one QB took up to 24 of 26 lineups.
 
 ## Still running
-- **Study 87:** a top-4-game QB with his top receiver, plus the price rules, with the usage caps removed (and a no-caps
-  book alongside). Real book (the bans only; the receiver and flex rules can't be emulated): with today's caps, the QB
-  restriction adds about 0.9 projected points per lineup to the price limits' 0.7; with the caps off (your amendment), all of
-  87's limits together cost about 1.4 per lineup against a no-caps book.
-- **Study 88 (queued after 87; your "slightly cheaper QB" request):** 87's book again on a fresh draw (the second reading
+- **Study 88 (queued; your "slightly cheaper QB" request):** 87's book again on a fresh draw (the second reading
   the rule above asks for), plus three versions of it: no QB priced $7,000 or more; a TE ($5,000 or less) allowed in the flex;
   and both. Why these: in the 2026 Week 1–4 Millionaires the top 1% rarely played a $7,000+ QB (3% of lineups vs the field's
   9%), and they put a TE in the flex MORE often than the field (37% vs 28%), so 87's "no TE in the flex" rule goes against
