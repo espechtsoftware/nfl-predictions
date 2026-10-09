@@ -1,9 +1,10 @@
-# Preregistration: study 92, S1 (shrink the projection the solver sees toward the slate's salary curve) and S2 (at least one $8,000+ player per lineup), on his armed Week-5 version, in the harness (DRAFT 2026-10-09)
+# Preregistration: study 92, S1 (shrink the projection the solver sees toward the slate's salary curve) and S2 (at least one $8,000+ player per lineup), on his armed Week-5 version, in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (15:09 CDT; smoke done)** by the outside reviewer; code and smoke done. The
-reviewer reviews, runs the binding census and FREEZES; the laptop acks.
-- **Banks and seed:** **3012–3023** (set A 3012–3017, set B 3018–3023; sims bases 3062–3073, fields 3712–3723), seed 20261137 — the
-  reviewer's block, clear of study 91's by construction; the laptop scans it.
+**Status: FROZEN 2026-10-09 (15:57 CDT)** by the reviewer, after the outside reviewer's DRAFT, the smoke, the W4 real-book checks
+and the binding census, before any scored bank. The text changed at the freeze in this status block and §6 only. The laptop acks.
+- **Banks 3012–3023** (set A 3012–3017, set B 3018–3023), **seed 20261137**. The laptop's scan of both repositories (whole repos; the larger blobs not searched) found only incidental counts (3712–3723 as salaries and timings; 30xx pair-coverage counts in an old report; 3012–3023 as small counts), never a bank or seed; the reader seed 20261137 appears only in 92's own files; its full-set check of {b, b + 50, b + 700} over every used bank (nfl2 history, the recent studies, 90's 1992–2003, 91's 3000–3011) is clean.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run (O-63), recorded in `RUN_ENV_s92.txt` committed with
+  the confirmatory census.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
 
@@ -72,6 +73,30 @@ one TE and one player predicted < 3% per book row; the QB cap 5, the DST cap 6, 
   (43 lines; 55 with the two-draw path on a copy); only those were read.
 - BLAS threads pinned to 1 (89's driver). Bank 1406 only for the smoke (after study 90's run): the unit tests, the mechanics smoke
   (2023 W3, 2023 W11, 2024 W10), the binding census, the full-path smoke (reader exit and line count only).
+- **The W4 real-book checks** (the laptop's, outcome-blind, his FP book with the W5 arming, OFF `a4ab2839`; production flags
+  `b4934067` on a local merge with integration, union_reselect `7b69025e`; `~/rehearsals/flagcheck-armed{S1,S2,S1S2}-20261009T2036*`),
+  all against the ARMED book (the package + te1_low1: FP 140.00 per row; 1.00 TE, 0.231 low-owned and 0.769 stars per row; 14 rows
+  with a star; 57 distinct players):
+  - **+ S1** (k 0.7, ± $500): FP 139.86 (−0.14); 21 of 26 rows change; stars 0.615 per row (12 rows); 51 distinct players; the
+    shrink moves 235 skill players by 0.435 points on average (max 1.83); the row rules applied, 0 re-solved.
+  - **+ S2:** FP 139.73 (−0.27); 26 of 26 rows change; 26 rows with a star (from 14); 55 distinct players. **Only four non-QB skill
+    players were priced $8,000+ on W4, so every row holds one of those four** (each at most 9 rows) -- the rule concentrates the
+    book on the slate's few stars; the census reports the harness's pool (6.0 per slate-bank, min 4).
+  - **+ S1 + S2:** FP 139.41 (−0.59); 26 of 26 rows change.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 36 slate-banks of 2023–24; code `7913aefc`
+  clean; PYTHONHASHSEED=0; 7 tests pass; lab `results/s92/CENSUS_s92_binding.txt` `f1d048f0…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `ecc85823…` with no outcome field, committed at `065841ef`):
+  - every arm 41 rows within the package's caps (9 / 6, QB 5, overlap 4), 8 term rows, in the pool; the ownership cap held on
+    every solve in every arm;
+  - the pool per slate-bank: RB / WR / TE priced ≥ $8,000 5.2 (min 1); the shrink moves a skill projection by 0.44 points on average;
+  - **SHRINK07 (the decision):** 0 of 936 row-rule solves infeasible; rows shared with ARMED 1.17 of 26, none identical (not a
+    dead change); projection per row on the raw base −0.31; star rows 15.1 → 12.8;
+  - **STAR1 and SHRINK07_STAR1 (informational; S2 is decided by the laptop's replay, which it FAILED):** **47 of 936 row-rule
+    solves (5.0%) fell back, ABOVE the 0.5% flag** -- on slate-banks with one or two stars the star rule is infeasible under the
+    9-row cap, and the fallback (one row_rules list) drops the armed rules too; so these arms read as "the armed rules plus a
+    star where feasible, otherwise neither" (2+ TE rows 0.75 / 0.97 of 26 against ARMED's 0). Disclosed; not decision-bearing.
+    Star rows 15.1 → 24.7 of 26.
+  - **PARITY:** ARMED builds identical rows to study 91's OWN15_TE1_LOW1 binding census on all 36 slate-banks.
 - **Code:** nfl2 `production/s92-shrink-star-20261009` @ `7913aefc` (branched from study 91's frozen branch `2515e42b`):
   `experiments/s92_shrink_star.py` `37980da6…`; `scripts/s92_drive.py` `55d3fab8…`; `scripts/s92_census.py` `7045bc40…`;
   **`scripts/s92_report.py` (the reader) `74aff8ae…`** (seed 20261137); `tests/test_s92_shrink_star.py` `e70d7b1b…` (7).
