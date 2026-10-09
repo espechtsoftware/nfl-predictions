@@ -26,9 +26,9 @@ OWN_TILT=0                          # the ownership term (his 10-06 yes: "remove
 MAX_SHARED=4                        # a union row shares at most 4 players with every earlier row (his 10-06 evening yes,
                                     # "Use 4": study 41 PASS, replicated by study 42's GROUP4-GROUP5 on fresh banks, the
                                     # field audit clean; 5 was his afternoon choice; production default 7)
-MAIN_CAP=""                         # the per-player exposure cap share, SET ONCE STUDY 89 IS READ (his 10-09 rule, HANDOFF a391f2e5:
-                                    # "the independent check is whether study 89 shows the 35% cap underperforming 50% on both
-                                    # draws"): 0.35 unless CAP35 - LIVE_CB < 0 on P(>=1 big) in BOTH draws, else 0.5. Empty refuses
+MAIN_CAP="0.5"                      # the per-player exposure cap share. His 10-09 rule (HANDOFF a391f2e5): "the independent check
+                                    # is whether study 89 shows the 35% cap underperforming 50% on both draws". Study 89 READ
+                                    # (lab 90a0c951): DO NOT ARM 0.35 (A -0.03419, B -0.00603); keep 0.5. Empty refuses to arm
 MIX_FILL=rr                         # the MIX fill order (study 42; his 10-06 evening yes, "Use round-robin"): the cells in
                                     # turn, a row per shape for the top QBs (the outside reviewer's arm; NO DIFFERENCE on
                                     # P(>=1 big), +9% expected seats). group = the earlier book; value is NOT to be armed
