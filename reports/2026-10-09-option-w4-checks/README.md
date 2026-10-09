@@ -151,3 +151,21 @@ Verbatim: `OUTPUT-pkg035-own15.txt`.
 - **Reading:** the rule binds on his real book: 10 of his players sit above their ownership cap today. It spreads the book
   more than the flat 35% does (54 distinct players against 49). It costs about 0.6 projected points per row more than the
   flat cap.
+
+## Addendum (13:03 run): the ownership cap at +10 points (study 90's condition 5, a W6 candidate)
+
+The same runner, gate and inputs as the package run above, with `--main-own-cap-delta 10` in place of 15 (`680533c8`;
+`~/rehearsals/flagcheck-pkg035own10-20261009T180347Z`). This is a check, not an arming: W5 stays at +15.
+
+| | OFF | The package at +15 (armed) | At +10 |
+|---|---|---|---|
+| FP projection per row | 143.70 | 140.76 | 139.89 (−0.87 vs +15) |
+| Rows changed | | 17 of 26 vs OFF | 17 vs OFF; 16 vs +15 |
+| Players in ≥ 30% of rows | 10 | 10 | 7 |
+| Distinct players | 48 | 54 | 58 |
+| The smallest ownership cap (rows) | | 3 | 2 |
+| Players banned per solve (mean / max) | | 3.0 / 11 | 7.3 / 23 |
+| Skill players over the +10 cap | | 18 | 0 |
+
+The tighter cap binds much more than +15 (18 players in the armed book sit above it) and costs another 0.9 projected
+points per row. Applied; 0 re-solves.
