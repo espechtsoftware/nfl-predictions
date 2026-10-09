@@ -77,4 +77,10 @@ reviews, runs the binding census and FREEZES; the laptop acks.
 ## 6. Smoke, census and integrity
 - Bank 1406 only, when the machine is free: the unit tests, the mechanics smoke, the binding census, the full-path smoke (reader exit
   and line count only). Shas in the code commit.
-- **Code:** nfl2 `production/s88-book87-variants-20261009` (to branch from study 87's).
+- **Code:** nfl2 `production/s88-book87-variants-20261009` @ `49db37c6` (committed 09:34:25, BEFORE study 87's READ — 87's scored
+  run was still going; branched from study 87's `01869883`):
+  - `experiments/s88_book87_variants.py` `a387b349…` (pins s87 `85adf47b…`; its `rule_sets`, `arm_rules`, `qb_price_rules`
+    imported; `run()` is 87's with only the listed edits, a test asserts it);
+  - `scripts/s88_drive.py` `badc6fb8…`; `scripts/s88_census.py` `b7aacdc7…` (+ each variant's identity to BOOK87);
+  - **`scripts/s88_report.py` (the reader) `be54fc38…`** (seed 20261133); `tests/test_s88_book87_variants.py` `4c453d13…` (9 tests;
+    the text-parity ones pass; the importing ones wait for a machine gap).
