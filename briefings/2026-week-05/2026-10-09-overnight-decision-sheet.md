@@ -14,6 +14,12 @@ You said: **"Let's do a test now of all 3 and if it isn't negative use it in wee
 - **If it passes:** the combined switch is built and tested this morning, merged before Friday's code freeze, rehearsed Friday afternoon, and armed Saturday with your decision recorded. **I'll ask you to confirm here before anything is merged**, because your decision reached me through the other session.
 - **If it fails:** nothing changes; Week 5 runs as armed.
 
+**Your second decision:** "It also appears that 81 was positive. So following the current test, we need to try a version including 81." You chose no tight end priced $5,000+ in any lineup, with the same rule.
+
+- **The test (study 84, after 83):** 83's three rules plus that tight-end ban, scored against your live book.
+- **What you would enter (our reading; I'll confirm with you):** the four-rule version if it passes; otherwise the three-rule version if 83 passed; otherwise nothing new.
+- **Please weigh this plainly:** 84 re-tests the tight-end ban on the same past games where it already read +4.7, so it is likely to pass, and a pass is not new evidence that the ban helps. On your real book the ban alone changes 24 of 26 lineups and costs about 0.8 projected points per lineup.
+
 ## What you decide this morning
 
 The book is ready as it stands. That is the default, and nothing changes unless you say so. **Two decisions:**
