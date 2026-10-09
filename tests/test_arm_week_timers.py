@@ -345,3 +345,17 @@ def test_the_t70_second_dk_pull_and_the_week5_arm_count():
     assert out.returncode == 0, out.stderr
     units = sorted(set(re.findall(r"nfl-week5-[a-z0-9-]+", out.stdout + out.stderr)) - {"nfl-week5-d6400-build"})
     assert len(units) == expect == 13, units
+
+
+def test_the_player_cap_rides_into_the_units_and_the_week5_arm_refuses_it_unset():
+    """His 10-09 trial (HANDOFF a391f2e5): UNION_MAIN_CAP reaches the build units, the host passes --main-cap-share, and the
+    Week-5 arm sets it explicitly (0.35 or 0.5, once study 89 is read) and refuses to arm while it is empty."""
+    from pathlib import Path
+    r = _run(UNION_MAIN_CAP="0.35")
+    assert "UNION_MAIN_CAP=0.35" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    root = Path(__file__).resolve().parents[1] / "scripts"
+    host = (root / "sunday_build_host.sh").read_text()
+    assert '[[ -n "${UNION_MAIN_CAP:-}" ]] && UNION_ARGS+=(--main-cap-share "$UNION_MAIN_CAP")' in host
+    arm = (root / "arm_week5_saturday.sh").read_text()
+    assert '\nMAIN_CAP="" ' in arm and "UNION_MAIN_CAP=$MAIN_CAP" in arm
+    assert '[[ "$MAIN_CAP" == 0.35 || "$MAIN_CAP" == 0.5 ]] || stop "MAIN_CAP is not set' in arm
