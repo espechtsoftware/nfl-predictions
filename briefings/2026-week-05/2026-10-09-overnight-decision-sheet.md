@@ -18,6 +18,7 @@ and then the override is recorded.
 | 75 | **A wide receiver in the flex spot**, 8 lineups (the winners play a WR there about 30% of the time; your book about 4%) | +2.3 points, positive in both deciding seasons (2023 +1.6, 2024 +3.0); about 7% MORE expected big wins; but 2022 −1.1. **"Not entered"** by the frozen rule (the 2022 check leaned the other way); no gain shown either | **Not this week.** The best idea of the night to try next: a paper test on your own FP book (no money) from Week 6 — or Week 5 if you want it — because only a real-contest test can show whether it pays in your actual lineups |
 | 76 | **QB + 1 pass catcher with TWO players from the other team**, 4 lineups (the Week-4 winner's shape) | −1.4 points (2023 −2.9, 2024 flat); about 11% fewer expected big wins; 2022 +3.7. "Enterable" (no harm shown, no gain shown) | **Off.** The same picture as every forced-stack idea tonight |
 | 77 | **The quarterback alone in 3 lineups** (no receiver or tight end from his team; the winners play this shape in about 8% of top-1% lineups, your book in none) | +1.8 points; positive in both deciding seasons (2023 +1.4, 2024 +2.3) and flat on 2022 (+0.2); about 4% MORE expected big wins; no projection cost. "Enterable". Not a proven gain (the range runs from −1.8 to +5.4) | **The best result of the night. The reviewer recommends a 3-lineup trial this week, on top of the cheap block**, if its switch is built, tested and clean in Friday's rehearsal; otherwise Week 6. **Your call: it would be a second change this week** (the cheap block is the first), so Monday could not tell which one helped or hurt. I agree it is a fair trial: it adds the one winners' shape your book never plays, at about their rate |
+| 78 | **Two players priced $8,000 or more in 8 lineups** ("stars and scrubs", alongside the cheap-player boost) | +1.8 points but mixed: 2023 −0.8, 2024 +4.5; about 9% more expected big wins on 2023–24 but 4% fewer on 2022; its average finishing position got worse (a safety check failed); costs 0.3 projected points per lineup. "Enterable" | **Off.** If you want one change from tonight, 77 is the better candidate |
 | — | *(filled in as the night's results land)* | | |
 
 ## The setup you are running (the default)
@@ -82,10 +83,14 @@ and then the override is recorded.
   - It costs no projection (+0.06 points per lineup), and the 3 lineups land in big-contest seats.
   - **The reviewer recommends a 3-lineup trial in Week 5 on top of the cheap block.** The switch is being built tonight (off by default, not merged). Your decision: yes this week (two changes at once), or Week 6.
   - For the record: this run was interrupted at 276 of 318 slates by a session time limit and resumed exactly where it stopped. Nothing was read before it finished, and the result reproduced byte for byte.
+- **Study 78 (two $8,000+ players in 8 lineups; READ committed 00:24 CT):**
+  - +1.8 points on the deciding seasons, but split: 2023 −0.8, 2024 +4.5. Not a proven gain.
+  - About 9% more expected big wins on 2023–24, but about 4% fewer on 2022, and the lineups' average finishing position got worse (one of the safety checks failed; that only blocks a "pass", so the rule still says "enterable").
+  - It costs about 0.3 projected points per lineup.
+  - **Recommended off.** (A one-star version leaned positive in every season, but your book already has a star in most of those lineups, so it barely changed anything; it would need its own test.)
 - **The outside reviewer's list, triaged by the reviewer:** flex mix (our flex is almost never a WR), QB + 1 with two opposing players, and a QB-alone lineup run tonight. "More TE in the flex" is skipped: we already use a TE flex more than the winners do.
 
 **Still running tonight** (each becomes a line above when its result is in; the outside reviewer designed them from what the 2026 Millionaire winners did differently from the field):
-- **78:** two players priced $8,000 or more in 8 lineups ("stars and scrubs", alongside the cheap-player boost).
 - **79:** at most one pass catcher per team in the QB + 1 lineups (no second same-team pair away from the QB).
 - **80:** the UNDERDOG's QB from one of the top-4 games in 8 lineups (73 and 74 forced the favourite's side).
 
