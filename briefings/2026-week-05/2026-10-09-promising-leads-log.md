@@ -70,15 +70,18 @@ reviewer and updated as each study is read.
   reviewer's scan for study 78), so the rule would change much more there.
 - **Versions to consider later:** a real-book check first, then a paper test. (Two stars per lineup was mixed: off.)
 
-### 8. Limit how far above the field we go on any player (study 89) — *the first lever today that points the right way on both draws; LIVE in Week 5 if built in time*
+### 8. Limit how far above the field we go on any player (study 89) — *the first lever today that points the right way on both draws; ARMED for Week 5*
 - **Why:** in Weeks 2–4 the players we held far above the field fell short, and the ones we held below it did better
   (the outside reviewer's breakdown of your real entries, 10-09).
 - **Study 89 (two separate draws):** 35% max + each player capped at the field's projected ownership + 15 points: **+1.2**
   vs your book (draw A +0.5, draw B +1.9); about 5% fewer expected big wins; within the noise. The ownership cap on top of
   the 35% max alone: **+3.2** (both draws positive). With the field's *actual* ownership (a best case): +2.5.
 - **The 35% max alone: −2.0** (both draws negative) — by your rule it is NOT armed on its own.
-- **Your decision (10-09):** a live Week-5 trial if production builds and checks it in time (Fantasy Points' projected
-  ownership), with today's book on paper beside it.
+- **Your decision (10-09):** a live Week-5 trial if built and checked in time — **it was, and you said "Yes, arm the
+  package"**: 35% max + each skill player at most Fantasy Points' projected ownership + 15 points; today's book (50%, no
+  ownership cap) is scored on paper beside it; if Sunday's ownership file fails, the book falls back to today's book.
+- **On your Week-4 book:** no player in more than 9 of 26 lineups (was 13), players in 40%+ of lineups 7 → 0, distinct
+  players 48 → 54, about 2.9 projected points per lineup lower.
 
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
