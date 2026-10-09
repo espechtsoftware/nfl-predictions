@@ -1,7 +1,11 @@
-# Preregistration: study 79, one pass catcher per team in the QB + 1 rows (no same-team WR / TE pair away from the QB), in the harness (DRAFT 2026-10-08)
+# Preregistration: study 79, one pass catcher per team in the QB + 1 rows (no same-team WR / TE pair away from the QB), in the harness (FROZEN 2026-10-08)
 
-**Status: DRAFT 2026-10-08 (21:42 CDT)** by the outside reviewer, before any scored bank. The reviewer (84) reviews, runs
-the binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks and seed scanned).
+**Status: FROZEN 2026-10-08 (23:17 CDT)** by the reviewer, after the outside reviewer's DRAFT (21:42 CDT), the smoke and the
+binding census (§6), before any scored bank.
+- The text changed at the freeze in §6 (the census) and in §4, which now carries the census's vacuity and pair-row
+  figures beside the smoke's.
+- The module and the reader are the DRAFT's, unchanged. The laptop acks (shas, tests, census re-run, banks and seed
+  scanned, the derived seed bases too).
 - **Banks 1677–1682, seed 20261124** (assigned by the reviewer; 1671–1676 skipped: the laptop found 1671 / 1672 used as seed
   bases in old lab tests; the seed scanned clean).
 - **Target:** tonight, after study 78. A production option only if ONEPC8 is ENTERABLE and the operator chooses it in the
@@ -56,9 +60,15 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
   built plain.
 
 ## 4. What the harness can and cannot say
-- **THE GAP TRANSFERS (unlike studies 75 and 78), which is why this study is worth its slot:** the harness's LIVE_CB holds a non-QB pair in 6.3 of 26 rows (24%),
-  close to his FP book's 27%; ONEPC8 takes it to 3.0 (12%), about the top 1%'s 11%.
-- **Vacuity:** LIVE_CB holds a pair in 4.0 of the 8 rows at the ruled positions, so the rule changes about half of them.
+- **THE GAP TRANSFERS (unlike studies 75 and 78), which is why this study is worth its slot.**
+  - The smoke: the harness's LIVE_CB holds a non-QB pair in 6.3 of 26 rows (24%), close to his FP book's 27%; ONEPC8 takes
+    it to 3.0 (12%), about the top 1%'s 11%.
+  - The binding census (53 slate-banks, §6): 5.02 of 26 (19%) → 3.26 (13%).
+- **Vacuity, the smoke:** LIVE_CB holds a pair in 4.0 of the 8 rows at the ruled positions.
+- **Vacuity, the binding census (§6):** 2.38 of 8. So the rule changes directly about 2.4 of the 8 ruled rows on average,
+  and the rest of its effect comes through the re-drawn book. It was dealt identical to LIVE_CB on 17% of slate-banks.
+  - A small dose, disclosed before any scored bank. It is not a dead lever (study 51's MOOT threshold is 80%), and the
+    decision is unchanged.
 - **Path dependence:** the rows re-draw the rest of the book (the smoke shared 7.3 of 26 rows with LIVE_CB).
 - **The base is our simulator's mean, not FP's. The lines are closing lines.**
 
@@ -78,7 +88,18 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
   - projection per row +0.01 / −0.00; rows shared with LIVE_CB 7.3 / 7.3; dealt identical 0.000 / 0.000.
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 41 lines and 3 sections; only
   those were read.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `a51d4238` clean; 6 tests pass; lab `results/s79/CENSUS_s79_binding.txt` `5bed1d5d…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `70a9f054…` with no outcome field, committed at `01a4969f`):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - ONEPC8: 8 of 8 ruled on every slate-bank, 0 infeasible, at book positions 2, 3, 6, 7, 12, 13, 16, 18 (read by big
+    contests: 1.000);
+  - ONEPC_ALL: 14 of 14, 0 infeasible, two at book positions 22 and 23 (non-big; 0.857 big-read), by design exploratory;
+  - vacuity: LIVE_CB holds a non-QB pair in 2.38 of the 8 rows at ONEPC8's ruled positions;
+  - rows with a non-QB pair: LIVE_CB 5.02 of 26 (3.43 in B / C), ONEPC8 3.26 (1.30), ONEPC_ALL 2.15 (0.00);
+  - QB + 2 rows 12 in every arm;
+  - projection cost −0.02 / −0.04 per row;
+  - rows shared with LIVE_CB 11.1 / 10.7; dealt identical 0.170 / 0.075 (no dead lever).
 - **Code:** nfl2 `production/s79-nopairs-20261008` @ `a51d4238` (the outside reviewer's draft; branched from study 78's;
   `a51d4238` corrected the module's meta `rows` text to name B / C, the laptop's catch, no behaviour change):
   - `experiments/s79_nopairs.py` `d48790cf…`;
