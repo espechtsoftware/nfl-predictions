@@ -31,8 +31,8 @@ the cheap +2 block, on Rev6 (`plan-week5-rev6-s24.json` `ac10ddf6…`).
   - **QBTOP4:** "top 4 point total games" = study 73's `game_order` (the games with a QB in the pool, by game_total
     descending, ties by game id), the top 4; every pool QB outside them (either side) is banned;
   - **TOPREC:** the lineup holds its QB's team's top receiver — study 70's `top_wr`: **the highest-SALARIED WR of the team in
-    the pool (WRs only; ties: the higher projection, then the id). A TE is never the "top receiver" under it** (if he meant a
-    WR or TE, that is his to say before the freeze). The lab optimizer's interaction floor over the pairs (QB, his team's top
+    the pool (WRs only; ties: the higher projection, then the id). A TE is never the "top receiver" under it** (he confirmed it
+    in the outside reviewer's session, 10-09: "Highest-priced WR"). The lab optimizer's interaction floor over the pairs (QB, his team's top
     WR), weight 1, floor 1;
   - **TE5000:** every pool TE priced > $5,000 banned (a TE at $5,000 allowed);
   - **DST3000:** every pool DST priced > $3,000 banned;
@@ -52,9 +52,12 @@ the cheap +2 block, on Rev6 (`plan-week5-rev6-s24.json` `ac10ddf6…`).
   2022 about one time in four; with study 84's bank-to-bank finding, a lean of a few points is not a result.
 
 ## 4. What the harness can and cannot say
-- **The real-book check first** (the laptop's, outcome-blind, W4, OFF `a4ab2839`): how many of his rows break each rule today;
-  the parts the dk-status route can emulate (the QB and price bans) and their FP cost; the floor and the WR / flex rules cannot
-  be emulated that way.
+- **The real-book check** (the laptop's, outcome-blind, W4, OFF `a4ab2839`, 10-09): 9 of 26 rows have a QB outside the top-4
+  games (12 QB games; top-4 totals 51.5 / 50.5 / 48.5 / 48.5); 4 of 26 lack the QB's own top (highest-salaried) WR; 14 of 26
+  have ≥ 1 WR ≤ $4,500. With the 16 non-top-4 QBs, TEs > $5,000 and DSTs > $3,000 marked OUT (the bans only): 24 of 26 rows
+  change, **FP −1.59 per row** (143.70 → 142.11), flex 1 / 14 / 11 → 7 / 5 / 14 — **the costliest set tonight**, likely because
+  only the 8 QBs of the top-4 games are left for 26 rows under the cap of 5 per QB. The floor and the WR / flex rules come on top
+  and cannot be emulated that way.
 - Infeasibility: a QB from the top 4 games whose top receiver is out of the pool, with the price rules, may leave few lineups;
   the census reports infeasible solves by arm (above 5% goes to the reviewer before the freeze).
 - Path dependence; the simulator's mean; closing lines.
