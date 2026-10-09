@@ -14,7 +14,10 @@ The book is ready as it stands. That is the default, and nothing changes unless 
    - The reviewer recommends it, and I agree it is a fair, reversible trial. It would be a second change this week (the cheap block is the first), so Monday could not tell which one helped.
    - **Your choices:** (a) 77 this week; (b) nothing new this week, 77 in Week 6; (c) 73b instead (fewer two-pass-catcher lineups; neutral, your preference). Pick at most one.
    - 79 is no longer a candidate: on your real book, its 8-lineup version changed nothing.
-2. **A no-money paper test of 75 (a receiver in the flex)?** It was the night's best lean but "not entered" by the rule. A paper test builds it beside your real book and scores it on the real contests on Monday, never entered. Week 5 (the switch is merged before Friday's code freeze and the paper study amended before Sunday's lock), Week 6, or no.
+2. **No-money paper tests?** A paper test builds a variation beside your real book and scores it on the real contests on Monday; it is never entered. Two candidates from tonight:
+   - **75: a receiver in the flex on 8 lineups.** The night's best lean on the deciding seasons, but "not entered" by the rule (2022 went the other way).
+   - **81 (side measurement): no tight end priced $5,000 or more in any lineup.** The strongest single number of the night (+4.7 points, about 10% more expected big wins, better in all three seasons), but it was a side measurement among about 35 tonight, so it could be luck. On your real book it would change 24 of 26 lineups and cost about 0.8 projected points per lineup.
+   - For each: Week 5 (the reviewer amends the paper study before Friday's check), Week 6, or no.
 
 Everything else from tonight: off.
 
@@ -33,6 +36,7 @@ The reviewer advises **one new construction change a week** (so Monday can tell 
 | 78 | **Two players priced $8,000 or more in 8 lineups** ("stars and scrubs", alongside the cheap-player boost) | +1.8 points but mixed: 2023 −0.8, 2024 +4.5; about 9% more expected big wins on 2023–24 but 4% fewer on 2022; its average finishing position got worse (a safety check failed); costs 0.3 projected points per lineup. "Enterable" | **Off.** If you want one change from tonight, 77 is the better candidate |
 | 79 | **At most one receiver / tight end per team in the QB + 1 lineups**, 8 lineups (no second same-team pair away from the QB; the winners rarely do it, your book in about a quarter of lineups) | +2.0 points (2023 +0.2, 2024 +3.8; 2022 +1.3). Raises the chance of at least one big win (34% vs 32%) without raising the expected number of wins. "Enterable". **But on your real Week-4 book the 8-lineup version changed nothing:** your same-team pairs come in later lineups. Only the all-lineup version (a side test, never the decision) would change it | **Not now** (corrected after the check; the reviewer agrees). A paper test of the all-lineup version is the honest next step |
 | 80 | **The underdog's quarterback from a top-4 game in 8 lineups** (the top 1% take that QB more often than the field) | −0.4 points (flat), about 17% fewer expected big wins, a safety check failed, and clearly worse on 2022 (−4.3). **"Not entered"**. Forcing the favourite's quarterback instead was worse still (−3.8) | **Off.** Leave the book's own quarterback choice alone |
+| 81 | **No tight end priced $5,000 or more in the first 8 lineups** (the winners hold one in about 12% of lineups, the field 28%, your book 42%) | +0.5 points, flat (it mostly moved those tight ends into later lineups). "Enterable", nothing to gain. **Side measurement: no such tight end in ANY lineup: +4.7 points, about 10% more expected big wins, better in all three seasons** (the strongest number of the night, but a side measurement among about 35) | **Off as tested. The all-lineup version as a paper test** (decision 2); not live: it could be luck, and on your real book it costs about 0.8 projected points per lineup |
 
 ## The setup you are running (the default)
 
@@ -111,4 +115,10 @@ The reviewer advises **one new construction change a week** (so Monday can tell 
   - Flat on the deciding seasons (−0.4), but about 17% fewer expected big wins, and −4.3 on 2022: "not entered".
   - Forcing the favourite's quarterback instead (the other half of the test) was worse: −3.8.
   - **Recommended off.** Forcing which side's quarterback to play does not help; the book's own choice stays.
+- **Study 81 (no tight end priced $5,000 or more; READ committed 02:49 CT):**
+  - On the first 8 lineups (the decision): flat (+0.5). Banning them there mostly moved them into later lineups.
+  - In ANY lineup (a side measurement): +4.7 points (2023 +3.2, 2024 +6.2; 2022 +1.7), about 10% more expected big wins. The strongest result of the night, and the first whose range excludes zero.
+  - **Why not live:** it was one of about 35 measurements tonight, so one this strong is roughly what luck alone would give. Re-testing it on the same past games would not be new evidence. Only new weeks are.
+  - On your real Week-5-style book (Week 4's inputs, no scores looked at): 24 of 26 lineups would change; projection −0.76 per lineup (more than twice the 0.33 the test assumed, so the test may flatter it); the flex moves from tight ends to running backs; 2 fewer QB + tight end stacks.
+  - **Recommended: a paper test** (decision 2), not live.
 - **The outside reviewer's list** (studies 75–80, from what the 2026 Millionaire winners did differently from the field) all ran tonight. "More TE in the flex" was skipped: we already use a TE flex more than the winners do.
