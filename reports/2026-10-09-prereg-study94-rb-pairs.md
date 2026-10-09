@@ -1,9 +1,11 @@
-# Preregistration: study 94, a running back as a stack mate (the QB + one pass catcher + his own RB on 4 lineups) and a defense with its own running back (8 lineups), on his armed Week-5 version, in the harness (DRAFT 2026-10-09)
+# Preregistration: study 94, a running back as a stack mate (the QB + one pass catcher + his own RB on 4 lineups) and a defense with its own running back (8 lineups), on his armed Week-5 version, in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (17:04 CDT)** by the outside reviewer; code and smoke done (§6; the reviewer named the gap). The
-reviewer reviews, runs the binding census and FREEZES; the laptop acks. **Week-6 candidates; nothing changes for Week 5.**
-- **Banks and seed:** **3036–3047** (set A 3036–3041, set B 3042–3047; sims bases 3086–3097, fields 3736–3747), seed 20261139 — the
-  reviewer's block (agreed 10-09), clear of study 93's by construction; the laptop scans it.
+**Status: FROZEN 2026-10-09 (17:51 CDT)** by the reviewer, after the outside reviewer's DRAFT, the smoke, the laptop's W4 counts
+and the binding census, before any scored bank. The text changed at the freeze in this status block and §6 only. The laptop acks.
+**Week-6 candidates; nothing changes for Week 5.**
+- **Banks 3036–3047** (set A 3036–3041, set B 3042–3047), **seed 20261139**. The laptop's scan of both repositories (whole repos; the larger blobs not searched) found none of the 37 numbers in a bank / seed context in nfl-predictions and only two incidental hits in nfl2 (3086 as a timing value in L03's drive log; 3089 inside a sha256 in study 80's raw manifest); no results file exists for any of them; its full-set check of {b, b + 50, b + 700} over 674 used banks (93's block included) is clean. Disclosed: both scans started before 94's own files were pushed, so its prereg and reader seed are not among the hits.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run (O-63), recorded in `RUN_ENV_s94.txt` committed with
+  the confirmatory census.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
 
@@ -88,6 +90,19 @@ edits, a test asserts it); every arm is the ARMED version (89's `own_caps` wrapp
   WR / TE / RB: ARMED 14.3 / 0 / 11.7, RBMATE4 17.7 / 0 / 8.3, DSTRB8 15.7 / 0 / 10.3; **ARMED's rows and dealing are identical to
   study 93's smoke ARMED on all three slates**; the full path: the reader exited 0 (35 lines; 43 with the two-draw path on a copy);
   only those were read.
+- **His real W4 book on the armed version** (the laptop's outcome-blind counts, `~/rehearsals/flagcheck-pkgTE1LOW1-20261009T183613Z/on`,
+  rank order as the build-order proxy): both leads bind there. RBMATE4: 1 of the first 4 C rows already holds the QB's own RB (3
+  of 4 change); 1 of the 7 C rows; 2 of 26 rows book-wide. DSTRB8: none of the first 8 rows holds an RB of the DST's own team (all 8
+  change); 3 of 26 rows book-wide.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 36 slate-banks of 2023–24; code `627e5153`
+  clean; PYTHONHASHSEED=0; 10 tests pass; lab `results/s94/CENSUS_s94_binding.txt` `82414e83…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `19ed871a…` with no outcome field, committed at `1088d74d`):
+  - every arm 41 rows within the package's caps, 8 term rows, in the pool; 0 row-rule / ownership-cap fallbacks in every arm;
+    **no floor dropped** (RBMATE4 144 of 144 slots ruled; DSTRB8 288 of 288);
+  - the pool per slate-bank: (QB, own RB) pairs 120.5 (min 82); (DST, own RB) pairs 61.6 (min 43);
+  - **RBMATE4:** QB + own-RB rows 2.7 → 5.3 of 26; rows shared with ARMED 6.44; none dealt identical; projection +0.00;
+  - **DSTRB8:** DST + own-RB rows 3.1 → 9.0 of 26; rows shared with ARMED 1.28; none dealt identical; projection −0.07;
+  - **PARITY:** ARMED builds identical rows to study 93's ARMED binding census on all 36 slate-banks.
 - **Code:** nfl2 `production/s94-rb-pairs-20261009` @ `627e5153` (branched from study 93's `8bc3ef7a`):
   `experiments/s94_rb_pairs.py` `2eb7835b…` (pins s93 `5f4e1fb9…`); `scripts/s94_drive.py` `d71eb15e…`; `scripts/s94_census.py`
   `b9b70ab6…`; **`scripts/s94_report.py` (the reader) `82260ef0…`** (seed 20261139); `tests/test_s94_rb_pairs.py` `327815db…` (10).
