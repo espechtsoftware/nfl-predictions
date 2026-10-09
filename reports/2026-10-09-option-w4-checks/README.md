@@ -125,3 +125,29 @@ books' player ids only.
   most of the bans' real-book cost, as the 07:11 note expected.
 - Against its own no-caps baseline, the bans still cost −1.41 per row. Study 87 measures
   that part (its prereg reads each rule arm against NOCAP).
+
+## Addendum (12:39 run): his package, the 35% cap + the ownership cap, on his real book
+
+His 10-09 package (HANDOFF `5380e0e7`): the player cap 0.35 PLUS each skill player capped at floor(26 × (FP's projected
+ownership, rescaled to 800% over skill players, + 15 points) / 100) rows. The run used the same runner and gate (OFF =
+`a4ab2839`), the outside reviewer's flag at `680533c8` (union_reselect `3ff8f0d5`) and W4's real FP ownership export
+(`~/week4-sunday/ownership_fp-20261004t1550z-d800-32cdb61.csv`, sha `0ec90a6b`, captured 15:50Z pre-lock). The arguments
+were `--main-cap-share 0.35 --main-own-cap-delta 15 --main-own-cap-source <that file> --main-own-cap-fallback-share 0.5`.
+Verbatim: `OUTPUT-pkg035-own15.txt`.
+
+| | OFF (today's book) | The flat 35% (10:25) | The package |
+|---|---|---|---|
+| FP projection per row | 143.70 | 141.39 (−2.31) | 140.76 (−2.94) |
+| Rows changed | | 17 of 26 | 17 of 26 |
+| Most rows for one player | 13 | 9 | 9 |
+| Players in ≥ 40% / ≥ 30% of rows | 7 / 10 | 0 / 14 | 0 / 10 |
+| Distinct players | 48 | 49 | 54 |
+| Skill players over their ownership cap | 10 | | 0 |
+| Flex WR / TE / RB | 1 / 14 / 11 | 0 / 16 / 10 | 0 / 17 / 9 |
+
+- **The receipt:** own_cap_source applied; factor 1.0128 (FP's skill total 789.9%); 292 of 292 skill players named;
+  coverage 1.0; the smallest cap 3 rows. own_cap: 26 ruled solves, 0 re-solved without the bans, 3.0 players banned per
+  solve on average (max 11).
+- **Reading:** the rule binds on his real book: 10 of his players sit above their ownership cap today. It spreads the book
+  more than the flat 35% does (54 distinct players against 49). It costs about 0.6 projected points per row more than the
+  flat cap.
