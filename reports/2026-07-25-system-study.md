@@ -7997,3 +7997,129 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
   gain at either dose. The 2022 halves lean his way, and the deciding seasons lean the other way.
 - **Recommendation for Week 5:** keep it off. The rule allows TOPBB_N4 as his decision, with the laptop's cut-off (the
   row cap reviewed and merged before FRIDAY_HEAD, and Friday's A3 ON run clean).
+
+## Addendum 171 (2026-10-08): study 73 (his two QB-stack ideas, in the harness): five forced QB + top-pass-catcher lineups clear the trial rule only at its edge (−3.6, both seasons negative; not recommended); fewer QB + 2 rows (QB1HALF) is neutral (+0.4, no guard harmed)
+
+**Setup.**
+- **The questions.** The operator, 10-08 night:
+  - "the two pass catchers from the same team that we're doing in so many of our lineups seems like too much. Have we
+    tried something like for each of the five highest projected games doing requiring the quarterback and his top pass
+    catcher" ("Test tonight for Week 5");
+  - then "Yes" to also testing the quota version: fewer QB + 2 rows.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`):
+  - LIVE_CB (the reference).
+  - Decision 1, TOPG5_QB1:
+    - the first 5 book solves of the QB + 1 cells (B, C) in build order;
+    - each floored to one top-5 game's pair, the QB of the higher-implied side and his highest-projected WR / TE (the
+      pinned optimizer's interaction floor);
+    - they are dealt to book positions 2, 3, 6, 7, 12, all big seats.
+  - Decision 2, QB1HALF: cell quotas A1 0.15 / A2 0.07 / B 0.43 / C 0.35, 6 QB + 2 rows of 26 against 12. It is the
+    mirror of study 56's QB2HALF, built through its `quotas()`.
+  - Exploratory TOPG3_QB1: the top 3 games.
+- **A correction, disclosed:** the reviewer first told him fewer QB + 2 rows was QB2HALF. It is the opposite (QB2HALF
+  moved quota INTO QB + 2). The laptop caught it and corrected it to him before the freeze.
+- **Preregistration:** `reports/2026-10-08-prereg-study73-top-game-qb1.md` (DRAFT `954186d0`, amended `97d64559`; FROZEN
+  `5488bd5e`, 10-08 20:25 CDT, before any scored bank).
+- **Panel:** banks 1635–1640, B 20,000, seed 20261118. Two decision arms, so a false PASS somewhere has roughly a 5%
+  chance (disclosed).
+- **Read:** the reader `d402dc6c`; READ `2d12f509` (lab `ae32ad1`). The confirmatory census (`2f54f7c`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop:** raw 1635–1640 = `RAW_s73_run.sha256` (`sha256sum -c` OK); the READ
+  `2d12f509` (cmp); the confirmatory census `4db6afa9` (cmp).
+- **The prior, stated first:** NO DIFFERENCE or leaning negative for both (study 43; the satellite QB + 1 finding).
+- **Census:**
+  - TOPG5: 5 of 5 forced on every slate-bank, 0 infeasible.
+  - Pairs held: LIVE_CB 3.1 of 5.
+  - Projection cost: −0.20 (TOPG5) / +0.13 (QB1HALF) per row.
+  - No dead lever.
+- **Disclosed (the laptop):** a premature, failed reader invocation during the run. The laptop's background waiter
+  matched "READ" in a commit message and ran `s73_report.py` and the census against the in-progress run directory. Both
+  exited 1 at load on the missing `results_bank1640.jsonl` and produced no output; the empty files were deleted. The run
+  was unaffected: the reader only opens files read-only.
+
+**Reader output (verbatim):**
+```
+STUDY 73 READER  sha256 d402dc6c53b08cd26567d6010cd6c7f8590eae73d23098dfcfc5e0872f4f0d8c
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1635, 1636, 1637, 1638, 1639, 1640]  B 20000  seed 20261118  two decision arms against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the top-game rule's constants, study 48's and study 53's shas, live settings, QB cap, objective): [["LIVE_CB", "TOPG5_QB1", "QB1HALF", "TOPG3_QB1"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cells": ["B", "C"], "floor": 1.0, "n_games": {"TOPG3_QB1": 3, "TOPG5_QB1": 5}, "qb1half_quotas": [0.15, 0.07, 0.43, 0.35], "rows": "the first n_games book solves of B / C in build order, one game each; infeasible drops the game"}, "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", "f3f9d735ca0c5dfadb7abe6c2999fd3bcb352425e4fcc7ea73bd2b09d4522c89", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== TOPG5_QB1 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.03625  [-0.07320, +0.00059] (two-sided 0.95)  seasons 2023 -0.05374, 2024 -0.01876
+  GUARD 1 mean entry pct -0.00206  one-sided lower -0.00768  (must exceed -0.015)
+  GUARD 2 expected big seats 0.47081 vs 0.53503  ratio 0.880  (must be >= 0.80)
+  TOPG5_QB1 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.02100  [-0.03871, +0.07804] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== QB1HALF vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.00386  [-0.03547, +0.04430] (two-sided 0.95)  seasons 2023 -0.02289, 2024 +0.03062
+  GUARD 1 mean entry pct +0.00492  one-sided lower +0.00125  (must exceed -0.015)
+  GUARD 2 expected big seats 0.52762 vs 0.53503  ratio 0.986  (must be >= 0.80)
+  QB1HALF dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.01430  [-0.04701, +0.07236] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TRIAL SUMMARY: TOPG5_QB1, QB1HALF ENTERABLE (his decision; one construction change a week)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  TOPG3_QB1 - LIVE_CB (v2, 2023-24): -0.00101  [-0.03845, +0.03562]  seasons 2023 +0.00101, 2024 -0.00304
+  TOPG3_QB1 - LIVE_CB (v2, 2022): +0.00373  [-0.06401, +0.06881]  seasons 2022 +0.00373
+  TOPG5_QB1 - LIVE_CB (the l02 field, 2023-24): -0.03782  [-0.07629, -0.00035]  seasons 2023 -0.05840, 2024 -0.01724
+  TOPG5_QB1 - LIVE_CB (the l02 field, 2022): +0.01985  [-0.04391, +0.08043]  seasons 2022 +0.01985
+  QB1HALF - LIVE_CB (the l02 field, 2023-24): +0.00179  [-0.04016, +0.04367]  seasons 2023 -0.02748, 2024 +0.03106
+  QB1HALF - LIVE_CB (the l02 field, 2022): +0.01365  [-0.04943, +0.07309]  seasons 2022 +0.01365
+  TOPG3_QB1 - LIVE_CB (the l02 field, 2023-24): -0.00195  [-0.04038, +0.03538]  seasons 2023 -0.00472, 2024 +0.00083
+  TOPG3_QB1 - LIVE_CB (the l02 field, 2022): -0.00085  [-0.07179, +0.06592]  seasons 2022 -0.00085
+  TOPG5_QB1 forced solves built plain (infeasible; the game dropped): 0 of 1590 over 318 slate-banks
+  TOPG3_QB1 forced solves built plain (infeasible; the game dropped): 0 of 954 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.33793  expected big seats 0.53503  P(>=2) 0.12369  entry pct 0.51036  |  l02: P(>=1 big) 0.36676
+               book: projection per row 127.74  salary 49965  QB + 2 rows 12.0 of 26  top-5-game QB + top pass catcher pairs held 2.8 of 5
+  TOPG5_QB1    v2: P(>=1 big) 0.30168  expected big seats 0.47081  P(>=2) 0.11682  entry pct 0.50830  |  l02: P(>=1 big) 0.32894
+               book: projection per row 127.47  salary 49961  QB + 2 rows 12.0 of 26  top-5-game QB + top pass catcher pairs held 5.0 of 5
+  QB1HALF      v2: P(>=1 big) 0.34179  expected big seats 0.52762  P(>=2) 0.12574  entry pct 0.51528  |  l02: P(>=1 big) 0.36855
+               book: projection per row 127.87  salary 49966  QB + 2 rows 6.0 of 26  top-5-game QB + top pass catcher pairs held 2.6 of 5
+  TOPG3_QB1    v2: P(>=1 big) 0.33692  expected big seats 0.53598  P(>=2) 0.13489  entry pct 0.50889  |  l02: P(>=1 big) 0.36481
+               book: projection per row 127.59  salary 49962  QB + 2 rows 12.0 of 26  top-5-game QB + top pass catcher pairs held 3.9 of 5
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.23609  expected big seats 0.30892  P(>=2) 0.06457  entry pct 0.46122  |  l02: P(>=1 big) 0.25580
+               book: projection per row 131.90  salary 49963  QB + 2 rows 12.0 of 26  top-5-game QB + top pass catcher pairs held 3.2 of 5
+  TOPG5_QB1    v2: P(>=1 big) 0.25710  expected big seats 0.36064  P(>=2) 0.08303  entry pct 0.45930  |  l02: P(>=1 big) 0.27565
+               book: projection per row 131.69  salary 49957  QB + 2 rows 12.0 of 26  top-5-game QB + top pass catcher pairs held 5.0 of 5
+  QB1HALF      v2: P(>=1 big) 0.25039  expected big seats 0.34516  P(>=2) 0.07291  entry pct 0.46129  |  l02: P(>=1 big) 0.26945
+               book: projection per row 131.99  salary 49961  QB + 2 rows 6.0 of 26  top-5-game QB + top pass catcher pairs held 3.1 of 5
+  TOPG3_QB1    v2: P(>=1 big) 0.23983  expected big seats 0.33360  P(>=2) 0.07681  entry pct 0.45849  |  l02: P(>=1 big) 0.25496
+               book: projection per row 131.82  salary 49959  QB + 2 rows 12.0 of 26  top-5-game QB + top pass catcher pairs held 4.1 of 5
+```
+
+**Reading.**
+- **TOPG5_QB1, five forced "QB + his top pass catcher" lineups, one per top-5 game:**
+  - Read −3.6 points [−7.3, +0.06], negative in both seasons (−5.4 / −1.9).
+  - Expected big seats ×0.88; P(≥ 2) 0.117 against 0.124.
+  - On the l02 field it is WORSE (−3.8 [−7.6, −0.04]).
+  - 2022 +2.1, not contradicted.
+  - By study 51's rule it is ENTERABLE, his decision, but only at the edge: the read's upper bound is +0.0006. It is the
+    same picture as study 43 (Addendum 147: stacks forced into the top games, −2.8).
+  - **Not recommended.**
+- **QB1HALF, fewer QB + 2 rows (6 of 26 against 12):**
+  - Read +0.4 [−3.5, +4.4] (2023 −2.3, 2024 +3.1).
+  - Expected big seats ×0.99; guard 1's lower bound is +0.0013, above zero.
+  - 2022 +1.4.
+  - ENTERABLE, his decision: no harm shown and no gain shown.
+  - Study 56 found the other direction, MORE QB + 2 rows (QB2HALF), also neutral (+1.8; Addendum 163). In this harness the
+    QB + 2 share does not move his chance of a big win either way.
+  - If he prefers fewer QB + 2 rows (his stated concern), QB1HALF is a free choice under the rule. It is a preference,
+    not a gain.
+- **The outside reviewer's QB2_30 / QB2_15 doses** (between QB1HALF and today) are closed without a run: both ends read
+  neutral.
+- **Exploratory TOPG3_QB1** (three forced lineups) is flat (−0.1). The cost of the forced rows grows with their number.
+- **Recommendation for Week 5:**
+  - no forced top-game lineups;
+  - QB1HALF only if he wants fewer QB + 2 rows for their own sake. The production option is the existing
+    `--mix-cell-quotas A1=0.15,A2=0.07,B=0.43,C=0.35`, rehearsed on Friday's A3 first.
+  - One construction change a week.
