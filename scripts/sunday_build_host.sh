@@ -496,6 +496,23 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
       own_cap_alert "${OWN_CAP_WHY:-no FP ownership file}"
     fi
   fi
+  row_rules_alert() {                                       # his test-2 rules not applied: the book stands without them, loudly
+    printf '%s run %s: ROW RULES NOT APPLIED: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$1" | tee -a "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt"
+    printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+      "!!! ROW RULES NOT APPLIED for $RUN_TAG: $1 -- the book stands without them" \
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  }
+  # His 10-09 test 2 (study 91; HANDOFF 2ab54e30): at most one TE and at most one skill player under 3% FP projected
+  # ownership per main-book row, ONLY on top of his package and only when its ownership cap is applied (the rule reads the
+  # same file). Live only if study 91 passes his rule; off = unset. No ownership file = no row rules, LOUDLY.
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_ROW_RULES:-}" == "te1_low1" ]]; then
+    if (( OWN_CAP_ON )) && [[ -n "$OWN_CAP_SRC" ]]; then
+      UNION_ARGS+=(--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3)
+      echo "ROW RULES for $RUN_TAG: ON (at most one TE and one skill player under 3% FP ownership per book row; $(basename "$OWN_CAP_SRC"))"
+    else
+      row_rules_alert "the ownership cap is not on for this run (no FP ownership file)"
+    fi
+  fi
   # Study 48b's winner-likeness order (operator 10-07: "Test tonight, aim for Week 5"; default off): FP's projected
   # ownership (the term's FP export when there is one, else this run's own capture + export) and the players' prior-game
   # touchdowns / attempts (scripts/winner_like_inputs.py), then the union re-orders the main book by study 48's frozen
@@ -594,6 +611,9 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
       echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; union_fail "the union failed, rc $UNION_RC"; exit 1
     fi
   fi
+  if [[ "${UNION_MIX_ROW_RULES:-}" == "te1_low1" ]] && grep -q 'ROW RULES NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
+    row_rules_alert "the union refused them: $(grep -h 'ROW RULES NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
+  fi
   if (( OWN_CAP_ON )) && grep -q 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     own_cap_alert "the union refused it: $(grep -h 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
@@ -601,6 +621,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ -n "$UNION_DIR" && -n "${OWN_REFUSED:-}" && ! -f "$UNION_DIR/own_term_refused.txt" ]] && cp "$OUT/union-$RUN_TAG-own-refused.txt" "$UNION_DIR/own_term_refused.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/union-args-$RUN_TAG.txt" ]] && cp "$OUT/union-args-$RUN_TAG.txt" "$UNION_DIR/union_args.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt" "$UNION_DIR/own_cap_not_applied.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" "$UNION_DIR/row_rules_not_applied.txt"
   # the projection source travels with the union dir, so the upload sheet can name it (the outside review 10-06, (1b))
   [[ -n "$UNION_DIR" && -f "$OUT/proj_fp-$RUN_TAG.txt" ]] && cp "$OUT/proj_fp-$RUN_TAG.txt" "$UNION_DIR/proj_source_log.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/proj_source_fallback-$RUN_TAG.txt" ]] && cp "$OUT/proj_source_fallback-$RUN_TAG.txt" "$UNION_DIR/proj_source_fallback.txt"
