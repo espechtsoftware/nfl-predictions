@@ -1,7 +1,9 @@
-# Preregistration: study 74, the full game stack (a QB, his top pass catcher and the opponent's top receiver) in each top game, in the harness (DRAFT 2026-10-08)
+# Preregistration: study 74, the full game stack (a QB, his top pass catcher and the opponent's top receiver) in each top game, in the harness (FROZEN 2026-10-08)
 
-**Status: DRAFT 2026-10-08** by the reviewer, written after the code's smoke and before the binding census and any
-scored bank. The binding census runs after study 73's scored run finishes, so the two do not compete for the machine.
+**Status: FROZEN 2026-10-08 (21:10 CDT)** by the reviewer, after the smoke and the binding census (§6), before any scored bank.
+- The DRAFT was `d41a0f45`. Nothing in §2–§5 changed at the census.
+- **Next:** the laptop's ack (the banks and seed scanned clean: 18,120 production and 8,150 lab blobs, hex false
+  positives only), the run, the confirmatory census before the read, the read, the laptop's re-run and the records.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
 
@@ -56,7 +58,7 @@ scored bank. The binding census runs after study 73's scored run finishes, so th
   slots of study 48's and 53's, which study 73 pins), the secondaries and the forced-solve lines differ.
 - **THE READ: 2023–24** (36 slates). STACK4_B − LIVE_CB on P(≥ 1 big seat), per slate, on the calibrated field v2.
   - The interval is two-sided 0.95, with B 20,000.
-  - **Banks 1641–1646, seed 20261119** (to be scanned by the laptop before the freeze).
+  - **Banks 1641–1646, seed 20261119** (scanned clean by the laptop).
 - **THE GO / NO-GO: 2022** (study 51's rule). Guards as before; they gate a PASS only.
 - **THE TRIAL RULE** (study 51's), with one decision arm and no multiplicity.
 - **One construction change a week:** if more than one of tonight's studies is ENTERABLE, he picks one. The laptop's arm
@@ -86,7 +88,17 @@ scored bank. The binding census runs after study 73's scored run finishes, so th
   - rows shared with LIVE_CB 2.3 / 3.0.
 - **The full-path smoke** (2024 W10 and 2022 W6 scored on bank 1406, the final arms): the reader exited 0 with its 3
   sections. Only the exit code, the line count and the section count were read.
-- **The binding census:** to follow, after study 73's run.
+- **The binding (support) census** (outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code `542b422` clean; lab
+  `results/s74/CENSUS_s74_binding.txt` `356fb916…`, the raw mechanics rows `census_mechanics_bank1406.jsonl` `f21d02d7…` with no
+  outcome field, committed at `d168db1`):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - STACK4_B: 3.96 of 4 triples forced per slate-bank (2 of 212 floored solves infeasible, built plain and recorded);
+    its forced rows sit at book positions 2, 6, 12, 16, all read by big contests;
+  - STACK5_B: 4.89 of 5 (6 infeasible); its 5th at book position 22 (non-big), by design;
+  - triples held: LIVE_CB 1.09 of 5, STACK4_B 4.11, STACK5_B 4.94;
+  - QB + 2 rows 12 of 26 in every arm;
+  - projection cost −0.26 / −0.38 per row;
+  - rows shared with LIVE_CB 3.8 / 3.6; dealt identical 0.000 (no dead lever).
 - **Code:** nfl2 `production/s74-game-stack-20261008` @ `542b422`:
   - `experiments/s74_game_stack.py` `aa3645cd…`;
   - `scripts/s74_drive.py` `fdc8ddd5…`;
