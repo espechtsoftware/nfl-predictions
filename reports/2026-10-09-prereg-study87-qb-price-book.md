@@ -28,9 +28,12 @@
 frozen `top_wr` (`s70_topwr.py` `d622a211…`, the same top receiver as production's `top_receivers`). LIVE = 48d's 41 rows with
 the cheap +2 block, on Rev6 (`plan-week5-rev6-s24.json` `ac10ddf6…`).
 - **THE RULES, on EVERY BOOK solve (j < 26; spares never), whatever the cell:**
-  - **QBTOP4:** every pool QB outside the top 4 games by game_total (study 73's `game_order`, either side) is banned;
-  - **TOPREC:** the lineup holds its QB's team's top receiver (study 70's `top_wr`: the highest-salaried WR in the pool; ties
-    projection, then id) — the lab optimizer's interaction floor over the pairs (QB, his team's top WR), weight 1, floor 1;
+  - **QBTOP4:** "top 4 point total games" = study 73's `game_order` (the games with a QB in the pool, by game_total
+    descending, ties by game id), the top 4; every pool QB outside them (either side) is banned;
+  - **TOPREC:** the lineup holds its QB's team's top receiver — study 70's `top_wr`: **the highest-SALARIED WR of the team in
+    the pool (WRs only; ties: the higher projection, then the id). A TE is never the "top receiver" under it** (if he meant a
+    WR or TE, that is his to say before the freeze). The lab optimizer's interaction floor over the pairs (QB, his team's top
+    WR), weight 1, floor 1;
   - **TE5000:** every pool TE priced > $5,000 banned (a TE at $5,000 allowed);
   - **DST3000:** every pool DST priced > $3,000 banned;
   - **WR1PLUS:** at least one WR priced ≤ $4,500 (set_constraints [(those WRs, ">=", 1)]; more allowed — his clarification);
@@ -59,6 +62,8 @@ the cheap +2 block, on Rev6 (`plan-week5-rev6-s24.json` `ac10ddf6…`).
 ## 5. Production
 - None unless he decides to use it; a production version would be a fresh build (bans, an own-team top-receiver floor, the
   constraints) with parity against this study's frozen wrapper, its format agreed with the laptop first.
+
+- **BEFORE HE ACTS ON ANY ARM (the reviewer's forward rule, 10-09):** it is first re-read on a second, disjoint bank set (the same code and reader, new banks and seed), and both reads and their difference are reported before any option is built.
 
 ## 6. Smoke, census and integrity
 - Bank 1406 only, when the machine is free: the mechanics smoke, the binding census, the full-path smoke (reader exit and line
