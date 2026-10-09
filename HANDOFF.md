@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (09:14 CDT) — laptop: the 09:13 "Week-5 money gate" reminder fired; the gate was already done (10-05), nothing re-run
+
+The one-shot reminder scheduled 10-04 (the schedule table's "Fri 10-09 09:13" row; `75be36fb` / `7fea3a9a`) fired today. The
+work ran early and is on the record:
+- **10-05:** the frozen design (`reports/2026-10-04-week5-money-gate-design.md` + Addenda 1–2, before scoring). The
+  known-answer gate reproduced all 534 entries exactly. A1 = **0.48× fees on W1–4 (0.36–0.67)**: it would have lost
+  money. No arm was preferred, and the picks were indistinguishable from random (M2 72nd percentile). Delivered as
+  `briefings/2026-week-04/2026-10-05-week5-money-gate-result.md`.
+- **10-06:** his W5 package PKG4-rr on the W2–4 real fields, descriptive: .228 / .000 / .174× by week; 0 big wins.
+- **Never run:** the design's "2022–25 field-relative check (later)". The harness studies since (2022–24 real outcomes
+  against simulated fields) are that yardstick in effect. None shows an edge beyond its noise (Addendum 182's bank-set
+  finding).
+- **Why the final armed book has no clean W1–4 money figure:** the cheap block came from W1–4 field reads, so a W2–4 replay
+  of it is in-sample (integrity rule 4). Its exact-form W2–4 replay (10-07) was descriptive only. Week 5 is its first clean
+  test.
+- **His W5 stake plan is already set (Rev6)** after he saw the gate. Nothing re-run; the operator told in chat today.
+- **One more one-shot today:** 15:47, the operator research check-in.
+
 ## 2026-10-09 (09:04 CDT) — laptop: the morning studies 83–86 read, reproduced and merged; 87 running; Week 5 unchanged
 
 **State:** nothing on the money path changed. The live Week-5 book stays as armed (the cheap +2 block, decided 10-07). No
