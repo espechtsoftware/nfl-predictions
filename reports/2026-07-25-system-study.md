@@ -7909,3 +7909,91 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
     leans his way.
   - If he chooses it: the production flag is reviewed and merged before FRIDAY_HEAD, and Friday's A3 ON run is clean,
     or it waits.
+
+## Addendum 170 (2026-10-08): study 71b (the top-receiver bring-back on 4 rows only, in the harness): NO DIFFERENCE, not contradicted -- ENTERABLE by the trial rule, slightly negative on the deciding seasons; the bring-back idea shows no gain at either dose, and the recommendation is to keep it off
+
+**Setup.**
+- **The question.** The operator, 10-08 about 18:40, on study 71: "For your test, were you doing that in every single
+  lineup? I think it would be good to just do a very small percentage of these as a test." Study 71 (Addendum 169) had
+  ruled all 15 A1 / B rows and was neutral.
+- **The arms.** Built on study 71's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`; study 71
+  sha-pinned):
+  - LIVE_CB (the reference).
+  - TOPBB_N4, the single decision: study 71's rule (the pinned optimizer's interaction floor over the (QB, his
+    opponent's top receiver) pairs) on only the first 4 BOOK rows built under it in the A1 / B cells. The order is build
+    order; an infeasible floored solve is not counted; spares are never ruled. The production cap
+    `--mix-bring-back-top-wr-rows N` mirrors it exactly.
+  - Exploratory TOPBB_N2: 2 rows.
+- **Preregistration:** `reports/2026-10-08-prereg-study71b-top-bring-back-few-rows.md` (DRAFT `f121c044`; FROZEN
+  `743b71c8`, 10-08 18:50 CDT, before any scored bank).
+- **Panel:** banks 1623–1628, B 20,000, seed 20261116.
+- **Read:** the reader `256827bc`; READ `e7a0efbc` (lab `dadef3e`). The confirmatory census (`c425f24`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop:** raw 1623–1628 = `RAW_s71b_run.sha256` (`sha256sum -c` OK); the READ
+  `e7a0efbc` (cmp); the confirmatory census `b5a034c8` (cmp).
+- **The prior, stated first:** NO DIFFERENCE (a smaller dose moves less).
+- **Census:**
+  - Exactly 4 / 2 ruled rows per slate-bank; 0 infeasible.
+  - Top-bring-back rows: LIVE_CB 3.43, N4 5.43, mostly in book positions 0–9.
+  - Cost −0.06 per row.
+  - The build is path-dependent: 2.6 of 26 rows are shared with LIVE_CB. The other rows re-draw under the same rules, so
+    the downside is measured on the whole book, not capped row by row.
+
+**Reader output (verbatim):**
+```
+STUDY 71b READER  sha256 256827bc7a34491613020fcf015f22fa12a336d0cfe3a181bb52d36e600d45f9
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1623, 1624, 1625, 1626, 1627, 1628]  B 20000  seed 20261116  one decision arm against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the bring-back rule's constants, study 71's sha (twice), live settings, QB cap, objective): [["LIVE_CB", "TOPBB_N4", "TOPBB_N2"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "floor": 1.0, "n_rows": {"TOPBB_N2": 2, "TOPBB_N4": 4}, "row_choice": "the first n book rows committed under the rule, build order; infeasible not counted", "rule_cells": ["A1", "B"], "top_wr": "s70_topwr.top_wr"}, "2d287cf401c189a3a841e10bc0986fed7c1d3eff2f35e9088dfd3887e13ccda6", "2d287cf401c189a3a841e10bc0986fed7c1d3eff2f35e9088dfd3887e13ccda6", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== TOPBB_N4 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.01369  [-0.04189, +0.01464] (two-sided 0.95)  seasons 2023 -0.01310, 2024 -0.01428
+  GUARD 1 mean entry pct +0.00144  one-sided lower -0.00265  (must exceed -0.015)
+  GUARD 2 expected big seats 0.46696 vs 0.54228  ratio 0.861  (must be >= 0.80)
+  TOPBB_N4 dealt identical to LIVE_CB: 0.019 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.01366  [-0.06281, +0.08684] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TRIAL SUMMARY: TOPBB_N4 ENTERABLE (his decision; one construction change a week)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  TOPBB_N2 - LIVE_CB (v2, 2023-24): -0.01629  [-0.04515, +0.01556]  seasons 2023 -0.01760, 2024 -0.01497
+  TOPBB_N2 - LIVE_CB (v2, 2022): +0.02785  [-0.03540, +0.09329]  seasons 2022 +0.02785
+  TOPBB_N4 - LIVE_CB (the l02 field, 2023-24): -0.01197  [-0.04166, +0.01765]  seasons 2023 -0.01672, 2024 -0.00723
+  TOPBB_N4 - LIVE_CB (the l02 field, 2022): +0.01323  [-0.06583, +0.08945]  seasons 2022 +0.01323
+  TOPBB_N2 - LIVE_CB (the l02 field, 2023-24): -0.01681  [-0.04676, +0.01666]  seasons 2023 -0.02042, 2024 -0.01320
+  TOPBB_N2 - LIVE_CB (the l02 field, 2022): +0.02807  [-0.03821, +0.09688]  seasons 2022 +0.02807
+  TOPBB_N4 solves the rule made infeasible (built without it): 0 of 1272 rule solves over 318 slate-banks
+  TOPBB_N2 solves the rule made infeasible (built without it): 0 of 636 rule solves over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.32850  expected big seats 0.54228  P(>=2) 0.13267  entry pct 0.51011  |  l02: P(>=1 big) 0.35503
+               book: projection per row 127.69  salary 49964  rows with the QB's opponent's top receiver 3.6 of 26 (3.6 of the 15.0 A1 / B rows)  QB games 6.4
+  TOPBB_N4     v2: P(>=1 big) 0.31481  expected big seats 0.46696  P(>=2) 0.11129  entry pct 0.51156  |  l02: P(>=1 big) 0.34305
+               book: projection per row 127.65  salary 49963  rows with the QB's opponent's top receiver 5.5 of 26 (5.5 of the 15.0 A1 / B rows)  QB games 6.4
+  TOPBB_N2     v2: P(>=1 big) 0.31222  expected big seats 0.49300  P(>=2) 0.12041  entry pct 0.50949  |  l02: P(>=1 big) 0.33822
+               book: projection per row 127.67  salary 49963  rows with the QB's opponent's top receiver 4.3 of 26 (4.3 of the 15.0 A1 / B rows)  QB games 6.4
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.24742  expected big seats 0.35266  P(>=2) 0.07988  entry pct 0.45994  |  l02: P(>=1 big) 0.26695
+               book: projection per row 131.85  salary 49961  rows with the QB's opponent's top receiver 2.6 of 26 (2.6 of the 15.0 A1 / B rows)  QB games 6.6
+  TOPBB_N4     v2: P(>=1 big) 0.26108  expected big seats 0.39036  P(>=2) 0.09863  entry pct 0.46550  |  l02: P(>=1 big) 0.28018
+               book: projection per row 131.77  salary 49959  rows with the QB's opponent's top receiver 5.1 of 26 (5.1 of the 15.0 A1 / B rows)  QB games 6.7
+  TOPBB_N2     v2: P(>=1 big) 0.27527  expected big seats 0.41913  P(>=2) 0.10335  entry pct 0.46675  |  l02: P(>=1 big) 0.29502
+               book: projection per row 131.83  salary 49963  rows with the QB's opponent's top receiver 3.8 of 26 (3.8 of the 15.0 A1 / B rows)  QB games 6.5
+```
+
+**Reading.**
+- **A small dose shows no gain either.**
+  - On the read, TOPBB_N4 is −1.4 points [−4.2, +1.5], negative in both seasons (−1.3 / −1.4).
+  - Expected big seats ×0.86; P(≥ 2) 0.111 against 0.133.
+  - On 2022 it is +1.4 [−6.3, +8.7], not contradicted.
+  - The trial rule makes it ENTERABLE, his decision ("no harm shown and no gain shown").
+- **The dose is not what moves it.** TOPBB_N2 reads the same on the deciding seasons (−1.6; 2022 +2.8).
+  - The build is path-dependent: ruling the first rows re-draws the rest (2.5 of 26 rows shared with LIVE_CB).
+  - So "a few lineups" does not cap the downside row by row. It is measured, and leans negative, on the whole book.
+- **With study 71** (Addendum 169: the full dose, read −1.9, 2022 +5.5), the opponent's-top-receiver bring-back shows no
+  gain at either dose. The 2022 halves lean his way, and the deciding seasons lean the other way.
+- **Recommendation for Week 5:** keep it off. The rule allows TOPBB_N4 as his decision, with the laptop's cut-off (the
+  row cap reviewed and merged before FRIDAY_HEAD, and Friday's A3 ON run clean).
