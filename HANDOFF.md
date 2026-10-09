@@ -22,8 +22,9 @@ improves things, use it in week 5 as we obviously need to do something".
   BOTH draws and doesn't cost more than 20% of expected big wins. Otherwise paper only."
 - **Study 91** (the harness): the package against +TE1 / +LOW1 / +TE1_LOW1, 12 banks as two draws.
   - The outside reviewer had proposed banks 1767–1778, which collide with L03's 1820 / 1821.
-  - The laptop's full-set search gives **2012–2023** (A 2012–2017, B 2018–2023; sims 2062–2073, fields 2712–2723), seed
-    20261136; scan running.
+  - The laptop's full-set search first gave 2012–2023, but those are season years: the scan can't read them, and "bank 2022"
+    would read as a season. **Corrected to 3000–3011** (A 3000–3005, B 3006–3011; sims 3050–3061, fields 3700–3711), seed
+    20261136, the reviewer's earlier 3000-block suggestion; scan running.
   - The machine order is the 6p smoke → 91 → study 90 (banks 1992–2003 after two collisions: L02 1810 / 1811, L03 1820 / 1821).
 - **If 91 passes his rule:**
   - the outside reviewer's union_reselect flags (`--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3`, the own-cap
