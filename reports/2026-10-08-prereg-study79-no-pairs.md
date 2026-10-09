@@ -79,8 +79,9 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 41 lines and 3 sections; only
   those were read.
 - **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
-- **Code:** nfl2 `production/s79-nopairs-20261008` @ `9abbfe49` (the outside reviewer's draft; branched from study 78's):
-  - `experiments/s79_nopairs.py` `5dfc93ae…`;
+- **Code:** nfl2 `production/s79-nopairs-20261008` @ `a51d4238` (the outside reviewer's draft; branched from study 78's;
+  `a51d4238` corrected the module's meta `rows` text to name B / C, the laptop's catch, no behaviour change):
+  - `experiments/s79_nopairs.py` `d48790cf…`;
   - `scripts/s79_drive.py` `b789d931…`;
   - `scripts/s79_census.py` `b50f5d91…`;
   - **`scripts/s79_report.py` (the reader) `fb34eb4d…`** (seed 20261124);
