@@ -8123,3 +8123,207 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
   - QB1HALF only if he wants fewer QB + 2 rows for their own sake. The production option is the existing
     `--mix-cell-quotas A1=0.15,A2=0.07,B=0.43,C=0.35`, rehearsed on Friday's A3 first.
   - One construction change a week.
+
+## Addendum 172 (2026-10-08): study 74 (the full game stack -- QB, his top pass catcher, the opponent's top receiver -- in the top 4 games, in the harness): NO DIFFERENCE, not contradicted; ENTERABLE by the trial rule but leaning negative (−2.9); not recommended
+
+**Setup.**
+- **The question.** The operator, 10-08 night, on studies 71 / 73: "Is it the quarterback of the highest projected team
+  with his top receiver and the top receiver from the other team, or was there more to it?" He chose "Test it tonight,
+  after 73".
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`; study 73
+  sha-pinned):
+  - LIVE_CB (the reference).
+  - STACK4_B, the single decision: the first 4 cell-B book solves in build order. Each is forced, by the pinned
+    optimizer's triple interaction floor, to one top-4 game's full stack:
+    - study 73's QB;
+    - his top projected WR / TE;
+    - the opponent's top projected WR / TE.
+    With cell B's cap of 3 from the game, the game holds exactly those three. The rows are dealt at book positions 2, 6,
+    12, 16, all big seats.
+  - Exploratory STACK5_B: five games; the 5th is dealt at book index 22, a non-big supersat.
+  - Why 4 and not 5 was decided at the smoke, before any scored bank: cell B's 5th row is dealt at index 22.
+- **Preregistration:** `reports/2026-10-08-prereg-study74-game-stack.md` (DRAFT `d41a0f45`; FROZEN `e592b040`, 10-08
+  21:10 CDT, before any scored bank).
+- **Panel:** banks 1641–1646, B 20,000, seed 20261119.
+- **Read:** the reader `0b23e10e`; READ `ff458e79` (lab `06cfa920`). The confirmatory census (`00456e99`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop:** raw 1641–1646 = `RAW_s74_run.sha256` (`sha256sum -c` OK); the READ
+  `ff458e79` (cmp); the confirmatory census `22c1ecd8` (cmp).
+- **Derived seed bases** (bank + 50 sims, bank + 700 fields) were not scanned at the time. That rule was adopted later
+  that night, and a hit would only mean draws shared with an unrelated study (harmless in kind).
+- **The prior, stated first:** NO DIFFERENCE or leaning negative (studies 71, 71b, 43).
+- **Census:**
+  - STACK4_B forced 3.96 of 4 triples (2 of 212 infeasible, built plain).
+  - Triples held: LIVE_CB 1.1 of 5.
+  - Cost −0.26 per row.
+  - No dead lever.
+
+**Reader output (verbatim):**
+```
+STUDY 74 READER  sha256 0b23e10e988ad03622bf20018e8a5ee1a58c9e5cc13ab5470cd96ab12b29df0d
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1641, 1642, 1643, 1644, 1645, 1646]  B 20000  seed 20261119  one decision arm against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the game-stack rule's constants, study 73's sha (twice, in the slots of study 48's and study 53's), live settings, QB cap, objective): [["LIVE_CB", "STACK4_B", "STACK5_B"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cells": ["B"], "floor": 1.0, "n_games": {"STACK4_B": 4, "STACK5_B": 5}, "rows": "the first n_games book solves of B in build order, one game each; infeasible drops the game"}, "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== STACK4_B vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.02934  [-0.06230, +0.00353] (two-sided 0.95)  seasons 2023 -0.00003, 2024 -0.05866
+  GUARD 1 mean entry pct -0.00997  one-sided lower -0.01504  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48637 vs 0.52871  ratio 0.920  (must be >= 0.80)
+  STACK4_B dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.02138  [-0.02396, +0.07193] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TRIAL SUMMARY: STACK4_B ENTERABLE (his decision; one construction change a week)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  STACK5_B - LIVE_CB (v2, 2023-24): -0.02624  [-0.06390, +0.00957]  seasons 2023 +0.00106, 2024 -0.05355
+  STACK5_B - LIVE_CB (v2, 2022): +0.01567  [-0.02987, +0.06759]  seasons 2022 +0.01567
+  STACK4_B - LIVE_CB (the l02 field, 2023-24): -0.02746  [-0.06186, +0.00674]  seasons 2023 +0.00176, 2024 -0.05667
+  STACK4_B - LIVE_CB (the l02 field, 2022): +0.02187  [-0.02464, +0.07409]  seasons 2022 +0.02187
+  STACK5_B - LIVE_CB (the l02 field, 2023-24): -0.02608  [-0.06505, +0.01151]  seasons 2023 +0.00276, 2024 -0.05492
+  STACK5_B - LIVE_CB (the l02 field, 2022): +0.01698  [-0.03022, +0.07081]  seasons 2022 +0.01698
+  STACK4_B forced solves built plain (infeasible; the game dropped): 30 of 1272 over 318 slate-banks
+  STACK5_B forced solves built plain (infeasible; the game dropped): 50 of 1590 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.33572  expected big seats 0.52871  P(>=2) 0.13396  entry pct 0.51063  |  l02: P(>=1 big) 0.36371
+               book: projection per row 127.72  salary 49964  QB + 2 rows 12.0 of 26  top-5-game stacks (QB + top pass catcher + opponent's top receiver) held 0.9 of 5
+  STACK4_B     v2: P(>=1 big) 0.30638  expected big seats 0.48637  P(>=2) 0.11121  entry pct 0.50066  |  l02: P(>=1 big) 0.33625
+               book: projection per row 127.39  salary 49961  QB + 2 rows 12.0 of 26  top-5-game stacks (QB + top pass catcher + opponent's top receiver) held 4.1 of 5
+  STACK5_B     v2: P(>=1 big) 0.30948  expected big seats 0.49219  P(>=2) 0.11482  entry pct 0.49936  |  l02: P(>=1 big) 0.33763
+               book: projection per row 127.30  salary 49961  QB + 2 rows 12.0 of 26  top-5-game stacks (QB + top pass catcher + opponent's top receiver) held 4.9 of 5
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.22665  expected big seats 0.32646  P(>=2) 0.07493  entry pct 0.44828  |  l02: P(>=1 big) 0.24375
+               book: projection per row 131.81  salary 49962  QB + 2 rows 12.0 of 26  top-5-game stacks (QB + top pass catcher + opponent's top receiver) held 0.9 of 5
+  STACK4_B     v2: P(>=1 big) 0.24803  expected big seats 0.37733  P(>=2) 0.09673  entry pct 0.45675  |  l02: P(>=1 big) 0.26563
+               book: projection per row 131.57  salary 49962  QB + 2 rows 12.0 of 26  top-5-game stacks (QB + top pass catcher + opponent's top receiver) held 4.0 of 5
+  STACK5_B     v2: P(>=1 big) 0.24232  expected big seats 0.36956  P(>=2) 0.09461  entry pct 0.45877  |  l02: P(>=1 big) 0.26073
+               book: projection per row 131.46  salary 49962  QB + 2 rows 12.0 of 26  top-5-game stacks (QB + top pass catcher + opponent's top receiver) held 4.9 of 5
+```
+
+**Reading.**
+- **The full game stack is not shown to help.**
+  - STACK4_B: −2.9 points [−6.2, +0.4] on the read, almost all from 2024 (2023 −0.0, 2024 −5.9).
+  - Expected big seats ×0.92; P(≥ 2) 0.111 against 0.134.
+  - Guard 1's lower bound is −0.01504, just past −0.015. That is moot, because the guards gate a PASS only.
+  - 2022 +2.1, not contradicted.
+  - ENTERABLE, his decision: "no harm shown and no gain shown".
+- **The rule did what it says.** Four top-game triples were forced, all dealt into big seats (2, 6, 12, 16). 30 of 1,272
+  floored solves were infeasible and built plain. The cost was 0.30 projected points per row.
+- **With studies 71, 71b and 73, every forced "top stack" variant reads at or below the live book on the deciding
+  seasons:**
+  - the opponent's top receiver as the bring-back: −1.9 at the full dose, −1.4 on 4 rows;
+  - QB + top pass catcher in the top-5 games: −3.6;
+  - the full triple: −2.9.
+  - The 2022 halves lean the other way in each, by +1.4 to +5.5.
+- **Exploratory STACK5_B** (its 5th stack in a supersat seat) reads the same, −2.6.
+- **Recommendation for Week 5:** keep it off. The rule allows it as his decision, with the outside reviewer's production
+  flag (parity-tested against the frozen functions), merged only after his morning decision, and Friday's A3 ON run.
+
+## Addendum 173 (2026-10-08): study 75 (a WR in the flex on the first 8 book rows, the outside reviewer's flex-mix test, in the harness): NO DIFFERENCE, leaning positive in both read seasons (+2.3) but CONTRADICTED on 2022 (−1.1): NOT ENTERED; the night's best candidate for a real-field paper arm
+
+**Setup.**
+- **The question.** The operator, 10-08 night: "please look at the patterns of the winners over the past few weeks and
+  consider a variety of different tests we can do throughout the night." The outside reviewer measured the flex in the
+  2026 W1–4 Millionaires (aggregates only):
+  - a WR in 30% of the top 1% and 33% of the field, but in about 4% of his W5-style FP book;
+  - an RB in 33% / 39% / 42%; a TE in 37% / 28% / 54%.
+  - Study 39 (Addendum 143) went the other way, an RB forced into the flex: NO DIFFERENCE.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`; study 73
+  sha-pinned):
+  - LIVE_CB (the reference).
+  - WR_FLEX8, the single decision: the first 8 book solves in build order (any cell) hold exactly 4 WRs, so the flex is
+    a WR.
+    - The lab optimizer's `set_constraints` implements it; production's `member_bounds` (WRs, 4, 4) gives the same
+      feasible set.
+    - The rows are dealt at book positions 0, 2, 3, 5, 6, 7, 9, 10, all big seats.
+  - Exploratory NORB_FLEX8: exactly 2 RBs. It is not the decision because the smoke dealt it identical to LIVE_CB on 2 of
+    3 slate-banks.
+- **Preregistration:** `reports/2026-10-08-prereg-study75-flex-mix.md` (the outside reviewer's DRAFT `9e84c7f5`; FROZEN
+  `a609719f`, 10-08 21:19 CDT, before any scored bank).
+- **Panel:** banks 1647–1652, B 20,000, seed 20261120.
+- **Read:** the reader `dfc6c9a2`; READ `0dcc02c4` (lab `dd0c6289`). The confirmatory census (`eb506dde`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop** at `dd0c6289`: the raw files 1647–1652 pass `sha256sum -c` against
+  `RAW_s75_run.sha256`; the READ is `0dcc02c4` and the confirmatory census `8043bde8` (cmp-identical).
+- **The prior, stated first:** NO DIFFERENCE.
+- **Census** (the binding census on bank 1406, 53 slate-banks / the confirmatory census on the scored banks, 318):
+  - WR_FLEX8: 8 of 8 ruled rows on every slate-bank, 0 infeasible.
+  - Flex of 26 (WR / TE / RB):
+    - LIVE_CB 6.2 / 15.2 / 4.6 (6.2 / 15.0 / 4.9);
+    - WR_FLEX8 11.0 / 11.6 / 3.4 (11.2 / 11.7 / 3.1).
+  - Projection cost −0.12 per row in both.
+  - Rows shared with LIVE_CB 2.0 (2.5); dealt identical 0.000.
+  - NORB_FLEX8 is dealt identical 0.377 (0.358).
+- **Disclosed (the derived-seed scan, the laptop):** the simulation bases of banks 1651 and 1652 (1701, 1702) coincide with seeds of unrelated August production chains (an old replay's SEED / CE_SEED=1701; bootstrap_seed=1702 in the G1 archetype-topology protocol and CE_SEED=1702 in a production test). These are seed coincidences, not reads of these banks; the lab repo is clean.
+
+**Reader output (verbatim):**
+```
+STUDY 75 READER  sha256 dfc6c9a230941660a527066e39075f8b007cf1e305c6ea04793508929ba78ef4
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1647, 1648, 1649, 1650, 1651, 1652]  B 20000  seed 20261120  one decision arm against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the flex rule's constants, study 73's sha (twice, in the slots of study 48's and study 53's), live settings, QB cap, objective): [["LIVE_CB", "WR_FLEX8", "NORB_FLEX8"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "n_rows": 8, "rows": "the first n_rows book solves in build order (any cell); infeasible -> plain, recorded", "rules": {"NORB_FLEX8": ["RB", "<=", 2], "WR_FLEX8": ["WR", ">=", 4]}}, "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== WR_FLEX8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.02291  [-0.01518, +0.06096] (two-sided 0.95)  seasons 2023 +0.01563, 2024 +0.03020
+  GUARD 1 mean entry pct -0.00044  one-sided lower -0.00654  (must exceed -0.015)
+  GUARD 2 expected big seats 0.53764 vs 0.50276  ratio 1.069  (must be >= 0.80)
+  WR_FLEX8 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: -0.01136  [-0.05784, +0.03447] (two-sided 0.95)  ->  CONTRADICTED (the 2022 point estimate is < 0)
+  TRIAL: NOT ENTERED: CONTRADICTED on 2022
+
+== TRIAL SUMMARY: no arm is enterable
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  NORB_FLEX8 - LIVE_CB (v2, 2023-24): -0.02075  [-0.04790, +0.00460]  seasons 2023 -0.03799, 2024 -0.00351
+  NORB_FLEX8 - LIVE_CB (v2, 2022): +0.00845  [-0.01540, +0.03594]  seasons 2022 +0.00845
+  WR_FLEX8 - LIVE_CB (the l02 field, 2023-24): +0.01873  [-0.02065, +0.05781]  seasons 2023 +0.01007, 2024 +0.02738
+  WR_FLEX8 - LIVE_CB (the l02 field, 2022): -0.00848  [-0.05801, +0.04072]  seasons 2022 -0.00848
+  NORB_FLEX8 - LIVE_CB (the l02 field, 2023-24): -0.02298  [-0.05180, +0.00371]  seasons 2023 -0.04329, 2024 -0.00267
+  NORB_FLEX8 - LIVE_CB (the l02 field, 2022): +0.01023  [-0.01400, +0.03838]  seasons 2022 +0.01023
+  NORB_FLEX8 ruled solves built plain (infeasible): 0 of 2544 over 318 slate-banks
+  WR_FLEX8 ruled solves built plain (infeasible): 0 of 2544 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.33243  expected big seats 0.50276  P(>=2) 0.11786  entry pct 0.50955  |  l02: P(>=1 big) 0.36292
+               book: projection per row 127.72  salary 49963  QB + 2 rows 12.0 of 26  flex WR 5.4 / TE 15.6 / RB 5.0 of 26
+  WR_FLEX8     v2: P(>=1 big) 0.35535  expected big seats 0.53764  P(>=2) 0.12550  entry pct 0.50912  |  l02: P(>=1 big) 0.38164
+               book: projection per row 127.58  salary 49962  QB + 2 rows 12.0 of 26  flex WR 10.8 / TE 12.0 / RB 3.2 of 26
+  NORB_FLEX8   v2: P(>=1 big) 0.31169  expected big seats 0.47561  P(>=2) 0.10876  entry pct 0.51180  |  l02: P(>=1 big) 0.33994
+               book: projection per row 127.70  salary 49963  QB + 2 rows 12.0 of 26  flex WR 6.3 / TE 15.9 / RB 3.9 of 26
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.23588  expected big seats 0.32930  P(>=2) 0.07775  entry pct 0.45946  |  l02: P(>=1 big) 0.25437
+               book: projection per row 131.79  salary 49962  QB + 2 rows 12.0 of 26  flex WR 7.7 / TE 13.6 / RB 4.7 of 26
+  WR_FLEX8     v2: P(>=1 big) 0.22452  expected big seats 0.30752  P(>=2) 0.07066  entry pct 0.46046  |  l02: P(>=1 big) 0.24589
+               book: projection per row 131.72  salary 49958  QB + 2 rows 12.0 of 26  flex WR 12.0 / TE 11.0 / RB 3.0 of 26
+  NORB_FLEX8   v2: P(>=1 big) 0.24432  expected big seats 0.32405  P(>=2) 0.06781  entry pct 0.45572  |  l02: P(>=1 big) 0.26460
+               book: projection per row 131.78  salary 49962  QB + 2 rows 12.0 of 26  flex WR 8.9 / TE 13.7 / RB 3.4 of 26
+```
+
+**Reading.**
+- **WR_FLEX8 is the night's first arm to lean positive in both read seasons:**
+  - +2.3 points [−1.5, +6.1] (2023 +1.6, 2024 +3.0);
+  - expected big seats ×1.07; P(≥ 2) 0.126 against 0.118;
+  - guard 1 holds (−0.0065);
+  - the earlier field (l02) agrees: +1.9 on the read, −0.8 on 2022.
+- **But the 2022 point estimate is −1.1 [−5.8, +3.4].** Study 51's rule therefore says CONTRADICTED: NOT ENTERED. The
+  read's interval spans zero, so this is not a shown gain.
+- **The transfer caveat (prereg §4) matters here.**
+  - In the scored 2023–24 books, WR_FLEX8 moved the flex WR 5.4 → 10.8, TE 15.6 → 12.0 and RB 5.0 → 3.2. The WR
+    displaced 3.6 TE flexes and 1.8 RB flexes of 26.
+  - The harness's base flex mix (TE about 60%, RB about 19%) differs from his FP book's (prereg §1: TE 54%, RB 42%,
+    WR about 4%). What a WR displaces live is untested.
+  - Wording corrected before the commit: the laptop caught an earlier draft's "live it would mostly replace RB flexes",
+    which the measurement does not support (TE is the larger share in his book too).
+- **The exploratory NORB_FLEX8 reads −2.1 (2022 +0.8).** It is nearly a dead lever (dealt identical on about a third of
+  slate-banks). Removing RB flexes without forcing the WR does not help.
+- **Recommendation:**
+  - Not for Week 5: the frozen rule says NOT ENTERED.
+  - From Week 6 it is the night's best candidate for a real-field PAPER arm (study 38), for three reasons:
+    - the structural gap is large (his book has about a 4% WR flex, the top 1% about 30%);
+    - the lean holds in both read seasons;
+    - a paper arm on his FP book tests the rule on his real base mix, which the harness could not.

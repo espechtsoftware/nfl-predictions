@@ -12,6 +12,47 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (22:15 CDT) — laptop: the busy night, progress (73 and 74 read and merged; 75 running; 76–78 frozen and acked; 79 in draft)
+
+**Done and merged into integration:**
+- **Study 73** (Addendum 171, `7ef8fd63`): TOPG5_QB1 −3.6 (not recommended), QB1HALF +0.4 (neutral; his preference).
+- **Study 74** (Addendum 172, merge `9d4f012f`): STACK4_B −2.9 [−6.2, +0.4] (2024 −5.9; seats ×0.92; 2022 +2.1).
+  ENTERABLE by the rule but leaning negative; not recommended.
+  - READ `ff458e79` reproduced byte-identically.
+  - Lab LEDGER row nfl2 `4816978a` verified (7 cells).
+- **Study list:** row 74 Done, plus a 75–79 row (`ce8942d1`).
+- **Decision sheet:** `briefings/2026-week-05/2026-10-09-overnight-decision-sheet.md` carries 73 and 74 (`83b5f41b`). It is
+  sent to him in the morning, complete.
+
+**The queue (strictly one census or run at a time, across both sessions, agreed with the reviewer):**
+- 75 WR_FLEX8: running on 1647–1652.
+- 76 B2BB4: frozen at 21:56, banks 1653–1658.
+- 77 NAKED3: frozen at 22:03, banks 1659–1664.
+- 78 STUDS2_8: frozen at 22:03, banks 1665–1670.
+- 79 ONEPC8: DRAFT, banks 1677–1682 (1671–1676 skipped); its module's meta text is being fixed before its census.
+- **The laptop's acks for 76 / 77 / 78:** shas, prereg shas, pins, tests (6 / 6 / 5), reader vs s63 (the decision
+  functions identical) and the code read are all done. Each census re-run goes in the gap before its own run: 76's starts
+  automatically when 75's driver exits (`census_rerun.sh`, scratch).
+
+**Disclosures:**
+- **Derived seed bases** (bank + 50 sims, bank + 700 fields) are scanned from tonight.
+  - 74's were not scanned at the time; Addendum 172 notes it.
+  - The production repo's old replay `SEED=1701` coincides with study 75's bank 1651 + 50. It is disclosure only (an
+    unrelated replay, not a read of the bank).
+  - Everything else for 75–79 is clean.
+- **Overlapping heavy jobs earlier tonight** (CLAUDE.md allows one at a time). The reviewer's 75 binding census overlapped
+  the laptop's 74 census re-run, and 74's small smokes ran during 73's scored run. The laptop's three ack test modules
+  (about 1 s each) ran during 75's run. All are seeded and outcome-blind, so no result is affected. Strictly sequential
+  from here.
+
+**Monday's off-top-four line:** the outside reviewer's `scripts/off_top_four.py` (review/off-top-four-20261008 @
+`e249314e`) is reviewed. One fix is on `production/off-top-four-stack-20261008` @ `431ba056`: the book rows' "stacked" is
+now read from each row instead of hard-coded True, with a test. Its tests run in a gap, and it merges after.
+
+**Next:** reproduce each READ, share it with the outside reviewer, merge its records and add it to the decision sheet;
+ack 79 after its freeze. In the morning: send the sheet; after his decisions, merge the chosen options before FRIDAY_HEAD,
+then Friday's A3 and its ON runs.
+
 ## 2026-10-08 (20:54 CDT) — OPERATOR: a busy testing night; every result to the outside reviewer; his decisions in the morning
 
 **His words:** "As the results come in tonight, share them with the outside reviewer. The outside reviewer is going to have
