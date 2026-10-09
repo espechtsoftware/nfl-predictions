@@ -8643,3 +8643,105 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
   dealt identical on 0.33 of slate-banks. It is not decision-bearing; adopting it would need its own preregistered test.
 - **Recommendation:** off. It shows no gain, is split by season, fails a guard and costs projection (−0.32 per row on the read's books). Of tonight's
   enterable arms, study 77's QB-alone rows (Addendum 175) are the better candidate.
+
+## Addendum 177 (2026-10-09): study 79 (one pass catcher per team on the first 8 QB + 1 rows, no same-team WR / TE pair away from the QB, the outside reviewer's test, in the harness): NO DIFFERENCE, leaning positive in every season (+2.0 on the read; 2023 +0.2 flat, 2024 +3.8; 2022 +1.3): ENTERABLE by the rule (his decision; no gain shown); a small dose at no cost
+
+**Setup.**
+- **The question.** The operator, 10-08 night: "please look at the patterns of the winners over the past few weeks and
+  consider a variety of different tests we can do throughout the night". The outside reviewer measured a lineup holding
+  two WR / TE of one team that is NOT its QB's team (the 2026 W1–4 Millionaires):
+  - the top 1% 11%, the field 12% (the top below the field in 4 of 4 weeks);
+  - his W5-style FP book 27%.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`; study 73
+  sha-pinned):
+  - LIVE_CB (the reference).
+  - ONEPC8, the single decision: the first 8 book solves of the QB + 1 cells (B, C) in build order allow at most one
+    WR / TE per team (`set_constraints`). That bans same-team pass-catcher pairs away from the QB; an opponent pair
+    counts. The rows are dealt at book positions 2, 3, 6, 7, 12, 13, 16, 18, all big seats.
+  - Exploratory ONEPC_ALL: all 14 B / C book solves (two at non-big 22, 23).
+- **Preregistration:** `reports/2026-10-08-prereg-study79-no-pairs.md` (the outside reviewer's DRAFT `c72b834d`, amended `3cedc395` / `dfd0099a`; FROZEN `89ead0c3`,
+  10-08 23:17 CDT, before any scored bank).
+- **Panel:** banks 1677–1682, B 20,000, seed 20261124.
+- **Read:** the reader `fb34eb4d`; READ `5c68c675` (lab `24e86806`). The confirmatory census (`2e1a965e`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop** at `24e86806`: the raw files 1677–1682 pass `sha256sum -c` against
+  `RAW_s79_run.sha256`; the READ is `5c68c675` and the confirmatory census `fc6cc37e` (cmp-identical).
+- **The prior, stated first:** NO DIFFERENCE.
+- **Census** (the binding census on bank 1406, 53 slate-banks):
+  - ONEPC8: 8 of 8 ruled rows on every slate-bank, 0 infeasible.
+  - **A small dose, disclosed at the freeze:** LIVE_CB holds a non-QB pair in only 2.38 of the 8 ruled rows (the smoke said
+    4.0), so the rule directly changes about 2.4 rows.
+  - Rows with a non-QB pair: 5.02 → 3.26 of 26.
+  - Projection cost −0.02 per row.
+  - Rows shared with LIVE_CB 11.1; dealt identical 0.170.
+  - The confirmatory census on the scored banks (318 slate-banks) agrees: 8 of 8 ruled, 0 infeasible, all big-read;
+    vacuity 2.14 of 8; pair rows 4.79 → 3.35; cost −0.01; dealt identical 0.195.
+
+**Reader output (verbatim):**
+```
+STUDY 79 READER  sha256 fb34eb4d9864ad225aa36bd5561a3d3fe8ce04259d05327a800b45ee405f70c3
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1677, 1678, 1679, 1680, 1681, 1682]  B 20000  seed 20261124  one decision arm against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the one-catcher rule's constants, study 73's sha (twice, in the slots of study 48's and study 53's), live settings, QB cap, objective): [["LIVE_CB", "ONEPC8", "ONEPC_ALL"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cells": ["B", "C"], "max_per_team": 1, "n_rows": {"ONEPC8": 8, "ONEPC_ALL": 99}, "rows": "the first n_rows B / C book solves in build order; infeasible -> plain, recorded"}, "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== ONEPC8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.02042  [-0.01430, +0.05945] (two-sided 0.95)  seasons 2023 +0.00236, 2024 +0.03847
+  GUARD 1 mean entry pct +0.00052  one-sided lower -0.00246  (must exceed -0.015)
+  GUARD 2 expected big seats 0.50924 vs 0.51075  ratio 0.997  (must be >= 0.80)
+  ONEPC8 dealt identical to LIVE_CB: 0.241 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.01251  [-0.02683, +0.05378] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TRIAL SUMMARY: ONEPC8 ENTERABLE (his decision; one construction change a week)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  ONEPC_ALL - LIVE_CB (v2, 2023-24): +0.02057  [-0.01583, +0.05868]  seasons 2023 +0.00110, 2024 +0.04004
+  ONEPC_ALL - LIVE_CB (v2, 2022): +0.00802  [-0.03346, +0.05147]  seasons 2022 +0.00802
+  ONEPC8 - LIVE_CB (the l02 field, 2023-24): +0.02165  [-0.01400, +0.06172]  seasons 2023 -0.00030, 2024 +0.04361
+  ONEPC8 - LIVE_CB (the l02 field, 2022): +0.01674  [-0.02152, +0.05740]  seasons 2022 +0.01674
+  ONEPC_ALL - LIVE_CB (the l02 field, 2023-24): +0.02165  [-0.01592, +0.06062]  seasons 2023 -0.00184, 2024 +0.04514
+  ONEPC_ALL - LIVE_CB (the l02 field, 2022): +0.01238  [-0.02835, +0.05548]  seasons 2022 +0.01238
+  ONEPC8 ruled solves built plain (infeasible): 0 of 2544 over 318 slate-banks
+  ONEPC_ALL ruled solves built plain (infeasible): 0 of 4452 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.32133  expected big seats 0.51075  P(>=2) 0.12375  entry pct 0.50973  |  l02: P(>=1 big) 0.34977
+               book: projection per row 127.67  salary 49963  QB + 2 rows 12.0 of 26  rows with a non-QB same-team WR / TE pair 4.4
+  ONEPC8       v2: P(>=1 big) 0.34175  expected big seats 0.50924  P(>=2) 0.11771  entry pct 0.51025  |  l02: P(>=1 big) 0.37142
+               book: projection per row 127.67  salary 49964  QB + 2 rows 12.0 of 26  rows with a non-QB same-team WR / TE pair 3.1
+  ONEPC_ALL    v2: P(>=1 big) 0.34191  expected big seats 0.51300  P(>=2) 0.11845  entry pct 0.51136  |  l02: P(>=1 big) 0.37142
+               book: projection per row 127.65  salary 49964  QB + 2 rows 12.0 of 26  rows with a non-QB same-team WR / TE pair 1.8
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.25866  expected big seats 0.36682  P(>=2) 0.09250  entry pct 0.45683  |  l02: P(>=1 big) 0.27291
+               book: projection per row 131.85  salary 49962  QB + 2 rows 12.0 of 26  rows with a non-QB same-team WR / TE pair 5.5
+  ONEPC8       v2: P(>=1 big) 0.27116  expected big seats 0.37930  P(>=2) 0.08812  entry pct 0.46033  |  l02: P(>=1 big) 0.28965
+               book: projection per row 131.83  salary 49961  QB + 2 rows 12.0 of 26  rows with a non-QB same-team WR / TE pair 3.9
+  ONEPC_ALL    v2: P(>=1 big) 0.26668  expected big seats 0.37073  P(>=2) 0.08507  entry pct 0.45724  |  l02: P(>=1 big) 0.28528
+               book: projection per row 131.83  salary 49961  QB + 2 rows 12.0 of 26  rows with a non-QB same-team WR / TE pair 2.5
+```
+
+**Reading.**
+- **ONEPC8 leans positive:**
+  - +2.0 points [−1.4, +5.9] on the read; 2023 +0.2 (flat), 2024 +3.8;
+  - guard 1 holds (−0.0025).
+- **It spreads the book rather than adding wins:** expected big seats ×1.00 (0.509 against 0.511), and P(≥ 2) 0.118
+  against 0.124. More slates with at least one seat, from the same number of seats: the operator's stated utility
+  (one big win).
+- **2022: +1.3 [−2.7, +5.4], not contradicted.** The trial rule says ENTERABLE, his decision ("no harm shown and no gain
+  shown"). The earlier field (l02) agrees: +2.2 on the read, +1.7 on 2022.
+- **A small dose:**
+  - the rule directly changes about 2.1 of the 8 ruled rows;
+  - it was dealt identical on 0.24 of slate-banks;
+  - the book's projection is unchanged (127.67 → 127.67 on 2023–24).
+  - **Transfer (the laptop's precision):**
+    - Book-wide, the harness's base holds a non-QB pair in 4.4 of 26 rows (17%), against his FP book's about 27% (the
+      top 1% 11%).
+    - At the 8 ruled positions it holds one in 2.14 of 8 (27%), so the rule would change about as many of his 8 lineups
+      as it did here.
+- **The exploratory ONEPC_ALL** (all 14 B / C rows) reads the same: +2.1 (2022 +0.8). More rows did not add.
+- **With tonight's other enterable leans (the reviewer's ranking for his one change):**
+  - study 77's QB-alone rows (Addendum 175) first: both read seasons clearly positive, expected seats ×1.04;
+  - this study a close second: the same size of lean, flatter in 2023, better on 2022, at no cost.
+  - Neither is a shown gain, and the two together are untested.
