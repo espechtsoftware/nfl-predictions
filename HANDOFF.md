@@ -12,6 +12,33 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (05:16 CDT) — OPERATOR (relayed): test 75 + 77 + 79 together; "if it isn't negative use it in week 5"
+
+**His words** (05:20 CDT, given in the outside reviewer's session and relayed to the laptop verbatim): "Let's do a test now
+of all 3 and if it isn't negative use it in week 5."
+
+- **Before he decided,** the outside reviewer gave him the plain reading: none of the three is proven; 75 failed its 2022
+  check; 79's 8-row version is a no-op on his book; the three were never tested together.
+- **What it overrides:** the reviewer's one-change-a-week advice (advice; he decides), conditional on the test. With the
+  live cheap block this would be up to four construction changes in Week 5.
+- **The test:** study 83 COMBO (the outside reviewer drafts, 84 freezes, the laptop acks and reproduces).
+  - **77:** the first 3 C book solves at C0.
+  - **79:** one catcher per team on EVERY B / C book solve (the binding version; on his book the 8-row one changes
+    nothing).
+  - **75:** a WR flex on the first 3 book solves (his "small amount"; the tested dose was 8).
+  - The constraints are combined in one solve.
+  - Exploratory: C0_ONEPC (77 + 79).
+- **His rule, frozen before any scored bank:** use in W5 only if, for COMBO − LIVE_CB on P(≥ 1 big seat), the 2023–24
+  point estimate ≥ 0, the 2022 point estimate ≥ 0, and the expected-big-seats ratio ≥ 0.80.
+- **If it passes:**
+  - the outside reviewer builds ONE combined production branch (parity against the COMBO wrapper);
+  - the laptop wires it (the C0 wiring extended, with SECOND_CHANGE_DECISION = THIS entry's commit);
+  - merges before FRIDAY_HEAD;
+  - Friday's A3 ON check;
+  - 84's s38 6m for the combination.
+- **If it fails:** nothing changes; the W5 book stays as armed with the cheap block.
+- **The laptop asks him to confirm in its own session before any money-path merge,** since the decision arrived relayed.
+
 ## 2026-10-09 (03:26 CDT) — laptop: the busy night CLOSED (73–82 all read, reproduced, recorded, merged); his sheet is final; the morning plan
 
 **Round 2 (the outside reviewer's second scan; each study gated by the laptop's outcome-blind real-book rate check before
