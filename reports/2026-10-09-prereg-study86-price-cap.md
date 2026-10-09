@@ -1,10 +1,16 @@
-# Preregistration: study 86, no player priced over $7,900 anywhere in the book, in the harness (DRAFT 2026-10-09)
+# Preregistration: study 86, no player priced over $7,900 anywhere in the book, in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (06:49 CDT)** by the outside reviewer — **THE DESIGN IS COMMITTED BEFORE STUDY 84'S AND STUDY 85'S
-READS** (both on the same slates). The code and its shas follow; the reviewer reviews, runs the binding census and FREEZES;
-the laptop acks.
-- **Banks and seed:** the reviewer assigns them (proposed 1725–1730, seed 20261131; the laptop scans them and the derived bases
-  1775–1780 / 2425–2430 first).
+**Status: FROZEN 2026-10-09 (08:12 CDT)** by the reviewer, after the outside reviewer's DRAFT.
+- THE DESIGN (`c4ac131e`, 06:49; the cap amended to $7,900 at `14168e8f`, 06:51, his words) was committed BEFORE study 84's
+  and study 85's READs, both on the same slates.
+- THE CODE (nfl2 `4fdad305`, 07:26:04) was on origin before study 85's READ and is unchanged.
+- Then the smoke and the binding census (§6), before any scored bank. The text changed at the freeze in §6 only. The laptop
+  acks.
+- **Banks 1725–1730, seed 20261131** (the reviewer's), scanned by the laptop with the derived bases 1775–1780 / 2425–2430.
+  - **One disclosure line:** bank 1726's field base 2426 (= 1726 + 700) coincides with an old September hsim seed
+    ("audit_final_seed": 2426) in production `reports/2026-09-19-*` (the fixed-calibration audit chain) and three nfl2
+    `handoffs/2026-09-19-*`.
+  - That chain is unrelated; this is not a read of these banks.
 - **Target:** after study 85's run.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
@@ -75,7 +81,18 @@ underneath), the same as studies 81–85. LIVE = 48d's 41 rows with the cheap +2
     (−0.90) overstates his (−0.18): the transfer caveat in §4.
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 36 lines and 4 sections; only those
   were read.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `4fdad305` clean; 6 tests pass; lab `results/s86/CENSUS_s86_binding.txt` `f6ad8e40…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `e47432eb…` with no outcome field, committed on top of `4fdad305`):
+  - both arms are 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - pool players priced > $7,900: 7.17 per slate-bank (min 1); by position over all slate-banks QB 74, RB 123, TE 5, WR 178;
+    at exactly $7,900 (allowed) 0.81 per slate-bank;
+  - CAP7900: 0 of 1,378 ruled solves infeasible;
+  - vacuity: LIVE_CB holds such a player in 18.6 of 26 rows (his real W4 book: 11 of 26);
+  - $7k+ per row 2.29 → 1.94; $8k+ per row 1.06 → 0; flex WR / TE / RB 6.2 / 15.2 / 4.6 → 5.7 / 12.4 / 7.9;
+  - projection −1.07 per row in the harness, against −0.18 on his real book. The harness leans on these players more than
+    his book does, so the harness overstates the rule's cost: the transfer caveat (§4);
+  - rows shared with LIVE_CB 3.0; dealt identical 0.019.
 - **Code:** nfl2 `production/s86-price-cap-20261009` @ `4fdad305` (committed 07:26:04, before study 85's READ; unchanged by the
   smoke; branched from study 85's `658dd352`):
   - `experiments/s86_price_cap.py` `b7d741c9…`; `scripts/s86_drive.py` `9d184971…`; `scripts/s86_census.py` `b13d809d…`;
