@@ -48,6 +48,7 @@ QB_ALONE_ROWS=""                    # study 77 (NAKED3, the operator decides 10-
 SECOND_CHANGE_DECISION=""          # a new lever (BRING_BACK_TOP_WR / QB_ALONE_ROWS / MIX_QUOTAS) on top of the week's cheap block
                                     # is a SECOND construction change this week: only with HIS yes recorded in HANDOFF, named here
                                     # by that HANDOFF commit (sha); the arm stops without it and writes it into the units' env
+                                    # (name the PLAIN commit that edits HANDOFF.md, never a merge: a merge's --name-only list is empty)
 PRIORITY_ORDER=0                    # priority-first dealing (the operator 10-07: "Let's try to do this one this week"; the
                                     # outside reviewer's class-E proposal): the 18 non-block rows re-ordered among their own
                                     # positions by the frozen score (nfl_dfs.inference.priority_deal), the live block kept at
