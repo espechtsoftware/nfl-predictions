@@ -9795,3 +9795,153 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - **In plain words (the laptop's wording, agreed):** every version came out below the live book; only the price rules are
   clearly worse; none shows a gain.
 - **Recommendation (his decision):** do not use any of it.
+
+## Addendum 186 (2026-10-09): study 89 (the 35% per-player cap, and an ownership-relative cap at the predicted field + 15 points on top of it, in the harness; his Week-5 arming rule read on two disjoint bank draws): his Week-5 arming rule says DO NOT ARM: the 35% cap reads below the 50% book on both draws; the ownership cap on top recovers that loss but does not beat the 50% book
+
+**Setup.**
+- **His request** (HANDOFF `8a5fdf09`, verbatim there): "WIth that info, it seems we are very bad at selecting lineups. Use
+  whatever tools you have to make suggestions of what we need to fix immediately. …" He chose:
+  - the per-player cap 50% → 35% live in Week 5 as a reversible trial, with the 50% book kept on paper;
+  - this test before study 88.
+- **His arming rule** (HANDOFF `a391f2e5`, verbatim): "the independent check is whether study 89 shows the 35% cap
+  underperforming 50% on both draws, since that's the real test — not the Weeks 2-4 replay, which would pass by construction".
+  - Frozen in the prereg's §3. The reader prints it as one line: DO NOT ARM iff CAP35 − LIVE_CB's point estimate on
+    P(≥ 1 big seat) (2023–24, the calibrated field) is below 0 on BOTH draw A and draw B; otherwise ARM 0.35.
+- **The arms.** Built on study 87's frozen module (his live book with the cheap +2 block, Rev6 `ac10ddf6`, QB cap 5, DST cap 6,
+  overlap 4):
+  - LIVE_CB: the reference, the player cap 0.5 (13 of 26 rows).
+  - CAP35: the player cap 0.35 (9 rows), W5's new live setting.
+  - CAP35_OWN15: CAP35, plus every skill player banned from later book solves once he is in floor(26 × (pred / 100 + 0.15))
+    rows. pred is the l20 blend's predicted ownership (lag model + LineStar), rescaled to an 800% skill sum. DSTs keep the
+    DST cap.
+  - CAP35_OWN15_REAL: the same rule on the real Millionaire ownership (EXPLORATORY: it leaks late news; an upper bound).
+- **The read.** 2023–24 only (36 slates; the pre-lock predictions exist only there), so there is no 2022 check. Twelve banks
+  read as two disjoint draws (A 1743–1748, B 1749–1754) and pooled: the bank-set rule (Addendum 182) built into one run.
+- **Preregistration:** `reports/2026-10-09-prereg-study89-own-cap.md`. DRAFT by the outside reviewer; his rule added at
+  `ca440020`; FROZEN `453e18b0`, 10-09 10:55 CDT, before any scored bank.
+- **Code:** nfl2 `4d0daa47`:
+  - module `92b09345…`; drive `ab2ed796…`, which pins the BLAS threads to 1 in every worker;
+  - reader `2aa22e70…`; tests `b76b09e7…` (10).
+- **Panel:** banks 1743–1754, B 20,000, seed 20261134. The laptop's scan was clean. Its L01 question was closed: L01 seeds
+  from bank and bank + 50, never + 700.
+- **Census** (binding, bank 1406, 36 slate-banks; lab `1154b5cc`; the laptop's re-run identical with timing removed):
+  - 0 of 936 ruled solves infeasible in both ownership arms;
+  - skill players above the blend's cap: LIVE_CB 11.7, CAP35 12.2, CAP35_OWN15 0.0;
+  - projection per row against LIVE_CB: CAP35 −1.29, CAP35_OWN15 −2.59, REAL −2.76;
+  - rows shared with LIVE_CB: 11.1 / 7.9 / 7.3; none dealt identical.
+- **His real W4 book under the 35% cap** (the laptop's outcome-blind check, `a4ab2839`): FP projection −2.31 per row; 17 of 26
+  rows change; the most-used player 13 → 9 rows.
+- **Read:** the reader `2aa22e70`; READ `c3f5a7ee` (lab `90a0c951`). The confirmatory census (`36e1d2da`, raw shas
+  `224cf5e6`; lab `763fa2e8`) was committed before the READ: 0 of 11,232 ruled solves infeasible in both ownership arms; none
+  dealt identical; projection per row against LIVE_CB: CAP35 −1.27, CAP35_OWN15 −2.58, REAL −2.71.
+- **Reproduced byte-identically by the laptop** at `90a0c951`: the raw files 1743–1754 pass `sha256sum -c` against
+  `RAW_s89_run.sha256`; the READ is `c3f5a7ee` and the confirmatory census `36e1d2da` (cmp-identical).
+- **Hash seed (O-63):** 89 ran under a random per-run hash seed (Python 3.14's forkserver workers share one per run). The READ
+  reproduces from the committed raw files; only a rebuild of the books could differ, in a rare near-tie. Study 88 runs with
+  PYTHONHASHSEED=0, recorded with its census.
+
+**Reader output (verbatim):**
+```
+STUDY 89 READER  sha256 2aa22e704d329d032cf04fad1627eaf0e0bd335d901b90dc288e2867fd9da7f7
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [1743, 1744, 1745, 1746, 1747, 1748, 1749, 1750, 1751, 1752, 1753, 1754]  sets {'pooled': [1743, 1744, 1745, 1746, 1747, 1748, 1749, 1750, 1751, 1752, 1753, 1754], 'A': [1743, 1744, 1745, 1746, 1747, 1748], 'B': [1749, 1750, 1751, 1752, 1753, 1754]}  B 20000  seed 20261134  comparisons (('CAP35', 'LIVE_CB'), ('CAP35_OWN15', 'LIVE_CB'), ('CAP35_OWN15', 'CAP35')) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["LIVE_CB", "CAP35", "CAP35_OWN15", "CAP35_OWN15_REAL"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"CAP35": 0.35, "CAP35_OWN15": 0.35, "CAP35_OWN15_REAL": 0.35, "LIVE_CB": 0.5}, "delta": 0.15, "exploratory": ["CAP35_OWN15_REAL"], "own_arms": ["CAP35_OWN15", "CAP35_OWN15_REAL"], "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "skill_sum": 800.0, "source": "blend_pct"}, {"CAP35": [9, 6], "CAP35_OWN15": [9, 6], "CAP35_OWN15_REAL": [9, 6], "LIVE_CB": [13, 6]}, "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== CAP35 vs LIVE_CB  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.02011  [-0.04949, +0.00926] (two-sided 0.95)  seasons 2023 -0.05489, 2024 +0.01467
+  GUARD 1 mean entry pct -0.01512  one-sided lower -0.02587  (must exceed -0.015)
+  GUARD 2 expected big seats 0.47982 vs 0.52716  ratio 0.910  (must be >= 0.80)
+  CAP35 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [1743, 1744, 1745, 1746, 1747, 1748]: -0.03419  [-0.06679, -0.00220]  seasons 2023 -0.05474, 2024 -0.01364
+  set B [1749, 1750, 1751, 1752, 1753, 1754]: -0.00603  [-0.04365, +0.03373]  seasons 2023 -0.05503, 2024 +0.04298
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.03419 < 0; set B -0.00603 < 0  (set A -0.03419, set B -0.00603, the difference -0.02817; seats ratio 0.910)
+  EXPLORATORY the l02 field (pooled): -0.01917  [-0.04912, +0.01116]
+
+== CAP35_OWN15 vs LIVE_CB  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.01220  [-0.02615, +0.05146] (two-sided 0.95)  seasons 2023 -0.02639, 2024 +0.05080
+  GUARD 1 mean entry pct -0.01705  one-sided lower -0.03320  (must exceed -0.015)
+  GUARD 2 expected big seats 0.50118 vs 0.52716  ratio 0.951  (must be >= 0.80)
+  CAP35_OWN15 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [1743, 1744, 1745, 1746, 1747, 1748]: +0.00529  [-0.03604, +0.04517]  seasons 2023 -0.01523, 2024 +0.02582
+  set B [1749, 1750, 1751, 1752, 1753, 1754]: +0.01911  [-0.03175, +0.06986]  seasons 2023 -0.03755, 2024 +0.07578
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.00529, set B +0.01911, the difference -0.01382; seats ratio 0.951)
+  EXPLORATORY the l02 field (pooled): +0.01657  [-0.02263, +0.05711]
+
+== CAP35_OWN15 vs CAP35  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.03231  [-0.00973, +0.07598] (two-sided 0.95)  seasons 2023 +0.02849, 2024 +0.03613
+  GUARD 1 mean entry pct -0.00193  one-sided lower -0.01292  (must exceed -0.015)
+  GUARD 2 expected big seats 0.50118 vs 0.47982  ratio 1.045  (must be >= 0.80)
+  CAP35_OWN15 dealt identical to CAP35: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [1743, 1744, 1745, 1746, 1747, 1748]: +0.03949  [-0.00296, +0.08286]  seasons 2023 +0.03951, 2024 +0.03946
+  set B [1749, 1750, 1751, 1752, 1753, 1754]: +0.02514  [-0.02372, +0.07717]  seasons 2023 +0.01748, 2024 +0.03279
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.03949, set B +0.02514, the difference +0.01435; seats ratio 1.045)
+  EXPLORATORY the l02 field (pooled): +0.03574  [-0.00555, +0.07919]
+
+
+######## EXPLORATORY ONLY: the same rule on the REAL ownership (leaks late news; an upper bound; never decision-bearing)
+
+== CAP35_OWN15_REAL vs CAP35  [EXPLORATORY; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.04545  [+0.00507, +0.09122] (two-sided 0.95)  seasons 2023 +0.04027, 2024 +0.05063
+  GUARD 1 mean entry pct +0.01688  one-sided lower +0.00559  (must exceed -0.015)
+  GUARD 2 expected big seats 0.51925 vs 0.47982  ratio 1.082  (must be >= 0.80)
+  CAP35_OWN15_REAL dealt identical to CAP35: 0.000 of slate-banks
+  ->  PASS
+  set A [1743, 1744, 1745, 1746, 1747, 1748]: +0.04984  [+0.00108, +0.10363]  seasons 2023 +0.03896, 2024 +0.06073
+  set B [1749, 1750, 1751, 1752, 1753, 1754]: +0.04105  [-0.00122, +0.08735]  seasons 2023 +0.04158, 2024 +0.04052
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.04984, set B +0.04105, the difference +0.00879; seats ratio 1.082)
+  EXPLORATORY the l02 field (pooled): +0.04833  [+0.00791, +0.09460]
+
+== CAP35_OWN15_REAL vs LIVE_CB  [EXPLORATORY; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.02534  [-0.01587, +0.07045] (two-sided 0.95)  seasons 2023 -0.01462, 2024 +0.06530
+  GUARD 1 mean entry pct +0.00176  one-sided lower -0.01476  (must exceed -0.015)
+  GUARD 2 expected big seats 0.51925 vs 0.52716  ratio 0.985  (must be >= 0.80)
+  CAP35_OWN15_REAL dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [1743, 1744, 1745, 1746, 1747, 1748]: +0.01565  [-0.03359, +0.06698]  seasons 2023 -0.01578, 2024 +0.04709
+  set B [1749, 1750, 1751, 1752, 1753, 1754]: +0.03502  [-0.01542, +0.08656]  seasons 2023 -0.01346, 2024 +0.08350
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.01565, set B +0.03502, the difference -0.01937; seats ratio 0.985)
+  EXPLORATORY the l02 field (pooled): +0.02916  [-0.01294, +0.07546]
+
+
+== W5 ARMING RULE (his 10-09 rule): DO NOT ARM the 35% cap (CAP35 - LIVE_CB below 0 on both draws: A -0.03419, B -0.00603); keep 0.5
+
+  CAP35_OWN15 ruled solves built without the ownership bans (infeasible): 0 of 11232 over 432 slate-banks
+  CAP35_OWN15_REAL ruled solves built without the ownership bans (infeasible): 0 of 11232 over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  LIVE_CB      v2: P(>=1 big) 0.33501  expected big seats 0.52716  P(>=2) 0.12864  entry pct 0.51503  |  l02: P(>=1 big) 0.36249
+               book: projection per row 127.69  salary 49964  QB + 2 rows 12.0  most-used skill player 13.0 rows of 26  over 30% 10.0  over 40% 6.9  over the ownership cap 12.1  deviation from the predicted field 5.11  predicted ownership per row 97.3%  distinct QBs 8.5  non-DST players 42.3
+  CAP35        v2: P(>=1 big) 0.31490  expected big seats 0.47982  P(>=2) 0.11176  entry pct 0.49991  |  l02: P(>=1 big) 0.34332
+               book: projection per row 126.43  salary 49968  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 12.9  over 40% 0.0  over the ownership cap 12.7  deviation from the predicted field 4.80  predicted ownership per row 91.6%  distinct QBs 8.5  non-DST players 44.5
+  CAP35_OWN15  v2: P(>=1 big) 0.34721  expected big seats 0.50118  P(>=2) 0.11220  entry pct 0.49798  |  l02: P(>=1 big) 0.37906
+               book: projection per row 125.11  salary 49971  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.26  predicted ownership per row 93.3%  distinct QBs 8.6  non-DST players 50.9
+  CAP35_OWN15_REAL v2: P(>=1 big) 0.36035  expected big seats 0.51925  P(>=2) 0.11825  entry pct 0.51679  |  l02: P(>=1 big) 0.39165
+               book: projection per row 124.99  salary 49970  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.9  over 40% 0.0  over the ownership cap 5.5  deviation from the predicted field 4.24  predicted ownership per row 91.9%  distinct QBs 8.7  non-DST players 51.5
+```
+
+**Reading.**
+- **His W5 arming rule: DO NOT ARM the 35% cap; keep 0.5.** CAP35 − LIVE_CB is below 0 on both draws (A −3.4 [−6.7, −0.2],
+  B −0.6 [−4.4, +3.4]); pooled −2.0 [−4.9, +0.9]. 2023 reads −5.5 on both draws; 2024 −1.4 / +4.3. Guard 1 fails (mean entry
+  pct −0.0151, lower −0.0259). Seats ×0.91.
+  - The same direction as study 36's read of the 35% cap on the winners' mix (Addendum 141: −0.0004, guard 1 failed at
+    −0.024): in both, spreading the most-used players costs the mean finish and buys no big seats.
+  - The two draws differ by 2.8 points, the size of the bank-set component Addendum 182 measured. The rule's "both draws"
+    is what makes this read count.
+- **The ownership cap on top of 35% (CAP35_OWN15):**
+  - against CAP35: +3.2 [−1.0, +7.6], positive on both draws (+3.9, +2.5), the guards pass, seats ×1.045. It recovers the
+    35% cap's loss, consistently across draws, but the interval includes zero;
+  - against LIVE_CB: +1.2 [−2.6, +5.1] (A +0.5, B +1.9), guard 1 fails, seats ×0.95. Not negative on both draws; **no gain
+    shown over the 50% book.**
+  - With the real ownership (EXPLORATORY; it leaks late news): +4.5 [+0.5, +9.1] against CAP35, PASS; +2.5 against LIVE_CB,
+    n.s. Even a perfect ownership projection does not clearly beat the 50% book here.
+- **Untested:** the ownership cap on the 50% cap (dropped after the first smoke, when W5 was to run at 35%). With the blend's
+  predictions it would bind only on players capped below 13 rows. Reading it on these slates now needs a fresh design on
+  origin first, and its real-book check needs FP's projected ownership.
+- **Production:** Week 5 keeps the 0.5 cap. The laptop merges the arming branch (`7d1594d9`) with MAIN_CAP=0.5, quoting this
+  READ's rule line. Study 38's 50% paper arm (amendment 6n's follow-up) is not built at a live 0.5.
+- **In plain words:** the 35% cap read worse than 50% on both independent draws, so by his rule it is not armed. Adding the
+  ownership-relative cap undoes most of that loss, but it does not do better than the current 50% book.
+- **Recommendation (his rule decides it):** keep 0.5 for Week 5; the ownership cap is not for Week 5.
