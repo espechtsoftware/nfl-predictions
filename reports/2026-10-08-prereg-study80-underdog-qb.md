@@ -1,7 +1,10 @@
-# Preregistration: study 80, the underdog's QB in a top-4 game on the first 8 book rows, in the harness (DRAFT 2026-10-08)
+# Preregistration: study 80, the underdog's QB in a top-4 game on the first 8 book rows, in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-08 (22:23 CDT)** by the outside reviewer, before any scored bank. The reviewer (84) reviews, runs
-the binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks and seeds scanned).
+**Status: FROZEN 2026-10-09 (00:33 CDT)** by the reviewer, after the outside reviewer's DRAFT (10-08 22:23 CDT), the smoke and
+the binding census (§6), before any scored bank.
+- The text changed at the freeze in §6 (the census) and in §4, which now carries the census's figures beside the smoke's.
+- The module and the reader are the DRAFT's, unchanged. The laptop acks (shas, tests, census re-run, banks and seeds
+  scanned; its scan of 1683–1688, the derived bases and the seed was clean).
 - **Banks 1683–1688, seed 20261125** (assigned by the reviewer; the laptop scans the banks and the derived bases 1733–1738 /
   2383–2388).
 - **Target:** tonight, after study 79 (the laptop's 02:00–07:00 window). A production option only if DOGQB8 is ENTERABLE
@@ -65,9 +68,13 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
   QB + 2 rows; the ruled solves built plain.
 
 ## 4. What the harness can and cannot say
-- **The gap transfers:** the harness's LIVE_CB takes an underdog top-4 QB in 5.0 of 26 rows (19%) and a favourite in 8.0
-  (31%), the same lean as his FP book (23% / 42%); DOGQB8 takes the underdog share to 8.7 (33%), about the top 1%'s 32%.
-- **Vacuity:** LIVE_CB already takes an underdog top-4 QB in 1.7 of the 8 ruled rows, so the rule changes about 6.
+- **The gap transfers.**
+  - The smoke: the harness's LIVE_CB takes an underdog top-4 QB in 5.0 of 26 rows (19%) and a favourite in 8.0 (31%), the
+    same lean as his FP book (23% / 42%); DOGQB8 takes the underdog share to 8.7 (33%), about the top 1%'s 32%.
+  - The binding census (53 slate-banks, §6): LIVE_CB 6.32 (24%) / 10.53 (40%), closer still to his book; DOGQB8 9.51 (37%)
+    / 9.02.
+- **Vacuity:** LIVE_CB already takes an underdog top-4 QB in 1.7 of the 8 ruled rows in the smoke, and in 2.06 in the
+  census. So the rule changes about 6.
 - **Path dependence:** the rows re-draw the rest of the book (the smoke shared 1.0 of 26 rows with LIVE_CB).
 - **The week-to-week spread is large** (W2's top 1% held the underdog only 6%, W3's 60%); the harness reads 36 slates.
 - **The base is our simulator's mean, not FP's. The lines are closing lines.**
@@ -91,7 +98,19 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
   - projection per row −0.21 (DOGQB8) / −0.14 (FAVQB8); rows shared with LIVE_CB 1.0 / 1.3; dealt identical 0.000 / 0.000.
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 41 lines and 3 sections; only
   those were read.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `22098074` clean; 7 tests pass; lab `results/s80/CENSUS_s80_binding.txt` `d9166179…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `0e177129…` with no outcome field, committed at `2b494829`):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - DOGQB8 and FAVQB8: 8 of 8 ruled on every slate-bank, 0 infeasible, at book positions 0, 2, 3, 5, 6, 7, 9, 10 (read by
+    big contests: 1.000);
+  - allowed QBs per slate-bank: DOG 8.81, FAV 8.55; every ruled row's QB is his team's starter (DOG 1.000, FAV 1.000);
+  - vacuity: LIVE_CB already takes an underdog top-4 QB in 2.06 of the 8 rows at DOGQB8's ruled positions;
+  - underdog / favourite top-4 QB rows: LIVE_CB 6.32 / 10.53, DOGQB8 9.51 / 9.02, FAVQB8 5.66 / 12.09; distinct QBs
+    8.2 / 8.6 / 8.2;
+  - QB + 2 rows 12 in every arm;
+  - projection cost −0.20 / −0.09 per row;
+  - rows shared with LIVE_CB 2.4 / 3.8; dealt identical 0.000 / 0.019 (no dead lever).
 - **Code:** nfl2 `production/s80-dogqb-20261008` @ `22098074` (the outside reviewer's draft; branched from study 79's; `22098074`
   added the census's starter line):
   - `experiments/s80_dogqb.py` `9a46c284…`;
