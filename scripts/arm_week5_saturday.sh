@@ -35,9 +35,10 @@ OWN_CAP_DELTA=15                    # his 10-09 package (HANDOFF 5380e0e7): 15 =
 ROW_RULES="te1_low1"                # LIVE (his answers 10-09: "Go live as my rule says" / "Go live as the rule says"); his 10-09 test 2 (HANDOFF 2ab54e30): te1_low1 = at most one TE and one skill player under 3%
                                     # FP ownership per book row, ONLY if study 91 reads it better than his package on BOTH draws
                                     # within 20% of the expected big seats; only with the package; empty = off
-ONE_CATCHER_ALL=0                   # his 10-09 decision (HANDOFF 90e8470c, "Live W5 if built in time"): 1 = study 93's ONECATCH,
-                                    # at most one WR / TE per team on every QB + 1 (B / C) book row, ONLY with ROW_RULES=te1_low1
-                                    # and the package; set to 1 on Saturday only if the flag, the wiring, the W4 check and 6t pass
+ONE_CATCHER_ALL=1                   # LIVE (his 10-09 decision, HANDOFF 90e8470c: "Live W5 if built in time"; every check passed:
+                                    # the flag c391fbd0 + the wiring f483644c reviewed, the W4 check f9ec0239, study 38 6t acked):
+                                    # 1 = study 93's ONECATCH, at most one WR / TE per team on every QB + 1 (B / C) book row, ONLY
+                                    # with ROW_RULES=te1_low1 and the package; 0 = off
 MIX_FILL=rr                         # the MIX fill order (study 42; his 10-06 evening yes, "Use round-robin"): the cells in
                                     # turn, a row per shape for the top QBs (the outside reviewer's arm; NO DIFFERENCE on
                                     # P(>=1 big), +9% expected seats). group = the earlier book; value is NOT to be armed
