@@ -12,6 +12,56 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (06:50 CDT) — OPERATOR (relayed): decision 6, one more study with no player over $8,100 in the entire book
+
+**His words** (in the outside reviewer's session, during study 84's run; relayed to the laptop verbatim): "After that, let's do
+one additional study where the only rule is no player over $8100 for the entire book."
+
+- **His amendment** (relayed verbatim, before any code or read): "Let's change that to no player over 7,900." The arm is now
+  **CAP7900**: every pool player priced above $7,900 banned on every book solve, $7,900 itself allowed; the prereg is amended
+  at `14168e8f` (06:51), before 84's READ. Banks and seed are unchanged.
+- *(as first written)* **Study 86 CAP8100:** every pool player priced above $8,100 is banned on every book solve; $8,100 itself
+  is allowed. It runs through s81's banned_rows. Its design is on origin before 84's and 85's READs (`review/s86-prereg-20261009` @
+  `c4ac131e`).
+- **The outside reviewer's reading:** information for his decision, with no automatic Week-5 rule. The laptop confirms that
+  with him.
+- **Queue:** 84 (running) → 85 BOOK85 → 86 CAP8100.
+
+## 2026-10-09 (06:23 CDT) — OPERATOR (relayed): decision 5, an experiment with a whole book under four salary / position rules
+
+**His words** (in the outside reviewer's session, during study 84's run; relayed to the laptop verbatim): "As an experiment
+lets try an entire book like this: TE <= 5000 / D <= 3000 / 1 WR <= 4500 / WR or RB in Flex"
+
+- **His two clarifications** (relayed by the reviewer from the outside reviewer's session; recorded as given):
+  - "1 WR" means EXACTLY one WR priced ≤ $4,500;
+  - "Let me decide": no automatic Week-5 rule. He decides after the read.
+- **Study 85 BOOK85** is triaged RUN. Its design is on origin before 84's READ (`review/s85-prereg-20261009` @ `159907fc`).
+  Banks 1719–1724, seed 20261130.
+- **Planned:** study 85. Its DESIGN is committed before study 84's READ (the same slates; the same discipline as 84 before
+  83). No machine work until 84's run ends.
+- **The wiring for any tested set is ready, unmerged:** `production/c0-wiring-20261009` @ `3c7be06e`. It covers C0,
+  COMBO, COMBO81, TE_C0, TE_ONEPC, TE_FLEX and TE_ONLY. A study-85 set would need its own production flags and wiring.
+
+## 2026-10-09 (05:39 CDT) — OPERATOR (relayed): decisions 3 and 4 (before 83's READ); study 84 covers all four decisions in one run
+
+**His words** (in the outside reviewer's session, before 83's READ; relayed to the laptop verbatim):
+- Decision 3: "If 83 comes back negative, but 84 beats 83, then let's try versions where the 5000+ TE rule is active along
+  with each portion of what we tried in 83 separately."
+- Decision 4: "And the final test of the week after that is just the 5000+ TE rule with the current book."
+
+**Study 84's design** covers all four decisions in ONE run. The DRAFT prereg is `review/s84-prereg-20261009` @ `088da038`,
+pushed before 83's READ. The arms: LIVE_CB, COMBO81, COMBO, TE_C0, TE_ONEPC, TE_FLEX and TE_ONLY, with his rule printed per
+arm.
+
+**The entry order, as our reading** (the laptop confirms it with him before any money-path merge):
+1. If 83's COMBO is not negative: COMBO81 if not negative, else COMBO.
+2. If 83 is negative and COMBO81 − COMBO > 0: the best not-negative TE_X by the read's point estimate.
+3. Otherwise: TE_ONLY if not negative, else nothing. Decision 4 says "test"; whether a passing TE_ONLY is ENTERED is part
+   of the confirmation.
+
+**The same disclosure as for 84:** every TE arm re-tests 81-ALL's ban on the same slates and outcomes where it read +4.7, so
+a pass is not new evidence for the ban. On his real book the ban costs about −0.76 FP per row.
+
 ## 2026-10-09 (05:36 CDT) — OPERATOR (relayed): a version including 81 (no $5k+ TE in any lineup), the same "not negative" rule
 
 **His words** (in the outside reviewer's session, minutes before this entry; relayed to the laptop verbatim): "It also

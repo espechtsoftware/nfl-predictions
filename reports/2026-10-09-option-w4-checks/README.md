@@ -60,3 +60,23 @@ that does not affect the 26 book rows. Verbatim: `OUTPUT-no-te5k-all-rows.txt`.
   harder on those TEs.
 - The flex moves mostly to RBs.
 - A paper arm would measure the trade on new weeks; this check sets its expected size.
+
+## Addendum (06:02 runs): the study 83 / 84 combinations on his real book
+
+The same runner and gate (OFF = `a4ab2839`). The code is a local test merge of integration + `review/combo-flag-20261009`
+(`f6fdee34`) + `production/c0-wiring-20261009` (`c116e98d`), as `ad1d9e84`; its 29 reader modules give 507 passed,
+3 skipped, rc 0. The TE ban is via `--dk-status`, as above. Verbatim: `OUTPUT-combo83-triple.txt`,
+`OUTPUT-combo81-four-rules.txt`.
+
+| | OFF | COMBO (C0 3 + one catcher 14 + flex 3) | COMBO81 (COMBO + no TE ≥ $5,000) |
+|---|---|---|---|
+| Rules ruled / plain | | 3 / 14 / 3 ruled, 0 plain | all ruled, 0 plain |
+| QB-alone rows | 0 | 3 (positions 3 / 7 / 13; big) | 3 (3 / 7 / 13; big) |
+| Rows with a non-QB same-team WR / TE pair | 7 | 2 | 1 |
+| Flex WR / TE / RB | 1 / 14 / 11 | 3 / 13 / 10 | 6 / 5 / 15 |
+| Rows with a TE ≥ $5,000 | 11 | (not read) | 0 |
+| QB + own-TE rows | 12 | (not read) | 9 |
+| FP projection per row | 143.70 | 143.60 (−0.10) | 143.17 (−0.53) |
+| Book rows changed | | 26 of 26 | 26 of 26 |
+
+The A3 combination check's logic (`w5_combo83_union_check.sh`) PASSES on the COMBO run.
