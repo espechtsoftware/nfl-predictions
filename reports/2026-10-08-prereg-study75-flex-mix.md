@@ -1,7 +1,10 @@
-# Preregistration: study 75, a WR in the flex on the first 8 book rows (the winners' flex mix), in the harness (DRAFT 2026-10-08)
+# Preregistration: study 75, a WR in the flex on the first 8 book rows (the winners' flex mix), in the harness (FROZEN 2026-10-08)
 
-**Status: DRAFT 2026-10-08 (21:09 CDT)** by the outside reviewer, before any scored bank. The reviewer (84) reviews, runs
-the binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks and seed scanned).
+**Status: FROZEN 2026-10-08 (21:19 CDT)** by the reviewer, after the outside reviewer's DRAFT (`9e84c7f5`), the smoke and the binding
+census (§6), before any scored bank. The laptop acks (shas, tests, census re-run, banks and seed scanned).
+- **Changed at the freeze (text only):** §2 states the rule as a feasible-set rule; §4 carries the census's base flex
+  mix; §5 makes production parity a condition of live use; §6 records the census. The module and the reader are the
+  DRAFT's, unchanged.
 - **Banks 1647–1652, seed 20261120** (assigned by the reviewer; pre-scanned clean by the laptop).
 - **Target:** read tonight, after study 74. A production option only if WR_FLEX8 is ENTERABLE and the operator chooses it
   in the morning (code can be ready, not merged).
@@ -43,8 +46,13 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
   `set_constraints` [(pool RBs, "<=", 2)] with the optimizer's own RB ≥ 2.
   - **Why it is not the decision (outcome-blind, before any scored bank):** the mechanics smoke dealt it identically to
     LIVE_CB on 2 of 3 slate-banks. The harness's first 8 rows rarely flex an RB (§4), so it is close to a dead lever.
-- **PRODUCTION'S EQUIVALENT (for §5):** production's pinned optimize (nfl2 `f69598b`) takes `member_bounds`, not
-  `set_constraints`. (WRs, 4, 4) and (RBs, 2, 2) are the same feasible sets under the DK slot counts (RB 2–3, WR 3–4).
+- **THE RULE, as a feasible-set rule (either mechanism implements it):** on the ruled solves, a lineup holds EXACTLY 4
+  WRs (WR_FLEX8: the flex is a WR) or EXACTLY 2 RBs (NORB_FLEX8: the flex is a WR or a TE).
+  - The harness implements it with the lab optimizer's `set_constraints` (the research optimize has no `member_bounds`).
+  - Production's pinned optimize (nfl2 `f69598b`) would use `member_bounds` (WRs, 4, 4) / (RBs, 2, 2).
+  - Under the DK slot counts (RB 2–3, WR 3–4) the two give the same feasible set.
+- **Disclosed:** the module's docstring cites study 39 as "Addendum 141"; the correct citation is Addendum 143, as §1
+  says. The docstring was left unchanged so the census ran on the frozen code.
 - **DEALING:** the mechanics smoke put the 8 ruled rows at book positions 0, 2, 3, 5, 6, 7, 9, 10, all read by big
   contests (Rev6: 0–21). The census reports them on every slate-bank; the reviewer stops the freeze if any lands outside
   0–21.
@@ -62,18 +70,22 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
   built plain.
 
 ## 4. What the harness can and cannot say
-- **The base is our simulator's mean, not FP's, and the flex differs with it.** The harness's LIVE_CB flexes WR 4.3 / TE
-  15.7 / RB 6.0 of 26 (the smoke; study 39's QA0 had an RB flex in 23% of rows). His real W5-style book on FP flexes
+- **The base is our simulator's mean, not FP's, and the flex differs with it.** The harness's LIVE_CB flexes WR 6.2 / TE
+  15.2 / RB 4.6 of 26 (the binding census; the smoke said 4.3 / 15.7 / 6.0; study 39's QA0 had an RB flex in 23% of
+  rows). His real W5-style book on FP flexes
   about WR 1 / TE 14 / RB 11. So the harness tests "a WR flex on 8 rows" from a TE-heavy base; production's base is
-  RB-heavier. WR_FLEX8 replaces mostly TE flexes in the harness (TE 15.7 → 12.3, RB 6.0 → 3.3, WR 4.3 → 10.3).
+  RB-heavier. WR_FLEX8 replaces mostly TE flexes in the harness (the census: TE 15.2 → 11.6, RB 4.6 → 3.4, WR 6.2 → 11.0). Live, it
+  would mostly replace RB flexes, so the harness answers "a WR flex instead of a TE flex" more than "instead of an RB
+  flex" (the laptop's point).
 - **Path dependence:** the ruled rows are built first, so the rest of the book re-draws (the smoke shared 1.3 of 26 rows
   with LIVE_CB). The effect is measured on the whole book.
 - **The lines are closing lines.**
 
 ## 5. What a verdict can do
 - **WR_FLEX8 ENTERABLE:** a production option (the outside reviewer's; e.g. `--mix-flex-wr-rows 8`: member_bounds (WRs, 4,
-  4) on the first 8 book solves in build order, study 73's machinery), with its format agreed first, parity-tested against
-  this study's frozen functions, the laptop's review, merged before FRIDAY_HEAD only after his morning decision (default
+  4) on the first 8 book solves in build order, study 73's machinery), with its format agreed first. A CONDITION of any
+  live use: a parity test showing the same ruled rows and books under production's `member_bounds` as under this
+  harness's frozen `set_constraints` rule, on fixtures. Then the laptop's review, merged before FRIDAY_HEAD only after his morning decision (default
   OFF), Friday's A3 ON run, his choice at Saturday's arming.
 - **Otherwise, or if any step is not clean by Friday evening:** W6, or closed.
 
@@ -88,7 +100,18 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
     0.667.
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406; `~/s75-panel/smoke-full/`): the reader exited 0 with 41
   lines and 3 sections. Only the exit code, the line count and the section count were read.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `bb66c2e` clean; lab `results/s75/CENSUS_s75_binding.txt` `bb8d21ae…`, the raw mechanics rows `census_mechanics_bank1406.jsonl`
+  `65ded1fb…` with no outcome field, committed at `f3c6d0d`):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - WR_FLEX8 and NORB_FLEX8: 8 of 8 ruled on every slate-bank, 0 infeasible, all at book positions 0, 2, 3, 5, 6, 7, 9,
+    10 (read by big contests: 1.000);
+  - flex of 26 (WR / TE / RB): LIVE_CB 6.2 / 15.2 / 4.6; WR_FLEX8 11.0 / 11.6 / 3.4; NORB_FLEX8 7.2 / 15.2 / 3.7;
+  - QB + 2 rows 12 of 26 in every arm;
+  - projection cost −0.12 / −0.03 per row;
+  - rows shared with LIVE_CB 2.0 / 12.9; dealt identical 0.000 / 0.377 (no dead lever; NORB_FLEX8 is exploratory).
+  - Disclosed: the laptop's study 74 census re-run was running at the same time (the build time, 105 s per slate-bank,
+    reflects that; the mechanics are seeded).
 - **Code:** nfl2 `production/s75-flex-mix-20261008` @ `bb66c2e` (the outside reviewer's draft):
   - `experiments/s75_flex_mix.py` `e9948fd9…`;
   - `scripts/s75_drive.py` `ad24227c…`;
