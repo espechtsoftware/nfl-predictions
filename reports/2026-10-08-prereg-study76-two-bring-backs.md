@@ -1,7 +1,8 @@
-# Preregistration: study 76, QB + 1 with two bring-backs on the first 4 B rows (the W4 winner's shape), in the harness (DRAFT 2026-10-08)
+# Preregistration: study 76, QB + 1 with two bring-backs on the first 4 B rows (the W4 winner's shape), in the harness (FROZEN 2026-10-08)
 
-**Status: DRAFT 2026-10-08 (21:18 CDT)** by the outside reviewer, before any scored bank. The reviewer (84) reviews, runs
-the binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks and seed scanned).
+**Status: FROZEN 2026-10-08 (21:56 CDT)** by the reviewer, after the outside reviewer's DRAFT, the smoke and the binding census (§6),
+before any scored bank. The text changed at the freeze only in §6 (the census). The module and the reader are the
+DRAFT's, unchanged. The laptop acks (shas, tests, census re-run, banks and seed scanned, the derived seed bases too).
 - **Banks 1653–1658, seed 20261121** (assigned by the reviewer; pre-scanned clean by the laptop).
 - **Target:** read tonight, after study 75. A production option only if B2BB4 is ENTERABLE and the operator chooses it in
   the morning (code can be ready, not merged).
@@ -75,7 +76,18 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
   - projection per row −0.08 / −0.14; rows shared with LIVE_CB 4.7 / 3.7; dealt identical 0.000 / 0.000.
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 41 lines and 3 sections; only
   those were read.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `4cf9e29` clean; lab `results/s76/CENSUS_s76_binding.txt` `220c403b…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `9df5ea26…` with no outcome field, committed at `8977005a`):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - B2BB4: 4 of 4 ruled on every slate-bank, 0 infeasible, at book positions 2, 6, 12, 16 (read by big contests: 1.000);
+  - B2BB_ALL: 7 of 7, the 7th at book position 22 (non-big; 0.857 big-read), by design exploratory;
+  - rows with 4+ from the QB's game: LIVE_CB 9.15, B2BB4 13.06, B2BB_ALL 15.98 of 26;
+  - B rows with 2+ bring-backs: 0 → 4 / 7;
+  - QB + 2 rows 12 in every arm;
+  - flex WR / TE / RB: 6.2 / 15.2 / 4.6 → 6.4 / 14.7 / 4.9 (B2BB4);
+  - projection cost −0.07 / −0.14 per row;
+  - rows shared with LIVE_CB 4.1 / 3.7; dealt identical 0.000 (no dead lever).
 - **Code:** nfl2 `production/s76-b2bb-20261008` @ `63b39df` (the outside reviewer's draft; branched from study 75's):
   - `experiments/s76_b2bb.py` `64509afa…`;
   - `scripts/s76_drive.py` `13772673…`;
