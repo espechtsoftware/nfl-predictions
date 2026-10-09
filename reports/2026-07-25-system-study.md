@@ -10247,3 +10247,135 @@ secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier fi
 - **In plain words:** the test model says the combined rule is better on both draws, and by his rule it goes live. The part that
   helped in the test hardly acts on his real book, so live it is mostly "no tight end in the flex"; Week 5's paper comparison
   measures what it actually does on real fields.
+
+## Addendum 189 (2026-10-09): study 90 (the ownership cap at + 10 points against the armed + 15, and a second read of the armed package, in the harness; a Week-6 candidate): + 10 is level with + 15 (+0.8; not negative on both draws, flat); the second read of the armed package is level with the 50% book (+0.3; 89 read +1.2); nothing for Week 6
+
+**Setup.**
+- **His request** (HANDOFF `dc5cdf02`, verbatim there): "Test 'stay even closer to the field' (each player at most projected
+  ownership + 10 points, vs the +15 you just armed) tonight as a Week-6 candidate?" → "Yes, test tonight (Recommended)".
+- **DISCLOSED, the tuning:** + 10 against + 15 was chosen AFTER study 89 was read, on the same 36 slates and real outcomes (new
+  banks redraw the simulations and the fields, not the outcomes). This read cannot by itself justify the change; the
+  out-of-sample test is real weeks.
+- **The arms.** Study 89's harness exactly (its frozen module sha-asserted; its functions imported):
+  - LIVE_CB: the player cap 0.5, no ownership cap;
+  - CAP35_OWN15: his armed W5 package (0.35 + the ownership cap at + 15);
+  - CAP35_OWN10: the W6 candidate (+ 10);
+  - CAP35_OWN10_REAL: + 10 on the real ownership (EXPLORATORY: it leaks late news).
+- **The read:** CAP35_OWN10 − CAP35_OWN15 for his W6 decision, printed with the two-draw rule (both draws ≥ 0, seats ≥ 0.80)
+  and guard 1 beside it (about one time in three under no true effect); CAP35_OWN15 − LIVE_CB = the SECOND READ of study 89's
+  +1.2 on fresh banks.
+- **Preregistration:** `reports/2026-10-09-prereg-study90-own-cap-10.md` (the design committed before any code ran; FROZEN
+  `006826a2`, 10-09 13:29 CDT, before any scored bank).
+- **Code:** nfl2 `5a1a1c0e`: module `c4be23f9…`; drive `53acf709…`; census `f85b4b22…`; reader `62bce622…`; tests `bbba173e…` (7).
+- **Panel:** banks 1992–2003 (A 1992–1997, B 1998–2003), B 20,000, seed 20261135, PYTHONHASHSEED=0. Moved twice before the freeze
+  (L02's and L03's bank + 700 field seeds); the laptop's scan clean.
+- **The run, disclosed:** a first start at 13:30 was stopped by the reviewer 20 s in (0 slate-banks done) so study 91 (his W5
+  decision) could go first; its 18 leftover worker processes were stopped and the empty run directory removed with his yes. The
+  scored run is the restart at 14:54:46 under the same freeze, seeds and code.
+- **Census** (binding, bank 1406, 36 slate-banks; lab `0ecaffd4`; the laptop's re-run identical): 0 of 936 ruled solves
+  infeasible at + 15 / + 10 / real; + 10 bans 13.1 players per solve (+ 15: 7.4); + 10 shares 6.06 of 26 rows with + 15;
+  LIVE_CB and CAP35_OWN15 build identical rows to study 89's census.
+- **His real W4 book at + 10** (the laptop's check): −0.87 FP per row against the + 15 book; 16 of 26 rows differ.
+- **Read:** the reader `62bce622`; READ `77dc1a23` (lab `61a4f524`). The confirmatory census (`353ef7d8`, raw shas `5026b462`,
+  RUN_ENV `0cd05907`; lab `04a5a1f9`) was committed before the READ: 0 of 11,232 ruled solves infeasible in every ownership arm;
+  + 10 shares 6.12 of 26 rows with + 15.
+- **Reproduced byte-identically by the laptop** at `61a4f524`: the raw files 1992–2003 pass `sha256sum -c` against
+  `RAW_s90_run.sha256`; the READ is `77dc1a23` and the confirmatory census `353ef7d8` (cmp-identical).
+
+**Reader output (verbatim):**
+```
+STUDY 90 READER  sha256 62bce62255fd6336c7ac87ab0eb085c6d658a8c78ca36fefe4fa2031868a51a0
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003]  sets {'pooled': [1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003], 'A': [1992, 1993, 1994, 1995, 1996, 1997], 'B': [1998, 1999, 2000, 2001, 2002, 2003]}  B 20000  seed 20261135  comparisons (('CAP35_OWN10', 'CAP35_OWN15'), ('CAP35_OWN15', 'LIVE_CB'), ('CAP35_OWN10', 'LIVE_CB')) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["LIVE_CB", "CAP35_OWN15", "CAP35_OWN10", "CAP35_OWN10_REAL"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"CAP35_OWN10": 0.35, "CAP35_OWN10_REAL": 0.35, "CAP35_OWN15": 0.35, "LIVE_CB": 0.5}, "deltas": {"CAP35_OWN10": 0.1, "CAP35_OWN10_REAL": 0.1, "CAP35_OWN15": 0.15}, "exploratory": ["CAP35_OWN10_REAL"], "own_arms": ["CAP35_OWN15", "CAP35_OWN10", "CAP35_OWN10_REAL"], "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + the arm's delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "skill_sum": 800.0, "source": "blend_pct"}, {"CAP35_OWN10": [9, 6], "CAP35_OWN10_REAL": [9, 6], "CAP35_OWN15": [9, 6], "LIVE_CB": [13, 6]}, "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== CAP35_OWN10 vs CAP35_OWN15  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.00754  [-0.02782, +0.04443] (two-sided 0.95)  seasons 2023 -0.00493, 2024 +0.02001
+  GUARD 1 mean entry pct -0.00630  one-sided lower -0.01488  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48619 vs 0.49960  ratio 0.973  (must be >= 0.80)
+  CAP35_OWN10 dealt identical to CAP35_OWN15: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [1992, 1993, 1994, 1995, 1996, 1997]: +0.00884  [-0.04034, +0.05929]  seasons 2023 +0.00419, 2024 +0.01350
+  set B [1998, 1999, 2000, 2001, 2002, 2003]: +0.00623  [-0.03320, +0.04730]  seasons 2023 -0.01405, 2024 +0.02652
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.00884, set B +0.00623, the difference +0.00261; seats ratio 0.973)
+  EXPLORATORY the l02 field (pooled): +0.00979  [-0.02756, +0.04886]
+
+== CAP35_OWN15 vs LIVE_CB  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.00286  [-0.03659, +0.04226] (two-sided 0.95)  seasons 2023 -0.04686, 2024 +0.05259
+  GUARD 1 mean entry pct -0.01589  one-sided lower -0.03089  (must exceed -0.015)
+  GUARD 2 expected big seats 0.49960 vs 0.52348  ratio 0.954  (must be >= 0.80)
+  CAP35_OWN15 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [1992, 1993, 1994, 1995, 1996, 1997]: +0.00209  [-0.03712, +0.04181]  seasons 2023 -0.04365, 2024 +0.04783
+  set B [1998, 1999, 2000, 2001, 2002, 2003]: +0.00364  [-0.04431, +0.05463]  seasons 2023 -0.05007, 2024 +0.05735
+  SECOND READ of the armed package: this read +0.00286 (A +0.00209, B +0.00364); study 89's +0.01220 (A +0.00529, B +0.01911); the difference -0.00934
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.00209, set B +0.00364, the difference -0.00155; seats ratio 0.954)
+  EXPLORATORY the l02 field (pooled): +0.00566  [-0.03513, +0.04648]
+
+== CAP35_OWN10 vs LIVE_CB  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.01040  [-0.04835, +0.06812] (two-sided 0.95)  seasons 2023 -0.05180, 2024 +0.07260
+  GUARD 1 mean entry pct -0.02219  one-sided lower -0.04164  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48619 vs 0.52348  ratio 0.929  (must be >= 0.80)
+  CAP35_OWN10 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [1992, 1993, 1994, 1995, 1996, 1997]: +0.01093  [-0.04833, +0.06875]  seasons 2023 -0.03946, 2024 +0.06133
+  set B [1998, 1999, 2000, 2001, 2002, 2003]: +0.00987  [-0.05963, +0.08051]  seasons 2023 -0.06413, 2024 +0.08387
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.01093, set B +0.00987, the difference +0.00106; seats ratio 0.929)
+  EXPLORATORY the l02 field (pooled): +0.01545  [-0.04570, +0.07574]
+
+
+######## EXPLORATORY ONLY: + 10 on the REAL ownership (leaks late news; an upper bound; never decision-bearing)
+
+== CAP35_OWN10_REAL vs CAP35_OWN10  [EXPLORATORY; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.01671  [-0.03015, +0.06110] (two-sided 0.95)  seasons 2023 -0.00624, 2024 +0.03965
+  GUARD 1 mean entry pct +0.02120  one-sided lower +0.01324  (must exceed -0.015)
+  GUARD 2 expected big seats 0.49644 vs 0.48619  ratio 1.021  (must be >= 0.80)
+  CAP35_OWN10_REAL dealt identical to CAP35_OWN10: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [1992, 1993, 1994, 1995, 1996, 1997]: +0.01568  [-0.04093, +0.07072]  seasons 2023 -0.00827, 2024 +0.03962
+  set B [1998, 1999, 2000, 2001, 2002, 2003]: +0.01774  [-0.03236, +0.06410]  seasons 2023 -0.00421, 2024 +0.03968
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.01568, set B +0.01774, the difference -0.00206; seats ratio 1.021)
+  EXPLORATORY the l02 field (pooled): +0.01760  [-0.03030, +0.06320]
+
+== CAP35_OWN10_REAL vs LIVE_CB  [EXPLORATORY; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.02711  [-0.03963, +0.09208] (two-sided 0.95)  seasons 2023 -0.05803, 2024 +0.11225
+  GUARD 1 mean entry pct -0.00099  one-sided lower -0.01968  (must exceed -0.015)
+  GUARD 2 expected big seats 0.49644 vs 0.52348  ratio 0.948  (must be >= 0.80)
+  CAP35_OWN10_REAL dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [1992, 1993, 1994, 1995, 1996, 1997]: +0.02661  [-0.03745, +0.09114]  seasons 2023 -0.04773, 2024 +0.10095
+  set B [1998, 1999, 2000, 2001, 2002, 2003]: +0.02761  [-0.04781, +0.09944]  seasons 2023 -0.06834, 2024 +0.12355
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.02661, set B +0.02761, the difference -0.00100; seats ratio 0.948)
+  EXPLORATORY the l02 field (pooled): +0.03306  [-0.03504, +0.09951]
+
+
+== W6 RULE (his decision; information, no automatic switch), CAP35_OWN10 - CAP35_OWN15: NOT NEGATIVE ON BOTH DRAWS  |  guard 1 (mean entry pct, one-sided lower) -0.01488 (passes -0.015)  |  under no true effect about one time in three
+
+  CAP35_OWN15 ruled solves built without the ownership bans (infeasible): 0 of 11232 over 432 slate-banks
+  CAP35_OWN10 ruled solves built without the ownership bans (infeasible): 0 of 11232 over 432 slate-banks
+  CAP35_OWN10_REAL ruled solves built without the ownership bans (infeasible): 0 of 11232 over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  LIVE_CB      v2: P(>=1 big) 0.32995  expected big seats 0.52348  P(>=2) 0.12574  entry pct 0.51342  |  l02: P(>=1 big) 0.35616
+               book: projection per row 127.72  salary 49964  QB + 2 rows 12.0  most-used skill player 13.0 rows of 26  over 30% 10.2  over 40% 6.9  over the ownership cap 15.6  deviation from the predicted field 5.12  predicted ownership per row 97.1%  distinct QBs 8.4  non-DST players 42.1
+  CAP35_OWN15  v2: P(>=1 big) 0.33282  expected big seats 0.49960  P(>=2) 0.11756  entry pct 0.49753  |  l02: P(>=1 big) 0.36182
+               book: projection per row 125.10  salary 49970  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 23.3  deviation from the predicted field 4.26  predicted ownership per row 93.1%  distinct QBs 8.6  non-DST players 50.8
+  CAP35_OWN10  v2: P(>=1 big) 0.34035  expected big seats 0.48619  P(>=2) 0.10868  entry pct 0.49123  |  l02: P(>=1 big) 0.37161
+               book: projection per row 123.85  salary 49971  QB + 2 rows 12.0  most-used skill player 8.8 rows of 26  over 30% 3.0  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 3.72  predicted ownership per row 92.2%  distinct QBs 9.2  non-DST players 59.0
+  CAP35_OWN10_REAL v2: P(>=1 big) 0.35706  expected big seats 0.49644  P(>=2) 0.10688  entry pct 0.51244  |  l02: P(>=1 big) 0.38922
+               book: projection per row 123.80  salary 49971  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 3.9  over 40% 0.0  over the ownership cap 9.5  deviation from the predicted field 3.78  predicted ownership per row 90.7%  distinct QBs 9.6  non-DST players 60.2
+```
+
+**Reading.**
+- **The Week-6 line (+ 10 against the armed + 15): +0.8 [−2.8, +4.4]** (A +0.9, B +0.6), seats ×0.97. "Not negative on both
+  draws" — which happens about one time in three under no true effect — with guard 1 passing by a hair (−0.0149 against
+  −0.015). Plainly: flat. The tightening costs projection (−1.25 per row in the harness; −0.87 FP per row on his W4 book) and
+  shows no gain.
+- **The second read of the armed package** (+ 15 against the 50% book): **+0.3** (A +0.2, B +0.4); study 89 read +1.2 (A +0.5,
+  B +1.9). Guard 1 fails on both reads. Two independent draws, both near zero: the package shows no gain over the 50% book, and
+  no loss either.
+- + 10 against the 50% book +1.0, guard 1 fails. The real-ownership version (EXPLORATORY) +1.7 over + 10, n.s.
+- **In plain words:** staying even closer to the field (+ 10) did not beat + 15, and the package he armed reads level with the
+  old book on a second independent draw. Nothing here for Week 6; the real-week paper comparison (study 38: MIXT_QA0_TODAY, the
+  old book, beside his live package) is the measure.
+- **Recommendation (his decision):** keep + 15; do not move to + 10.
