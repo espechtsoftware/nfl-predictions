@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (15:43 CDT) — laptop: S2 FAILS its gate (paper only); S1 waits for study 92; study 90 merged; S1/S2 code ready
+
+- **Study 90** (reproduced byte-identically; records merged `12932014`, Addendum 189): +10 not better than +15; the armed
+  package reads level with the 50% book on a second read (+0.3, against 89's +1.2). Keep +15; nothing for W6.
+- **The W4 real-book checks against the armed book** (`~/rehearsals/flagcheck-armed{S1,S2,S1S2}-20261009T2036*`):
+  - S1: −0.14 FP per row, 21 of 26 rows change;
+  - S2: −0.27, 26 rows; stars per row 0.77 → 1.04; only 4 pool stars on W4;
+  - both: −0.59.
+- **The replay** (`reports/2026-10-09-package-replay/`), all W4 contests:
+  - armed 58.7 pct / 6 cashes / 0.52×;
+  - +S1 60.0 / 15 / 3.63× (one big win);
+  - +S2 50.4 / 2 / 0.17×;
+  - +both 59.4 / 9 / 0.78×.
+  - **S2 FAILS his gate:** a lower finish and fewer cashes, so PAPER ONLY. S1's gate is study 92.
+- **The lever audit** passes every check on an S1 union dir (fade_effect OK).
+- **Ready to merge if S1 passes study 92:** the flags `review/shrink-star-flags-20261009` @ `b4934067` (approved) and the
+  wiring `production/s1s2-wiring-20261009` @ `32add6b8` (approved; S1 / S2 only with the armed version). The arm would set
+  SHRINK_K=0.7 (MIN_STAR stays empty), with FRIDAY_HEAD moved. **If S1 fails:** nothing merges.
+- **Study 92** (the reviewer): banks 3012–3023, seed 20261137, full-set clean; binding census next, then freeze, the laptop's
+  ack, the run.
+
 ## 2026-10-09 (15:03 CDT) — OPERATOR (relayed): "Test both tonight for live" -- S1 (shrink projections toward salary, k 0.7) and S2 (one $8,000+ star per lineup)
 
 **The context:** he asked the outside reviewer to read `briefings/2026-week-05/2026-10-09-lineup-construction-suggestions.md`
