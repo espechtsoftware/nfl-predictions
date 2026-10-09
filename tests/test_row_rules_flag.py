@@ -301,4 +301,4 @@ def test_refusals_and_the_cli(tmp_path):
         ur.main(base + ["--main-own-cap-delta", "15", "--main-own-cap-source", "f.csv", "--main-own-cap-fallback-share", "0.5",
                         "--mix-max-te", "2"])
     src = (ROOT / "scripts" / "union_reselect.py").read_text()
-    assert src.count("row_bounds=row_bounds)") == 2 and "!!! ROW RULES NOT APPLIED" in src and '"the ownership cap is not applied"' in src
+    assert src.count("row_bounds=row_bounds, one_catcher=oc_on)") == 2 and "!!! ROW RULES NOT APPLIED" in src and '"the ownership cap is not applied"' in src

@@ -107,3 +107,13 @@ def test_a_house_fallback_drops_his_test2_row_rules():
     script = f'source "{LIB}"; mix_to_house_args {args}; printf "%s|" "${{OUT_ARGS[@]}}"'
     r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=30)
     assert r.stdout == "--main|pmo_x50|--main-cap-share|0.5|--y|"
+
+
+def test_a_house_fallback_drops_the_one_catcher_flag():
+    """Study 93's ONECATCH (his 10-09 'Live W5 if built in time'): MIX-only and valueless, so the house fallback drops the bare
+    flag with the row rules and keeps the next argument."""
+    args = ("--main mix --main-cap-share 0.35 --main-own-cap-delta 15 --main-own-cap-source s --main-own-cap-fallback-share 0.5 "
+            "--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3 --mix-one-catcher-all --y")
+    script = f'source "{LIB}"; mix_to_house_args {args}; printf "%s|" "${{OUT_ARGS[@]}}"'
+    r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=30)
+    assert r.stdout == "--main|pmo_x50|--main-cap-share|0.5|--y|"

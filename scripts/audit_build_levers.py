@@ -33,10 +33,13 @@ The checks (each named in the output):
   main_own_term              a declared ownership term (union.pmo_x50.own_term.tilt > 0) has its source file, sha256 and coverage,
                              and a control main (book_main_control.csv) that differs from the entered main; no term -> no control book
   book_rows_legal            mean rows distinct, sleeve rows distinct (a sleeve row may repeat a mean row), complete, ids in the frame
+  one_catcher                --mix-one-catcher-all (study 93): every ruled row named by the receipt (by identity) is a main row
+                             holding at most ONE WR / TE of every team; off (or declared and not applied) -> nothing to check
 """
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import csv
 import hashlib
 import json
@@ -399,6 +402,30 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
            f"{dup} duplicate rows (within the mean rows or within the sleeve; {repeats} sleeve rows repeat a mean row, allowed), "
            f"{unknown} ids not in the frame, {short} rows without 9 slots", duplicates=dup, sleeve_repeats_of_main=repeats,
            unknown_ids=unknown, short_rows=short)
+
+    # ---- one_catcher (study 93's --mix-one-catcher-all): every ruled row named by the receipt (ruled_rows, by identity) is a
+    # main row and holds at most ONE WR / TE of every team; nothing when off or declared and not applied (the host alerts).
+    _mx = (((receipt.get("config") or {}).get("union") or {}).get("mix") or {}).get("mix") or {}
+    oc = (_mx.get("with_term") or {}).get("one_catcher") or _mx.get("one_catcher")      # an ownership-term main: its book's
+    oc_src = _mx.get("one_catcher_source") or {}
+    oc_rows = [frozenset(str(i) for i in f.get("row") or []) for f in ((oc or {}).get("ruled_rows") or [])]
+    main_sets: set = set()
+    if uni and uni.get("main") == "mix" and "book_rank" in cands.columns:
+        main_sets = {frozenset(_players_of(c)) for c in cands[cands["book_rank"].notna() & (cands["book_rank"] <= k_mean)]["players"]}
+    in_main = sum(1 for r in oc_rows if r in main_sets)
+    paired = [sorted(r) for r in oc_rows
+              if max(Counter(team.get(i) for i in r if pos.get(i) in ("WR", "TE")).values(), default=0) > 1]
+    want = int((oc or {}).get("ruled_solves") or 0)
+    if oc:
+        detail = (f"--mix-one-catcher-all: ruled {want}, re-solved without it {len(oc.get('resolved_without') or [])}; {in_main} of "
+                  f"{len(oc_rows)} ruled rows in the main book; {len(paired)} with two WR / TE of one team"
+                  + (f" (e.g. {paired[0][:4]})" if paired else ""))
+    elif oc_src.get("applied") is False:
+        detail = f"--mix-one-catcher-all declared and NOT APPLIED ({oc_src.get('not_applied')}): nothing to check"
+    else:
+        detail = "--mix-one-catcher-all off"
+    record("one_catcher", (in_main == want == len(oc_rows) and not paired) if oc else True, detail,
+           ruled=want, resolved_without=len((oc or {}).get("resolved_without") or []), in_main=in_main, with_pair=len(paired))
 
     failed = [c["check"] for c in checks if not c["ok"]]
     return {"run": str(run), "layout": layout, "checks": checks, "failed": failed, "ok": not failed}
