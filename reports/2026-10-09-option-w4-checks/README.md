@@ -25,6 +25,7 @@ converted `plan-week5-rev6-s24.json`. Counts only: no contest names, no stakes.
 | `--mix-qb-alone-rows 3` (77) | 3 of 3 | 24 of 26 (path dependence) | QB-alone rows 0 → 3, at book positions 3 / 7 / 13 (the harness's positions). They are dealt into 3 / 2 / 2 contests, 2 / 1 / 1 of them big. None has an RB teammate | 143.70 → 143.81 |
 | `--mix-one-catcher-rows 8` (79, the decision arm) | 8 of 8 | **0 of 26: byte-identical to OFF** | nothing. The book's 7 rows with a same-team WR / TE pair away from the QB sit at positions 1 (A1), 8 (C), 14 (B), 17 (C), 22 (B), 23 (C), 24 (A1). Its B / C ones come from B / C solves after the first 8, which the rule does not reach | 143.70 → 143.70 |
 | `--mix-one-catcher-rows 14` (every B / C solve; study 79's exploratory ONEPC_ALL) | 14 of 14 | 8 of 26 | pair rows 7 → 1 (the one left, at position 21, is a QB + 2 row) | 143.70 → 143.73 |
+| `--mix-flex-wr-rows 3` (75's dose in study 83; the flag at `09e93be1`, run 05:17) | 3 of 3 | 26 of 26 | flex WR / TE / RB 1 / 14 / 11 → 4 / 11 / 11; non-QB pair rows 7 → 6 | 143.70 → 143.39 (−0.31) |
 
 **Reading:**
 - 77's option transfers as tested: its three rows land where the harness put them, in big contests, at no projection
