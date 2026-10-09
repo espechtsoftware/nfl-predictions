@@ -67,6 +67,26 @@ LIVE = 48d's 41 rows with the cheap +2 block through study 53's `block_term` / `
 - **BEFORE HE ACTS ON ANY ARM (the reviewer's forward rule, 10-09):** it is first re-read on a second, disjoint bank set (the same code and reader, new banks and seed), and both reads and their difference are reported before any option is built.
 
 ## 6. Smoke, census and integrity
-- Bank 1406 only, after study 84's run frees the machine: the mechanics smoke (2022 W9, 2023 W3, 2024 W10), the binding
-  census, the full-path smoke (reader exit and line count only). Shas in the next commit.
-- **Code:** nfl2 `production/s85-price-book-20261009` (to branch from study 84's `37365127`).
+- **The mechanics smoke** (bank 1406; Rev6; `~/s85-panel/smoke/`; 2022 W9, 2023 W3, 2024 W10; `results_bank1406.jsonl`
+  `7485a26b…`):
+  - every arm is 41 rows within production's constraints (13 / 6, QB 5, overlap 4), with 8 term rows and every row in the pool;
+  - **0 infeasible solves in every arm** (78 of 78 ruled each); the ruled rows read by big contests 0.846 (all 26 book rows);
+  - the pool per slate-bank (mean / min): DSTs ≤ $3,000 12.0 / 10; TEs ≤ $5,000 45.7 / 45 (at exactly $5,000: 0.7); WRs ≤ $4,500
+    69.3 / 57;
+  - VACUITY over LIVE_CB's 26 rows (rows breaking each rule): a TE > $5,000 10.0; a DST > $3,000 8.0; cheap WRs ≠ 1 11.3; a TE in
+    the flex 15.7 (his W4 FP book: 11 / 7 / 12 / 14; all four met by 5 of 26);
+  - BOOK85 breaks no rule in any row; its flex WR / TE / RB 11.0 / 0 / 15.0 (LIVE_CB 4.3 / 15.7 / 6.0); QB + TE rows 10.0 (15.0);
+  - **projection per row:** BOOK85 −0.94; TE5000 −0.57; DST3000 −0.14; WR1CHEAP +0.03; FLEXNOTE −0.67;
+  - his real W4 book (the laptop, 10-09): the two bans alone change 24 of 26 rows at −0.73 FP per row (the WR and flex rules
+    come on top).
+- **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 108 lines and 8 sections; only those
+  were read.
+- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **Code:** nfl2 `production/s85-price-book-20261009` @ `658dd352` (branched from study 84's `37365127`):
+  - `experiments/s85_price_book.py` `4f752f8e…`;
+  - `scripts/s85_drive.py` `f19857c8…`;
+  - `scripts/s85_census.py` `f8090037…`;
+  - **`scripts/s85_report.py` (the reader) `865c4f1e…`** (seed 20261130);
+  - `tests/test_s85_price_book.py` `31a52814…` (10 tests);
+  - unchanged and sha-asserted: `s84_combo81.py` `40201328…` (its `s81_note5k.py` `b37dbbc9…`, `s83_combo.py` `19d9a77c…` and
+    their pins), `term_book.py` `62c2306e…`, production's `enter_layout.py` `3cb051ac…`; the plan `ac10ddf6…`.
