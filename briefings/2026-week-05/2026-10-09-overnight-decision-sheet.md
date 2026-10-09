@@ -65,4 +65,12 @@ refuses two at once.
   - Across tonight, every way of forcing a "top stack" into the book (the opponent's top receiver in 71 and 71b, the QB + top pass catcher in 73, the full trio here) read at or below today's book on 2023–24, while the 2022 check leaned the other way each time.
 - **The outside reviewer's list, triaged by the reviewer:** flex mix (our flex is almost never a WR), QB + 1 with two opposing players, and a QB-alone lineup run tonight. "More TE in the flex" is skipped: we already use a TE flex more than the winners do.
 
+**Still running tonight** (each becomes a line above when its result is in; the outside reviewer designed them from what the 2026 Millionaire winners did differently from the field):
+- **75:** a wide receiver in the flex spot in 8 lineups (our flex is almost always a TE or RB).
+- **76:** QB + 1 pass catcher with TWO players from the other team, 4 lineups (the Week-4 winner's shape).
+- **77:** the QB with no pass catcher of his own, 3 lineups (a shape the book never plays).
+- **78:** two players priced $8,000 or more in 8 lineups ("stars and scrubs", alongside the cheap-player boost).
+- **79:** at most one pass catcher per team in the QB + 1 lineups (no second same-team pair away from the QB).
+- **80:** the UNDERDOG's QB from one of the top-4 games in 8 lineups (73 and 74 forced the favourite's side).
+
 *(each study's result, in plain words, added as it is read and reproduced)*
