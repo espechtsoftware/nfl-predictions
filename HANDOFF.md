@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (15:03 CDT) — OPERATOR (relayed): "Test both tonight for live" -- S1 (shrink projections toward salary, k 0.7) and S2 (one $8,000+ star per lineup)
+
+**The context:** he asked the outside reviewer to read `briefings/2026-week-05/2026-10-09-lineup-construction-suggestions.md`
+(`review/construction-suggestions-20261009` @ `3fb9e9d7`). Its read: S1 interesting but untested, with the same transfer
+trap as study 91; S2 for paper. **Q:** "What do you want done with S1 (shrink projections toward salary, k = 0.7) and S2 (one
+$8,000+ star per lineup)?" → **"Test both tonight for live"**. The option text: "Same gate for S2 as S1; note the test model
+can't really measure S2, so its gate would be the Week-4 real-field check alone."
+
+- **The gates** (as the outside reviewer told him; he can amend):
+  - **S1** = study 92 (the harness, two draws): SHRINK − the armed version (package + te1_low1) > 0 on both draws AND seats
+    ≥ 0.80 → live.
+  - **S2** = the W4 real-field replay alone: armed + STAR beats armed on W4 (a higher mean finish percentile over all his W4
+    contests AND no fewer cashes) → live. **This gate is in-sample:** W4's top finishers prompted it. He will be told.
+- **The rules:**
+  - **S1:** per skill position over the buildable pool, typical_i = the median projection of the players within ±$500
+    salary; proj' = typical + 0.7 × (proj − typical); DSTs unchanged. It applies to the main-book objective (plain and the
+    term block's base) after FP's means. It must NOT rewrite the union frame's proj / proj_tourney (the lever audit's
+    fade_effect would refuse the union).
+  - **S2:** at least one non-QB skill player at $8,000+ per book row (member_bounds), in the row-rules vehicle.
+- **Who builds:** the outside reviewer (study 92's lab code + both production flags, parity-pinned); the laptop (the
+  wiring, the review, the W3 / W4 real-field replay of PKGRR / +S1 / +S2 / +both); the reviewer (study 92's census,
+  freeze and run). Everything that goes live merges with FRIDAY_HEAD moved, before Saturday's arming.
+
 ## 2026-10-09 (14:55 CDT) — laptop: his replay of the live version on this season (W3–W4); 6q acked; 91 merged; study 90 restarting
 
 - **The replay** (`reports/2026-10-09-package-replay/`, driver `515c0313`, report `5bef2c17`, sent to him). Descriptive,
