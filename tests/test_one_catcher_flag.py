@@ -412,9 +412,10 @@ def test_parity_same_rows_ruled_and_the_same_lineups(monkeypatch, n_h, n_p, term
 def test_parity_detects_a_wrong_bound(monkeypatch):
     """The mutation check: the lab's wrapper with a bound of 2 gives other lineups."""
     text = _text_of("one_catcher")
-    assert text.count('"<=", 1)') == 1
+    code = 'set_constraints=[(ids, "<=", 1)'                                               # the code, not the docstring
+    assert text.count(code) == 1
     ns = dict(globals())
-    exec(compile(text.replace('"<=", 1)', '"<=", 2)'), "mutated", "exec"), ns)
+    exec(compile(text.replace(code, 'set_constraints=[(ids, "<=", 2)'), "mutated", "exec"), ns)
     lineups_h, _, ruled_h, _, _ = harness(monkeypatch, 8, wrapper=ns["one_catcher"])
     lineups_p, _, ruled_p, _, _ = production(monkeypatch, 8)
     assert ruled_p == ruled_h and lineups_p != lineups_h
