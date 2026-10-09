@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j and 6k before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k and 6l before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -680,6 +680,84 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     2. the laptop's ack;
     3. Thursday's frame-column check on A3;
     4. Friday's A3, `s38-prod-pin` moved to FRIDAY_HEAD, and the integrity gate (pinned to 6k).
+
+- **Amendment 6l (2026-10-09, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why (the outside reviewer's finding, verified by the laptop and the reviewer, 10-08 night).** `parity()` was an
+    ALLOW-LIST of named checks.
+    - Amendment 4 classified the 46 union arguments of 10-06. Nothing classified the arguments added since: 57 at
+      integration `bf45a29a`, plus four flags on unmerged branches.
+    - So a construction argument the paper arms do not build passed unseen. The merged `--mix-bring-back-top-wr` /
+      `--mix-bring-back-top-wr-rows` (studies 71 / 71b) is an example, as are the flex-WR (study 75), top-game (73 / 74)
+      and QB-alone (77) flags.
+    - Armed live, MIXT_QA0 would silently not be his live book, and the week would look valid. That is the failure
+      CLAUDE.md names: "an invalid week that looks complete is worse than a missing week."
+  - **What changes: DEFAULT-DENY.**
+    - Every union argument (its argparse dest) is classified in `UNION_ARGS` as one of:
+      - checked by parity;
+      - not built (`NOT_BUILT`);
+      - a snapshot input or run control;
+      - inert for the 26-row MIX book under the checked settings, with the reason written beside it (e.g. the sleeve's
+        arguments with `--tail-sleeve 0`, the mean selector's `--mean-dst-cap`, the spares built after the book).
+    - A live argument outside the classification is a parity MISMATCH.
+    - So is a NOT_BUILT argument at anything but absent or its off value: `--mix-bring-back-top-wr` (off ""), and
+      `--mix-bring-back-top-wr-rows`, `--mix-flex-wr-rows`, `--mix-top-game-qb1`, `--mix-top-game-stack`,
+      `--mix-qb-alone-rows` (off 0).
+    - So is `--pmo` above 0, or `--main-game-cap` other than off. Amendment 4 left these two to the union's own refusal
+      under `--main mix`; they are now checked here too.
+  - **The pinned production checkout is read as well** (`union_classification`). The build parses the `--prod` checkout's
+    `scripts/union_reselect.py`: the checkout it is given, never a hard-coded commit (frozen-chain rule 7). It records as
+    a mismatch:
+    - any argument there that is not classified;
+    - any argument whose default differs from the one these checks assume when the argument is absent from
+      `union_args.txt` (`ASSUMED_DEFAULTS`: e.g. `--mix-fill group`, `--term-block-rows 0`, every not-built flag off).
+    - So a lever merged into production before the table classifies it fails the integrity gate instead of passing it.
+  - **What a mismatch does:** an invalid week, as before. Live mode refuses ("PARITY REFUSED"), and the reader marks the
+    week INVALID.
+  - **What does not change:** every arm, the rule (§5), the decision pair, the snapshot and the scorer. The smoke shows
+    every book unchanged.
+  - **Also recorded here (the earlier 6l item): the scorer's pin.**
+    - Production's `scripts/moneygate_score.py` is now `dd8ff1f7…`. §7 names `48342ae1…`.
+    - The new version equals the old table for Weeks 1–4 and adds the schedule for Weeks 5–18. The laptop reconciled it
+      on W1–4 (PASS, receipts identical), and the live receipt names it.
+    - `s38_score.py` records the scorer's sha in each week's record (it does not assert it). Week 5's record should name
+      `dd8ff1f7…`.
+  - **If he takes study 77's trial** (`--mix-qb-alone-rows 3`), 6l refuses that week as written. Amendment 6m, drafted
+    only on his yes, would make MIXT_QA0 follow it through study 77's frozen wrapper. Without 6m, a week with the trial
+    armed is INVALID for study 38: fail-closed, never silent.
+  - **Disclosed (machine):** while study 78's scored run held the machine, the reviewer ran study 38's test module once
+    (1.4 s; one new test failed on its own fixture, a whole-book tilt with a term block, which parity correctly refuses)
+    and a few one-second `python -c` parity checks. Everything else ran in a gap.
+  - **The smoke:** dry run on Week 4's frozen copies with 6k's inputs (the W5-shaped args `union-args-ms4-rr-cheap8.txt`: mix,
+    rr, overlap 4, QB cap 5, the 8-row cheap block); `~/private/paper-corun/smoke-w4-amend6l/`, script `run.sh` `7f475b00`;
+    lab `bf53dccd`, clean; 00:32–00:37 CDT, in the gap after study 78's run.
+    - The tests: 31 pass (6k's 29 and 6l's two).
+    - **pin-6l** (production `s38-prod-pin` `1478dcfb`): every one of the 19 arms is identical to 6k's pin build (rows and
+      ranks), and `books.json` is byte-identical (`6e4f8353`). The three TE arms are missing, as at 6k (no writer in the
+      pin). Union mismatches: none.
+    - **head-6l** (production integration `bf45a29a`, 57 union arguments): every one of the 22 arms is identical to 6k's
+      head build (`266da256`). `books.json` is `a63927ed`; it differs only by the production identities it records.
+      Union mismatches: none.
+    - **deny-6l** (the head with the same args plus `--mix-bring-back-top-wr B`): the dry run records exactly one
+      mismatch, "--mix-bring-back-top-wr 'B' (the paper arms build no such rows; amendment 6l)" (live mode would refuse).
+      `books.json` is `fe860af1`.
+    - **The classification against every production state FRIDAY_HEAD could be:** the pin, the integration head
+      `bf45a29a` and the unmerged branches (flex-WR `09e93be1`, s73 `60cc9cfe`, s74 `e25fb520`; QB-alone `3a9327e1`,
+      dest `mix_qb_alone_rows`, off 0) all give no unclassified argument and no
+      changed default.
+    - **Parity on real argument files:** the W5 arming (the laptop's `w4_union_run.sh`) gives none. A1's 10-07 args give
+      only their expected W4-era mismatches (tail sleeve 5, entries 105, no QB cap).
+  - **Code:** lab `bf53dccd` (on `82a5bf4a`):
+    - `experiments/s38_paper_corun.py`, sha256 `3e891ffdf6473d53aae4e2e5f5ba424b8f1956f8db1fe4f8607f8b3b7f34332c`;
+    - `tests/test_s38_paper_corun.py`, `6e6a3e815620133aa7be3e5ae3662cb3b8c66944b7bf00cb7588c901d5bf913d` (31 tests; two
+      added);
+    - unchanged: `scripts/s38_build.py` `412f92a2…`, `scripts/s38_score.py` `fb8781fb…`, **the reader
+      `scripts/s38_report.py` `afd56ba1…`**, `scripts/s38_plan.py` `6c4cc53a…`.
+    - The integrity gate pins 6l's module sha in place of 6k's; the other three gate shas stand.
+  - **Order:**
+    1. this amendment;
+    2. the laptop's ack (shas, tests, the smoke);
+    3. Friday's A3 with `s38-prod-pin` moved to FRIDAY_HEAD (whatever head he ends up with: the classification reads it);
+    4. the integrity gate pinned to 6l.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
