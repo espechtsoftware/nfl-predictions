@@ -13,6 +13,11 @@
   verbatim):** "Let's queue up an experiment with this. / QB from one of top 4 point total games / TE <= 5000 / D <= 3000 / 1 WR
   <= 4500 / Top receiver same team as QB / WR or RB in Flex" — and, right after: "In this case at least 1 wr <= 4500 can be
   more."
+- **AMENDED by the operator before studies 85's and 86's reads (the same session):** "For study 87, it seems that the other
+  rules that you mentioned about how much we can use a quarterback and stuff like that are going to get in the way. Just for the
+  purposes of this experiment, can we remove those rules?" — asked which, he chose **"All usage caps"** (the QB cap of 5 rows,
+  the player cap of 13, the DST cap of 6 are removed; the overlap limit of 4 shared players is KEPT) and **"Yes, add a no-caps
+  book"** (his live book without the caps, so the caps and his rules separate).
 - **Use:** an experiment — information for his decision (the outside reviewer's reading, as for 85 / 86).
 - **What was tested before (the prior):** forcing the QB's game or side and his top pass catcher read at or below his book —
   study 73's TOPG5_QB1 (the favourite's QB + top pass catcher in the top-5 games) −0.036; study 74's STACK4_B −0.029; study
@@ -41,12 +46,13 @@ the cheap +2 block, on Rev6 (`plan-week5-rev6-s24.json` `ac10ddf6…`).
   - The rules that apply are ONE solve (the bans, the constraints and the floor); an infeasible one is re-solved at the cell's
     own rules with none of them and recorded once (studies 81–85's fallback). The cells, their quotas and stacking rules, the
     cheap block, the caps and the dealing are his live book's.
-- **THE ARMS:** **LIVE_CB**; **BOOK87** (all six rules); **PRICE87** (TE5000 + DST3000 + WR1PLUS + FLEXNOTE); **QBTOP87** (QBTOP4 +
-  TOPREC). The two parts on the same banks show which half drives BOOK87.
+- **THE ARMS:** **LIVE_CB** (the reference, WITH the usage caps); and WITHOUT the usage caps (his amendment): **NOCAP** (his live
+  book, no other change); **BOOK87** (all six rules); **PRICE87** (TE5000 + DST3000 + WR1PLUS + FLEXNOTE); **QBTOP87** (QBTOP4 +
+  TOPREC). The two halves on the same banks show which half drives BOOK87; NOCAP shows what the caps alone do.
 
 ## 3. The read (the reader `scripts/s87_report.py`)
-- Study 63's frozen reader for the statistics, study 83's `his_rule` printed for reference; each arm − LIVE_CB on P(≥ 1 big
-  seat), the 2023–24 read (36 slates, two-sided 0.95, B 20,000) and the 2022 check, the guards, expected big seats, P(≥ 2), l02,
+- Study 63's frozen reader for the statistics, study 83's `his_rule` printed for reference; each arm − LIVE_CB, and each rule
+  arm − NOCAP ("the rules alone", both without the caps), on P(≥ 1 big seat), the 2023–24 read (36 slates, two-sided 0.95, B 20,000) and the 2022 check, the guards, expected big seats, P(≥ 2), l02,
   the projection cost.
 - **NO AUTOMATIC DECISION:** information for his decision. Under no true effect an arm is "not negative" on both 2023–24 and
   2022 about one time in four; with study 84's bank-to-bank finding, a lean of a few points is not a result.
@@ -71,4 +77,7 @@ the cheap +2 block, on Rev6 (`plan-week5-rev6-s24.json` `ac10ddf6…`).
 ## 6. Smoke, census and integrity
 - Bank 1406 only, when the machine is free: the mechanics smoke, the binding census, the full-path smoke (reader exit and line
   count only). Shas in the next commit.
-- **Code:** nfl2 `production/s87-qb-price-book-20261009` (to branch from study 85's).
+- **Code:** nfl2 `production/s87-qb-price-book-20261009` @ `5fbdfd5c` (branched from study 86's `4fdad305`; committed before
+  86's and 85's reads, the reviewer's timing rule; not yet tested or smoked): `experiments/s87_qb_price_book.py` `578e427a…`
+  (pins s85 `4f752f8e…`, s70 `d622a211…`); `scripts/s87_report.py` `af1b84ab…` (seed 20261132); `scripts/s87_census.py`
+  `9bb31a92…`; `tests/test_s87_qb_price_book.py` `261a1ae6…`. A change after its smoke is a new commit, disclosed.
