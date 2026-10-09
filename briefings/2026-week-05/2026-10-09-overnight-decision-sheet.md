@@ -3,6 +3,17 @@
 **For:** Erich, before Friday's code freeze. Written by the laptop agent, with the reviewer's recommendation for each
 test. **Every result below was read by the reviewer and re-run by the laptop with identical output.**
 
+## Update: your decision (early morning)
+
+You said: **"Let's do a test now of all 3 and if it isn't negative use it in week 5."** (recorded in the handoff).
+
+- **The test (study 83, running now):** one book with all three rules together: the quarterback alone in 3 lineups (77), at most one receiver / tight end per team in every QB + 1 lineup (79, the version that actually changes your book), and a receiver in the flex in 3 lineups (75).
+- **Your rule, fixed before the test is scored:** use it in Week 5 only if it comes out at zero or better on the deciding seasons AND at zero or better on 2022, and keeps at least 80% of the expected big wins.
+- **What passing means:** it screens out clear harm; it does not show a gain. Even if the three rules did nothing at all, a test like this would pass about 1 time in 4.
+- **Checked on your real book:** each of the three rules changes your lineups (none is a no-op).
+- **If it passes:** the combined switch is built and tested this morning, merged before Friday's code freeze, rehearsed Friday afternoon, and armed Saturday with your decision recorded. **I'll ask you to confirm here before anything is merged**, because your decision reached me through the other session.
+- **If it fails:** nothing changes; Week 5 runs as armed.
+
 ## What you decide this morning
 
 The book is ready as it stands. That is the default, and nothing changes unless you say so. **Two decisions:**
