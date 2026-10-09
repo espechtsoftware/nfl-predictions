@@ -400,6 +400,18 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
            f"{unknown} ids not in the frame, {short} rows without 9 slots", duplicates=dup, sleeve_repeats_of_main=repeats,
            unknown_ids=unknown, short_rows=short)
 
+    # ---- qb_alone (study 77's --mix-qb-alone-rows): the main rows tagged mix_C0 are exactly the receipt's ruled rows (none
+    # when off); the stack_rules check above holds each of them to the C0 shape
+    _mx = (((receipt.get("config") or {}).get("union") or {}).get("mix") or {}).get("mix") or {}
+    qa = (_mx.get("with_term") or {}).get("qb_alone") or _mx.get("qb_alone")    # an ownership-term main: the entered book's
+    n_c0 = 0
+    if uni and uni.get("main") == "mix" and "book_rank" in cands.columns and "tag" in cands.columns:
+        n_c0 = int((cands[cands["book_rank"].notna() & (cands["book_rank"] <= k_mean)]["tag"].astype(str) == "mix_C0").sum())
+    want = len((qa or {}).get("ruled") or [])
+    record("qb_alone", n_c0 == want, (f"--mix-qb-alone-rows {qa.get('rows_cap')}: ruled {want}, plain {len(qa.get('plain') or [])}; "
+                                      f"{n_c0} main rows tagged mix_C0") if qa else f"--mix-qb-alone-rows off; {n_c0} main rows tagged mix_C0",
+           rows_cap=(qa or {}).get("rows_cap", 0), ruled=want, plain=len((qa or {}).get("plain") or []), tagged=n_c0)
+
     failed = [c["check"] for c in checks if not c["ok"]]
     return {"run": str(run), "layout": layout, "checks": checks, "failed": failed, "ok": not failed}
 

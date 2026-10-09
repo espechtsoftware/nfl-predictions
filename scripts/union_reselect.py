@@ -69,6 +69,8 @@ from nfl_dfs.inference.mix_shapes import (TOP_WR_RULE_CELLS as MS_TOP_WR_RULE_CE
                                          bring_back_top_wr_rule as ms_bb_rule, rule_applies as ms_rule_applies)
 from nfl_dfs.inference.mix_shapes import (MIX_CELLS, PORTFOLIOS, TAG_PREFIX, allocate as mix_allocate, interleave as mix_interleave,  # noqa: E402
                                            plan_weights as mix_weights, shape_violations, cell_of_tag)
+from nfl_dfs.inference.mix_shapes import (ALL_CELLS as MS_ALL_CELLS, QB_ALONE_CELL as MS_QA,  # noqa: E402
+                                         QB_ALONE_FROM as MS_QA_FROM)
 
 SKILL = ("QB", "RB", "WR", "TE")
 COPY = ("frame.parquet", "universe_ledger.parquet", "exposure_ledger.json", "book_wemax.csv", "book_wemax.json", *BANKS)
@@ -493,7 +495,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
              term_bonus: dict[str, float] | None = None,
              cell_quotas: dict[str, float] | None = None,
              bring_back_top_wr: tuple[str, ...] = (),
-             bring_back_top_wr_rows: int | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             bring_back_top_wr_rows: int | None = None,
+             qb_alone_rows: int = 0) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -533,7 +536,13 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     objective; then the term block (n rows), round-robin on the quotas at its size, on projection + term_bonus (points per
     frame id, already capped by the caller); positions mix_shapes.block_positions(k, n) (the term block takes the first
     list); each block interleaved on the head weights of ITS positions; the spares after the book on the plain objective.
-    Needs the MIX portfolio, the round-robin fill, no cover, no half-and-half and no whole-book ownership term."""
+    Needs the MIX portfolio, the round-robin fill, no cover, no half-and-half and no whole-book ownership term.
+    qb_alone_rows N (study 77's QB alone, nfl2 experiments/s77_naked.py qb_alone; production's agreed format 10-08; default 0 =
+    off, byte for byte today's book): the first N cell-C solves with j = len(prev) < k (BOOK rows; spares never) are solved
+    at mix_shapes' C0 shape (C's rules with qb_stack_min 0 / qb_stack_max 0); the slot is used either way (an infeasible one
+    is re-solved at C's own rules, recorded, never retried). The ruled rows stay C rows (C's quota, C's interleave slots)
+    and are returned with the cell C0, so they are tagged mix_C0. Needs the MIX portfolio, fill rr, no cover, no
+    half-and-half, and 0 <= N <= C's book rows (qb_alone_max)."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
@@ -588,6 +597,23 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         bb_pairs = {(p["id"], bb_top[str(p["opp"])]): 1.0 for p in pool if p["pos"] == "QB" and str(p["opp"]) in bb_top}
     name_of_id = {p["id"]: p.get("name") for p in pool}
 
+    # study 77's QB alone (default 0 = off: every solve below byte for byte as before): the first N C solves at j < k take
+    # the C0 shape; the record lists [cell, j] of the ruled and the plain (infeasible) solves; the ruled rows' identities
+    # re-tag them C0 after the interleave.
+    qa_n = int(qb_alone_rows or 0)
+    qa_state: dict = {"used": 0, "pending": None, "ruled": [], "plain": [], "rows": set()}
+    if qa_n:
+        qa_max = qb_alone_max(quotas, k, term_rows) if portfolio == "mix" else 0
+        if (int(qb_alone_rows) != qb_alone_rows or qa_n < 0 or qa_n > qa_max or portfolio != "mix" or fill != "rr"
+                or cover_games or rs_rows):
+            raise ValueError(f"qb_alone_rows {qb_alone_rows} needs 0 <= N <= C's book rows ({qa_max}), the MIX portfolio, fill "
+                             f"rr, no cover and no half-and-half (got portfolio {portfolio}, fill {fill}, cover {cover_games}, "
+                             f"rs {rs_rows})")
+        _, qa_rules, qa_qmax, qa_pair = MS_ALL_CELLS[MS_QA]
+        _, c_rules, c_qmax, c_pair = cells[MS_QA_FROM]
+        if qa_rules != dict(c_rules, qb_stack_min=0, qb_stack_max=0) or (qa_qmax, qa_pair) != (c_qmax, c_pair):
+            raise ValueError(f"the C0 shape {MS_ALL_CELLS[MS_QA]} is not C {cells[MS_QA_FROM]} with qb_stack 0..0")
+
     def floor_open() -> bool:
         """Study 71b, 84's definition exactly (nfl2 experiments/s71b_topbb_n.py, TopBBNBuilder.solve_with @ c2f5638): the
         floor goes on a designated solve only while j < k AND fewer than N rows have been committed under it, where j =
@@ -613,6 +639,13 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         use_pool, use_obj = (term_pool, "obj") if use_term else (pool, objective)
         kw = dict(stack=StackRules(**rules), objective_col=use_obj, banned_lineups=prev, max_overlap=max_shared,
                   bans=bans or None, env=env, second_game_pair=games if which == "all" else None, qb_game_max=qmax)
+        if qa_n and name == MS_QA_FROM and len(prev) < k and qa_state["used"] < qa_n:     # study 77: this C solve is C0
+            qa_state["used"] += 1
+            lu = optimize(use_pool, **dict(kw, stack=StackRules(**qa_rules), qb_game_max=qa_qmax))
+            if lu is not None:
+                qa_state["pending"] = len(prev)
+                return [str(p["id"]) for p in lu.players], float(sum(p.get(use_obj, p["proj"]) for p in lu.players)), None
+            qa_state["plain"].append([MS_QA_FROM, len(prev)])                         # infeasible: C's own rules below
         fb = None
         if name in bb_cells and floor_open():
             lu = optimize(use_pool, interaction_floor_weights=bb_pairs, interaction_floor=1.0, **kw) if bb_pairs else None
@@ -632,6 +665,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
 
     def commit(ids: list[str], value: float | None = None, cell: str | None = None, fb: str | None = None) -> list[str]:
         prev.append(frozenset(ids)); count.update(ids)
+        if qa_state["pending"] is not None:                    # study 77's record (nothing when off)
+            qa_state["ruled"].append([MS_QA_FROM, len(prev) - 1]); qa_state["rows"].add(frozenset(ids)); qa_state["pending"] = None
         if value is not None:
             row_value[tuple(ids)] = value
         if cell is not None and cell in bb_cells:              # study 71's record (nothing when off)
@@ -848,10 +883,14 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         pos = [0] * len(names); book, cell_of = [], []
         for j in seq:
             book.append(rows[names[j]][pos[j]]); cell_of.append(names[j]); pos[j] += 1
+    if qa_state["rows"]:                                       # study 77: the ruled C rows carry the C0 shape from here on
+        cell_of = [MS_QA if c == MS_QA_FROM and frozenset(r) in qa_state["rows"] else c for r, c in zip(book, cell_of)]
+        spare_rows = [(r, MS_QA if c == MS_QA_FROM and frozenset(r) in qa_state["rows"] else c) for r, c in spare_rows]
     dealt = Counter(); tot = 0
     for r, cell in enumerate(cell_of):
         w = weights[r] if r < len(weights) else 0
         dealt[cell] += w; tot += w
+    share_keys = names + ([MS_QA] if MS_QA in cell_of else [])      # C0 beside C (off: the cells only, as before)
     meta = {"cells": {n: {"quota": q, "target_rows": t, "rows": g} for n, q, t, g in zip(names, quotas, target, got)},
             "cell_quotas_override": dict(cell_quotas) if cell_quotas is not None else None,
             "passes_to_A1": passes, "rows_solved": len(book), "pair_games": len(games), "fill": fill,
@@ -859,7 +898,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             "cover": {"games": int(cover_games), "ranked": cover_list, "covered": covered, "missed": cover_missed},
             "half": ({**rs_meta, "blocks": blocks} if rs_rows else None),
             "term": ({**term_meta, "blocks": blocks} if term_rows else None),
-            "entry_shares_before_overlap_limit": {n: round(dealt[n] / tot, 4) if tot else None for n in names},
+            "entry_shares_before_overlap_limit": {n: round(dealt[n] / tot, 4) if tot else None for n in share_keys},
             "rules": {n: {"quota": cells[n][0], "stack": cells[n][1], "qb_game_max": cells[n][2],
                           "second_game_pair": cells[n][3]} for n in names}, "portfolio": portfolio,
             "spares": {"requested": int(spares), "built": len(spare_rows), "cells": dict(Counter(c for _, c in spare_rows)),
@@ -880,6 +919,10 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         if bb_cap is not None:                                 # study 71b's delta (absent without a cap)
             meta["bring_back_top_wr"].update({"rows_cap": int(bb_cap), "floored_rows": bb_state["floored_rows"],
                                               "designated_unfloored": int(bb_state["designated_unfloored"])})
+    if qa_n:                                                   # study 77's receipt block (absent when off)
+        meta["qb_alone"] = {"rows_cap": qa_n, "ruled": qa_state["ruled"], "plain": qa_state["plain"], "from_cell": MS_QA_FROM,
+                            "shape": MS_QA, "rules": {"stack": qa_rules, "qb_game_max": qa_qmax, "second_game_pair": qa_pair},
+                            "book_rows_tagged": int(sum(c == MS_QA for c in cell_of))}
     return book, cell_of, meta, spare_rows
 
 
@@ -968,7 +1011,8 @@ def selected_entry_shares(cells: list[str], weights: list[int]) -> dict:
     for r, c in enumerate(cells):
         w = weights[r] if r < len(weights) else 0
         dealt[c] += w; tot += w
-    return {c: round(dealt[c] / tot, 4) if tot else None for c in MIX_CELLS}
+    keys = list(MIX_CELLS) + ([MS_QA] if MS_QA in dealt else [])      # study 77's C0 beside C (off: as before)
+    return {c: round(dealt[c] / tot, 4) if tot else None for c in keys}
 
 
 def winner_select_or_fallback(book_rows, book_cells, spares, fr, inputs_path, weights, limits):
@@ -1048,6 +1092,36 @@ def parse_bring_back_top_wr_rows(rows: int | None, cells: tuple[str, ...]) -> in
     if rows < 1 or not cells:
         raise SystemExit(f"--mix-bring-back-top-wr-rows {rows}: an integer >= 1, with --mix-bring-back-top-wr (study 71b)")
     return int(rows)
+
+
+def qb_alone_max(quotas: list[float], k: int, term_rows: int = 0) -> int:
+    """Study 77: cell C's BOOK rows as mix_rows allocates them (the live and term blocks each at their own size when a
+    term block is on) -- the largest --mix-qb-alone-rows N."""
+    ci = list(MIX_CELLS).index(MS_QA_FROM)
+    if term_rows:
+        return mix_allocate(quotas, k - term_rows)[ci] + mix_allocate(quotas, term_rows)[ci]
+    return mix_allocate(quotas, k)[ci]
+
+
+def parse_qb_alone_rows(n: int, main: str, portfolio: str | None, fill: str, cover: int, rs: int, entries: int,
+                        winner_select, quotas: list[float], term_rows: int) -> int:
+    """--mix-qb-alone-rows (study 77's QB alone): 0 = off; else 1 <= N <= C's book rows (qb_alone_max at the requested
+    quotas and term block), with --main mix --mix-portfolio mix --mix-fill rr, and no --mix-cover-games / --mix-rs-rows /
+    --winner-select (48d's per-cell reselect knows the four MIX cells only). SystemExit otherwise."""
+    if n == 0:
+        return 0
+    top = qb_alone_max(quotas, entries, term_rows)
+    if n < 0 or n > top or main != "mix" or portfolio != "mix" or fill != "rr" or cover or rs or winner_select is not None:
+        raise SystemExit(f"--mix-qb-alone-rows {n}: 1 <= N <= C's book rows ({top}), with --main mix --mix-portfolio mix "
+                         f"--mix-fill rr and no cover / half-and-half / --winner-select (got main {main}, portfolio {portfolio}, "
+                         f"fill {fill}, cover {cover}, rs {rs}, winner select {winner_select})")
+    return int(n)
+
+
+def qb_alone_line(block: dict | None) -> str:
+    """Study 77's one printed line."""
+    b = block or {}
+    return f"QB ALONE: {b.get('rows_cap')} rows; ruled {len(b.get('ruled') or [])}, plain {len(b.get('plain') or [])}"
 
 
 def bring_back_top_wr_line(block: dict | None) -> str:
@@ -1134,6 +1208,12 @@ def main(argv: list[str] | None = None) -> int:
                     help="study 71b (default unset = every designated solve): the floor goes on designated solves only while "
                          "fewer than N BOOK rows (row index < the book's K) have been committed under it; spares never; an "
                          "infeasible floored solve is built plain, recorded, and does not count")
+    ap.add_argument("--mix-qb-alone-rows", type=int, default=0,
+                    help="study 77's QB alone (default 0 = off): the first N cell-C BOOK solves in build order are solved with "
+                         "NO WR / TE of the QB's team (C's no bring-back and <= 3 from the QB's game kept); they stay in C's quota "
+                         "and C's deal positions and are tagged mix_C0, so the checks and the Sunday replacement hold them to "
+                         "that shape; an infeasible one is built at C's rules and recorded; spares never. NOTE: no QB-alone spares "
+                         "are built, so a C0 row with an OUT player usually takes the flagged house fallback (an A1 row)")
     ap.add_argument("--winner-select", type=Path, default=None,
                     help="study 48d: build the MIX book with its spares, then keep, per cell, its book count of the most "
                          "winner-like rows (study 48's frozen score) among the cell's book rows and spares; the rest become "
@@ -1233,6 +1313,9 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--mix-cover-games N (1..8) needs --main mix with --mix-portfolio mix (study 43)")
     bb_cells = parse_bring_back_top_wr(a.mix_bring_back_top_wr, a.main, a.mix_portfolio)
     bb_rows = parse_bring_back_top_wr_rows(a.mix_bring_back_top_wr_rows, bb_cells)
+    qa_g = parse_qb_alone_rows(a.mix_qb_alone_rows, a.main, a.mix_portfolio, a.mix_fill, a.mix_cover_games, a.mix_rs_rows, a.entries,
+                               a.winner_select, list((cell_quotas or {n: c[0] for n, c in MIX_CELLS.items()}).values()),
+                               a.term_block_rows)
     if a.main == "mix" and (a.mix_plan is None or not a.mix_plan.is_file()):
         raise SystemExit(f"--main mix needs --mix-plan (the week's contests.json; got {a.mix_plan})")
     if a.main == "mix" and a.mix_portfolio is None:
@@ -1381,9 +1464,11 @@ def main(argv: list[str] | None = None) -> int:
                                                                        spares=0 if bonus else a.mix_spares,
                                                                        term_rows=term_rows, term_bonus=term_bonus,
                                                                        cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
-                                                                       bring_back_top_wr_rows=bb_rows)
+                                                                       bring_back_top_wr_rows=bb_rows, qb_alone_rows=qa_g)
             if bb_cells:
                 print(bring_back_top_wr_line(mix_meta.get("bring_back_top_wr")), flush=True)
+            if qa_g:
+                print(qb_alone_line(mix_meta.get("qb_alone")), flush=True)
             if a.term_block_rows:
                 mix_meta["term_source"] = term_src
             spare_rows = plain_spares
@@ -1424,8 +1509,10 @@ def main(argv: list[str] | None = None) -> int:
                                                                       portfolio=a.mix_portfolio, spares=a.mix_spares, fill=a.mix_fill,
                                                                       cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
                                                                       cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
-                                                                      bring_back_top_wr_rows=bb_rows)
+                                                                      bring_back_top_wr_rows=bb_rows, qb_alone_rows=qa_g)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
+                if qa_g:
+                    print("(the ownership-term book) " + qb_alone_line(own_mix.get("qb_alone")), flush=True)
                 if bb_cells:
                     print("(the ownership-term book) " + bring_back_top_wr_line(own_mix.get("bring_back_top_wr")), flush=True)
             else:
