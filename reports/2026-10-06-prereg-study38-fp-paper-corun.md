@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o and 6p before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p and 6q before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -988,6 +988,46 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     2. the laptop's ack;
     3. the gate pin moved;
     4. the integrity gate on the live snapshot.
+
+- **Amendment 6q (2026-10-09, before Week 5's lock; no Week-5 outcome exists): his row rules LIVE, the package without them on paper.**
+  - **Why.** Study 91's frozen rule said GO LIVE (Addendum 188). Stated the transfer caveat (the gain was the low-ownership half,
+    which barely binds on his FP book), he chose to go live in three sessions. Production's row-rules flag (`e8c63263`;
+    `--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3`, on the ownership cap) enters Week 5. Under 6l's default-deny the
+    three arguments would make the week INVALID.
+  - **What changes.**
+    - **Parity:** the three arguments are "checked". Accepted live states: the rules off, or 1 / 1 / 3% on his package. Any
+      other value, or the rules without the ownership cap, is a mismatch.
+    - **The live sets** come from PRODUCTION's `row_rule_sets` (the pinned checkout) on the snapshot's copy of the own-cap file,
+      with s38's own exclusions, and are applied by 6p's `row_rules` inside `own_caps`. Production applies the rules only on an
+      applied ownership cap; so does 6q.
+    - **The receipt** (`config.union.mix.mix.row_rules_source`) must agree with the paper build: applied, `source_sha256`,
+      `low_pct`, `te_max`, `low_own_max` strictly; the exclusion-dependent counts (`pool_skill_players`, `named`, `low_owned`,
+      `pool_tes`) are recorded only. Else the week is invalid.
+    - **Every paper arm follows the live rules** (as 6o made them follow the ownership cap), except:
+      - **MIXT_QA0_NORR** (new, exploratory): his live package WITHOUT the row rules, the paired paper book, built only when the
+        rules are live, read against MIXT_QA0 overall and per contest group with both books' expected big seats;
+      - **MIXT_QA0_TODAY**: unchanged (0.5, no ownership cap, no rules: the pre-package book);
+      - **MIXT_QA0_TE1** keeps its own rule (the TE half alone, in place of the live rules);
+      - **MIXT_QA0_TE1_LOW1** is then the live book itself and is recorded missing.
+  - **The smoke** (dry run on Week 4's frozen copies; production at the flag `e8c63263` (union_reselect `869a112b`);
+    `~/private/paper-corun/smoke-w4-amend6q/`, script `run.sh` `0300f52dd475`, log `678825f929a6`; lab `16d7b8fc`; PYTHONHASHSEED=0):
+    - 44 tests pass (rc 0).
+    - **The rules live** (the package + the three flags + the laptop's W4 receipt `flagcheck-pkgTE1LOW1-…/on/receipt.json`):
+      mismatches none; the rules applied; the receipt agrees (no strict or informational key differs).
+      - **MIXT_QA0 is identical, rows and ranks, to 6p's MIXT_QA0_TE1_LOW1** (production's sets = 6p's `low_owned` sets);
+      - **MIXT_QA0_NORR is identical to 6p's MIXT_QA0** (the package book);
+      - MIXT_QA0_TE1 and MIXT_QA0_TODAY are identical to 6p's;
+      - MIXT_QA0_TE1_LOW1 recorded missing; every rule-following arm has exactly 1.00 TE per row.
+    - **The rules off** (the package): all 26 books identical to 6p's package build; MIXT_QA0_NORR recorded missing.
+  - **Code:** lab `16d7b8fc` (on 6p's `b03ddaac`):
+    - `experiments/s38_paper_corun.py` sha256 `5ad07e994c2c105c6b646838b83fa4b13d6f275a8b8425cc0e4f45ae29e95609`;
+    - `scripts/s38_score.py` `9f0feeb3a88789094886d0f3d1876ab817be536777f48a4b19457ae847d7e55d`;
+    - `scripts/s38_report.py` `543de78117f688e134cedd9dc2f785f06d63ecfa143294357e4049d0d4d46386`;
+    - `tests/test_s38_paper_corun.py` `4fb28242da70a2081c948542d9b04068cc3ee5f79af2a53b101b7f6612e1b601` (44 tests);
+    - `scripts/s38_build.py` unchanged (`15373e14…`).
+  - **The integrity gate** pins this module sha in place of 6p's `ecc55fa0…`, on the live snapshot; `s38-prod-pin` moves to the new
+    FRIDAY_HEAD (the classification is re-checked there).
+  - **Order:** this amendment; the laptop's ack; the pin and the gate.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
