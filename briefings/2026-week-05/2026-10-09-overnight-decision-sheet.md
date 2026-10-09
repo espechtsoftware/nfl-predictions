@@ -24,6 +24,17 @@ test. **Every result below was read by the reviewer and re-run by the laptop wit
     (after-the-fact) ownership it would do better still, which says a better ownership forecast is where an edge could be.
   - **What is armed:** your live book exactly as before (cheap block on, 50% cap). The cap is now set explicitly in
     Saturday's arming and reviewed.
+- **Your package decision (the 35% cap + the ownership limit, "Live W5 trial if built in time"): on track.** It is built,
+  reviewed and wired, with today's book as the automatic fallback. The 35% cap never runs alone.
+  - **On your Week-4 book it does what it should:** it binds (10 of your players sit above their ownership limit today; none
+    after), it spreads the book (54 different players instead of 48; no player in more than 9 lineups), and it costs about
+    3 projected points per lineup.
+  - **Still to finish before Saturday's arming:** the reviewer's paper-test check, then one merge.
+- **Study 88 (your 87 book on fresh draws, a cheaper QB, a TE allowed in the flex):** about 3 points below your live book
+  again (the two reads −3.3 and −3.1). A cheaper QB makes it worse; letting a TE be the flex changes nothing. Nothing here
+  for Week 5.
+- **Found and fixed today:** Fantasy Points changed its ownership page's heading, and our capture refused it. The fix is
+  tested, Week 5's ownership is captured (612 players), and it goes in with the package.
 - **Fantasy Points' projections on Week 4:** also too optimistic. They rated your Week-4 lineups 8.5 points above the
   field's, and the lineups scored 3.7 below. So switching to FP did not by itself fix the over-rating (one week).
 

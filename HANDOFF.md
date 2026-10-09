@@ -12,6 +12,35 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (12:44 CDT) — laptop: study 88 READ (nothing for W5); the package built, wired and checked; the FP ownership heading fix
+
+- **Study 88** (run 11:47–12:39 under PYTHONHASHSEED=0, RUN_ENV `2cc58858`). The READ (lab `f217a463`, READ_s88 `6f917db7`)
+  was reproduced byte-identically; the confirmatory census `8a95f52d` is identical. Merged `b564d155` (Addendum 187; LEDGER
+  `fd42c679`).
+  - His 87 book re-read: −3.1, against 87's −3.3 on disjoint banks.
+  - A cheaper QB is worse (−4.8; −1.7 vs the book). Allowing a TE in the flex has no effect.
+  - NOCAP is flat over the two reads. Nothing for W5.
+- **The package (35% cap + FP ownership + 15):**
+  - The outside reviewer's flag: `review/own-cap-flag-20261009` @ `680533c8` (union_reselect `3ff8f0d5`; refuses the delta
+    with a cap ≠ 0.5 and no fallback share). Approved by the laptop after two fixes: lag-filled rows count as unnamed, and
+    that guard.
+  - The laptop's wiring: `production/own-cap-wiring-20261009` @ `5f410843`. It covers the host, the house fallback,
+    check_week_runtime, arm_week_timers and the arm, with (0.5, 0) until Saturday; 193 passed. The outside reviewer approved
+    it.
+  - The reviewer's snapshot change: `review/s38-6o-snapshot-20261009` @ `bbc6581c` (14 passed); approved by the laptop.
+  - **The W4 real-book check** (`reports/2026-10-09-option-w4-checks/`, `1ffe14a6`): applied (292 / 292 named, factor
+    1.0128); it binds (10 players over their cap → 0); −2.94 FP per row; 17 rows change; distinct players 48 → 54; max
+    player rows 13 → 9.
+  - The 6o smoke is running (the reviewer, with the laptop's receipt).
+- **FP projected-ownership capture FAILED at 12:41:** FP's heading became "2026 WEEK 5 NFL DFS OWNERSHIP PROJECTIONS" and the
+  collector's season check failed closed. That would have failed every capture, the union's for the package included.
+  - Fix: `production/fp-own-heading-20261009` @ `2fc1ee4f` (collector `ced05f9f`; both heading forms; a named week must
+    match in collect; 26 passed).
+  - The capture with the fix succeeded (1,147 rows, 612 players, 2 operators for 2026 W5); the reviewer is reviewing it.
+- **The merge batch, before FRIDAY_HEAD:** 680533c8 + 5f410843 + bbc6581c + 2fc1ee4f. Then FRIDAY_HEAD, and the production
+  checkout fast-forwarded to it. The arm flips to (0.35, 15) Saturday only if 6o's smoke passes, as his option text
+  requires.
+
 ## 2026-10-09 (12:00 CDT) — OPERATOR: the tested package (35% cap + ownership cap) as a live W5 trial if built in time; O-63 cause found
 
 **His decision** (in the outside reviewer's session via AskUserQuestion, after study 89's READ; relayed verbatim):
