@@ -37,6 +37,7 @@ The checks (each named in the output):
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import csv
 import hashlib
 import json
@@ -399,6 +400,25 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
            f"{dup} duplicate rows (within the mean rows or within the sleeve; {repeats} sleeve rows repeat a mean row, allowed), "
            f"{unknown} ids not in the frame, {short} rows without 9 slots", duplicates=dup, sleeve_repeats_of_main=repeats,
            unknown_ids=unknown, short_rows=short)
+
+    # ---- one_catcher (study 79's --mix-one-catcher-rows): every ruled row named by the receipt (ruled_rows, by identity) is a
+    # main row and holds at most ONE WR / TE of every team; none when off. The rows keep their B / C tags (stack_rules above).
+    _mx = (((receipt.get("config") or {}).get("union") or {}).get("mix") or {}).get("mix") or {}
+    oc = (_mx.get("with_term") or {}).get("one_catcher") or _mx.get("one_catcher")      # an ownership-term main: its book's
+    oc_rows = [frozenset(str(i) for i in f.get("row") or []) for f in ((oc or {}).get("ruled_rows") or [])]
+    main_sets: set = set()
+    if uni and uni.get("main") == "mix" and "book_rank" in cands.columns:
+        main_sets = {frozenset(_players_of(c)) for c in cands[cands["book_rank"].notna() & (cands["book_rank"] <= k_mean)]["players"]}
+    in_main = sum(1 for r in oc_rows if r in main_sets)
+    paired = [sorted(r) for r in oc_rows
+              if max([n for n in Counter(team.get(i) for i in r if pos.get(i) in ("WR", "TE")).values()] or [0]) > 1]
+    want = len((oc or {}).get("ruled") or [])
+    record("one_catcher", in_main == want == len(oc_rows) and not paired,
+           (f"--mix-one-catcher-rows {oc.get('rows_cap')}: ruled {want}, plain {len((oc or {}).get('plain') or [])}; {in_main} of "
+            f"{len(oc_rows)} ruled rows in the main book; {len(paired)} with two WR / TE of one team"
+            + (f" (e.g. {paired[0][:4]})" if paired else "")) if oc else "--mix-one-catcher-rows off",
+           rows_cap=(oc or {}).get("rows_cap", 0), ruled=want, plain=len((oc or {}).get("plain") or []), in_main=in_main,
+           with_pair=len(paired))
 
     failed = [c["check"] for c in checks if not c["ok"]]
     return {"run": str(run), "layout": layout, "checks": checks, "failed": failed, "ok": not failed}
