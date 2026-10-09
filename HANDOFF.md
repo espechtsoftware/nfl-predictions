@@ -12,6 +12,48 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (09:04 CDT) — laptop: the morning studies 83–86 read, reproduced and merged; 87 running; Week 5 unchanged
+
+**State:** nothing on the money path changed. The live Week-5 book stays as armed (the cheap +2 block, decided 10-07). No
+option branch is merged. His morning decisions (D1–D7 below) reached the laptop only by relay, so **before any money-path merge
+he confirms in the laptop's session**. The laptop's recommendation, on his sheet: keep the live book for Week 5. He has not
+answered yet; the default is the armed book.
+
+**The morning's results** (each READ reproduced byte-identically by the laptop from the raw files; the confirmatory census
+cmp-identical; records verified and merged into integration):
+
+| Study | Reader / READ | Result | Addendum / merge |
+|---|---|---|---|
+| 83 COMBO (77 + 79-14 + 75-3) | `465c9910` / `e1f34a36` | −1.9 (2022 +1.8): his rule DO NOT | 181 / `21ff2492` |
+| 84 (seven arms with the TE ban) | `293d263a` / `c1cb62cc` | COMBO +1.0, TE_ONEPC +0.3, TE_FLEX +3.3 pass his rule; COMBO81 −0.05, TE_C0 −2.0, TE_ONLY −1.2 fail; 84 does not beat 83, so nothing new by the order | 182 / `5a1163f6` |
+| 85 BOOK85 (his four price rules) | `865c4f1e` / `eb0fbdd3` | −3.1, seats ×0.767: don't use | 183 / `b040ce53` |
+| 86 CAP7900 (no player > $7,900) | `76df628d` / `483188be` | −4.9, guard 1 fails, seats ×0.825, 2022 −0.3 CONTRADICTED: don't use | 184 / `bc131467` |
+
+- **The bank-set finding (Addendum 182):** the same rule read +4.7 (81) and −1.2 (84) on two bank sets; COMBO −1.9 then +1.0.
+  No single-set lean ranks options. The forward rule is in 87's prereg: re-read on a second, disjoint bank set before he acts
+  on any arm.
+- **Real-book checks (outcome-blind, W4 inputs, OFF = `a4ab2839`):** `reports/2026-10-09-option-w4-checks/` (`ec9c1c77`,
+  `113776fd` added the no-caps and 3-row flex checks). The caps lift alone gives +0.96 FP per row by concentration (one player
+  in 21 of 26 rows). 87's bans cost −1.41 per row against that.
+- **The promising-leads log** (the outside reviewer's, at his request): `briefings/2026-week-05/2026-10-09-promising-leads-log.md`,
+  merged `e664452d` + `4a7f67f3` after the laptop checked every number.
+- **Study 87** (his second experiment book, uncapped by his amendment): frozen 08:56; the laptop's ack + census re-run
+  identical (11 tests passed); S87 GO; running from about 09:04 on banks 1731–1736, ETA about 10:05. **Concentration:** the
+  binding census has the top QB up to 24 of 26 rows and 0.92 of the dealt entries (QBTOP87); his sheet says it beside 87
+  (`534cda43`).
+
+**Unmerged, default-off option branches** (not to be merged without his confirmation here): `review/combo-flag-20261009` @
+`f6fdee34`, `review/combo-te-flag-20261009` @ `12709d18`, `production/c0-wiring-20261009` @ `3c7be06e` (with
+SECOND_CHANGE_DECISION), the single flags qb-alone `3a9327e1`, one-catcher `1e6247fa`, flex `09e93be1`.
+
+**Next, in order:**
+1. 87's READ → the laptop's reproduction → records → his sheet, the study list and the leads log.
+2. 12:30 CT, the FP projected-ownership capture (and 16:30), per the arming checklist.
+3. Friday's A3 rehearsal with the cheap block armed, after the 12:30 capture succeeds, then `w5_matchup_union_check.sh`.
+4. FRIDAY_HEAD (tell the reviewer for the s38 prod-pin move), the arm script's `--check` in the evening.
+5. Re-send his final sheet (SendUserFile).
+- **Open:** O-57 (Friday's QB coverage retry is refused after the first kickoff, by design).
+
 ## 2026-10-09 (07:09 CDT) — OPERATOR (relayed): decision 7, another experiment book (study 87)
 
 **His words** (in the outside reviewer's session, after study 84's READ; relayed to the laptop verbatim): "Let's queue up an
