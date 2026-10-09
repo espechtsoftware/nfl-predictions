@@ -3,6 +3,23 @@
 **For:** Erich, before Friday's code freeze. Written by the laptop agent, with the reviewer's recommendation for each
 test. **Every result below was read by the reviewer and re-run by the laptop with identical output.**
 
+## Midday: the new direction (your decisions this morning)
+
+- **Why:** the check of your real Weeks 1–4 entries
+  ([the calibration report](2026-10-09-calibration-weeks-1-4.md)) showed that our lineups finished well below what the model
+  expected from Week 2 on. Plan on a big win about 1 week in 15 to 1 in 30, possibly worse. The model kept rating your
+  lineups above the average opponent's; in Weeks 2–4 they scored 4–13 points below.
+- **You cancelled Friday's rehearsal** to spend the day on tests that could change how we select this week. Saturday's 10:30
+  build is now the first live run of the armed setup; I check it by 11:00.
+- **The 35% cap (your W5 trial, with your rule):** no player in more than 35% of your lineups (9 of 26, was 13), with the 50%
+  book scored on paper beside it. It is armed for Week 5 **unless study 89 shows it doing worse than the 50% cap on both of
+  its two independent draws.** On your Week-4 book it changes 17 lineups and costs about 2.3 projected points per lineup.
+  The arming change is built and reviewed; it is set from study 89's result.
+- **Study 89 (running now, about 35–40 minutes):** the 35% cap, and the 35% cap plus "no player more than 15 points above
+  his projected ownership", each against your live book, on two separate sets of draws.
+- **Fantasy Points' projections on Week 4:** also too optimistic. They rated your Week-4 lineups 8.5 points above the
+  field's, and the lineups scored 3.7 below. So switching to FP did not by itself fix the over-rating (one week).
+
 ## The morning's results, in short (study 84 READ committed 07:06 CT)
 
 - **83, the three rules together:** by your rule, **do not use** (−1.9 points).
