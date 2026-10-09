@@ -12,6 +12,58 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (23:56 CDT) — laptop: the busy night, part 2 (75, 76, 77 read and merged; 77 the night's best; 78 running; 79 / 80 queued)
+
+**Read, reproduced byte-identically by the laptop, merged into integration:**
+
+| Study | Arm | 2023–24 read | Big seats | 2022 | Verdict and recommendation |
+|---|---|---|---|---|---|
+| 75 (Addendum 173) | WR_FLEX8 | +2.3 | ×1.07 | −1.1 | CONTRADICTED, NOT ENTERED; the paper-arm candidate (study 38), his choice of W5 or W6 |
+| 76 (Addendum 174) | B2BB4 | −1.4 | ×0.89 | +3.7 | ENTERABLE, no gain; off |
+| 77 (Addendum 175) | NAKED3, the QB alone on 3 C rows | +1.8 | ×1.04 | +0.2 | ENTERABLE; the night's best |
+
+- **On 77:** the reviewer recommends a W5 3-row trial on top of the cheap block. That would be a second construction
+  change; "one change a week" is the reviewer's advice, and he decides. It is on his sheet as his call.
+- **75's transfer check** (outcome-blind; W4 inputs, the W5 arming; `reports/2026-10-08-s75-flex-w4-check/`): in his
+  FP book the forced WRs displaced 5 TE and 2 RB flexes (1 / 14 / 11 → 8 / 9 / 9). That is the harness's TE-first
+  pattern.
+
+**Production options (code ready, UNMERGED, default off; his morning decision):**
+- `--mix-flex-wr-rows N` (the outside reviewer's `review/flex-wr-flag-20261008` @ `09e93be1`):
+  - reviewed by the laptop: parity with s75's frozen `flex_rows`, byte-identical text `2e397346`; 288 tests passed in a
+    gap;
+  - NO live wiring: 75 is NOT ENTERED, so the only use is a study-38 paper arm. W5 needs the flag merged before
+    FRIDAY_HEAD plus an s38 amendment before the lock.
+- `--mix-qb-alone-rows N` (77): the format is agreed with the outside reviewer.
+  - A new shape "QA" in `mix_shapes.ALL_CELLS` only. The ruled rows are tagged mix_QA, so the shape check, vetting and
+    audit apply the QB-alone rules, while the rows keep C's quota and dealing slots.
+  - Parity with s77's frozen wrapper.
+  - Being built tonight; both the laptop and the reviewer review it.
+  - The laptop's wiring follows only if he says yes. The arm guard refuses two construction levers, so a yes needs an
+    explicit override recorded here.
+
+**Merged:** the Monday off-top-four line (`9bbe45cf`; the outside reviewer's script + the laptop's 'stacked' fix; 17 tests).
+
+**Corrections to the 22:15 entry:**
+- "Everything else for 75–79 is clean" was wrong. The derived-seed tally (the laptop's summary first missed them) also
+  found **1702** = bank 1652 + 50 (75) and **1703** = bank 1653 + 50 (76): August bootstrap / CE seeds in unrelated
+  production chains. These are disclosure lines in Addenda 173 / 174, not stops. 79's and 80's blocks are clean.
+- **77's run was interrupted** at 276 of 318 slate-banks: the reviewer's session killed its background chain at the
+  30-minute default.
+  - It was resumed at `3dac28c2` by the driver's built-in skip (42 slate-banks).
+  - No outcome was read before completion, and the READ reproduced byte-identically.
+  - Every heavy job now gets an explicit long timeout.
+  - Disclosed in Addendum 175.
+
+**Queue:**
+- 78 STUDS2_8 is running (banks 1665–1670, 2-hour limit).
+- Then: the laptop's 79 census re-run and 79's tests (automatic on 78's exit), the reviewer's 80 binding census, the 79
+  run, the laptop's 80 census re-run, and the 80 run (ends about 03:30).
+- 78 is fully acked; 79 is acked except its census re-run and tests; 80 is drafted, its scan clean.
+
+**Next:** keep the pipeline going; review the QB-alone option; in the morning send him the complete sheet
+(`briefings/2026-week-05/2026-10-09-overnight-decision-sheet.md`).
+
 ## 2026-10-08 (22:15 CDT) — laptop: the busy night, progress (73 and 74 read and merged; 75 running; 76–78 frozen and acked; 79 in draft)
 
 **Done and merged into integration:**
