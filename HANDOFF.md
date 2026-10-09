@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (06:23 CDT) — OPERATOR (relayed): decision 5, an experiment with a whole book under four salary / position rules
+
+**His words** (in the outside reviewer's session, during study 84's run; relayed to the laptop verbatim): "As an experiment
+lets try an entire book like this: TE <= 5000 / D <= 3000 / 1 WR <= 4500 / WR or RB in Flex"
+
+- **Being confirmed with him** by the outside reviewer:
+  - whether "1 WR" means at least one or exactly one;
+  - whether the experiment is information only or carries his not-negative rule for Week 5.
+- **Planned:** study 85. Its DESIGN is committed before study 84's READ (the same slates; the same discipline as 84 before
+  83). No machine work until 84's run ends.
+- **The wiring for any tested set is ready, unmerged:** `production/c0-wiring-20261009` @ `3c7be06e`. It covers C0,
+  COMBO, COMBO81, TE_C0, TE_ONEPC, TE_FLEX and TE_ONLY. A study-85 set would need its own production flags and wiring.
+
 ## 2026-10-09 (05:39 CDT) — OPERATOR (relayed): decisions 3 and 4 (before 83's READ); study 84 covers all four decisions in one run
 
 **His words** (in the outside reviewer's session, before 83's READ; relayed to the laptop verbatim):
