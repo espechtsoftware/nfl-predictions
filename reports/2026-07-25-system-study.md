@@ -8549,8 +8549,10 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
     - the shape joins his portfolio at about the winners' rate, his stated strategy;
     - it costs no projection.
   - The tradeoff: the cheap block's Monday review would read a book with two changes.
-  - The arm script's guard refuses two construction levers, so live use needs an explicit override recorded in
-    HANDOFF, never a quiet edit.
+  - ~~The arm script's guard refuses two construction levers~~ **CORRECTED 10-09 (the laptop):** integration's arm has no
+    such guard today. It existed only on the unmerged `production/s73-wiring-20261008`. A live second change needs his
+    explicit decision recorded in HANDOFF. The arm's one-change guard is being added with the C0 wiring
+    (`production/c0-wiring-20261009`, unmerged), with an override variable that must carry his recorded decision.
   - His decision.
 
 ## Addendum 176 (2026-10-09): study 78 (two $8,000+ players on the first 8 book rows, stars and scrubs, the outside reviewer's test, in the harness): NO DIFFERENCE, mixed by season (2023 −0.8, 2024 +4.5; +1.8 on the read), guard 1 fails, not contradicted on 2022 (+2.2): ENTERABLE by the rule (his decision; no gain shown); recommendation off
@@ -8865,3 +8867,117 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - **With studies 73 / 74** (the favourite's side with its stack): no QB-side forcing tested this week improved the live
   book.
 - **Recommendation:** off. Leave the book's QB choice to its objective.
+
+## Addendum 179 (2026-10-09): study 81 (no TE priced $5,000 or more on the first 8 book rows, the outside reviewer's test, in the harness): the decision NOTE5K8 NO DIFFERENCE, flat (+0.5; 2022 +1.5): ENTERABLE, nothing to adopt; the EXPLORATORY NOTE5K_ALL (no $5k+ TE in any row) +4.7 with an interval excluding zero -- not decision-bearing; a paper-arm candidate
+
+**Setup.**
+- **The question.** The operator, 10-08 night: "try as many things as we can". The outside reviewer's fourth W1–4 scan
+  (the 2026 Millionaires; aggregates only): a TE priced $5,000 or more in 0.12 of the top 1%'s lineups against 0.28 of the
+  field. The top was below the field in 4 of 4 weeks. His W5-style FP book holds one in 11 of 26 rows.
+- **The tension, stated first:** on 10-07 he asked for MORE QB + TE stacking. This rule fades the expensive TE, often the
+  stack TE. Study 63's forced QB + TE share leaned against it, and study 38's 6k TE arms are being read on the real field.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`; study 80
+  sha-pinned, with study 73 underneath):
+  - LIVE_CB (the reference).
+  - NOTE5K8, the single decision: the first 8 book solves in build order (any cell) ban every pool TE priced ≥ $5,000. The
+    rows are dealt at book positions 0, 2, 3, 5, 6, 7, 9, 10, all big seats.
+  - Exploratory NOTE5K_ALL: every book solve.
+- **Binding on his real book (the laptop's W4 rate check, before the freeze):** 3 of the first 8 committed rows hold a
+  $5k+ TE (positions 3, 5, 9).
+- **Preregistration:** `reports/2026-10-09-prereg-study81-no-expensive-te.md` (the outside reviewer's DRAFT `d4e5f99b`;
+  FROZEN `21100f02`, 10-09 02:08 CDT, before any scored bank).
+- **Panel:** banks 1689–1694, B 20,000, seed 20261126.
+- **Read:** the reader `bfa1b23b`; READ `075fc4e5` (lab `0d34663f`). The confirmatory census (`f07f2c7c`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop** at `0d34663f`: the raw files 1689–1694 pass `sha256sum -c` against
+  `RAW_s81_run.sha256`; the READ is `075fc4e5` and the confirmatory census `3652bd7f` (cmp-identical).
+- **The prior, stated first:** NO DIFFERENCE.
+- **Census** (the binding census on bank 1406, 53 slate-banks):
+  - NOTE5K8: 8 of 8 ruled rows on every slate-bank, 0 infeasible.
+  - Vacuity 2.74 of 8 (his book 3 of 8).
+  - $5k+ TE rows per book 7.89 → 6.91. NOTE5K8 mostly MOVES expensive TEs out of the first 8 rows rather than out of the
+    book; NOTE5K_ALL removes them.
+  - Projection cost −0.02 per row; dealt identical 0.245.
+  - The confirmatory census on the scored banks (318 slate-banks) agrees: 8 of 8 ruled, 0 infeasible, all big-read;
+    vacuity 2.97 of 8; $5k+ TE rows 8.28 → 7.08 (NOTE5K_ALL 0.00); cost −0.03 / −0.34; dealt identical 0.220 / 0.107.
+
+**Reader output (verbatim):**
+```
+STUDY 81 READER  sha256 bfa1b23bb00ae47a1fb6e96d884c1e6c5524d0ac586cd8b2b255e347861cee14
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1689, 1690, 1691, 1692, 1693, 1694]  B 20000  seed 20261126  one decision arm against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the expensive-TE rule's constants, study 80's and study 73's shas, live settings, QB cap, objective): [["LIVE_CB", "NOTE5K8", "NOTE5K_ALL"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "n_rows": {"NOTE5K8": 8, "NOTE5K_ALL": 26}, "rows": "the first n_rows book solves in build order (any cell) ban every pool TE priced >= te_price; infeasible -> plain, recorded", "te_price": 5000.0}, "9a46c2841980d31a6f45bbcb00af288daa6081a3b2d2d1867da54061eb876ee7", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== NOTE5K8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.00458  [-0.02674, +0.03491] (two-sided 0.95)  seasons 2023 +0.01861, 2024 -0.00946
+  GUARD 1 mean entry pct +0.00071  one-sided lower -0.00315  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48853 vs 0.52606  ratio 0.929  (must be >= 0.80)
+  NOTE5K8 dealt identical to LIVE_CB: 0.231 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.01494  [-0.02656, +0.05475] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TRIAL SUMMARY: NOTE5K8 ENTERABLE (his decision; one construction change a week)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  NOTE5K_ALL - LIVE_CB (v2, 2023-24): +0.04696  [+0.01048, +0.08451]  seasons 2023 +0.03187, 2024 +0.06206
+  NOTE5K_ALL - LIVE_CB (v2, 2022): +0.01720  [-0.03781, +0.07175]  seasons 2022 +0.01720
+  NOTE5K8 - LIVE_CB (the l02 field, 2023-24): +0.00521  [-0.02554, +0.03509]  seasons 2023 +0.01852, 2024 -0.00811
+  NOTE5K8 - LIVE_CB (the l02 field, 2022): +0.01867  [-0.02441, +0.05939]  seasons 2022 +0.01867
+  NOTE5K_ALL - LIVE_CB (the l02 field, 2023-24): +0.04400  [+0.00632, +0.08247]  seasons 2023 +0.02715, 2024 +0.06085
+  NOTE5K_ALL - LIVE_CB (the l02 field, 2022): +0.01601  [-0.04209, +0.07332]  seasons 2022 +0.01601
+  NOTE5K8 ruled solves built plain (infeasible): 0 of 2544 over 318 slate-banks
+  NOTE5K_ALL ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.33076  expected big seats 0.52606  P(>=2) 0.11927  entry pct 0.51554  |  l02: P(>=1 big) 0.35817
+               book: projection per row 127.68  salary 49964  QB + 2 rows 12.0 of 26  $5k+ TE rows 8.3  QB + TE stack rows 12.5  distinct QBs 8.4
+  NOTE5K8      v2: P(>=1 big) 0.33534  expected big seats 0.48853  P(>=2) 0.10585  entry pct 0.51626  |  l02: P(>=1 big) 0.36337
+               book: projection per row 127.65  salary 49964  QB + 2 rows 12.0 of 26  $5k+ TE rows 7.1  QB + TE stack rows 12.4  distinct QBs 8.4
+  NOTE5K_ALL   v2: P(>=1 big) 0.37773  expected big seats 0.58047  P(>=2) 0.14421  entry pct 0.52336  |  l02: P(>=1 big) 0.40217
+               book: projection per row 127.35  salary 49963  QB + 2 rows 12.0 of 26  $5k+ TE rows 0.0  QB + TE stack rows 10.8  distinct QBs 8.6
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.20316  expected big seats 0.31261  P(>=2) 0.07714  entry pct 0.45417  |  l02: P(>=1 big) 0.22080
+               book: projection per row 131.87  salary 49960  QB + 2 rows 12.0 of 26  $5k+ TE rows 8.2  QB + TE stack rows 11.4  distinct QBs 7.9
+  NOTE5K8      v2: P(>=1 big) 0.21810  expected big seats 0.31104  P(>=2) 0.07020  entry pct 0.45419  |  l02: P(>=1 big) 0.23947
+               book: projection per row 131.85  salary 49958  QB + 2 rows 12.0 of 26  $5k+ TE rows 7.1  QB + TE stack rows 11.0  distinct QBs 8.0
+  NOTE5K_ALL   v2: P(>=1 big) 0.22036  expected big seats 0.31122  P(>=2) 0.07100  entry pct 0.45121  |  l02: P(>=1 big) 0.23681
+               book: projection per row 131.51  salary 49956  QB + 2 rows 12.0 of 26  $5k+ TE rows 0.0  QB + TE stack rows 9.3  distinct QBs 7.9
+```
+
+**Reading.**
+- **The decision, NOTE5K8, is flat:**
+  - +0.5 points [−2.7, +3.5] (2023 +1.9, 2024 −0.9);
+  - expected big seats ×0.93; guard 1 holds;
+  - 2022 +1.5, not contradicted. ENTERABLE by the rule, with nothing to adopt.
+  - It mostly moves expensive TEs out of the first 8 rows rather than out of the book (8.3 → 7.1 rows).
+- **The exploratory NOTE5K_ALL is the strongest single read of the night:**
+  - +4.7 points [+1.0, +8.5] on the read (2023 +3.2, 2024 +6.2); the earlier field (l02) +4.4 [+0.6, +8.2];
+  - expected big seats ×1.10 (0.580 against 0.526); P(≥ 2) 0.144 against 0.119;
+  - 2022 +1.7 [−3.8, +7.2], with expected seats flat (0.311 against 0.313);
+  - a projection cost of −0.33 per row, and QB + TE stack rows 12.5 → 10.8.
+- **How to read it:**
+  - It is EXPLORATORY by the frozen prereg, never decision-bearing.
+  - It is one of about 35 comparisons read tonight on the same 36 + 17 slates. One interval excluding zero is roughly what
+    chance alone would give.
+  - A re-run on new banks would not be independent evidence: the same slates and the same real outcomes, with only the
+    field draws and the simulated means changed.
+  - The honest confirmation needs NEW outcomes: a study-38 paper arm ("his live book with no TE ≥ $5,000 on any row")
+    read on the real weekly fields.
+  - Before that, an outcome-blind check on his real FP book: 11 of its 26 rows hold such a TE, so every one of them would
+    change.
+  - It also cuts against his 10-07 ask for more QB + TE stacking.
+- **Recommendation:** NOTE5K8 off. NOTE5K_ALL as a study-38 PAPER arm (W5 if a 6m-style amendment is ready before Friday's
+  gate, else W6), on his yes. Not live.
+- **On his real book (10-09, the laptop's outcome-blind W4 check; `reports/2026-10-09-option-w4-checks/`, integration
+  `5cb52edc`, `OUTPUT-no-te5k-all-rows.txt`):**
+  - The setup: W4 inputs with the W5 arming; OFF reproduced `a4ab2839`; the 5 W4 TEs ≥ $5,000 marked OUT through the
+    union's own `--dk-status` path. That route also removes them from the spares and the T-70 replacement pool, which
+    does not affect the 26 book rows.
+  - Rows with such a TE 11 → 0 of 26; 24 of 26 rows change.
+  - **FP projection per row 143.70 → 142.94 (−0.76), more than twice the harness's −0.33.** His FP book leans harder on
+    those TEs.
+  - Flex WR / TE / RB 1 / 14 / 11 → 4 / 7 / 15; QB + own-TE rows 12 → 10.
+  - So the harness priced the rule's cost at less than half what his book would pay, and the +4.7 may flatter it. A paper
+    arm would test it at its real cost.

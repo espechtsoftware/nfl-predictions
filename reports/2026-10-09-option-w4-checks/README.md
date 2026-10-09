@@ -36,3 +36,27 @@ converted `plan-week5-rev6-s24.json`. Counts only: no contest names, no stakes.
 - If he chooses 79, Friday's A3 run on the Week-5 inputs must show that the 8-row rule changes his book; otherwise it
   changes nothing that week.
 - One week's inputs. Descriptive only.
+
+## Addendum (02:53 run): study 81's exploratory NOTE5K_ALL on his real book
+
+**Why:** study 81's exploratory arm (no TE priced ≥ $5,000 on any book row; Addendum 179, +4.7 points on the read, one
+of about 35 comparisons tonight) is a paper-arm candidate. What would it do to his real book?
+
+**How:** there is no production flag for it. The 5 W4 TEs priced ≥ $5,000 (`dk_status-te5k-out-w4.csv`) were marked
+OUT through the union's own `--dk-status` path, the same runner and gate as above (OFF = `a4ab2839`). This bans them on
+every row. It also removes them from the spares and the T-70 replacement pool, which a snapshot paper arm would not;
+that does not affect the 26 book rows. Verbatim: `OUTPUT-no-te5k-all-rows.txt`.
+
+| | OFF | No TE ≥ $5,000 |
+|---|---|---|
+| Rows holding a TE ≥ $5,000 | 11 of 26 | 0 of 26 |
+| Book rows changed | | 24 of 26 |
+| FP projection per row | 143.70 | 142.94 (−0.76) |
+| Flex WR / TE / RB | 1 / 14 / 11 | 4 / 7 / 15 |
+| QB + own-TE stack rows | 12 | 10 |
+
+**Reading:**
+- In his real book the cost is more than twice the harness's (−0.76 against −0.33 per row), because his FP book leans
+  harder on those TEs.
+- The flex moves mostly to RBs.
+- A paper arm would measure the trade on new weeks; this check sets its expected size.
