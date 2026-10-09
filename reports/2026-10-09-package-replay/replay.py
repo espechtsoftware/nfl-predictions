@@ -43,6 +43,7 @@ import moneygate_build as MB  # noqa: E402
 import moneygate_score as MS  # noqa: E402
 
 ARMS = ("R10-T50", "R10-PKG", "R10-PKGRR")
+S12_ARMS = ("R10-PKGRR-S1", "R10-PKGRR-S2", "R10-PKGRR-S1S2")   # his 10-09 S1 / S2 on top of the armed version (--arms s12)
 BIG_CASH, BIG_TICKET = 500.0, 300.0
 
 
@@ -59,21 +60,25 @@ def own_cap_file(w: str, e: dict) -> Path:
 
 def arm_flags(arm: str, w: str, e: dict, K: int, contests: Path) -> list[str]:
     f = MB.pkg_flags("PKG4-rr", e, K, contests)
-    if arm in ("R10-PKG", "R10-PKGRR"):
+    if arm in ("R10-PKG", "R10-PKGRR") or arm.startswith("R10-PKGRR-"):
         f += ["--main-cap-share", "0.35", "--main-own-cap-delta", "15", "--main-own-cap-source", str(own_cap_file(w, e)),
               "--main-own-cap-fallback-share", "0.5"]
-    if arm == "R10-PKGRR":
+    if arm == "R10-PKGRR" or arm.startswith("R10-PKGRR-"):
         f += ["--mix-max-te", "1", "--mix-max-low-own", "1", "--mix-low-own-pct", "3"]
+    if arm.startswith("R10-PKGRR-") and "S1" in arm:
+        f += ["--proj-shrink-k", "0.7", "--proj-shrink-window", "500"]
+    if arm.startswith("R10-PKGRR-") and "S2" in arm:
+        f += ["--mix-min-star", "1", "--mix-star-salary", "8000"]
     return f
 
 
-def cmd_build(cfg: dict, weeks: list[str]) -> None:
+def cmd_build(cfg: dict, weeks: list[str], arms: tuple = ARMS) -> None:
     lab = MB.lab_head(cfg, "pkg_")
     for w in weeks:
         e = cfg["weeks"][w]; MB.check_inputs(e)
         rec = json.loads((MB.BOOKS / f"w{w}" / "contests_receipt.json").read_text()); K, T = rec["K"], rec["T"]
         contests = MB.BOOKS / f"w{w}" / "contests.json"
-        for arm in ARMS:
+        for arm in arms:
             out = MB.BOOKS / f"w{w}" / arm / "run1"
             if (out / "book.csv").is_file():
                 print(f"W{w} {arm}: exists, kept"); continue
@@ -92,7 +97,7 @@ def cmd_build(cfg: dict, weeks: list[str]) -> None:
                 for line in p.stdout.splitlines():
                     if key in line:
                         print(f"   {line.strip()[:200]}")
-        MB.cmd_layout([w], list(ARMS))
+        MB.cmd_layout([w], list(arms))
 
 
 def group(cls: str) -> str:
@@ -108,12 +113,12 @@ def score_entries(W, pts: np.ndarray, cid: str) -> dict:
             "top1": rank <= max(1, int(np.floor(0.01 * n_total))), "top10": rank <= max(1, int(np.floor(0.10 * n_total)))}
 
 
-def cmd_score(cfg: dict, weeks: list[str], out: Path) -> None:
+def cmd_score(cfg: dict, weeks: list[str], out: Path, arms: tuple = ARMS) -> None:
     recon = pd.read_csv(MS.PRIVATE / "reconcile_entries.csv", dtype={"contest_id": str, "entry_id": str})
     rows = []
     for w in weeks:
         W = MS.load_week(cfg, int(w))
-        for arm in ARMS:
+        for arm in arms:
             lay = json.loads((MB.BOOKS / f"w{w}" / arm / "layout.json").read_text())
             for c in W.contests:
                 cid = str(c["contest_id"])
@@ -146,7 +151,7 @@ def cmd_score(cfg: dict, weeks: list[str], out: Path) -> None:
         return pd.Series({"entries": len(g), "mean_finish_pct": round(g.pct.mean(), 1), "top1": int(g.top1.sum()),
                           "top10": int(g.top10.sum()), "cashes": int((g.pay > 0).sum()), "big_wins": int(g.big.sum()),
                           "multiple": round(g.pay.sum() / g.fee.sum(), 3) if g.fee.sum() else None})
-    order = ["A0 entered", *ARMS]
+    order = ["A0 entered", *arms]
     out.mkdir(parents=True, exist_ok=True)
     pub = {}
     for keys, name in ((["week", "group", "arm"], "by_week_group"), (["week", "arm"], "by_week"), (["group", "arm"], "pooled_by_group"),
@@ -163,13 +168,17 @@ def cmd_score(cfg: dict, weeks: list[str], out: Path) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("cmd", choices=("build", "score")); ap.add_argument("--weeks", default="3,4"); ap.add_argument("--out", type=Path)
+    ap.add_argument("--arms", choices=("base", "s12"), default="base", help="base = T50 / PKG / PKGRR; s12 = PKGRR + S1 / S2 (and PKGRR)")
     a = ap.parse_args()
     cfg = MB.load_config()
     weeks = [x.strip() for x in a.weeks.split(",") if x.strip()]
+    arms = ARMS if a.arms == "base" else ("R10-PKGRR", *S12_ARMS)
     if a.cmd == "build":
-        cmd_build(cfg, weeks)
+        cmd_build(cfg, weeks, tuple(a for a in arms if a != "R10-PKGRR") if a.arms == "s12" else arms)
+        if a.arms == "s12":
+            MB.cmd_layout(weeks, ["R10-PKGRR"])
     else:
-        cmd_score(cfg, weeks, a.out)
+        cmd_score(cfg, weeks, a.out, arms)
     return 0
 
 
