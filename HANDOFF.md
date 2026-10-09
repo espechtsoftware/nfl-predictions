@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (20:06 CDT) — laptop: study 73 (QB + top pass-catcher in each top-5 game) requested by the operator for tonight
+
+**The operator:** "the two pass catchers from the same team that we're doing in so many of our lineups seems like too much.
+Have we tried something like for each of the five highest projected games doing requiring the quarterback and his top
+pass catcher".
+
+**The laptop's answer, from the records:**
+- 12 of 26 rows are QB + 2+ (A1 8, A2 4), matching the W1–4 top 1% (44%).
+- Study 43 (Addendum 147) was −2.8, both seasons negative.
+- Studies 15 / 56: NO DIFFERENCE.
+- His exact form was never tested.
+
+**Offered** "Queue for Week 6 (Recommended)" or "Test tonight", he chose **"Test tonight for Week 5"**.
+
+**The plan:**
+- the reviewer designs and freezes study 73;
+- the outside reviewer waits for the prereg, then names the production option's format;
+- the laptop scans, acks and reproduces.
+
+The same cut-off applies. Study list row 73 is added.
+
 ## 2026-10-08 (19:54 CDT) — laptop: study 72 (one off-top-four stack) CLOSED by the operator as already covered; Monday tracking line
 
 **The operator's request:** "Try your idea of one stack from a game outside the top few" (42(d)).
