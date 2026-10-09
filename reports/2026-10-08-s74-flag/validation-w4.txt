@@ -1,0 +1,29 @@
+# Study 74 production flag (--mix-top-game-stack G): Week-4 validation on the real inputs (written 2026-10-08 20:41 CDT); aggregates + public NFL names only
+# runs: reports/2026-10-08-s71-flag/w4_union_run.sh <checkout> <out> [--mix-top-game-stack G]; the W5 arming on W4 inputs
+
+## OFF = IDENTICAL: book.csv sha256 a4ab283949254d12 = the merged flags' off book a4ab283949254d12
+
+## ON (G 5): the printed lines
+TOP-GAME STACK (study 74): G 5; 5 forced on the first 5 B book solves (build 1, 5, 9, 13, 16 -> dealt 2, 6, 12, 16, 22); 0 dropped; 0 skipped (a side without a pass catcher)
+   g1 2026_04_JAX_CIN total 51.5: Joe Burrow + Ja'Marr Chase + Parker Washington (B, dealt 2)
+   g2 2026_04_NE_BUF total 50.5: Josh Allen + DJ Moore + Mack Hollins (B, dealt 6)
+   g3 2026_04_DAL_HOU total 48.5: C.J. Stroud + Nico Collins + CeeDee Lamb (B, dealt 12)
+   g4 2026_04_DEN_SF total 48.5: Brock Purdy + George Kittle + Jaylen Waddle (B, dealt 16)
+   g5 2026_04_KC_LV total 47.5: Patrick Mahomes + Rashee Rice + Brock Bowers (B, dealt 22)
+book.csv sha256 fe2a99f6c7a95ca0; the union's own book check: strategy violations 0
+B-only rows sit further apart than study 73's B/C rows: build 1, 5, 9, 13, 16 (all LIVE, of 0-17) -> dealt 2, 6, 12, 16, 22;
+the 5th (dealt 22) lies past Rev6's last big-read index 21
+
+## W4 OUTCOMES, the Milly (contest 196151357): mechanics only, never evidence (W4 is known)
+  off: Lamb 0, Collins 2, both 0; mean projected sum 143.7
+   cash rows 8, $70+ 1, $500+ 0; best 3: 181.1 (rank ~1,893); 174.3 (rank ~3,418); 166.0 (rank ~6,318)
+  g5: Lamb 1, Collins 2, both 1; mean projected sum 143.2
+   cash rows 9, $70+ 1, $500+ 0; best 3: 181.8 (rank ~1,776); 178.1 (rank ~2,451); 166.3 (rank ~6,187)
+   forced g1 (B, dealt 2): 98.8 pts (rank ~124,980) -- Tyler Higbee, Christian McCaffrey, Aaron Jones Sr., Joe Burrow, Ja'Marr Chase, Dontayvion Wicks, Parker Washington, Jordan Addison, Chargers
+   forced g2 (B, dealt 6): 104.1 pts (rank ~113,161) -- Tyler Higbee, Christian McCaffrey, Aaron Jones Sr., Mack Hollins, DJ Moore, Josh Allen, Chase Brown, Parker Washington, Packers
+   forced g3 (B, dealt 12): 181.8 pts (rank ~1,776) -- Aaron Jones Sr., T.J. Hockenson, CeeDee Lamb, Nico Collins, Dontayvion Wicks, Chase Brown, Parker Washington, C.J. Stroud, Bears
+   forced g4 (B, dealt 16): 108.3 pts (rank ~102,841) -- George Kittle, Aaron Jones Sr., Jaylen Waddle, Brock Purdy, Dontayvion Wicks, Chase Brown, Parker Washington, Jeremiyah Love, Packers
+   forced g5 (B, dealt 22): 117.5 pts (rank ~79,220) -- Aaron Jones Sr., Patrick Mahomes, T.J. Hockenson, Chase Brown, Parker Washington, Jordan Addison, Rashee Rice, Brock Bowers, Rams
+
+plain reading: the forced Stroud + Collins + Lamb row scored 181.8 (~1,776), not study 71's 222.2: the trio is forced,
+the other six players are the optimizer's. One known week says nothing about the average; the lab's study 74 read decides.

@@ -205,14 +205,53 @@ def top_game_qb1_rows(receipt: dict) -> dict[frozenset, tuple[str, str]]:
 
 
 def top_game_violations(ids, forced: dict) -> list[str]:
-    """Study 73: a row whose identity is a forced row must hold its game's QB and pass catcher (the floor's output);
-    every other row: nothing (a vet replacement is never bound)."""
+    """Study 73 / 74: a row whose identity is a forced row must hold its game's forced players -- the (QB, pass catcher)
+    pair, or study 74's (QB, pass catcher, opponent's pass catcher) stack -- the floor's output; every other row:
+    nothing (a vet replacement is never bound)."""
     have = {str(i) for i in ids}
     pair = forced.get(frozenset(have))
     if not pair:
         return []
     miss = [x for x in pair if x not in have]
-    return [f"top-game pair missing: {', '.join(miss)} (the forced pair {pair[0]} + {pair[1]})"] if miss else []
+    word = "pair" if len(pair) == 2 else "stack"
+    return [f"top-game {word} missing: {', '.join(miss)} (the forced {word} {' + '.join(pair)})"] if miss else []
+
+
+# Study 74 (84's rule, 10-08; the operator's full game stack: "the quarterback, his top pass catcher and the other team's
+# top receiver" for each top game): the first G BOOK solves of cell B (QB + 1 + a bring-back), in build order, each carry
+# ONE game's (QB, PC, OPC) triple through the pinned optimize()'s interaction floor (2-3-member tuples).
+# union_reselect --mix-top-game-stack G (default 0 = off).
+TOP_GAME_STACK_CELLS = ("B",)
+
+
+def top_game_triples(pool, game_total: dict, team_itt: dict, g: int) -> list[dict]:
+    """84's game stacks (nfl2 experiments/s74_game_stack.py; study 73's games, side and QB): top_game_pairs' games, QB_k
+    and PC_k, plus OPC_k = the OPPONENT's (QB_k's opp) top pool WR / TE by the same key (-proj, -salary, id). A game
+    missing a pass catcher on EITHER side keeps triple None and is SKIPPED: it never takes a solve (no backfill)."""
+    out = []
+    for gm in top_game_pairs(pool, game_total, team_itt, g):
+        opp = str(gm["qb"]["opp"])
+        ocs = [p for p in pool if p["pos"] in ("WR", "TE") and str(p["team"]) == opp]
+        opc = min(ocs, key=lambda p: (-float(p["proj"]), -float(p.get("salary") or 0), str(p["id"]))) if ocs else None
+        tri = (gm["pair"][0], gm["pair"][1], str(opc["id"])) if gm["pair"] is not None and opc is not None else None
+        out.append({**gm, "opc": opc, "triple": tri})
+    return out
+
+
+def top_game_stack_rows(receipt: dict) -> dict[frozenset, tuple[str, str, str]]:
+    """Study 74's ONE reader: the union receipt's top_game_stack block(s) -> {forced row identity: (QB_k, PC_k, OPC_k)}.
+    Off / absent = {}. A dropped game's plain row is not forced, and a replacement row is never one."""
+    union = ((receipt or {}).get("config") or {}).get("union") or {}
+    mix = (union.get("mix") or {}).get("mix") or {}
+    out: dict[frozenset, tuple[str, str, str]] = {}
+    for b in (mix.get("top_game_stack"), (mix.get("with_term") or {}).get("top_game_stack")):
+        if not b:
+            continue
+        tri = {int(g["k"]): (str(g["qb"]["id"]), str(g["pc"]["id"]), str(g["opc"]["id"]))
+               for g in b.get("games") or [] if g.get("pc") and g.get("opc")}
+        for f in b.get("forced") or []:
+            out[frozenset(str(i) for i in f["row"])] = tri[int(f["k"])]
+    return out
 
 
 def shape_violations(ids, cell: str | None, pos: dict, team: dict, opp: dict, game: dict, *,
