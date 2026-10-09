@@ -189,6 +189,14 @@ def test_book_rows_must_be_nine_frame_players_with_one_qb():
         OTT.book_qb_games([[dk[n] for n in names("I")[:-1]] + [dk["A QB"]]], by_dk)
 
 
+def test_book_stacks_reads_each_row():
+    fr = frame()
+    by_dk = {str(k): (p, t, g) for k, p, t, g in zip(fr.dk_player_id, fr.pos, fr.team, fr.game_id)}
+    dk = dict(zip(fr.display_name, fr.dk_player_id.astype(str)))
+    body = [[dk[n] for n in names("I")], [dk[n] for n in names("I", stacked=False)], [dk[n] for n in names("A")]]
+    assert OTT.book_stacks(body, by_dk) == [True, False, True]      # the QB alone (his RB + the opponent's WR / TE): False
+
+
 # ---------------------------------------------------------------- one week end to end (fakes for the gate's IO only)
 def milly_field():
     """C1: 1,000 entries. Ours: o1 (book row 1, rank 3) and o2 (book row 3, rank 400). The 998 others: the top 1%

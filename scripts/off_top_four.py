@@ -171,6 +171,17 @@ def book_qb_games(body: list[list[str]], by_dk: dict[str, tuple[str, str, str]])
     return out
 
 
+def book_stacks(body: list[list[str]], by_dk: dict[str, tuple[str, str, str]]) -> list[bool]:
+    """Each book row built as a stack: >= 1 WR / TE of its QB's team (rows already checked by book_qb_games). Every MIX
+    cell has qb_stack_min >= 1 today; a QB-alone row (study 77's shape) would read False."""
+    out = []
+    for row in body:
+        ent = [by_dk[_dk(x)] for x in row if str(x).strip()]
+        team = next(t for p, t, _ in ent if p == "QB")
+        out.append(any(p in PASS_CATCHERS and t == team for p, t, _ in ent))
+    return out
+
+
 def check_inputs(t70_run: Path, union: Path, plan: Path, cfg_frame: Path) -> dict:
     """The file and identity checks (refuses on any gap): the money gate's frame, the union's own frame, its projections."""
     frame_p, book_p, rec_p = t70_run / "frame.parquet", union / "book.csv", union / "receipt.json"
@@ -279,6 +290,7 @@ def main(argv=None) -> int:
         refuse(f"the plan {a.plan.name} lacks contests {missing}")
     _, body = B.read_book(inp["book_p"])
     bq = book_qb_games(body, by_dk)
+    bs = book_stacks(body, by_dk)
     a.out_dir.mkdir(parents=True, exist_ok=True)
     stem = a.out_dir / f"ott-{a.season}-w{a.week:02d}"
     layout = B.layout_book(W.contests, inp["book_p"], a.out_dir / f"stage-{a.season}-w{a.week:02d}")
@@ -333,7 +345,7 @@ def main(argv=None) -> int:
     book_df = pd.DataFrame({"source": "book", "contest_id": None, "entry_id": [f"book-{k + 1}" for k in range(len(body))],
                             "lineup": ["|".join(sorted(W.name_of[_dk(x)] for x in row if str(x).strip())) for row in body],
                             "qb_game": bq, "game_rank": [ranks.get(g) for g in bq],
-                            "group": [group_of(g, "ok") for g in bq], "stacked": True, "points": np.nan, "rank": np.nan,
+                            "group": [group_of(g, "ok") for g in bq], "stacked": bs, "points": np.nan, "rank": np.nan,
                             "seat": False, "in_book": True, "fallback": False,
                             "dealt_big": pd.array([k in dealt_big for k in range(len(body))], dtype="boolean")})
     ent_out = ent.assign(dealt_big=pd.array([pd.NA] * len(ent), dtype="boolean"))
