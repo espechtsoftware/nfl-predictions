@@ -10,8 +10,8 @@ reviews, runs the binding census and FREEZES; the laptop acks.
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
 
 ## 1. Why — his request
-- **The operator, 10-09 (during study 87's run, before its read; in full, his typing kept; the laptop records it verbatim in
-  HANDOFF):** "My suspicion is we are going to find that the last test we set up - with the QB from on of the top 4 point total
+- **The operator, 10-09 (during study 87's run, before its read; in full, his typing kept; recorded verbatim with his typos in
+  production HANDOFF `d8fd5461`):** "My suspicion is we are going to find that the last test we set up - with the QB from on of the top 4 point total
   games, a lower priced tight end, a cheaper defense, at least 1 wr <=4500, top receiver from same team as QB and WR or RB in flex
   is going to outperform everything else. Premature to say, but that looks more like the way I believe winners are structured.
   Please consider other options along those lines - perhaps with a slightly cheaper QB - that you think are good to test based on
