@@ -18,6 +18,7 @@ test. **Every result below was read by the reviewer and re-run by the laptop wit
   - Its quarterback part alone (a QB from a top-4 game with his top receiver): −2.3, and negative on 2022 too.
   - Removing the caps alone: −1.7. On the scored draws one quarterback carried up to 92% of the entries on some slates (nearly half on average in the quarterback-limited versions).
   - **My recommendation: don't use any of it.** Study 88 (running next) re-tests the whole book on fresh draws and tries a cheaper quarterback and allowing a tight end in the flex, as you asked.
+- **Study 88 (frozen 10:14, running next; information for you):** your 87 book re-tested on fresh draws, with a cheaper quarterback (none at $7,000+), with a tight end allowed in the flex, and with both. **Read it with this in mind:** without the usage caps, the cheaper-quarterback versions put one quarterback in up to 25 of your 26 lineups on some slates (96% of the entries).
 - **How we will treat 88's result:** as information. If you want to act on it, it is first re-tested on a second, separate set of test draws (same code), and both answers go on your sheet before any switch is built. That is the lesson of study 84.
 - **On your real book** (no scores looked at): 85's two price limits alone cost about 0.7 projected points per lineup and change 24 of 26 lineups; the $7,900 cap costs about 0.2 and changes 17; 87's quarterback and price limits cost about 1.6 (only 8 quarterbacks are left for 26 lineups).
 
