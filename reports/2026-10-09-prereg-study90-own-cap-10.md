@@ -1,10 +1,12 @@
-# Preregistration: study 90, the ownership cap at + 10 points against the armed + 15, and a second read of the armed package, in the harness (DRAFT 2026-10-09)
+# Preregistration: study 90, the ownership cap at + 10 points against the armed + 15, and a second read of the armed package, in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (12:56 CDT)** by the outside reviewer — **THE DESIGN IS COMMITTED BEFORE ANY CODE RUNS** (study 89
-read the same slates). The code follows; the reviewer reviews, runs the binding census and FREEZES; the laptop acks.
-- **Banks and seed:** proposed **1755–1766** (twelve: set A 1755–1760, set B 1761–1766), seed 20261135; the laptop scans them
-  and the derived bases (b+50 1805–1816, b+700 2455–2466) first.
-- **Target:** tonight, after study 88. **Nothing changes for Week 5.**
+**Status: FROZEN 2026-10-09 (13:29 CDT)** by the reviewer, after the outside reviewer's DRAFT (the design committed at 12:56
+before any code ran, since study 89 read the same slates), the smoke, the W4 real-book check and the binding census, before any
+scored bank. The text changed at the freeze in this status block and §6 only. The laptop acks.
+- **Banks 1992–2003** (set A 1992–1997, set B 1998–2003), **seed 20261135** (moved at the freeze from the proposed 1755–1766; see the scan line). The proposed 1755–1766 collided with L02's field seeds (nfl2 `ccfb0603`, `l02_chalk_sleeve_replay.py` line 114: slate_seed(bank + 700), banks 1110 / 1111 → 1810 / 1811 = the sims seeds of 1760 / 1761); the replacement 1767–1778 with L03's (`86ccea90`, `l03_market_conversion_replay.py` line 124: banks 1120 / 1121 → 1820 / 1821). The laptop's systematic search of {b, b + 50, b + 700} over every bank in nfl2's results history and the recent studies found 1992–2003 the first clean 12-bank block (sims 1992+50 = 2042–2053, fields 2692–2703). Its scan of both repositories (whole repos; the larger blobs not searched) found every hit an incidental count or parameter (bootstrap B 2000, k_frame 2000, CRPS draws 2000, n_CTRL 2694, range(2000) loops), never a bank or seed; the reader seed 20261135 appears only in 90's own files.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run (O-63), recorded in `RUN_ENV_s90.txt` committed with
+  the confirmatory census.
+- **Target:** tonight. **Nothing changes for Week 5.**
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
 
@@ -75,6 +77,23 @@ the DST cap; book solves only (j < 26), spares never; infeasible → re-solved w
   VACUITY: CAP35_OWN10 shares 6.0 of 26 rows with CAP35_OWN15, dealt identical 0.000 (not a dead change); players over 30%:
   LIVE_CB 10.0, + 15 4.3, + 10 2.0; non-DST players 43.3 / 51.7 / 58.0; projection per row vs LIVE_CB: + 15 −2.44, + 10 −3.71;
   the full path: the reader exited 0 (62 lines; 80 with the two-draw path on a copy); only those were read.
+- **The W4 real-book check at + 10** (the laptop's, outcome-blind, flag `680533c8`, OFF `a4ab2839`,
+  `~/rehearsals/flagcheck-pkg035own10-20261009T180347Z`): FP per row 140.76 (+ 15) → 139.89 (+ 10), −0.87 against the armed
+  package; 16 of 26 rows differ from the + 15 book; players ≥ 30% 10 → 7; distinct players 54 → 58; the most rows 9; applied, the
+  minimum cap 2 rows, 26 ruled solves, 0 re-solved, 7.31 players banned per solve (max 23); 18 skill players of the + 15 book are
+  over their + 10 cap, 0 in the + 10 book.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 36 slate-banks of 2023–24; code `5a1a1c0e`
+  clean; PYTHONHASHSEED=0; 7 tests pass; lab `results/s90/CENSUS_s90_binding.txt` `e058e153…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `ebda7baf…` with no outcome field, committed at `0ecaffd4`):
+  - every arm 41 rows within its caps (LIVE_CB 13 / 6; the three 35% arms 9 / 6), QB 5, overlap 4, 8 term rows, in the pool;
+  - **0 of 936 ruled solves infeasible** at + 15, + 10 and real; players banned per book solve: + 15 7.4 (max 27), **+ 10 13.1
+    (max 42)**, real 13.4 (max 45);
+  - cap rows at + 10 (mean count per slate-bank): 2 rows 151.7, 3 rows 47.4, 4 rows 23.9, 5 rows 13.3, 6+ rows 14.4;
+  - **VACUITY:** CAP35_OWN10 shares 6.06 of 26 rows with CAP35_OWN15, dealt identical 0.000 (not a dead change);
+  - players over 30% of the book: LIVE_CB 9.9, + 15 5.4, + 10 3.0; non-DST players 42.3 / 50.9 / 59.2; skill players over
+    their + 10 cap: LIVE_CB 15.5, + 15 23.2, + 10 0.0;
+  - **PARITY:** LIVE_CB and CAP35_OWN15 build identical rows to study 89's binding census on all 36 slate-banks (the
+    same bank and seeds), as the re-read arms should be.
 - **Code:** nfl2 `production/s90-own-cap-10-20261009` @ `5a1a1c0e` (branched from study 89's frozen branch `2fe958eb`):
   `experiments/s90_own_cap_10.py` `c4be23f9…` (pins s89 `92b09345…`); `scripts/s90_drive.py` `53acf709…`; `scripts/s90_census.py`
   `f85b4b22…`; **`scripts/s90_report.py` (the reader) `62bce622…`** (seed 20261135); `tests/test_s90_own_cap_10.py` `bbba173e…` (7).
