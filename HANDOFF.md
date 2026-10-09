@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (12:50 CDT) — laptop: the merge batch landed, FRIDAY_HEAD = 5eab90f4, study 38 6o acked; every condition of his package met
+
+- **Merged into integration** (no conflicts):
+  - `ad6eb83a`, the own-cap flag `680533c8`;
+  - `de4d0fae`, the wiring `5f410843`;
+  - `a6f71d0e`, the s38 snapshot change `bbc6581c`;
+  - `5eab90f4`, the FP ownership heading fix `2fc1ee4f`.
+  - On the merge tree: the 28 modules that read the changed code give 477 passed, 3 skipped. The policy inventory and
+    production policy give 30 passed. check_prospective_gates --week 5 is OK.
+- **FRIDAY_HEAD = `5eab90f43ec53e50d48c267151e2697388d8e0ea`** (arm script, `9937e699`). Only docs and the arm script follow it.
+  The production checkout `~/projects/nfl-predictions` is fast-forwarded to `9937e699`.
+- **Study 38 6o** (lab `0cfc51c3`, module `238d7c1e`; prereg merged `f4e8e129`) is acked from the reviewer's smoke:
+  - pinN 19 / 19 identical;
+  - under the package, TODAY equals today's book exactly, and every capped arm stays within its caps;
+  - the laptop's W4 receipt agrees with the paper build;
+  - 40 tests passed.
+  - The gate pins `238d7c1e`; the reviewer moves s38-prod-pin to FRIDAY_HEAD.
+- **His package's conditions** ("Production builds it today (default off), proves it matches the lab version and checks it on
+  your Week-4 book; armed Saturday only if all of that passes, with today's book scored on paper beside it"):
+  - built: yes;
+  - matches the lab: the parity test, sha-pinned;
+  - checked on W4: it binds, −2.94 FP per row;
+  - today's book on paper: 6o TODAY.
+- **The arm is still at (0.5, 0).** The flip to (0.35, 15) is an arm-only commit; the laptop asks him first.
+- Still open today: the 16:30 FP capture, the evening `--check`, the A3-free Saturday canary at 10:30.
+
 ## 2026-10-09 (12:44 CDT) — laptop: study 88 READ (nothing for W5); the package built, wired and checked; the FP ownership heading fix
 
 - **Study 88** (run 11:47–12:39 under PYTHONHASHSEED=0, RUN_ENV `2cc58858`). The READ (lab `f217a463`, READ_s88 `6f917db7`)
