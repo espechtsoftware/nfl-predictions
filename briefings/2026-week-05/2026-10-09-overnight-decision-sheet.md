@@ -18,7 +18,7 @@ The book is ready as it stands. That is the default, and nothing changes unless 
 
 Everything else from tonight: off.
 
-The reviewer advises **one new construction change a week** (so Monday can tell what helped); that is advice, and you decide. The arming script refuses two changes at once unless you say so, and then the override is recorded.
+The reviewer advises **one new construction change a week** (so Monday can tell what helped); that is advice, and you decide. If you choose a second change, I record your decision in the handoff and arm exactly the changes you chose. (Correction: an earlier version of this sheet said the arming script refuses two changes at once. That check exists only in unmerged code; I'll add it with the 77 switch.)
 
 ### Every test tonight, in one table
 

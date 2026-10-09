@@ -8549,8 +8549,10 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
     - the shape joins his portfolio at about the winners' rate, his stated strategy;
     - it costs no projection.
   - The tradeoff: the cheap block's Monday review would read a book with two changes.
-  - The arm script's guard refuses two construction levers, so live use needs an explicit override recorded in
-    HANDOFF, never a quiet edit.
+  - ~~The arm script's guard refuses two construction levers~~ **CORRECTED 10-09 (the laptop):** integration's arm has no
+    such guard today. It existed only on the unmerged `production/s73-wiring-20261008`. A live second change needs his
+    explicit decision recorded in HANDOFF. The arm's one-change guard is being added with the C0 wiring
+    (`production/c0-wiring-20261009`, unmerged), with an override variable that must carry his recorded decision.
   - His decision.
 
 ## Addendum 176 (2026-10-09): study 78 (two $8,000+ players on the first 8 book rows, stars and scrubs, the outside reviewer's test, in the harness): NO DIFFERENCE, mixed by season (2023 −0.8, 2024 +4.5; +1.8 on the read), guard 1 fails, not contradicted on 2022 (+2.2): ENTERABLE by the rule (his decision; no gain shown); recommendation off
