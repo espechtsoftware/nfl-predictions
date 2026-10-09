@@ -1,7 +1,10 @@
-# Preregistration: study 83, the three leans together (77's QB alone + 79's one catcher per team + 75's WR flex), in the harness, with his "not negative" rule (DRAFT 2026-10-09)
+# Preregistration: study 83, the three leans together (77's QB alone + 79's one catcher per team + 75's WR flex), in the harness, with his "not negative" rule (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (05:23 CDT)** by the outside reviewer, before any scored bank. The reviewer (84) reviews, runs the
-binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks and seed scanned).
+**Status: FROZEN 2026-10-09 (05:28 CDT)** by the reviewer, after the outside reviewer's DRAFT (05:23 CDT), the smoke and the
+binding census (§6), before any scored bank.
+- The text changed at the freeze in §4 (the census's figures beside the smoke's) and in §6 (the census and one disclosure).
+- The module and the reader are the DRAFT's, unchanged. The laptop acks (shas, tests, the census re-run; the banks and the
+  seed were scanned clean overnight).
 - **Banks 1707–1712, seed 20261128** (the reviewer's; the laptop scanned 1707–1718 and their derived bases clean and unused
   overnight).
 - **Target:** this morning. If his rule says USE, a combined production option for Week 5, merged before FRIDAY_HEAD.
@@ -72,6 +75,13 @@ underneath). LIVE = 48d's 41 rows with the cheap +2 block through study 53's `bl
   - per book (LIVE_CB / COMBO / C0_ONEPC): QB-alone rows 0 / 3 / 3; non-QB-pair rows 6.3 / 1.7 / 2.0; flex WR 4.3 / 5.3 / 3.3,
     TE 15.7 / 14.0 / 16.0, RB 6.0 / 6.7 / 6.7; QB + 2 rows 12 in every arm;
   - projection per row −0.12 (COMBO) / −0.01 (C0_ONEPC); rows shared with LIVE_CB 1.3 / 3.0; dealt identical 0.000 / 0.000.
+- **The binding census (53 slate-banks, §6):**
+  - The combined solves per slate-bank are as the smoke: c0+onepc 2, all three 1, flex 1, onepc 10, onepc+flex 1.
+  - **0 of 795 ruled solves infeasible**, including position 3's QB-alone row with four WRs, each from a different team.
+  - VACUITY at the ruled positions: c0 1.000, onepc 0.245, flex 0.792.
+  - Non-QB-pair rows 5.02 → 1.74 (C0_ONEPC 1.94); flex WR 6.2 → 7.4; QB-alone rows 0 → 3.
+  - Projection −0.01 per row (C0_ONEPC +0.02); rows shared with LIVE_CB 2.3 / 4.6; dealt identical 0.000 / 0.000.
+  - Ruled rows read by a big contest 0.867: the one-catcher rows at positions 22 / 23 are non-big, by design.
 - **Path dependence:** the rules re-draw most of the book. **The base is our simulator's mean, not FP's. The lines are closing
   lines.**
 
@@ -89,8 +99,16 @@ underneath). LIVE = 48d's 41 rows with the cheap +2 block through study 53's `bl
   row in the pool; the rest as §2 / §4.
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 43 lines and 4 sections (his
   rule's line added); only those were read.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze; an infeasible
-  share above 5% of ruled solves is reported to the reviewer before the freeze.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `a7a1f60c` clean; 13 tests pass; lab `results/s83/CENSUS_s83_binding.txt` `971d33c0…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `cbaba5d6…` with no outcome field, committed at `45cd1a76`):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - COMBO: 0 of 795 ruled solves infeasible (the 5% condition is not reached); the ruled positions by rule: 0 flex,
+    2 onepc+flex, 3 c0+onepc+flex, 7 and 13 c0+onepc, the rest onepc (4, 6, 8, 12, 14, 16, 17, 18, 22, 23);
+  - C0_ONEPC: 0 of 742 infeasible;
+  - the rest as §4.
+- **Disclosed:** the module's docstring dates his decision "10-09 05:20 CDT", the relay's estimate. The record is HANDOFF
+  `7473786e` (its time line `ee3ddd9f`, 05:16). The docstring was left unchanged so the census ran on the frozen code.
 - **Code:** nfl2 `production/s83-combo-20261009` @ `a7a1f60c` (the outside reviewer's draft; branched from study 82's
   `bba5687d`):
   - `experiments/s83_combo.py` `19d9a77c…`;
