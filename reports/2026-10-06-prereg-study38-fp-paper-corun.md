@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q, 6r and 6s before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q, 6r, 6s and 6t before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -1102,6 +1102,54 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     - `scripts/s38_build.py` unchanged (`15373e14…`).
   - **The integrity gate** pins this module sha in place of 6r's `8ac57630…`, on the live snapshot.
   - **Order:** this amendment; the laptop's ack; the gate pin.
+
+- **Amendment 6t (2026-10-09, before Week 5's lock; no Week-5 outcome exists): study 93's ONECATCH, if it goes live, followed on paper.**
+  - **Why.** His answer on study 93's lead (relayed by the laptop; HANDOFF `90e8470c`): "Live W5 if built in time
+    (Recommended)". The rule allows at most one WR / TE of any team on the B / C book rows. The paper arms follow every live
+    construction setting (6o, 6q, 6r), so this one must be classified, followed and paired too.
+  - **What changes.**
+    - **Classification:** the union argument `--mix-one-catcher-all` (production `c391fbd0`, the outside reviewer's flag,
+      reviewed by the laptop and by 84) is classified checked. It is accepted only on the armed version, and is otherwise a
+      parity mismatch (6l's default-deny is unchanged).
+    - **The receipt must agree:** when the flag is declared, `config.union.mix.mix.one_catcher_source.applied` must equal the
+      paper build's own state (applied iff the live row rules apply). When applied, the rule's identity must match: cells
+      `["B", "C"]`, `max_per_team` 1. Anything else stops the build.
+    - **When live and applied,** every rule-following arm carries the rule through `oc_tiers`. On a B / C book solve (spares
+      never), one constraint per team (its WR / TE ids, at most 1) joins the constraint list. The tiers are one call each:
+      [primary + oc] → [primary] → none. The low arms (6s) run [low-N + te1 + oc] → [live + oc] → [live] → none. These are
+      study 93's `lead_rules` calls; a test executes 93's pinned text (`c5bcac30…`) and asserts identical optimize calls.
+    - **Never:** MIXT_QA0_TODAY and MIXT_QA0_NORR, which stay off the live rules by design.
+    - **MIXT_QA0_NOONECATCH** (exploratory): the armed live book without the rule, the paired paper book. It is built only
+      while the rule is live. It is read against MIXT_QA0, overall and per contest group.
+    - When the rule is not live, nothing changes. NOONECATCH is missing and every arm is identical to 6s's.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6t/`, script `run.sh` `5dfe08e05760`,
+    log `f5caf81a6456`; lab `3de36327`; PYTHONHASHSEED=0). Production was the laptop's merge check `93d58464` (integration
+    `90e8470c` + the flag `c391fbd0` + the wiring `f483644c`), and FRIDAY_HEAD `f5f96468` (no flag) for the first build. The
+    rule-on build used the laptop's W4 ONECATCH check receipt
+    (`~/rehearsals/flagcheck-onecatchALL-20261009T233318Z/on/receipt.json`, sha256 `e2b66fb94894…`).
+    - 48 tests pass (rc 0); union-argument mismatches none in every build.
+    - **The rule off:** all 30 arms are identical to 6s's armed build (rows + ranks), on `f5f96468` and on `93d58464` alike.
+      NOONECATCH is missing.
+    - **The rule on:** the receipt agrees (one_catcher_source applied; cells B / C, at most 1 per team; 14 ruled solves, 0
+      re-solved without it, 0 B / C rows with a same-team pair); the paper build applies it.
+      - **MIXT_QA0_NOONECATCH equals the rule-off MIXT_QA0** (rows + ranks). TODAY and NORR are unchanged.
+      - Every other arm carries it on every B / C book solve (14; QB2HALF 7, its B / C rows). No B / C row holds two WR / TE of
+        one team (MIXT_QA0: 5 such rows → 0). LOW8's 4 solves infeasible under its own rule fall to [live + oc], none further.
+      - 27 arms change. MATCHUPX is unchanged: it had no such pair on W4, so the rule was slack there.
+      - MIXT_QA0 keeps 7 of 26 rows; FP per dealt lineup 140.79 → 140.70. Production's own W4 check (the laptop's) changed 19
+        of 26 rows, 5 pair rows → 0. The two come from different builders, so their rows are not compared.
+    - **A missing receipt record:** with the flag declared and a receipt that carries no one-catcher record, a dry run builds
+      (as 6o–6r's records do); the gate (not a dry run) refuses it ("the union receipt carries no one-catcher record"). This
+      is from reading the code; the smoke ran this case dry only.
+  - **Code:** lab `3de36327` (on 6s's `64d330d5`):
+    - `experiments/s38_paper_corun.py` sha256 `b34b5468b184f0b913ddd8e44f86d1613f8da6b0a45adbe0f0cc0ea91a90bc6a`;
+    - `scripts/s38_score.py` `d8c242956c5bf46837f362014f6de05d3d096cbe105ab8d5de11c0700b9b04a0`;
+    - `scripts/s38_report.py` `2f3237eaccddea7d0ba2ac88f3830ad59c270039fbbc8267c61c2c99452c2d68`;
+    - `tests/test_s38_paper_corun.py` `8628551a8ab8db01d3da0373c5ba9bf9d06897298fac4c0f666aef82fa600bb8` (48 tests);
+    - `scripts/s38_build.py` unchanged (`15373e14…`).
+  - **The integrity gate** pins this module sha in place of 6s's `29f8c095…`, on the live snapshot.
+  - **Order:** this amendment; the laptop's ack; the gate pin. If the rule goes live, `s38-prod-pin` moves to the FRIDAY_HEAD that
+    carries the flag: 6l's classification reads the union arguments of the `--prod` checkout, and `f5f96468`'s has no such argument.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
