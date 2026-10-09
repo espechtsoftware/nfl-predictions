@@ -8981,3 +8981,96 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
   - Flex WR / TE / RB 1 / 14 / 11 → 4 / 7 / 15; QB + own-TE rows 12 → 10.
   - So the harness priced the rule's cost at less than half what his book would pay, and the +4.7 may flatter it. A paper
     arm would test it at its real cost.
+
+## Addendum 180 (2026-10-09): study 82 (a QB from the lower-implied half of the slate on the first 4 book rows, the outside reviewer's test, in the harness): NO DIFFERENCE, flat on the read (+0.4), better on 2022 (+3.0): ENTERABLE by the rule (no gain shown); the winners' habit shows no edge here
+
+**Setup.**
+- **The question.** The operator, 10-08 night: "try as many things as we can". The outside reviewer's fourth W1–4 scan:
+  the lineup's QB from a team in the lower half of the slate's QB teams by implied team total.
+  - The top 1% 41%, the field 28%; the top above the field in 3 of 4 weeks.
+  - His W5-style FP book 4%.
+  - The opposite direction from studies 73 / 74 / 80, which all forced QBs from the top games.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`; study 80
+  sha-pinned, its own `qb_side_rows` imported):
+  - LIVE_CB (the reference).
+  - LOWQB4, the single decision: the first 4 book solves in build order (any cell) ban every pool QB whose team ranks in
+    the upper half (ranks 1..ceil(n/2) by median implied_team_total over the pool's QB teams; ties by team code). The rows
+    are dealt at book positions 0, 2, 3, 5, all big seats.
+  - Exploratory LOWQB8: the first 8.
+- **Binding on his real book (the laptop's W4 rate check, before the freeze):** 4 of the first 4 committed rows have an
+  upper-half QB.
+- **Preregistration:** `reports/2026-10-09-prereg-study82-lower-half-qb.md` (the outside reviewer's DRAFT `a1ef8202`;
+  FROZEN `de9e9c44` / `f3db5ca6`, 10-09 02:19 CDT, before any scored bank).
+- **Panel:** banks 1695–1700, B 20,000, seed 20261127.
+- **Read:** the reader `74a3914d`; READ `48298cf5` (lab `9b77c0c0`). The confirmatory census (`85fbe35e`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop** at `9b77c0c0`: the raw files 1695–1700 pass `sha256sum -c` against
+  `RAW_s82_run.sha256`; the READ is `48298cf5` and the confirmatory census `a019404d` (cmp-identical).
+- **The prior, stated first:** NO DIFFERENCE or negative. Forcing the QB choice cost in study 80, and weaker offenses cost
+  projection.
+- **Census** (the binding census on bank 1406, 53 slate-banks):
+  - LOWQB4: 4 of 4 ruled rows, 0 infeasible; every ruled QB lower-half (asserted) and his team's starter.
+  - Vacuity 3.23 of 4 (his book 4 of 4).
+  - Lower-half QB rows 4.58 → 6.36 of 26. The harness's base is 18% against his book's 4%.
+  - Projection cost −0.08 per row; dealt identical 0.000.
+  - The confirmatory census on the scored banks (318 slate-banks) agrees: 4 of 4 ruled, 0 infeasible, all big-read, every
+    ruled QB lower-half, starters 1.000; vacuity 3.24 of 4; lower-half QB rows 4.88 → 6.52; cost −0.07; dealt identical
+    0.006.
+
+**Reader output (verbatim):**
+```
+STUDY 82 READER  sha256 74a3914df4c6a0b4e534f8263b14c4c547934946fdc434d45fcba95e44eebcab
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1695, 1696, 1697, 1698, 1699, 1700]  B 20000  seed 20261127  one decision arm against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the lower-half QB rule's constants, study 80's and study 73's shas, live settings, QB cap, objective): [["LIVE_CB", "LOWQB4", "LOWQB8"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "halves": "median implied_team_total over the pool's QB teams, desc (ties: team); upper = ranks 1..ceil(n/2)", "n_rows": {"LOWQB4": 4, "LOWQB8": 8}, "rows": "the first n_rows book solves in build order (any cell) ban every pool QB outside the lower half (study 80's qb_side_rows); infeasible -> plain, recorded"}, "9a46c2841980d31a6f45bbcb00af288daa6081a3b2d2d1867da54061eb876ee7", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== LOWQB4 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.00350  [-0.03435, +0.04000] (two-sided 0.95)  seasons 2023 +0.00356, 2024 +0.00345
+  GUARD 1 mean entry pct -0.00089  one-sided lower -0.00615  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48280 vs 0.47782  ratio 1.010  (must be >= 0.80)
+  LOWQB4 dealt identical to LIVE_CB: 0.009 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.02987  [+0.00807, +0.05327] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TRIAL SUMMARY: LOWQB4 ENTERABLE (his decision; one construction change a week)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  LOWQB8 - LIVE_CB (v2, 2023-24): +0.00246  [-0.03582, +0.03847]  seasons 2023 -0.00350, 2024 +0.00841
+  LOWQB8 - LIVE_CB (v2, 2022): -0.00504  [-0.05472, +0.04462]  seasons 2022 -0.00504
+  LOWQB4 - LIVE_CB (the l02 field, 2023-24): +0.00318  [-0.03562, +0.04077]  seasons 2023 +0.00138, 2024 +0.00499
+  LOWQB4 - LIVE_CB (the l02 field, 2022): +0.03120  [+0.00872, +0.05505]  seasons 2022 +0.03120
+  LOWQB8 - LIVE_CB (the l02 field, 2023-24): +0.00273  [-0.03693, +0.03985]  seasons 2023 -0.00466, 2024 +0.01012
+  LOWQB8 - LIVE_CB (the l02 field, 2022): -0.00458  [-0.05350, +0.04494]  seasons 2022 -0.00458
+  LOWQB4 ruled solves built plain (infeasible): 0 of 1272 over 318 slate-banks
+  LOWQB8 ruled solves built plain (infeasible): 0 of 2544 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.30402  expected big seats 0.47782  P(>=2) 0.11296  entry pct 0.51192  |  l02: P(>=1 big) 0.33268
+               book: projection per row 127.70  salary 49963  QB + 2 rows 12.0 of 26  upper-half QB rows 20.1  lower-half QB rows 5.9  QB salary 6282  distinct QBs 8.4
+  LOWQB4       v2: P(>=1 big) 0.30753  expected big seats 0.48280  P(>=2) 0.11373  entry pct 0.51103  |  l02: P(>=1 big) 0.33586
+               book: projection per row 127.65  salary 49963  QB + 2 rows 12.0 of 26  upper-half QB rows 18.9  lower-half QB rows 7.1  QB salary 6240  distinct QBs 8.9
+  LOWQB8       v2: P(>=1 big) 0.30648  expected big seats 0.45667  P(>=2) 0.09925  entry pct 0.50835  |  l02: P(>=1 big) 0.33541
+               book: projection per row 127.54  salary 49962  QB + 2 rows 12.0 of 26  upper-half QB rows 16.5  lower-half QB rows 9.5  QB salary 6168  distinct QBs 9.5
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.22989  expected big seats 0.32680  P(>=2) 0.07463  entry pct 0.45702  |  l02: P(>=1 big) 0.24648
+               book: projection per row 131.84  salary 49962  QB + 2 rows 12.0 of 26  upper-half QB rows 23.2  lower-half QB rows 2.8  QB salary 6642  distinct QBs 7.9
+  LOWQB4       v2: P(>=1 big) 0.25975  expected big seats 0.39213  P(>=2) 0.08962  entry pct 0.44482  |  l02: P(>=1 big) 0.27768
+               book: projection per row 131.72  salary 49961  QB + 2 rows 12.0 of 26  upper-half QB rows 20.7  lower-half QB rows 5.3  QB salary 6557  distinct QBs 9.2
+  LOWQB8       v2: P(>=1 big) 0.22484  expected big seats 0.33980  P(>=2) 0.07848  entry pct 0.43687  |  l02: P(>=1 big) 0.24190
+               book: projection per row 131.49  salary 49958  QB + 2 rows 12.0 of 26  upper-half QB rows 17.3  lower-half QB rows 8.7  QB salary 6439  distinct QBs 9.8
+```
+
+**Reading.**
+- **LOWQB4 is flat on the deciding seasons:**
+  - +0.4 points [−3.4, +4.0] (2023 +0.4, 2024 +0.3);
+  - expected big seats ×1.01; P(≥ 2) 0.114 against 0.113;
+  - guard 1 holds.
+- **2022: +3.0 [+0.8, +5.3], not contradicted.** ENTERABLE by the rule, with no gain shown on the read. The 2022 interval
+  is the go / no-go, not the read, and it is one more of the night's many comparisons. The earlier field (l02) agrees:
+  +0.3 / +3.1.
+- **The negative prior was not borne out:** the rule costs little (−0.07 projected points per row). But the top 1%'s 41%
+  lower-half-QB habit (his book 4%) shows no edge here either.
+- **The exploratory LOWQB8** reads +0.2 (2022 −0.5): more rows did not add.
+- **Recommendation:** leave it. Allowed, but flat, and not a candidate for his one change.
