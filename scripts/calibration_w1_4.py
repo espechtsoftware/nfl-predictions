@@ -156,7 +156,7 @@ def name_maps(fr: pd.DataFrame, unknown_zero: bool):
 
 
 def week_run(cfg: dict, w: int, cap: int, chunk: int, recon: pd.DataFrame, log, max_unknown: float,
-             unknown_zero: bool, prepass: bool) -> dict:
+             unknown_zero: bool, prepass: bool, recentre_fp: Path | None = None) -> dict:
     W = MS.load_week(cfg, w)
     e = cfg["weeks"][str(w)]
     run = Path(e["t70_run"])
@@ -170,6 +170,15 @@ def week_run(cfg: dict, w: int, cap: int, chunk: int, recon: pd.DataFrame, log, 
         if bank[b].shape[0] != len(fr):
             raise SystemExit(f"W{w}: {b} bank has {bank[b].shape[0]} rows for a {len(fr)}-row frame")
     align = check_alignment(w, fr, bank)
+    if recentre_fp is not None:                              # Field A': each player's sims shifted to FP's pre-lock mean
+        fp = pd.read_csv(recentre_fp, dtype={"id": str}).drop_duplicates("id").set_index("id")["fp"]
+        target = pd.to_numeric(fr.id.astype(str).map(fp), errors="coerce").to_numpy(float)
+        cov = np.isfinite(target)
+        if cov.mean() < 0.95:
+            raise SystemExit(f"W{w}: FP projections cover {cov.mean():.1%} of the frame (< 95%)")
+        bank = {b: (np.asarray(bank[b], dtype=np.float32)
+                    + np.where(cov, target - np.asarray(bank[b]).mean(axis=1), 0.0)[:, None].astype(np.float32)) for b in BANKS}
+        align["recentred_on_fp"] = {"file_sha256": sha256(Path(recentre_fp))[:12], "covered": round(float(cov.mean()), 4)}
     row_of, dup = name_maps(fr, unknown_zero)
     P = len(fr)
     if unknown_zero:                                         # review F: the sensitivity, unknown players at 0 in every sim
@@ -302,6 +311,8 @@ def main() -> int:
     ap.add_argument("--max-unknown", type=float, default=0.02, help="fail closed above this share of unscorable field lineups")
     ap.add_argument("--unknown-zero", action="store_true", help="sensitivity: score players not in the frame at 0 in every sim")
     ap.add_argument("--prepass", action="store_true", help="names and coverage only, no sims (seconds)")
+    ap.add_argument("--recentre-fp", type=Path, default=None,
+                    help="Field A': shift every player's sims to FP's pre-lock mean (a CSV with id, fp; one week only)")
     a = ap.parse_args()
     if a.out.exists():
         raise SystemExit(f"{a.out} exists (create-once)")
@@ -314,6 +325,8 @@ def main() -> int:
     cfg = MS.load_config()
     recon = pd.read_csv(MS.PRIVATE / "reconcile_entries.csv", dtype={"entry_id": str, "contest_id": str})
     weeks = [int(x) for x in a.weeks.split(",")]
+    if a.recentre_fp is not None and len(weeks) != 1:
+        raise SystemExit("--recentre-fp takes one week (its FP file)")
     log(f"calibration W{weeks} cap {a.cap} chunk {a.chunk} max_unknown {a.max_unknown} unknown_zero {a.unknown_zero} "
         f"prepass {a.prepass} script {sha256(Path(__file__))[:12]} scorer {sha256(MS.SCORER)[:12]} "
         f"reconcile {sha256(MS.PRIVATE / 'reconcile_entries.csv')[:12]} ({len(recon)} rows)")
@@ -321,7 +334,7 @@ def main() -> int:
     res = {}
     for w in weeks:
         t0 = time.time()
-        res[w] = week_run(cfg, w, a.cap, a.chunk, recon, log, a.max_unknown, a.unknown_zero, a.prepass)
+        res[w] = week_run(cfg, w, a.cap, a.chunk, recon, log, a.max_unknown, a.unknown_zero, a.prepass, a.recentre_fp)
         st = res[w]["stats"]
         log(f"-- W{w} {time.time() - t0:6.1f}s: contests {st['contests']} (sampled {st['contests_sampled']}), entries placed "
             f"{st['entries_placed']}, excluded by reason {st['excluded_entries_by_reason']}, ours with a player not in the frame "
