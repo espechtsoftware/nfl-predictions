@@ -48,6 +48,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -485,6 +486,81 @@ def parse_cell_quotas(spec: str) -> dict[str, float]:
     return {n: out[n] for n in MIX_CELLS}
 
 
+OWN_CAP_SKILL_SUM = 800.0       # study 89: the predictions are rescaled so the frame's skill players sum to 8 x 100%
+
+
+def own_cap_rows(source: Path, t70: pd.DataFrame, exclude: set[str], delta_pts: float, k: int,
+                 min_coverage: float) -> tuple[dict[str, int], dict]:
+    """Study 89's per-player ownership cap (nfl2 experiments/s89_own_cap.py own_cap_rows / pred_blend @ 4d0daa47; the
+    operator 10-09: "Live W5 trial if built in time"): every SKILL player of the frame gets
+    cap_rows = floor(k x (own / 100 + delta_pts / 100)) MAIN-BOOK rows, where own = the file's fp_own_raw (Fantasy Points'
+    projected ownership %, negatives clipped) RESCALED so the frame's skill players sum to OWN_CAP_SKILL_SUM; a skill player
+    the file does not name counts as 0% (the lab's form: a prediction of 0 -> the floor(k x delta) rows). DSTs get no cap
+    (they keep the DST cap). The file is matched on id (the frame id), then dk_player_id. Refuses (SystemExit 'OWN CAP
+    REFUSED: ...') on a missing / unreadable file, non-numeric or fractional values, or a coverage of the pool's skill
+    players projected >= OWN_FLOOR_PROJ below min_coverage; never fills a value in."""
+    def refuse(why: str):
+        raise SystemExit(f"OWN CAP REFUSED: {why}")
+    if not 0 < delta_pts <= 50:
+        refuse(f"--main-own-cap-delta {delta_pts} outside (0, 50] percentage points")
+    if source is None or not Path(source).is_file():
+        refuse(f"the ownership file {source} does not exist")
+    try:
+        own = pd.read_csv(source, dtype=str)
+    except (OSError, ValueError) as exc:
+        refuse(f"the ownership file {source} is unreadable ({exc})")
+    keys = [c for c in ("id", "dk_player_id") if c in own.columns]
+    if "fp_own_raw" not in own.columns or not keys:
+        refuse(f"the ownership file {source} needs fp_own_raw and id / dk_player_id (has {list(own.columns)})")
+    val = pd.to_numeric(own.fp_own_raw, errors="coerce")
+    if len(own) == 0 or not np.all(np.isfinite(val)):
+        refuse(f"the ownership file {source} holds {int((~np.isfinite(val)).sum())} fp_own_raw values that are not numbers (of {len(own)})")
+    if float(val.max()) <= 1.0:
+        refuse(f"the ownership file {source} tops out at fp_own_raw {float(val.max()):.3f}: fractions, not percentages")
+    val = val.clip(lower=0.0)
+    by = {c: {} for c in keys}
+    for c in keys:
+        for kk, v in zip(own[c].map(_key), val):
+            if kk:
+                by[c][kk] = max(v, by[c].get(kk, 0.0))
+    ids = t70.id.astype(str).tolist()
+    pos = dict(zip(ids, t70.pos.astype(str)))
+    proj = dict(zip(ids, pd.to_numeric(t70.mean_projection, errors="coerce").fillna(0.0)))
+    dk_of = dict(zip(ids, t70.dk_player_id.map(_key))) if "dk_player_id" in t70.columns else {}
+    raw: dict[str, float] = {}
+    for i in ids:
+        if pos[i] not in SKILL:
+            continue
+        for c in keys:
+            kk = dk_of.get(i, "") if c == "dk_player_id" else _key(i)
+            if kk and kk in by[c]:
+                raw[i] = float(by[c][kk])
+                break
+    core = [i for i in ids if pos[i] in SKILL and i not in exclude and proj[i] >= OWN_FLOOR_PROJ]
+    coverage = sum(1 for i in core if i in raw) / len(core) if core else 0.0
+    if coverage < min_coverage:
+        miss = sorted((i for i in core if i not in raw), key=lambda i: -proj[i])[:8]
+        name = dict(zip(ids, t70.name.astype(str)))
+        refuse(f"the ownership file {source} names {coverage:.1%} of the pool's skill players projected >= {OWN_FLOOR_PROJ} "
+               f"(< {min_coverage:.0%}); missing e.g. {[name[i] for i in miss]}")
+    arr = np.array([raw.get(i, 0.0) if pos[i] in SKILL else 0.0 for i in ids], dtype=float)   # the lab's layout: every frame
+    total = float(arr.sum())                                                                   # row, 0 off skill (numpy's sum)
+    if total <= 0:
+        refuse(f"the ownership file {source} sums to {total} over the frame's skill players")
+    factor = OWN_CAP_SKILL_SUM / total
+    delta = delta_pts / 100.0
+    skill_ids = [i for i in ids if pos[i] in SKILL]
+    caps = {i: int(math.floor(k * (float(raw.get(i, 0.0) * factor) / 100.0 + delta))) for i in skill_ids}
+    pool_caps = [caps[i] for i in skill_ids if i not in exclude]
+    meta = {"source": str(source), "source_sha256": sha256_file(Path(source)), "column": "fp_own_raw", "delta_pts": delta_pts,
+            "k": k, "skill_sum_raw": round(total, 3), "rescale_to": OWN_CAP_SKILL_SUM, "factor": round(factor, 6),
+            "matched_skill_players": len(raw), "skill_players": len(skill_ids),
+            "unnamed_skill_players_at_0": sum(1 for i in skill_ids if i not in raw), "coverage_projected_5": round(coverage, 4),
+            "min_coverage": min_coverage, "cap_rows_hist_pool": dict(sorted(Counter(pool_caps).items())),
+            "min_cap_rows": min(pool_caps) if pool_caps else None}
+    return caps, meta
+
+
 def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap: int | None, min_salary: int,
              weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
              bonus: dict[str, float] | None = None, portfolio: str = "mix",
@@ -493,7 +569,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
              term_bonus: dict[str, float] | None = None,
              cell_quotas: dict[str, float] | None = None,
              bring_back_top_wr: tuple[str, ...] = (),
-             bring_back_top_wr_rows: int | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             bring_back_top_wr_rows: int | None = None,
+             own_cap: dict[str, int] | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -533,7 +610,12 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     objective; then the term block (n rows), round-robin on the quotas at its size, on projection + term_bonus (points per
     frame id, already capped by the caller); positions mix_shapes.block_positions(k, n) (the term block takes the first
     list); each block interleaved on the head weights of ITS positions; the spares after the book on the plain objective.
-    Needs the MIX portfolio, the round-robin fill, no cover, no half-and-half and no whole-book ownership term."""
+    Needs the MIX portfolio, the round-robin fill, no cover, no half-and-half and no whole-book ownership term.
+    own_cap (study 89; the operator 10-09 "Live W5 trial if built in time"; default None = off, byte for byte today's book):
+    player id -> rows; on every solve while j = len(prev) < k (the book: the live and term blocks; spares never) every player
+    already in his own_cap rows is banned too, ONE solve with the solve's other rules; an infeasible solve is re-solved on the
+    same state without the ownership bans (the lab's OwnCapBuilder: nfl2 experiments/s89_own_cap.py own_caps @ 4d0daa47),
+    recorded as (cell, j)."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
@@ -599,7 +681,23 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             return True
         return len(prev) < k and len(bb_state["floored_rows"]) < bb_cap
 
+    own_state: dict = {"ruled": [], "plain": [], "bound": []}
+
     def peek(name: str, extra_bans: frozenset = frozenset(), use_term: bool = False):
+        """Study 89's ownership cap around _peek (absent when own_cap is None): on a book solve (j < k) the players at their
+        cap are banned too; infeasible -> the same peek without them, recorded."""
+        j = len(prev)
+        if not own_cap or j >= k:
+            return _peek(name, extra_bans, use_term)
+        at = frozenset(p for p, c in count.items() if p in own_cap and c >= own_cap[p])
+        got = _peek(name, frozenset(extra_bans) | at, use_term)
+        if got[0] is not None:
+            own_state["ruled"].append((name, j)); own_state["bound"].append(len(at))
+            return got
+        own_state["plain"].append((name, j))
+        return _peek(name, extra_bans, use_term)
+
+    def _peek(name: str, extra_bans: frozenset = frozenset(), use_term: bool = False):
         """The cell's next row on the CURRENT state, not committed: (ids, objective value, fallback) or (None, None, None).
         use_term: on the term block's objective (projection + the capped term). fallback: None, or why a study-71 cell's
         row was built WITHOUT the top-WR floor ("infeasible with the floor" / "no pairs"), or "plain" for a designated solve
@@ -866,6 +964,11 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                        "caps_from_book_entries": k},
             "source": ("nfl2 experiments/s18_stack_shapes.py @ 5869a1b (CELLS, allocate, interleave, mix_book)" if portfolio == "mix"
                        else "nfl2 experiments/s18_stack_shapes.py @ 5869a1b (WS, whole_book; PASSED, Addendum 129)")}
+    if own_cap:                                                # study 89's receipt block (absent when off)
+        meta["own_cap"] = {"players": len(own_cap), "ruled_solves": len(own_state["ruled"]),
+                           "resolved_without": [list(x) for x in own_state["plain"]],
+                           "banned_per_solve_mean": round(float(np.mean(own_state["bound"])), 2) if own_state["bound"] else 0.0,
+                           "banned_per_solve_max": max(own_state["bound"]) if own_state["bound"] else 0}
     if bb_cells:                                               # study 71's receipt block (absent when off)
         player = {p["id"]: p for p in pool}
         meta["bring_back_top_wr"] = {
@@ -1110,6 +1213,17 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --main-own-tilt: the week's ownership file (pred_own in %%, dk_player_id / gsis_id), from scripts/ownership_blend.py")
     ap.add_argument("--main-own-min-coverage", type=float, default=0.9,
                     help="with --main-own-tilt: refuse when the file names fewer than this share of the pool's skill players projected >= 5")
+    ap.add_argument("--main-own-cap-delta", type=float, default=0.0,
+                    help="study 89 (the operator 10-09: 'Live W5 trial if built in time'; default 0 = off, byte for byte today's book): "
+                         "with --main mix, every skill player is capped at floor(K x (own / 100 + D / 100)) main-book rows, own = the "
+                         "file's fp_own_raw rescaled so the frame's skill players sum to 800%%; e.g. 15 (percentage points)")
+    ap.add_argument("--main-own-cap-source", type=Path, default=None,
+                    help="with --main-own-cap-delta: the week's ownership_fp csv (id, dk_player_id, fp_own_raw), from scripts/ownership_fp.py")
+    ap.add_argument("--main-own-cap-min-coverage", type=float, default=0.9,
+                    help="with --main-own-cap-delta: refuse when the file names fewer than this share of the pool's skill players projected >= 5")
+    ap.add_argument("--main-own-cap-fallback-share", type=float, default=None,
+                    help="with --main-own-cap-delta: when the ownership cap is REFUSED, build with THIS player-cap share instead of "
+                         "--main-cap-share (the operator's rule 10-09: the flat 35%% never runs alone; e.g. 0.5) and print an alert")
     ap.add_argument("--main", choices=["mean", "pmo_x50", "mix"], default="mean",
                     help="the main book: mean = the union pool's top-K by projected sum (paper arm); pmo_x50 = K capped plain-mean-optimizer rows solved on the T-70 frame (ENTERS Week 4); "
                          "mix = study 18's shape portfolio: the same capped solves by cell (nfl_dfs.inference.mix_shapes), ordered by the plan's entry-weighted interleave")
@@ -1195,6 +1309,10 @@ def main(argv: list[str] | None = None) -> int:
               f"(calibrated at K {a.main_qb_cap_k}; study 35)", flush=True)
     if not 0 < a.main_cap_share <= 1:
         raise SystemExit(f"--main-cap-share must be in (0, 1] (got {a.main_cap_share})")
+    if a.main_own_cap_delta and a.main != "mix":
+        raise SystemExit("--main-own-cap-delta is defined for --main mix (study 89's book)")
+    if a.main_own_cap_fallback_share is not None and not (a.main_own_cap_delta and 0 < a.main_own_cap_fallback_share <= 1):
+        raise SystemExit("--main-own-cap-fallback-share needs --main-own-cap-delta and a share in (0, 1]")
     if a.sleeve_cap_share is not None and not 0 < a.sleeve_cap_share <= 1:
         raise SystemExit(f"--sleeve-cap-share must be in (0, 1] (got {a.sleeve_cap_share})")
     if a.rehearsal and (a.out is None or a.live_dir in a.out.resolve().parents):
@@ -1352,6 +1470,25 @@ def main(argv: list[str] | None = None) -> int:
         pos_all = dict(zip(fr.id.astype(str), fr.pos.astype(str)))
         excl = gone | {i for i in proj_all if pos_all[i] in SKILL and not (proj_all[i] >= a.min_proj)}
         xcap = main_exposure_cap(a.main_cap_share, a.entries)
+        cap_share_used = a.main_cap_share
+        own_cap, own_cap_meta = None, None
+        if a.main_own_cap_delta:                         # study 89: any refusal builds WITHOUT it, LOUDLY (and at the fallback share)
+            try:
+                own_cap, own_cap_meta = own_cap_rows(a.main_own_cap_source, fr, excl, a.main_own_cap_delta, a.entries,
+                                                     a.main_own_cap_min_coverage)
+                own_cap_meta.update({"applied": True, "cap_share_used": cap_share_used})
+                print(f"OWN CAP: every skill player at most floor({a.entries} x (own / 100 + {a.main_own_cap_delta:g} / 100)) main rows "
+                      f"(own = fp_own_raw x {own_cap_meta['factor']:.4f}, the frame's skill players summing to {OWN_CAP_SKILL_SUM:g}%); "
+                      f"pool cap rows {own_cap_meta['cap_rows_hist_pool']}; the player cap {xcap} rows also applies", flush=True)
+            except SystemExit as exc:
+                own_cap, own_cap_meta = None, {"applied": False, "not_applied": str(exc)}
+                if a.main_own_cap_fallback_share is not None:
+                    cap_share_used = a.main_own_cap_fallback_share
+                    xcap = main_exposure_cap(cap_share_used, a.entries)
+                    own_cap_meta["fallback_cap_share"] = cap_share_used
+                own_cap_meta["cap_share_used"] = cap_share_used
+                print(f"\n!!! OWN CAP NOT APPLIED: {exc} -- the book is built without it at the player-cap share {cap_share_used} "
+                      f"({xcap} rows)\n", flush=True)
         dcap = max(1, int(a.main_dst_cap * a.entries)) if a.main_dst_cap else None
         qcap = a.main_qb_cap_rows
         bonus, own_meta = own_bonus(a.main_own_source, fr, excl, a.main_own_tilt, a.main_own_min_coverage) if a.main_own_tilt else ({}, {})
@@ -1381,7 +1518,9 @@ def main(argv: list[str] | None = None) -> int:
                                                                        spares=0 if bonus else a.mix_spares,
                                                                        term_rows=term_rows, term_bonus=term_bonus,
                                                                        cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
-                                                                       bring_back_top_wr_rows=bb_rows)
+                                                                       bring_back_top_wr_rows=bb_rows, own_cap=own_cap)
+            if own_cap_meta is not None:
+                mix_meta["own_cap_source"] = own_cap_meta
             if bb_cells:
                 print(bring_back_top_wr_line(mix_meta.get("bring_back_top_wr")), flush=True)
             if a.term_block_rows:
@@ -1424,7 +1563,7 @@ def main(argv: list[str] | None = None) -> int:
                                                                       portfolio=a.mix_portfolio, spares=a.mix_spares, fill=a.mix_fill,
                                                                       cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
                                                                       cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
-                                                                      bring_back_top_wr_rows=bb_rows)
+                                                                      bring_back_top_wr_rows=bb_rows, own_cap=own_cap)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
                 if bb_cells:
                     print("(the ownership-term book) " + bring_back_top_wr_line(own_mix.get("bring_back_top_wr")), flush=True)
@@ -1492,7 +1631,7 @@ def main(argv: list[str] | None = None) -> int:
                              "control_book": "book_main_control.csv"})
         expo = Counter(p for i in book for p in rosters[i])
         dst_expo = Counter(p for i in book for p in rosters[i] if pos[p] == "DST")
-        pmo_main = {"exposure_cap": xcap, "exposure_cap_share": a.main_cap_share, "rows_solved": len(main_rows), "secs": secs_pmo, "max_exposure_used": max(expo.values()),
+        pmo_main = {"exposure_cap": xcap, "exposure_cap_share": cap_share_used, "rows_solved": len(main_rows), "secs": secs_pmo, "max_exposure_used": max(expo.values()),
                     "sleeve_includes_main": bool(a.sleeve_includes_main),
                     "distinct_players": len(expo), "dst_cap": dcap if dcap else "none (the tested arm had none)",
                     "max_dst_rows_used": max(dst_expo.values()), "dst_rows": dict(dst_expo.most_common(3)),
