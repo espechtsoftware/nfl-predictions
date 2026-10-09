@@ -24,7 +24,7 @@ this week"
 - Not rehearsed: the cheap block armed end to end on a fresh W5 build. The Saturday 10:30 canary (d12800-sat) is the first
   live run of the armed host; check its receipt and lever audit by 11:00.
 
-**In the outside reviewer's session** (about 10:55, his answers to its AskUserQuestion, relayed verbatim). He asked it: "it
+**In the outside reviewer's session** (his answers to its AskUserQuestion, relayed verbatim; given before this entry's 10:28 clock stamp, though the relay said "about 10:55"). He asked it: "it
 seems we are very bad at selecting lineups. Use whatever tools you have to make suggestions of what we need to fix
 immediately. If it is salary rules causing the problems, let's try changing them. Everything can change today because we need
 to get better immediately".
