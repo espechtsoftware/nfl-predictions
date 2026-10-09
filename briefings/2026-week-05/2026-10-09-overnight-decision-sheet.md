@@ -20,7 +20,7 @@ and then the override is recorded.
 | 77 | **The quarterback alone in 3 lineups** (no receiver or tight end from his team; the winners play this shape in about 8% of top-1% lineups, your book in none) | +1.8 points; positive in both deciding seasons (2023 +1.4, 2024 +2.3) and flat on 2022 (+0.2); about 4% MORE expected big wins; no projection cost. "Enterable". Not a proven gain (the range runs from −1.8 to +5.4) | **The best result of the night. The reviewer recommends a 3-lineup trial this week, on top of the cheap block**, if its switch is built, tested and clean in Friday's rehearsal; otherwise Week 6. **Your call: it would be a second change this week** (the cheap block is the first), so Monday could not tell which one helped or hurt. I agree it is a fair trial: it adds the one winners' shape your book never plays, at about their rate |
 | 78 | **Two players priced $8,000 or more in 8 lineups** ("stars and scrubs", alongside the cheap-player boost) | +1.8 points but mixed: 2023 −0.8, 2024 +4.5; about 9% more expected big wins on 2023–24 but 4% fewer on 2022; its average finishing position got worse (a safety check failed); costs 0.3 projected points per lineup. "Enterable" | **Off.** If you want one change from tonight, 77 is the better candidate |
 | 79 | **At most one receiver / tight end per team in the QB + 1 lineups**, 8 lineups (no second same-team pair away from the QB; the winners rarely do it, your book in about a quarter of lineups) | +2.0 points (2023 +0.2, 2024 +3.8; 2022 +1.3). Raises the chance of at least one big win (34% vs 32%) without raising the expected number of wins: it spreads the book. No projection cost; a small dose (about 2 of the 8 lineups change directly). "Enterable"; not a proven gain | **A close second to 77** (the reviewer's ranking). Reasonable; combining it with 77 is untested |
-| — | *(filled in as the night's results land)* | | |
+| 80 | **The underdog's quarterback from a top-4 game in 8 lineups** (the top 1% take that QB more often than the field) | −0.4 points (flat), about 17% fewer expected big wins, a safety check failed, and clearly worse on 2022 (−4.3). **"Not entered"**. Forcing the favourite's quarterback instead was worse still (−3.8) | **Off.** Leave the book's own quarterback choice alone |
 
 ## The setup you are running (the default)
 
@@ -95,9 +95,8 @@ and then the override is recorded.
   - It raises the chance of at least one big win (34% against 32%) while the expected number of big wins stays the same: it spreads the book, which fits your "one big win" goal.
   - No projection cost. A small dose: the rule changes about 2 of the 8 lineups directly; the rule would change about as many of your real lineups.
   - **The reviewer ranks it a close second to 77.** Neither is proven; using both at once has not been tested.
-- **The outside reviewer's list, triaged by the reviewer:** flex mix (our flex is almost never a WR), QB + 1 with two opposing players, and a QB-alone lineup run tonight. "More TE in the flex" is skipped: we already use a TE flex more than the winners do.
-
-**Still running tonight** (each becomes a line above when its result is in; the outside reviewer designed them from what the 2026 Millionaire winners did differently from the field):
-- **80:** the UNDERDOG's QB from one of the top-4 games in 8 lineups (73 and 74 forced the favourite's side).
-
-*(each study's result, in plain words, added as it is read and reproduced)*
+- **Study 80 (the underdog's quarterback from a top-4 game in 8 lineups; READ committed 01:46 CT, the night's last):**
+  - Flat on the deciding seasons (−0.4), but about 17% fewer expected big wins, and −4.3 on 2022: "not entered".
+  - Forcing the favourite's quarterback instead (the other half of the test) was worse: −3.8.
+  - **Recommended off.** Forcing which side's quarterback to play does not help; the book's own choice stays.
+- **The outside reviewer's list** (studies 75–80, from what the 2026 Millionaire winners did differently from the field) all ran tonight. "More TE in the flex" was skipped: we already use a TE flex more than the winners do.
