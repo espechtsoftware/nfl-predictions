@@ -12,6 +12,41 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (12:00 CDT) — OPERATOR: the tested package (35% cap + ownership cap) as a live W5 trial if built in time; O-63 cause found
+
+**His decision** (in the outside reviewer's session via AskUserQuestion, after study 89's READ; relayed verbatim):
+- The question: "Use the tested package (35% max + each player capped at FantasyPros' projected ownership + 15 points) live in
+  Week 5?"
+- His answer: "Live W5 trial if built in time (Recommended)".
+- The option text: "Production builds it today (default off), proves it matches the lab version and checks it on your
+  Week-4 book; armed Saturday only if all of that passes, with today's book scored on paper beside it. Otherwise it goes to
+  paper."
+- **In the laptop's session**, asked about the ownership limit, he answered: "The outside reviewing will provide you that
+  info in a moment". The laptop takes the relayed decision as his.
+- **Notes:** "FantasyPros'" in the question means Fantasy Points (our vendor). The lab tested the ownership cap on the l20
+  blend (lag + LineStar) rescaled to 800%; live uses FP's raw ownership rescaled to 800%, a form difference (the W4
+  real-book check shows its size). The flat 35% alone stays NOT armed (Addendum 186). It arms only inside the package.
+
+**The plan:**
+1. The outside reviewer builds a union_reselect flag (proposed `--main-own-cap-delta D --main-own-cap-source FILE`,
+   default off). Per skill player: rows ≤ floor(K × (FP ownership rescaled to 800% / 100 + D / 100)), on the main book's
+   live and term solves. An infeasible solve is re-solved without the ownership bans and counted. It carries a parity test
+   against the lab's own_caps code (sha-pinned).
+2. The laptop wires the host, the arm and check_week_runtime:
+   - the FP ownership block runs when the cap is on, even at tilt 0;
+   - **the fallback:** if the FP ownership file fails, today's book is built (cap 0.5, no ownership cap) with an ALERT. The
+     flat 35% never runs alone.
+3. The W4 real-book check (OFF `a4ab2839` vs 0.35 + the ownership cap, with W4's FP ownership).
+4. The reviewer's study 38 amendment 6o: the paper arms follow the live ownership cap, plus "today's book" (0.5, no
+   ownership cap) as the paired paper arm.
+5. Merge before FRIDAY_HEAD (union_reselect and the host are code), then arm Saturday. If any step fails, the package goes
+   to paper and today's book runs.
+- **Study 38 6n follow-up (lab `dc6df978`, module `de777641`):** acked from the reviewer's smoke (34 passed; under cap35,
+  CAP50 equals pin-6n's MIXT_QA0 exactly). The gate pin moves again with 6o.
+- **O-63 CAUSE FOUND** (the reviewer's sweep, `~/o63-hashseed-20261009/`): the build is a deterministic function of the hash
+  seed. Seed 2 reproduces the outlier census exactly; seeds 0, 1 and 3–9 give the other build; load plays no part. Study 88's
+  scored run (from 11:47, ETA about 13:00) runs under PYTHONHASHSEED=0, recorded in RUN_ENV.
+
 ## 2026-10-09 (11:42 CDT) — laptop: study 89 READ by his rule = DO NOT ARM the 35% cap; MAIN_CAP=0.5 merged; gates OK
 
 - **Study 89** (the outside reviewer's ownership-relative cap; frozen 10:55; run 11:00–11:39, 12 banks as two draws, BLAS
