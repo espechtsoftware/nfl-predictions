@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (07:09 CDT) — OPERATOR (relayed): decision 7, another experiment book (study 87)
+
+**His words** (in the outside reviewer's session, after study 84's READ; relayed to the laptop verbatim): "Let's queue up an
+experiment with this. / QB from one of top 4 point total games / TE <= 5000 / D <= 3000 / 1 WR <= 4500 / Top receiver same
+team as QB / WR or RB in Flex", then "In this case at least 1 wr <= 4500 can be more."
+
+- **Study 87:** BOOK87 (all six rules; at least one WR ≤ $4,500), PRICE87 and QBTOP87 against LIVE_CB.
+  - Information for his decision, with no automatic Week-5 rule.
+  - Its design is on origin before 85's and 86's READs (`review/s87-prereg-20261009` @ `5342f218`).
+- **The context he has** (study 84, Addendum 182): the same rule moved 3–6 points between bank sets tonight, so a
+  single-run lean is not an edge.
+- **Queue:** 85 BOOK85 (smoke running) → 86 CAP7900 → 87.
+
 ## 2026-10-09 (06:50 CDT) — OPERATOR (relayed): decision 6, one more study with no player over $8,100 in the entire book
 
 **His words** (in the outside reviewer's session, during study 84's run; relayed to the laptop verbatim): "After that, let's do
