@@ -212,3 +212,37 @@ def test_the_paper_matchup_block_file_is_copied_as_paper_mblock_beside_the_live_
     assert r2.returncode == 1 and "S38_PAPER_MBLOCK_FILE" in r2.stdout and not (tmp_path / "dest2").exists()
     r3 = _run(tmp_path, ud, out, tmp_path / "dest3", env=base)
     assert r3.returncode == 0 and not any(p.name.startswith("paper-mblock") for p in (tmp_path / "dest3").iterdir())
+
+
+def test_a_package_week_copies_the_own_cap_file_and_generates_none(tmp_path):
+    """Study 38 amendment 6o (10-09, his W5 package): a union with --main-own-cap-delta > 0 read --main-own-cap-source;
+    the snapshot copies that file as named (sha and source in MANIFEST.txt) and runs no ownership export (no env needed)."""
+    ud, out = _setup(tmp_path, own=False)
+    cap = out / "ownership_fp-T.csv"
+    args = (out / "union-args-T.txt").read_text().strip() + f" --main-cap-share 0.35 --main-own-cap-delta 15 --main-own-cap-source {cap}"
+    (out / "union-args-T.txt").write_text(args + "\n")
+    r = _run(tmp_path, ud, out, tmp_path / "dest", env={"PATH": "/usr/bin:/bin", "HOME": str(tmp_path)})
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "amendment 6o" in r.stdout and "generating" not in r.stdout
+    dest = tmp_path / "dest"
+    assert (dest / "ownership_fp-T.csv").read_text() == "own" and not (dest / ".ownership_export.log").exists()
+    line = next(x for x in (dest / "MANIFEST.txt").read_text().splitlines() if "  ownership_fp-T.csv  " in x)
+    assert line.startswith(hashlib.sha256(b"own").hexdigest()) and str(cap) in line
+
+
+def test_a_package_week_without_its_own_cap_file_is_refused(tmp_path):
+    for i, extra in enumerate((" --main-own-cap-delta 15", " --main-own-cap-delta 15 --main-own-cap-source /nowhere/ownership_fp-T.csv")):
+        t = tmp_path / str(i); t.mkdir()
+        ud, out = _setup(t, own=False)
+        (out / "union-args-T.txt").write_text((out / "union-args-T.txt").read_text().strip() + extra + "\n")
+        r = _run(t, ud, out, t / "dest", env={"PATH": "/usr/bin:/bin", "HOME": str(t)})
+        assert r.returncode == 1 and "own-cap file" in r.stdout and not (t / "dest").exists(), extra
+
+
+def test_an_own_cap_file_and_a_term_file_with_one_name_but_two_contents_are_refused(tmp_path):
+    ud, out = _setup(tmp_path)                                   # the term reads out/ownership_fp-T.csv ("own")
+    other = tmp_path / "elsewhere"; other.mkdir(); (other / "ownership_fp-T.csv").write_text("different")
+    args = (out / "union-args-T.txt").read_text().strip() + f" --main-own-cap-delta 15 --main-own-cap-source {other / 'ownership_fp-T.csv'}"
+    (out / "union-args-T.txt").write_text(args + "\n")
+    r = _run(tmp_path, ud, out, tmp_path / "dest")
+    assert r.returncode == 1 and "share the name ownership_fp-T.csv but differ" in r.stdout

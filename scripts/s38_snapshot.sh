@@ -36,6 +36,17 @@ TAKEN=${S38_NOW:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}
 python3 -c "import sys; from datetime import datetime as D; t=D.fromisoformat(sys.argv[1].replace('Z','+00:00')); l=D.fromisoformat(sys.argv[2].replace('Z','+00:00')); sys.exit(0 if t < l else 1)" "$TAKEN" "$LOCK" \
   || die "the snapshot time $TAKEN is at or after the lock $LOCK (pre-lock inputs only)"
 PSRC=$(argval --proj-source); OSRC=$(argval --main-own-source); DSRC=$(argval --dk-status)
+# study 38 amendment 6o (10-09; his W5 package: the 35% player cap + each skill player capped at FP's projected ownership
+# + 15 points): a union with --main-own-cap-delta > 0 read --main-own-cap-source. The build refuses a package week whose
+# own-cap file is not in the snapshot, so it is copied as named (sha in MANIFEST.txt); then no ownership file is generated
+CDELTA=$(argval --main-own-cap-delta); CSRC=$(argval --main-own-cap-source)
+if [[ -n "$CDELTA" && "$CDELTA" != 0 && "$CDELTA" != 0.0 ]]; then
+  [[ -n "$CSRC" && -s "$CSRC" ]] || die "the union args name --main-own-cap-delta $CDELTA but the own-cap file '$CSRC' is missing"
+fi
+[[ -z "$CSRC" || -s "$CSRC" ]] || die "the union args name --main-own-cap-source '$CSRC', which is missing or empty"
+if [[ -n "$CSRC" && -n "$OSRC" && "$(basename "$CSRC")" == "$(basename "$OSRC")" ]] && ! cmp -s "$CSRC" "$OSRC"; then
+  die "--main-own-cap-source and --main-own-source share the name $(basename "$CSRC") but differ in content"
+fi
 # study 38 amendment 6 (10-07): a union with the prior-top term block read --term-block-source; the build refuses a week
 # whose union read a term file the snapshot lacks, so it is copied with its sha in MANIFEST.txt
 TROWS=$(argval --term-block-rows); TSRC=$(argval --term-block-source)
@@ -60,6 +71,8 @@ PMB=${S38_PAPER_MBLOCK_FILE:-}
 cmp -s "$PSRC" "$OUT/proj_fp-$TAG.csv" || die "--proj-source $PSRC differs from $OUT/proj_fp-$TAG.csv"
 if [[ -n "$OSRC" ]]; then
   case "$(basename "$OSRC")" in ownership_fp-*) ;; *) echo "NOTE: the term's source is $(basename "$OSRC"), not FP ownership (a fallback); copied as named";; esac
+elif [[ -n "$CSRC" ]]; then
+  echo "NOTE: no --main-own-source, but the union read the own-cap file $(basename "$CSRC") (amendment 6o): copied as named; no ownership file generated"
 else
   echo "NOTE: no --main-own-source in the union args (a no-term week): generating ownership_fp-$TAG.csv at snapshot time"
   : "${SEASON:?}" "${WEEK:?}" "${PROD:?}" "${PROD_PY:?}"; [[ -s "$OUT/ownership_lag.csv" ]] || die "no $OUT/ownership_lag.csv for the export"
@@ -71,7 +84,7 @@ cp -p "$PSRC" "$DEST/proj_fp-$TAG.csv" || die "copy failed: proj_fp-$TAG.csv"
 cp -p "$OUT/proj_fp-$TAG.csv.json" "$DEST/proj_fp-$TAG.csv.json" || die "copy failed: proj_fp-$TAG.csv.json"
 if [[ -n "$OSRC" ]]; then
   cp -p "$OSRC" "$DEST/$(basename "$OSRC")" || die "copy failed: $(basename "$OSRC")"
-else
+elif [[ -z "$CSRC" ]]; then
   NOWS=$TAKEN; OGEN="$DEST/ownership_fp-$TAG.csv"
   if [[ "${S38_NO_COLLECT:-0}" != 1 ]]; then
     LOCK=${FP_PROFILE_LOCK:-$HOME/.cache/nfl-dfs/fantasy-points-profile.lock}; mkdir -p "$(dirname "$LOCK")"
@@ -85,6 +98,7 @@ else
     || { echo "NOTE: FP OWNERSHIP EXPORT REFUSED: $(grep -h REFUSED "$DEST/.ownership_export.log" | tail -1)"; rm -f "$OGEN"; }
   OSRC_LABEL="(generated after the T-70 union by ownership_fp.py, --now ${S38_NOW:-$NOWS}; capture: $(grep -h '^FP OWNERSHIP AGE' "$DEST/.ownership_export.log" 2>/dev/null | tail -1 | tr -s ' ' | cut -c1-120))"
 fi
+if [[ -n "$CSRC" ]]; then cp -p "$CSRC" "$DEST/$(basename "$CSRC")" || die "copy failed: $(basename "$CSRC")"; fi   # amendment 6o
 if [[ -n "$TROWS" && "$TROWS" != 0 ]]; then cp -p "$TSRC" "$DEST/$(basename "$TSRC")" || die "copy failed: $(basename "$TSRC")"; fi
 if [[ -n "$PAPER" ]]; then cp -p "$PAPER" "$DEST/paper-term-$(basename "$PAPER")" || die "copy failed: paper-term-$(basename "$PAPER")"; fi
 if [[ -n "$PDVP" ]]; then cp -p "$PDVP" "$DEST/paper-dvp-$(basename "$PDVP")" || die "copy failed: paper-dvp-$(basename "$PDVP")"; fi
@@ -113,7 +127,8 @@ OVR_SRC=$OVR; [[ "$OVR" == "-" ]] && OVR_SRC="(written: {})"
   [[ -n "$PDVP" ]] && SRC["paper-dvp-$(basename "$PDVP")"]="$PDVP"
   [[ -n "$PFAC" ]] && SRC["paper-factor-$(basename "$PFAC")"]="$PFAC"
   [[ -n "$PMB" ]] && SRC["paper-mblock-$(basename "$PMB")"]="$PMB"
-  if [[ -n "$OSRC" ]]; then SRC["$(basename "$OSRC")"]="$OSRC"; else SRC["ownership_fp-$TAG.csv"]="${OSRC_LABEL:-}"; SRC["ownership_fp-$TAG.csv.receipt.json"]="(written by ownership_fp.py with the export)"; fi
+  if [[ -n "$OSRC" ]]; then SRC["$(basename "$OSRC")"]="$OSRC"; elif [[ -z "$CSRC" ]]; then SRC["ownership_fp-$TAG.csv"]="${OSRC_LABEL:-}"; SRC["ownership_fp-$TAG.csv.receipt.json"]="(written by ownership_fp.py with the export)"; fi
+  [[ -n "$CSRC" ]] && SRC["$(basename "$CSRC")"]="$CSRC"
   for n in $(ls "$DEST" | sort); do
     [[ "$n" == .* ]] && continue
     [[ "$n" == MANIFEST.txt ]] && continue
