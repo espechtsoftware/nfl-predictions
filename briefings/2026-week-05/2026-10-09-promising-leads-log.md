@@ -83,6 +83,19 @@ reviewer and updated as each study is read.
 - **On your Week-4 book:** no player in more than 9 of 26 lineups (was 13), players in 40%+ of lineups 7 → 0, distinct
   players 48 → 54, about 2.9 projected points per lineup lower.
 
+### 9. At most one TE and at most one very-low-owned player per lineup (study 91) — *LIVE in Week 5 (your decision)*
+- **Study 91 (36 past slates, two random opponent sets), on top of your package:** both rules **+4.1** (A +3.2, B +5.0), 8% more
+  expected big wins — passed your "better on both draws" rule. The low-ownership half alone +2.8 (a clean pass); the TE half
+  alone +0.9 (flat, a third time).
+- **On your real book** the low-ownership half rarely triggers (Fantasy Points' projections and ownership agree), so live it acts
+  mostly as "no TE in the flex". **Week-4 real-contest replay:** the armed version finished best (59th percentile, 20 top-10%,
+  6 cashes, 0.57× vs the package's 55th / 13 / 3 / 0.29×) — partly hindsight.
+- Your package without these rules is scored on paper beside it.
+
+### 10. Ownership + 10 instead of + 15 (study 90) — *a tie; kept + 15 (your decision)*
+- +0.8 (A +0.9, B +0.6), 3% fewer expected big wins; costs 0.9 more projected points per lineup on your real book.
+- A second reading of the package against your old 50% book: +0.3 (the first read was +1.2) — roughly even in the test model.
+
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
   the full game stack (74), two bring-backs (76) — each at or below your book on 2023–24.
@@ -91,6 +104,10 @@ reviewer and updated as each study is read.
 - The three rules together (83): −1.9; on another draw +1.0 (noise).
 - Your four price rules on the whole book (85): **−3.1**, 23% fewer expected big wins; defense ≤ $3,000 alone −1.1; exactly
   one receiver ≤ $4,500 alone −1.7.
+- **Shrinking the projections toward the salary curve (S1, study 92): −4.4** (both draws worse), 15% fewer expected big wins —
+  although its Week-4 real-contest replay had a big win (in-sample). On paper in Week 5.
+- **One $8,000+ player in every lineup (S2):** failed on Week 4's real contests (50th vs 59th percentile, 2 vs 6 cashes) and read
+  −5.8 in the test model. On paper in Week 5.
 - No player over $7,900 in the book (86): **−4.9** (2023 −4.4, 2024 −5.5); about 18% fewer expected big wins; 2022 −0.3. Its
   real-book cost is small (−0.18 projected points per lineup; 17 of 26 lineups change), but the test model reads it clearly
   worse — the stars are worth keeping.
