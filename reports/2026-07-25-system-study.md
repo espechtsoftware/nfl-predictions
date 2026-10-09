@@ -8421,3 +8421,126 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - **The exploratory B2BB_ALL** (all 7 B rows) reads −0.4 (2022 +1.7).
 - **Recommendation:** off. The rule permits it, but it shows no gain and costs about a tenth of the expected big seats on
   the read.
+
+## Addendum 175 (2026-10-08): study 77 (the QB alone on 3 cell-C rows, the one winners' shape his book cannot play, the outside reviewer's test, in the harness): NO DIFFERENCE, leaning positive in every season (+1.8 on the read; 2022 +0.2): ENTERABLE by the rule (his decision; no gain shown); the night's best enterable result
+
+**Setup.**
+- **The question.** The operator, 10-08 night: "please look at the patterns of the winners over the past few weeks and
+  consider a variety of different tests we can do throughout the night". The QB alone (no WR / TE of his team; an RB
+  allowed) is the one winners' shape his book cannot play:
+  - historical Millionaire winners 22% (the 08-19 census);
+  - the 2026 W1–4 Millionaires 8% of the top 1% against 17% of the field (6% / 12% with no opponent either);
+  - his book 0%.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`; study 73
+  sha-pinned):
+  - LIVE_CB (the reference).
+  - NAKED3, the single decision: the first 3 cell-C book solves in build order, at C's rules with `qb_stack_min` /
+    `qb_stack_max` 0 (QB alone, no bring-back). They are dealt at book positions 3, 7, 13, all big seats.
+  - Exploratory NAKED6: the first 6, the 6th at non-big index 23.
+- **Preregistration:** `reports/2026-10-08-prereg-study77-qb-alone.md` (the outside reviewer's DRAFT `a1f0b02d`, amended `c4539af6`; FROZEN `d54da70a`,
+  10-08 22:03 CDT, before any scored bank).
+- **Panel:** banks 1659–1664, B 20,000, seed 20261122.
+- **Read:** the reader `246a2147`; READ `07643557` (lab `7a80867b`). The confirmatory census (`7f8ad740`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop** at `7a80867b`: the raw files 1659–1664 (the resumed 1664 included)
+  pass `sha256sum -c` against `RAW_s77_run.sha256`; the READ is `07643557` and the confirmatory census `3b5911ce`
+  (cmp-identical).
+- **The prior, stated first:** NO DIFFERENCE or leaning negative (the 2026 top 1% under-weights the shape).
+- **Census** (the binding census on bank 1406, 53 slate-banks):
+  - NAKED3: 3 of 3 ruled rows on every slate-bank, 0 infeasible.
+  - QB-alone rows: 0 → 3 of 26.
+  - QB + 2 rows 12 in every arm.
+  - Projection +0.05 per row.
+  - Rows shared with LIVE_CB 4.8; dealt identical 0.000.
+  - The confirmatory census on the scored banks (318 slate-banks) agrees: 3 of 3 ruled, 0 infeasible, all at 3, 7, 13;
+    projection +0.06 per row; rows shared 5.0.
+- **Disclosed: the run was interrupted and resumed.**
+  - The reviewer's session killed the background chain at its 30-minute time limit (23:42) with 276 of 318 slate-banks
+    written. Bank 1664 had 11 of 53.
+  - The laptop's exit trigger started its study 78 census re-run, as if the run had finished. The reviewer stopped the
+    queue, and S78 GO was held.
+  - The run was resumed at `3dac28c2` in the same clean worktree (23:47–23:52) with the same command. The driver skips
+    every (season, week) already written, so only the 42 missing slate-banks ran.
+  - Each slate-bank is seeded only by its bank, season and week and is appended whole on completion, so the files hold
+    the content of an uninterrupted run. Only bank 1664's line order differs, and the reader keys by slate.
+  - The checks: no duplicate slate in any bank; every line's code identity `3dac28c2`, clean; no errors file.
+  - No outcome was looked at before the confirmatory census and the READ.
+
+**Reader output (verbatim):**
+```
+STUDY 77 READER  sha256 246a2147268fe3a7cc82abe595f12186e94827884d3472856f01f0ce0ceb85cc
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1659, 1660, 1661, 1662, 1663, 1664]  B 20000  seed 20261122  one decision arm against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the QB-alone rule's constants, study 73's sha (twice, in the slots of study 48's and study 53's), live settings, QB cap, objective): [["LIVE_CB", "NAKED3", "NAKED6"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cell": "C", "n_rows": {"NAKED3": 3, "NAKED6": 6}, "qb_stack": [0, 0], "rows": "the first n_rows C book solves in build order; infeasible -> C's own rules, recorded"}, "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== NAKED3 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.01843  [-0.01754, +0.05413] (two-sided 0.95)  seasons 2023 +0.01432, 2024 +0.02255
+  GUARD 1 mean entry pct -0.00050  one-sided lower -0.00426  (must exceed -0.015)
+  GUARD 2 expected big seats 0.46938 vs 0.45103  ratio 1.041  (must be >= 0.80)
+  NAKED3 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.00213  [-0.01832, +0.02296] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TRIAL SUMMARY: NAKED3 ENTERABLE (his decision; one construction change a week)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  NAKED6 - LIVE_CB (v2, 2023-24): +0.01800  [-0.01886, +0.05575]  seasons 2023 +0.00896, 2024 +0.02705
+  NAKED6 - LIVE_CB (v2, 2022): +0.00119  [-0.02066, +0.02448]  seasons 2022 +0.00119
+  NAKED3 - LIVE_CB (the l02 field, 2023-24): +0.01851  [-0.01845, +0.05452]  seasons 2023 +0.00966, 2024 +0.02735
+  NAKED3 - LIVE_CB (the l02 field, 2022): +0.00078  [-0.02162, +0.02399]  seasons 2022 +0.00078
+  NAKED6 - LIVE_CB (the l02 field, 2023-24): +0.01709  [-0.02065, +0.05568]  seasons 2023 +0.00391, 2024 +0.03028
+  NAKED6 - LIVE_CB (the l02 field, 2022): -0.00074  [-0.02513, +0.02526]  seasons 2022 -0.00074
+  NAKED3 ruled solves built plain (infeasible): 0 of 954 over 318 slate-banks
+  NAKED6 ruled solves built plain (infeasible): 0 of 1908 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.29216  expected big seats 0.45103  P(>=2) 0.10519  entry pct 0.51075  |  l02: P(>=1 big) 0.32168
+               book: projection per row 127.69  salary 49964  QB + 2 rows 12.0 of 26  QB-alone rows 0.0
+  NAKED3       v2: P(>=1 big) 0.31059  expected big seats 0.46938  P(>=2) 0.10966  entry pct 0.51026  |  l02: P(>=1 big) 0.34019
+               book: projection per row 127.75  salary 49964  QB + 2 rows 12.0 of 26  QB-alone rows 3.0
+  NAKED6       v2: P(>=1 big) 0.31016  expected big seats 0.49107  P(>=2) 0.11793  entry pct 0.51201  |  l02: P(>=1 big) 0.33877
+               book: projection per row 127.80  salary 49965  QB + 2 rows 12.0 of 26  QB-alone rows 6.0
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.20888  expected big seats 0.29262  P(>=2) 0.06681  entry pct 0.45756  |  l02: P(>=1 big) 0.22788
+               book: projection per row 131.81  salary 49960  QB + 2 rows 12.0 of 26  QB-alone rows 0.0
+  NAKED3       v2: P(>=1 big) 0.21101  expected big seats 0.29293  P(>=2) 0.06852  entry pct 0.45806  |  l02: P(>=1 big) 0.22866
+               book: projection per row 131.86  salary 49963  QB + 2 rows 12.0 of 26  QB-alone rows 3.0
+  NAKED6       v2: P(>=1 big) 0.21007  expected big seats 0.29293  P(>=2) 0.06991  entry pct 0.45977  |  l02: P(>=1 big) 0.22714
+               book: projection per row 131.91  salary 49963  QB + 2 rows 12.0 of 26  QB-alone rows 6.0
+```
+
+**Reading.**
+- **NAKED3 leans positive in both read seasons:**
+  - +1.8 points [−1.8, +5.4] (2023 +1.4, 2024 +2.3);
+  - expected big seats ×1.04; P(≥ 2) 0.110 against 0.105;
+  - guard 1 holds (−0.0043).
+- **2022 is flat: +0.2 [−1.8, +2.3].** Study 51's rule therefore says not contradicted: ENTERABLE, his decision ("no
+  harm shown and no gain shown"). The earlier field (l02) agrees: +1.9 on the read, +0.1 on 2022.
+- **It is the only arm tonight that leans positive in all three seasons and is enterable.** It costs no projection
+  (+0.06 per row), and the lever is live: 3 of 3 QB-alone rows against 0, dealt identical 0.000.
+  (Study 73's QB1HALF, the other enterable arm that leaned positive on the read, was −2.3 in 2023.)
+- **Honestly put (the laptop's line):** 2022's +0.2 is essentially zero, so "positive in all three" rests on 2023 and
+  2024, and the read's interval spans −1.8 to +5.4.
+- **The prior was NO DIFFERENCE or leaning negative,** because the 2026 top 1% under-weights the shape (8% against the
+  field's 17%). The read is the other side of that prior, but within noise.
+- **The exploratory NAKED6** (the historical winners' rate) reads the same: +1.8 (2022 +0.1). More QB-alone rows did not
+  add.
+- **Transfer:** the harness's base and his FP book both play 0 QB-alone rows, so the rule's change transfers.
+- **Before any live use:**
+  - production's option (study 73's machinery with C's StackRules at `qb_stack_min` / `qb_stack_max` 0 on the first 3 C
+    book solves) must be parity-tested against this module;
+  - production's shape check / vetting must accept a QB-alone row.
+- **The reviewer's recommendation:**
+  - Yes, as a reversible 3-lineup trial in Week 5, on top of the cheap +2 block (it was tested on top of it), if the
+    option is built, parity-tested and clean in Friday's A3 run. Otherwise Week 6.
+  - This relaxes the reviewer's own "one construction change a week" line (advice, HANDOFF: "he decides"), for three
+    reasons:
+    - one week of real results cannot attribute either change;
+    - the shape joins his portfolio at about the winners' rate, his stated strategy;
+    - it costs no projection.
+  - The tradeoff: the cheap block's Monday review would read a book with two changes.
+  - The arm script's guard refuses two construction levers, so live use needs an explicit override recorded in
+    HANDOFF, never a quiet edit.
+  - His decision.
