@@ -1,7 +1,8 @@
-# Preregistration: study 78, stars and scrubs -- two $8,000+ players on the first 8 book rows, in the harness (DRAFT 2026-10-08)
+# Preregistration: study 78, stars and scrubs -- two $8,000+ players on the first 8 book rows, in the harness (FROZEN 2026-10-08)
 
-**Status: DRAFT 2026-10-08 (21:36 CDT)** by the outside reviewer, before any scored bank. The reviewer (84) reviews, runs
-the binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks and seed scanned).
+**Status: FROZEN 2026-10-08 (22:03 CDT)** by the reviewer, after the outside reviewer's DRAFT, the smoke and the binding census (§6),
+before any scored bank. The text changed at the freeze only in §6 (the census). The module and the reader are the
+DRAFT's, unchanged. The laptop acks (shas, tests, census re-run, banks and seed scanned, the derived seed bases too).
 - **Banks 1665–1670, seed 20261123** (assigned by the reviewer; the laptop scans).
 - **Target:** tonight, after study 77 (about 01:30–02:00). A production option only if STUDS2_8 is ENTERABLE and the
   operator chooses it in the morning.
@@ -83,7 +84,21 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
     0.333.
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 41 lines and 3 sections; only
   those were read.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `0f33bbf0` clean; lab `results/s78/CENSUS_s78_binding.txt` `c89cd6df…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `e19ce238…` with no outcome field, committed at `075e7359`):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - STUDS2_8: 7.85 of 8 ruled per slate-bank, all at book positions 0, 2, 3, 5, 6, 7, 9, 10 (read by big contests:
+    1.000). On ONE slate-bank no lineup could hold two $8,000+ players, so its 8 rows were built plain and recorded (8 of
+    424 ruled solves).
+  - STUDS1_8: 8 of 8. Vacuity: LIVE_CB already holds a $8,000+ player in 5.28 of the 8 ruled rows, which is why STUDS1_8
+    is exploratory.
+  - $8,000+ players per row: LIVE_CB 1.06, STUDS2_8 1.26, STUDS1_8 1.12. Under $4,000: 1.58 / 1.68 / 1.59. Salary left:
+    $36 / $38 / $35.
+  - Studs by position (book): RB 10.3 → 12.4, WR 13.9 → 16.6 (STUDS2_8); QB and TE about unchanged; DST 0.
+  - QB + 2 rows 12 in every arm;
+  - projection cost −0.26 / −0.05 per row;
+  - rows shared with LIVE_CB 3.7 / 10.8; dealt identical 0.038 / 0.321 (no dead lever).
 - **Code:** nfl2 `production/s78-studs-20261008` @ `0f33bbf0` (the outside reviewer's draft; branched from study 77's):
   - `experiments/s78_studs.py` `5af7c50f…`;
   - `scripts/s78_drive.py` `40ff4a13…`;
