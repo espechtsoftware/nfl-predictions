@@ -1,0 +1,8 @@
+== book87bans W4 check at 3a9327e1 07:11:29; flag: --dk-status /home/erich/rehearsals/book87-inputs/dk_status-qbtop4-te5000-dst3000-out-w4.csv
+off rc 0 a4ab283949254d12 (known answer a4ab283949254d12)
+on rc 0
+OFF: {"rows": 26, "qb_alone": 0, "qb2": 12, "nonqb_pair": 7, "flex": "1/14/11", "fp_proj_per_row": 143.7, "qb_alone_at": [], "nonqb_pair_at": [1, 8, 14, 17, 22, 23, 24]}
+ON:  {"rows": 26, "qb_alone": 0, "qb2": 12, "nonqb_pair": 5, "flex": "7/5/14", "fp_proj_per_row": 142.11, "qb_alone_at": [], "nonqb_pair_at": [3, 8, 10, 18, 20]}
+rows of ON not in OFF: 24 of 26
+QB-alone rows in ON: none
+

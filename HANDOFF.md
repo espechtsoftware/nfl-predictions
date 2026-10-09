@@ -12,6 +12,107 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (09:35 CDT) — OPERATOR (relayed): variants of study 87's book "perhaps with a slightly cheaper QB" (study 88); and the calibration check ("I do want to do 3")
+
+**His words** (in the outside reviewer's session, during study 87's run, before its read; relayed to the laptop verbatim, his
+typos kept): "My suspicion is we are going to find that the last test we set up - with the QB from on of the top 4 point total
+games, a lower priced tight end, a cheaper defense, at least 1 wr <=4500, top receiver from same team as QB and WR or RB in flex is
+going to outperform everything else. Premature to say, but that looks more like the way I believe winners are structured. Please
+consider other options along those lines - perhaps with a slightly cheaper QB - that you think are good to test based on what
+you see in historic results" (88's prereg `2dd4072b` had elided the middle with "…"; the outside reviewer sent the full text).
+
+- **Study 88** (the outside reviewer's design, committed before 87's READ, lab `49db37c6`). The arms are LIVE_CB (capped),
+  then uncapped NOCAP, BOOK87 (87's book on a fresh bank set: the forward rule's second read), CHEAPQB (+ QBs ≥ $7,000
+  banned), TEFLEX (87 without its no-TE-flex rule) and CHEAPQB_TEFLEX. Banks 1737–1742, seed 20261133 (the laptop's scan).
+  Information for his decision.
+- **His second request, the same morning** (relayed by the outside reviewer, after the laptop's money-gate summary; he asked
+  "I thought any given week I had a 30% chance at a big win… Was that never true as I was told?"): "I do want to do 3, but if
+  that requires knowing exactly what we're doing for week 5, it is premature." Step 3 is a calibration check of the then-model
+  on his real W1–4 entries. For each entered lineup: the model's pre-lock chance of a top 1%, a top 10%, a cash and a big win
+  against the real field rosters, set against what happened. Descriptive; it changes nothing for W5.
+  - The laptop builds it (`review/calibration-w1-4-20261009` @ `fd09493b`), the outside reviewer approved the design (five
+    notes, all taken), and it runs in the machine's gaps, after study 87's READ.
+
+## 2026-10-09 (09:14 CDT) — laptop: the 09:13 "Week-5 money gate" reminder fired; the gate was already done (10-05), nothing re-run
+
+The one-shot reminder scheduled 10-04 (the schedule table's "Fri 10-09 09:13" row; `75be36fb` / `7fea3a9a`) fired today. The
+work ran early and is on the record:
+- **10-05:** the frozen design (`reports/2026-10-04-week5-money-gate-design.md` + Addenda 1–2, before scoring). The
+  known-answer gate reproduced all 534 entries exactly. A1 = **0.48× fees on W1–4 (0.36–0.67)**: it would have lost
+  money. No arm was preferred, and the picks were indistinguishable from random (M2 72nd percentile). Delivered as
+  `briefings/2026-week-04/2026-10-05-week5-money-gate-result.md`.
+- **10-06:** his W5 package PKG4-rr on the W2–4 real fields, descriptive: .228 / .000 / .174× by week; 0 big wins.
+- **Never run:** the design's "2022–25 field-relative check (later)". The harness studies since (2022–24 real outcomes
+  against simulated fields) are that yardstick in effect. None shows an edge beyond its noise (Addendum 182's bank-set
+  finding).
+- **Why the final armed book has no clean W1–4 money figure:** the cheap block came from W1–4 field reads, so a W2–4 replay
+  of it is in-sample (integrity rule 4). Its exact-form W2–4 replay (10-07) was descriptive only. Week 5 is its first clean
+  test.
+- **His W5 stake plan is already set (Rev6)** after he saw the gate. Nothing re-run; the operator told in chat today.
+- **One more one-shot today:** 15:47, the operator research check-in.
+
+## 2026-10-09 (09:04 CDT) — laptop: the morning studies 83–86 read, reproduced and merged; 87 running; Week 5 unchanged
+
+**State:** nothing on the money path changed. The live Week-5 book stays as armed (the cheap +2 block, decided 10-07). No
+option branch is merged. His morning decisions (D1–D7 below) reached the laptop only by relay, so **before any money-path merge
+he confirms in the laptop's session**. The laptop's recommendation, on his sheet: keep the live book for Week 5. He has not
+answered yet; the default is the armed book.
+
+**The morning's results** (each READ reproduced byte-identically by the laptop from the raw files; the confirmatory census
+cmp-identical; records verified and merged into integration):
+
+| Study | Reader / READ | Result | Addendum / merge |
+|---|---|---|---|
+| 83 COMBO (77 + 79-14 + 75-3) | `465c9910` / `e1f34a36` | −1.9 (2022 +1.8): his rule DO NOT | 181 / `21ff2492` |
+| 84 (seven arms with the TE ban) | `293d263a` / `c1cb62cc` | COMBO +1.0, TE_ONEPC +0.3, TE_FLEX +3.3 pass his rule; COMBO81 −0.05, TE_C0 −2.0, TE_ONLY −1.2 fail; 84 does not beat 83, so nothing new by the order | 182 / `5a1163f6` |
+| 85 BOOK85 (his four price rules) | `865c4f1e` / `eb0fbdd3` | −3.1, seats ×0.767: don't use | 183 / `b040ce53` |
+| 86 CAP7900 (no player > $7,900) | `76df628d` / `483188be` | −4.9, guard 1 fails, seats ×0.825, 2022 −0.3 CONTRADICTED: don't use | 184 / `bc131467` |
+
+- **The bank-set finding (Addendum 182):** the same rule read +4.7 (81) and −1.2 (84) on two bank sets; COMBO −1.9 then +1.0.
+  No single-set lean ranks options. The forward rule is in 87's prereg: re-read on a second, disjoint bank set before he acts
+  on any arm.
+- **Real-book checks (outcome-blind, W4 inputs, OFF = `a4ab2839`):** `reports/2026-10-09-option-w4-checks/` (`ec9c1c77`,
+  `113776fd` added the no-caps and 3-row flex checks). The caps lift alone gives +0.96 FP per row by concentration (one player
+  in 21 of 26 rows). 87's bans cost −1.41 per row against that.
+- **The promising-leads log** (the outside reviewer's, at his request): `briefings/2026-week-05/2026-10-09-promising-leads-log.md`,
+  merged `e664452d` + `4a7f67f3` after the laptop checked every number.
+- **Study 87** (his second experiment book, uncapped by his amendment): frozen 08:56; the laptop's ack + census re-run
+  identical (11 tests passed); S87 GO; running from about 09:04 on banks 1731–1736, ETA about 10:05. **Concentration:** the
+  binding census has the top QB up to 24 of 26 rows and 0.92 of the dealt entries (QBTOP87); his sheet says it beside 87
+  (`534cda43`).
+
+**Unmerged, default-off option branches** (not to be merged without his confirmation here): `review/combo-flag-20261009` @
+`f6fdee34`, `review/combo-te-flag-20261009` @ `12709d18`, `production/c0-wiring-20261009` @ `3c7be06e` (with
+SECOND_CHANGE_DECISION), the single flags qb-alone `3a9327e1`, one-catcher `1e6247fa`, flex `09e93be1`.
+
+**Next, in order:**
+1. 87's READ → the laptop's reproduction → records → his sheet, the study list and the leads log.
+2. 12:30 CT, the FP projected-ownership capture (and 16:30), per the arming checklist.
+3. Friday's A3 rehearsal with the cheap block armed, after the 12:30 capture succeeds, then `w5_matchup_union_check.sh`.
+4. FRIDAY_HEAD (tell the reviewer for the s38 prod-pin move), the arm script's `--check` in the evening.
+5. Re-send his final sheet (SendUserFile).
+- **Open:** O-57 (Friday's QB coverage retry is refused after the first kickoff, by design).
+
+## 2026-10-09 (07:09 CDT) — OPERATOR (relayed): decision 7, another experiment book (study 87)
+
+**His words** (in the outside reviewer's session, after study 84's READ; relayed to the laptop verbatim): "Let's queue up an
+experiment with this. / QB from one of top 4 point total games / TE <= 5000 / D <= 3000 / 1 WR <= 4500 / Top receiver same
+team as QB / WR or RB in Flex", then "In this case at least 1 wr <= 4500 can be more."
+
+- **His clarification** (relayed verbatim): "top receiver" means "Highest-priced WR". That is s70's top_wr: WRs only, so a TE
+  never counts. The laptop's read-only count used the same definition: 4 of 26 W4 rows lack it.
+- **His amendment** (relayed verbatim, before 85's READ): "For study 87, it seems that the other rules that you mentioned about how much we
+  can use a quarterback and stuff like that are going to get in the way. Just for the purposes of this experiment, can we remove
+  those rules?" Asked, he chose "All usage caps" (QB 5, player 13 and DST 6 removed; the overlap limit of 4 kept) and "Yes, add a
+  no-caps book". So study 87 is LIVE_CB (capped) against NOCAP / BOOK87 / PRICE87 / QBTOP87, all four uncapped (lab `5fbdfd5c`,
+  prereg `e99094e4`).
+- **Study 87:** BOOK87 (all six rules; at least one WR ≤ $4,500), PRICE87 and QBTOP87 against LIVE_CB.
+  - Information for his decision, with no automatic Week-5 rule.
+  - Its design is on origin before 85's and 86's READs (`review/s87-prereg-20261009` @ `5342f218`).
+- **The context he has** (study 84, Addendum 182): the same rule moved 3–6 points between bank sets tonight, so a
+  single-run lean is not an edge.
+- **Queue:** 85 BOOK85 (smoke running) → 86 CAP7900 → 87.
+
 ## 2026-10-09 (06:50 CDT) — OPERATOR (relayed): decision 6, one more study with no player over $8,100 in the entire book
 
 **His words** (in the outside reviewer's session, during study 84's run; relayed to the laptop verbatim): "After that, let's do

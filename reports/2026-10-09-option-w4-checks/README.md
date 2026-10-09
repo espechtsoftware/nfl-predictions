@@ -25,6 +25,7 @@ converted `plan-week5-rev6-s24.json`. Counts only: no contest names, no stakes.
 | `--mix-qb-alone-rows 3` (77) | 3 of 3 | 24 of 26 (path dependence) | QB-alone rows 0 → 3, at book positions 3 / 7 / 13 (the harness's positions). They are dealt into 3 / 2 / 2 contests, 2 / 1 / 1 of them big. None has an RB teammate | 143.70 → 143.81 |
 | `--mix-one-catcher-rows 8` (79, the decision arm) | 8 of 8 | **0 of 26: byte-identical to OFF** | nothing. The book's 7 rows with a same-team WR / TE pair away from the QB sit at positions 1 (A1), 8 (C), 14 (B), 17 (C), 22 (B), 23 (C), 24 (A1). Its B / C ones come from B / C solves after the first 8, which the rule does not reach | 143.70 → 143.70 |
 | `--mix-one-catcher-rows 14` (every B / C solve; study 79's exploratory ONEPC_ALL) | 14 of 14 | 8 of 26 | pair rows 7 → 1 (the one left, at position 21, is a QB + 2 row) | 143.70 → 143.73 |
+| `--mix-flex-wr-rows 3` (75's dose in study 83; the flag at `09e93be1`, run 05:17) | 3 of 3 | 26 of 26 | flex WR / TE / RB 1 / 14 / 11 → 4 / 11 / 11; non-QB pair rows 7 → 6 | 143.70 → 143.39 (−0.31) |
 
 **Reading:**
 - 77's option transfers as tested: its three rows land where the harness put them, in big contests, at no projection
@@ -80,3 +81,47 @@ The same runner and gate (OFF = `a4ab2839`). The code is a local test merge of i
 | Book rows changed | | 26 of 26 | 26 of 26 |
 
 The A3 combination check's logic (`w5_combo83_union_check.sh`) PASSES on the COMBO run.
+
+## Addendum (07:06–07:11 runs): his experiment books 85 / 87 and the $7,900 cap (86), the parts a ban can emulate
+
+The same runner and gate (OFF = `a4ab2839`); players marked OUT through `--dk-status` (files beside). The WR-count, top-WR
+and flex rules of 85 / 87 cannot be emulated this way, so these are the bans' part only.
+
+| Ban set (W4) | Players OUT | Rows changed | FP projection per row | Flex WR / TE / RB |
+|---|---|---|---|---|
+| 85's bans: TE > $5,000, DST > $3,000 | 4 TE + 7 DST | 24 of 26 | 142.97 (−0.73) | 3 / 6 / 17 |
+| 86 CAP7900: any player > $7,900 (exact) | 4 (WR $9,100 / $8,100, RB $8,400 / $8,200) | 17 of 26 | 143.52 (−0.18) | 1 / 13 / 12 |
+| 87's bans: QB outside the top-4 games + 85's bans | 16 QB + 4 TE + 7 DST | 24 of 26 | 142.11 (−1.59) | 7 / 5 / 14 |
+
+The read-only counts on the OFF book:
+- **85:** 5 of 26 rows already meet all four rules.
+- **86:** 11 of 26 rows hold a player > $7,900.
+- **87:** 9 of 26 rows have a QB outside the top-4 games; 4 lack the QB's own top WR; 14 have ≥ 1 WR ≤ $4,500.
+
+87's QB restriction leaves 8 QBs for 26 rows under the cap of 5, the likely source of most of its cost.
+
+## Addendum (08:04–08:05 runs): study 87's no-caps book on his real book
+
+The same runner and gate (OFF = `a4ab2839`). The caps were lifted with `--main-qb-cap-rows 26 --main-cap-share 1.0
+--main-dst-cap 1.0`: the QB cap of 5 rows, the player cap of 13 rows and the DST cap of 6 rows. These are the caps
+the operator removed for study 87 (overlap 4 kept). The second run adds 87's bans through the same `--dk-status` file
+as above. Verbatim: `OUTPUT-nocap.txt`, `OUTPUT-book87-bans-nocap.txt`. The concentration counts below come from the
+books' player ids only.
+
+| | OFF (caps on) | NOCAP (no bans) | 87's bans, caps off |
+|---|---|---|---|
+| Rows changed | | 12 of 26 | 24 of 26 |
+| FP projection per row | 143.70 | 144.66 (+0.96) | 143.25 (−0.45; −1.41 vs NOCAP) |
+| Most rows for one player | 13 | 21 | 20 |
+| Most rows for one QB / distinct QBs | 5 / 9 | 6 / 12 | 8 / 6 |
+| Most rows for one DST / distinct DSTs | 6 / 7 | 8 / 7 | 11 / 5 |
+| Rows with a non-QB same-team pair | 7 | 2 | 7 |
+| Flex WR / TE / RB | 1 / 14 / 11 | 1 / 12 / 13 | 4 / 11 / 11 |
+
+**Reading:**
+- Lifting the caps alone raises the FP projection (+0.96 per row), as removing a constraint must. One player then sits
+  in 21 of 26 rows.
+- With 87's bans and no caps, the cost against the capped live book falls from −1.59 to −0.45 per row. The caps were
+  most of the bans' real-book cost, as the 07:11 note expected.
+- Against its own no-caps baseline, the bans still cost −1.41 per row. Study 87 measures
+  that part (its prereg reads each rule arm against NOCAP).
