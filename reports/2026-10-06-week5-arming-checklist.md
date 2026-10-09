@@ -151,7 +151,11 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
      excluded WR drops the rule for his opponent (no promotion); any house row is recorded in
      `bring_back_top_wr_exempt`.
   3. Record both in HANDOFF.
-  Saturday: `BRING_BACK_TOP_WR=""` (off) unless he chooses `"A1,B"`. The arm and `check_week_runtime` allow only that,
+  1b. **Study 71b (4 rows):** `bash ~/.cache/laptop-agent/rehearsal/w5_bringback_union_check.sh <A3 dir> 4`. It must PASS:
+     exactly 4 floored book rows, `required` = those 4, and the term ranks unchanged. Then the same vet_replace check.
+     (TOPBB_N4 is ENTERABLE but leans negative: −1.4 on 2023–24, both seasons, seats ×0.86. The recommendation is OFF.)
+  Saturday: `BRING_BACK_TOP_WR=""` (off) unless he chooses `"A1,B"` (every A1 / B row), or `"A1,B"` with
+  `BRING_BACK_TOP_WR_ROWS="4"` (4 rows). The arm and `check_week_runtime` allow only that,
   on the tested configuration. `--check` passes both ways (10-08).
 - **Saturday (arming):** his decision (cheap) -> the arm script's `TERM_ROWS=8`, `TERM_FILE=reports/2026-10-08-live-block/cheap2-w5.csv` (matchup only on a rollback),
   `TERM_SHA=<its sha>`, `TERM_CAP=2.0` (host copy and tracked copy alike); none -> `TERM_ROWS=0` (nothing else changes). Step 0

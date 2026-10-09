@@ -12,6 +12,45 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (19:31 CDT) — laptop: study 71b (the rule on only 4 rows) reproduced: ENTERABLE, leans negative; the rows cap merged DEFAULT OFF
+
+**The operator 10-08 ~18:40:** "I think it would be good to just do a very small percentage of these as a test."
+
+**Done tonight:**
+- the reviewer froze study 71b at 18:50 (prereg `c5cf348c`; lab code `c2f5638`), ran it and read it;
+- the laptop acked it (shas, 5 tests, the census re-run identical, the scan clean; parity point: s24's builder commits
+  every successful solve, so the harness's count is a committed-row count) and reproduced the READ BYTE-IDENTICALLY:
+  `e7a0efbc`, census `b5a034c8`.
+
+**The result:**
+- TOPBB_N4 (the rule on the first 4 A1 / B book rows in build order) vs LIVE_CB: −0.014 [−0.042, +0.015], both seasons
+  negative (−0.013 / −0.014). Seats ×0.861; guard 1 holds.
+- 2022: +0.014, so the trial rule says ENTERABLE ("no harm shown and no gain shown").
+- N2: −0.016 (2022 +0.028).
+- **The build is path-dependent:** ruling 4 rows re-draws the other 22 (2.5 of 26 shared). So the small dose does not cap
+  the downside row by row.
+- **Recommendation, the reviewer's and the laptop's: OFF for W5**, for the $7,000+ WR block and the bring-back (full or
+  4 rows) alike.
+
+**The option is ready, merged DEFAULT OFF:**
+- the outside reviewer's rows cap `--mix-bring-back-top-wr-rows N` (f81b745c: 84's row rule exactly; parity with the
+  harness incl. the term block);
+- the laptop's wiring (b8feb662: `BRING_BACK_TOP_WR_ROWS`, only 4 with A1,B);
+- integration `3a8be811`, the code identical to the tested combined tree (74 modules, 1,278 passed, 0 failed).
+- W4 real inputs, reproduced: unset gives off `a4ab2839` and on `6100b2e3` (= the merged flag); cap 4 floors commit
+  indexes [0, 1, 4, 5] with 0 fallbacks.
+- The production checkout was fast-forwarded and the host arm copy re-synced. `--check` passes for off and for
+  "A1,B on 4 rows".
+
+**The records** (Addendum 170, study list 71, LEDGER `106aacf`) are verified and merged (`35b49de2`).
+
+**The study list:**
+- 42(d) gets his restatement ("a stack in a game outside the top 2–4, just one lineup"; never tested as a forced lineup);
+- 71c (his follow-up idea: build more rule rows and keep the highest-projected) is on the list for after W5. The builder
+  already builds best-first (W4: A1 146.2 → 144.1 → 142.3 …), so it would mostly re-test the same book.
+
+**Friday:** the checklist adds the 4-row rehearsal (`w5_bringback_union_check.sh <A3 dir> 4`, the helper now takes N).
+
 ## 2026-10-08 (18:34 CDT) — laptop: study 71 READ reproduced (TOPBB_AB ENTERABLE, neutral); the flag + wiring merged DEFAULT OFF; his option ready
 
 **The operator 10-08:** "Why can't we test the study 71 today with, and if it's good, use it this week?"
