@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (13:23 CDT) — OPERATOR (relayed): test 2 (one TE + one sub-3% player per lineup) today; live in W5 only if better on BOTH draws
+
+**His words** (in the outside reviewer's session, relayed verbatim): "for test 2 - I would like to test it today and if it
+improves things, use it in week 5 as we obviously need to do something".
+- **Q:** "Test 2 runs today in the test model on two separate draws, on top of your armed package. What counts as 'improves',
+  so that it goes live in Week 5?" → "Better on both draws (Recommended)".
+- **The option text:** "Live in W5 only if 'at most one TE + at most one player under 3% owned' beats your armed package on
+  BOTH draws and doesn't cost more than 20% of expected big wins. Otherwise paper only."
+- **Study 91** (the harness): the package against +TE1 / +LOW1 / +TE1_LOW1, 12 banks as two draws.
+  - The outside reviewer had proposed banks 1767–1778, which collide with L03's 1820 / 1821.
+  - The laptop's full-set search gives **2012–2023** (A 2012–2017, B 2018–2023; sims 2062–2073, fields 2712–2723), seed
+    20261136; scan running.
+  - The machine order is the 6p smoke → 91 → study 90 (banks 1992–2003 after two collisions: L02 1810 / 1811, L03 1820 / 1821).
+- **If 91 passes his rule:**
+  - the outside reviewer's union_reselect flags (`--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3`, the own-cap
+    file's fp_own_raw, parity-pinned to 6p's lab code; off whenever the own cap is not applied);
+  - the laptop's W4 real-book check and wiring;
+  - a study 38 amendment for the live row rules;
+  - FRIDAY_HEAD moves; all before Saturday's arming.
+- **If it fails:** paper only (6p, lab `b03ddaac`); nothing live changes.
+
 ## 2026-10-09 (13:12 CDT) — OPERATOR (relayed): look closely at the limited-entry contests' winners; two tests "Yes do that"
 
 **His request** (in the outside reviewer's session, relayed verbatim): "Most of our analysis has been on the MILI. I would like
