@@ -4,7 +4,7 @@
 binding census (§6), before any scored bank.
 - The text changed at the freeze in §6 (the census) and in §4, which now carries the census's figures beside the smoke's.
 - The module and the reader are the DRAFT's, unchanged. The laptop acks (shas, tests, census re-run; its scan of 1695–1700
-  with the derived bases and the seed was clean, 10-09 02:13).
+  with the derived bases and the seed was clean, reported before the freeze).
 - **Banks 1695–1700, seed 20261127** (assigned by the reviewer; 1701–1706 skipped as old production seeds; the laptop scans the
   banks and the derived bases 1745–1750 / 2395–2400).
 - **Target:** tonight's second round, after study 81. A production option only if LOWQB4 is ENTERABLE and the operator
