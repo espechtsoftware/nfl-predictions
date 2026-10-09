@@ -80,3 +80,21 @@ The same runner and gate (OFF = `a4ab2839`). The code is a local test merge of i
 | Book rows changed | | 26 of 26 | 26 of 26 |
 
 The A3 combination check's logic (`w5_combo83_union_check.sh`) PASSES on the COMBO run.
+
+## Addendum (07:06–07:11 runs): his experiment books 85 / 87 and the $7,900 cap (86), the parts a ban can emulate
+
+The same runner and gate (OFF = `a4ab2839`); players marked OUT through `--dk-status` (files beside). The WR-count, top-WR
+and flex rules of 85 / 87 cannot be emulated this way, so these are the bans' part only.
+
+| Ban set (W4) | Players OUT | Rows changed | FP projection per row | Flex WR / TE / RB |
+|---|---|---|---|---|
+| 85's bans: TE > $5,000, DST > $3,000 | 4 TE + 7 DST | 24 of 26 | 142.97 (−0.73) | 3 / 6 / 17 |
+| 86 CAP7900: any player > $7,900 (exact) | 4 (WR $9,100 / $8,100, RB $8,400 / $8,200) | 17 of 26 | 143.52 (−0.18) | 1 / 13 / 12 |
+| 87's bans: QB outside the top-4 games + 85's bans | 16 QB + 4 TE + 7 DST | 24 of 26 | 142.11 (−1.59) | 7 / 5 / 14 |
+
+The read-only counts on the OFF book:
+- **85:** 5 of 26 rows already meet all four rules.
+- **86:** 11 of 26 rows hold a player > $7,900.
+- **87:** 9 of 26 rows have a QB outside the top-4 games; 4 lack the QB's own top WR; 14 have ≥ 1 WR ≤ $4,500.
+
+87's QB restriction leaves 8 QBs for 26 rows under the cap of 5, the likely source of most of its cost.

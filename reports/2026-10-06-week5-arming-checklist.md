@@ -228,12 +228,12 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
   - **Friday's A3 (cheap armed) starts AFTER the 12:30 FP ownership capture succeeds,** so its study-38 snapshot holds `ownership_fp-*.csv`. The snapshot takes the paper matchup file from the A3 worktree (`reports/2026-10-08-live-block/matchup-w5.csv` `ba27c6fb`, at FRIDAY_HEAD). Both were missing from Thursday's dress-rehearsal gate (the reviewer 10-08). If FP has not posted ownership by about 15:00, run A3 anyway and tell the reviewer.
   - **FP projected ownership at 12:30 and 16:30 CT:** `cd ~/projects/nfl-predictions && flock -w 300 ~/.cache/nfl-dfs/fantasy-points-profile.lock timeout 300 .venv/bin/python -m nfl_dfs.ops.fantasy_points_ownership collect --week 5`. FP posted Week 4's by Friday 12:23. "ownership table has no
     values" means not posted yet, so retry hourly.
-  - **The FP QB coverage matchup retry:** `.venv/bin/nfl-weekly-data run --week 5 --skip-fp-families --skip-fp-projections --skip-sis-team-context --skip-sis-pass-tail --skip-sis-receiver-copula --skip-odds --no-login-if-needed`.
+  - ~~**The FP QB coverage matchup retry:**~~ **MOOT (ran 10-09 morning: refused by design, "capture is after first kickoff" — Week 5's Thursday game; O-57).** `.venv/bin/nfl-weekly-data run --week 5 --skip-fp-families --skip-fp-projections --skip-sis-team-context --skip-sis-pass-tail --skip-sis-receiver-copula --skip-odds --no-login-if-needed`.
     - Run it after Friday's fast-forward, so it has the non-fatal alignment import.
     - The 10-08 page was missing the ATL and WAS QBs (O-57).
 - **Sat 10-10:**
   - FP projected ownership right after arming (the same command).
-  - The QB coverage retry (the same command).
+  - ~~The QB coverage retry (the same command).~~ MOOT: refused after the first kickoff (O-57).
   - The R14 sweep and the OPRK snapshot (~10:45), both above.
 - **Sun 10-11:**
   - **09:30, shadow B for real:** `--out ~/private/shadow-b/2026-w05` (the smoke 10-08 ran in about 2 minutes, so it goes

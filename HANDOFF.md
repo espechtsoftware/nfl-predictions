@@ -12,14 +12,51 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (07:09 CDT) — OPERATOR (relayed): decision 7, another experiment book (study 87)
+
+**His words** (in the outside reviewer's session, after study 84's READ; relayed to the laptop verbatim): "Let's queue up an
+experiment with this. / QB from one of top 4 point total games / TE <= 5000 / D <= 3000 / 1 WR <= 4500 / Top receiver same
+team as QB / WR or RB in Flex", then "In this case at least 1 wr <= 4500 can be more."
+
+- **His clarification** (relayed verbatim): "top receiver" means "Highest-priced WR". That is s70's top_wr: WRs only, so a TE
+  never counts. The laptop's read-only count used the same definition: 4 of 26 W4 rows lack it.
+- **His amendment** (relayed verbatim, before 85's READ): "For study 87, it seems that the other rules that you mentioned about how much we
+  can use a quarterback and stuff like that are going to get in the way. Just for the purposes of this experiment, can we remove
+  those rules?" Asked, he chose "All usage caps" (QB 5, player 13 and DST 6 removed; the overlap limit of 4 kept) and "Yes, add a
+  no-caps book". So study 87 is LIVE_CB (capped) against NOCAP / BOOK87 / PRICE87 / QBTOP87, all four uncapped (lab `5fbdfd5c`,
+  prereg `e99094e4`).
+- **Study 87:** BOOK87 (all six rules; at least one WR ≤ $4,500), PRICE87 and QBTOP87 against LIVE_CB.
+  - Information for his decision, with no automatic Week-5 rule.
+  - Its design is on origin before 85's and 86's READs (`review/s87-prereg-20261009` @ `5342f218`).
+- **The context he has** (study 84, Addendum 182): the same rule moved 3–6 points between bank sets tonight, so a
+  single-run lean is not an edge.
+- **Queue:** 85 BOOK85 (smoke running) → 86 CAP7900 → 87.
+
+## 2026-10-09 (06:50 CDT) — OPERATOR (relayed): decision 6, one more study with no player over $8,100 in the entire book
+
+**His words** (in the outside reviewer's session, during study 84's run; relayed to the laptop verbatim): "After that, let's do
+one additional study where the only rule is no player over $8100 for the entire book."
+
+- **His amendment** (relayed verbatim, before any code or read): "Let's change that to no player over 7,900." The arm is now
+  **CAP7900**: every pool player priced above $7,900 banned on every book solve, $7,900 itself allowed; the prereg is amended
+  at `14168e8f` (06:51), before 84's READ. Banks and seed are unchanged.
+- *(as first written)* **Study 86 CAP8100:** every pool player priced above $8,100 is banned on every book solve; $8,100 itself
+  is allowed. It runs through s81's banned_rows. Its design is on origin before 84's and 85's READs (`review/s86-prereg-20261009` @
+  `c4ac131e`).
+- **The outside reviewer's reading:** information for his decision, with no automatic Week-5 rule. The laptop confirms that
+  with him.
+- **Queue:** 84 (running) → 85 BOOK85 → 86 CAP8100.
+
 ## 2026-10-09 (06:23 CDT) — OPERATOR (relayed): decision 5, an experiment with a whole book under four salary / position rules
 
 **His words** (in the outside reviewer's session, during study 84's run; relayed to the laptop verbatim): "As an experiment
 lets try an entire book like this: TE <= 5000 / D <= 3000 / 1 WR <= 4500 / WR or RB in Flex"
 
-- **Being confirmed with him** by the outside reviewer:
-  - whether "1 WR" means at least one or exactly one;
-  - whether the experiment is information only or carries his not-negative rule for Week 5.
+- **His two clarifications** (relayed by the reviewer from the outside reviewer's session; recorded as given):
+  - "1 WR" means EXACTLY one WR priced ≤ $4,500;
+  - "Let me decide": no automatic Week-5 rule. He decides after the read.
+- **Study 85 BOOK85** is triaged RUN. Its design is on origin before 84's READ (`review/s85-prereg-20261009` @ `159907fc`).
+  Banks 1719–1724, seed 20261130.
 - **Planned:** study 85. Its DESIGN is committed before study 84's READ (the same slates; the same discipline as 84 before
   83). No machine work until 84's run ends.
 - **The wiring for any tested set is ready, unmerged:** `production/c0-wiring-20261009` @ `3c7be06e`. It covers C0,
