@@ -711,6 +711,13 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     - any argument whose default differs from the one these checks assume when the argument is absent from
       `union_args.txt` (`ASSUMED_DEFAULTS`: e.g. `--mix-fill group`, `--term-block-rows 0`, every not-built flag off).
     - So a lever merged into production before the table classifies it fails the integrity gate instead of passing it.
+  - **One classification kept by the frozen design (the laptop's observation at its ack):** `--main-own-tilt` stays
+    "inert". Each paper arm owns its tilt (the frozen table: none for MIXT_QA0, 0.20 for QA / RS / QBB / NQC), and the
+    live union may run any tilt.
+    - So a live whole-book tilt without a term block would make MIXT_QA (0.20), not MIXT_QA0, the closer match to his
+      live book, and parity does not say so.
+    - Week 5's live tilt is 0 (the term block is the live lever, and it refuses a whole-book tilt), so this is moot for
+      Week 5. A future week that arms a whole-book tilt names QA beside QA0 in its record.
   - **What a mismatch does:** an invalid week, as before. Live mode refuses ("PARITY REFUSED"), and the reader marks the
     week INVALID.
   - **What does not change:** every arm, the rule (§5), the decision pair, the snapshot and the scorer. The smoke shows
