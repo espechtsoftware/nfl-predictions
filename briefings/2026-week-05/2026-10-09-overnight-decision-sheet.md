@@ -29,7 +29,7 @@ test. **Every result below was read by the reviewer and re-run by the laptop wit
   in the flex". Your package without it is scored on paper beside it. **The replay you asked for** (this season's real
   contests, [the report](../../reports/2026-10-09-package-replay/README.md)): on Week 4, the faithful week, the armed version
   finished best (58.7th percentile, 20 top-10% finishes, 6 cashes, 0.57× fees, against the 50% book's 53.7 / 8 / 2 / 0.19×);
-  Week 3 was a wash; no version had a big win. It is partly in-sample.
+  Week 3 was a wash; no version had a big win. It is in-sample (these weeks prompted the rule), so it is the expected direction, not proof.
 - **Your package is ARMED for Week 5 (your "Yes, arm the package").** Every condition you set passed: built, matching the
   lab version, checked on your Week-4 book, and today's book scored on paper beside it. Saturday's 10:30 build is the first
   live run; if Sunday's ownership file ever fails, the build automatically falls back to today's book, with an alert. The 35%

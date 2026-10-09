@@ -1,7 +1,10 @@
 # His live Week-5 version, replayed on this season's real contests (10-09)
 
-**His request** (relayed): "can we run that version against this season using real info?" This is **descriptive** and
-**partly in-sample**: the TE and low-ownership ideas came from studying these weeks' winners. Nothing decides on it.
+**His request** (relayed): "can we run that version against this season using real info?"
+
+**This is IN-SAMPLE, not a test.** Weeks 1–4 are the weeks whose real-field winners prompted the rule (the TE and
+low-ownership findings came from them). A lift on them is the expected direction, not evidence that the rule works. It is
+descriptive; nothing decides on it.
 
 **What was built** (`replay.py`, the money gate's machinery; summary `replay_summary.json`; dollars private):
 - Each week's archived Saturday + T-70 runs, union_reselect at integration with the Week-5 lab pin and PYTHONHASHSEED=0.
@@ -41,6 +44,12 @@ The Millionaire (one or two entries a week): no cash in any rebuilt arm. The ent
 is why the entered book's pooled return (0.27) is above the rebuilt arms'.
 
 ## Reading
+
+- **Week 3 and Week 4 are not the same rule in practice.** On Week 4's Fantasy Points ownership the low-ownership limit
+  barely binds (the rule acts as "no tight end in the flex"). On Week 3's own-model ownership it binds hard (262 of 316 pool
+  players under 3%). Read them apart.
+- **The counts are small and there are no big wins**, so the finish percentile and the top-10% counts are the readable
+  measures. The returns rest on a handful of cashes (6, 3 and 2 in Week 4).
 
 - **On the faithful week, the armed version finished best by every measure:** higher finishes, more than twice the top-10%
   finishes of the 50% book, three times the cashes, and three times the return. The package alone sat in between.
