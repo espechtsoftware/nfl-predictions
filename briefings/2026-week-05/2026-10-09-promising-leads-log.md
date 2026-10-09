@@ -70,6 +70,16 @@ reviewer and updated as each study is read.
   reviewer's scan for study 78), so the rule would change much more there.
 - **Versions to consider later:** a real-book check first, then a paper test. (Two stars per lineup was mixed: off.)
 
+### 8. Limit how far above the field we go on any player (study 89) — *the first lever today that points the right way on both draws; LIVE in Week 5 if built in time*
+- **Why:** in Weeks 2–4 the players we held far above the field fell short, and the ones we held below it did better
+  (the outside reviewer's breakdown of your real entries, 10-09).
+- **Study 89 (two separate draws):** 35% max + each player capped at the field's projected ownership + 15 points: **+1.2**
+  vs your book (draw A +0.5, draw B +1.9); about 5% fewer expected big wins; within the noise. The ownership cap on top of
+  the 35% max alone: **+3.2** (both draws positive). With the field's *actual* ownership (a best case): +2.5.
+- **The 35% max alone: −2.0** (both draws negative) — by your rule it is NOT armed on its own.
+- **Your decision (10-09):** a live Week-5 trial if production builds and checks it in time (Fantasy Points' projected
+  ownership), with today's book on paper beside it.
+
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
   the full game stack (74), two bring-backs (76) — each at or below your book on 2023–24.
@@ -88,7 +98,7 @@ reviewer and updated as each study is read.
   rules cost −4.4 and the QB rules −0.6. Without the QB cap, one QB took up to 24 of 26 lineups.
 
 ## Still running
-- **Study 88 (queued; your "slightly cheaper QB" request):** 87's book again on a fresh draw (the second reading
+- **Study 88 (running after study 89; your "slightly cheaper QB" request):** 87's book again on a fresh draw (the second reading
   the rule above asks for), plus three versions of it: no QB priced $7,000 or more; a TE ($5,000 or less) allowed in the flex;
   and both. Why these: in the 2026 Week 1–4 Millionaires the top 1% rarely played a $7,000+ QB (3% of lineups vs the field's
   9%), and they put a TE in the flex MORE often than the field (37% vs 28%), so 87's "no TE in the flex" rule goes against
