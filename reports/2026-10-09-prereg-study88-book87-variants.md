@@ -1,19 +1,21 @@
 # Preregistration: study 88, his study-87 book on a fresh draw, with a cheaper QB, with a TE allowed in the flex, and both, in the harness (DRAFT 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (09:29 CDT)** by the outside reviewer — **THE DESIGN IS COMMITTED BEFORE STUDY 87'S READ** (study 87
+**Status: DRAFT 2026-10-09 (09:29 CDT; the reviewer's RUN with conditions folded in)** by the outside reviewer — **THE DESIGN IS COMMITTED BEFORE STUDY 87'S READ** (study 87
 is running on the same slates). The code follows (committed before 87's READ, the reviewer's timing rule); the reviewer
 reviews, runs the binding census and FREEZES; the laptop acks.
-- **Banks and seed:** the reviewer assigns them (proposed 1737–1742, seed 20261133; the laptop scans them and the derived bases
-  1787–1792 / 2437–2442 first).
+- **Banks and seed:** **1737–1742, seed 20261133** (the reviewer's RUN, pending the laptop's scan of them and the derived bases
+  1787–1792 / 2437–2442).
 - **Target:** after study 87.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
 
 ## 1. Why — his request
-- **The operator, 10-09 (during study 87's run, before its read; the laptop records it verbatim):** "My suspicion is we are going
-  to find that the last test we set up … is going to outperform everything else. Premature to say, but that looks more like the
-  way I believe winners are structured. Please consider other options along those lines - perhaps with a slightly cheaper QB -
-  that you think are good to test based on what you see in historic results."
+- **The operator, 10-09 (during study 87's run, before its read; in full, his typing kept; the laptop records it verbatim in
+  HANDOFF):** "My suspicion is we are going to find that the last test we set up - with the QB from on of the top 4 point total
+  games, a lower priced tight end, a cheaper defense, at least 1 wr <=4500, top receiver from same team as QB and WR or RB in flex
+  is going to outperform everything else. Premature to say, but that looks more like the way I believe winners are structured.
+  Please consider other options along those lines - perhaps with a slightly cheaper QB - that you think are good to test based on
+  what you see in historic results"
 - **What the 2026 W1–4 Millionaires show** (the outside reviewer's scan4, top 1% vs the field, weeks equally weighted, per week;
   aggregates only; `~/private/winner-shapes-2026/scan4.py`):
 
@@ -58,13 +60,20 @@ reviews, runs the binding census and FREEZES; the laptop acks.
 - **Information for his decision.** BOOK87 here + study 87's BOOK87 are the two reads the forward rule asks for; both are
   reported side by side with their difference before any option is built.
 - Plainly: study 84's bank-to-bank finding applies; under no true effect a version is "not negative" on both 2023–24 and 2022
-  about one time in four; picking the best of several variants on the same slates flatters it.
+  about one time in four; the slates are the ones studies 78–87 read; picking the best of several variants on the same slates
+  flatters it.
+- **The BOOK87 replication (the reviewer's condition):** the reader prints BOOK87 − LIVE_CB in exactly study 87's form (the same
+  decision-arm block), so the Addendum sets the two reads (two disjoint bank sets) side by side with their difference.
 
 ## 4. What the harness can and cannot say
 - **The real-book checks** (the laptop's, outcome-blind, W4, OFF `a4ab2839`): the cheaper-QB ban's extra cost on top of
   BOOK87's bans (the dk-status route; uncapped), and how many top-4-game QBs are priced under $7,000 on W4.
 - **Feasibility:** the top-4 games' QBs priced under $7,000 can be few (the high-total games often hold the elite QBs); the census
   reports the QBs allowed per slate-bank (minimum), infeasible solves per arm and per slate, and the concentration.
+  - **If the fallback fires on more than 5% of an arm's ruled solves (CHEAPQB most likely), the reviewer is told before the
+    freeze** (the reviewer's condition): a diluted arm reads toward LIVE_CB, and it is noted, not read as a result.
+  - **Concentration:** the CONCENTRATION lines of study 87 for every uncapped arm; with fewer cheap top-4 QBs, CHEAPQB can
+    concentrate harder than BOOK87 — flagged in the smoke and the census.
 - Without the caps one QB can take most of the book (study 87's smoke: up to 15 of 26 rows); a live version would also lift
   production's caps (a large money-path change).
 - The simulator's mean, not FP's; closing lines.
@@ -75,8 +84,9 @@ reviews, runs the binding census and FREEZES; the laptop acks.
   each variant.
 
 ## 6. Smoke, census and integrity
-- Bank 1406 only, when the machine is free: the unit tests, the mechanics smoke, the binding census, the full-path smoke (reader exit
-  and line count only). Shas in the code commit.
+- Bank 1406 only, **after the laptop's calibration run has finished** (the laptop's machine order, 10-09: 87's READ and its
+  reproduction, the calibration run, then this smoke): the unit tests, the mechanics smoke, the binding census, the full-path
+  smoke (reader exit and line count only). Any code change the smoke forces is a new commit with its diff disclosed.
 - **Code:** nfl2 `production/s88-book87-variants-20261009` @ `49db37c6` (committed 09:34:25, BEFORE study 87's READ — 87's scored
   run was still going; branched from study 87's `01869883`):
   - `experiments/s88_book87_variants.py` `a387b349…` (pins s87 `85adf47b…`; its `rule_sets`, `arm_rules`, `qb_price_rules`
