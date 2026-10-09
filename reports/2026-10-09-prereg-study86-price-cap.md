@@ -60,7 +60,25 @@ underneath), the same as studies 81–85. LIVE = 48d's 41 rows with the cheap +2
 - **BEFORE HE ACTS ON ANY ARM (the reviewer's forward rule, 10-09):** it is first re-read on a second, disjoint bank set (the same code and reader, new banks and seed), and both reads and their difference are reported before any option is built.
 
 ## 6. Smoke, census and integrity
-- Bank 1406 only, after study 85's smoke and run free the machine: the mechanics smoke, the binding census (the pool's players
-  priced > $7,900 per slate by position; LIVE_CB's rows holding one; infeasible counts), the full-path smoke (reader exit and line
-  count only). Shas in the next commit.
-- **Code:** nfl2 `production/s86-price-cap-20261009` (to branch from study 85's).
+- **The mechanics smoke** (bank 1406; Rev6; `~/s86-panel/smoke/`; 2022 W9, 2023 W3, 2024 W10; `results_bank1406.jsonl`
+  `7d5fba40…`):
+  - both arms are 41 rows within production's constraints (13 / 6, QB 5, overlap 4), with 8 term rows and every row in the pool;
+  - **0 infeasible solves** (78 of 78 ruled); the ruled rows read by big contests 0.846 (all 26 book rows);
+  - the pool per slate-bank: 6.33 players priced > $7,900 (min 6; over the three: QB 3, RB 5, WR 11); 1.0 at exactly $7,900
+    (allowed);
+  - VACUITY: LIVE_CB holds a player > $7,900 in 17.3 of 26 rows; CAP7900 in 0;
+  - $7k+ per row 2.31 → 1.95; $8k+ per row 0.92 → 0; flex WR / TE / RB 4.3 / 15.7 / 6.0 → 3.3 / 12.7 / 10.0; QB + TE rows 15.0 →
+    12.3; **projection per row −0.90**; rows shared with LIVE_CB 0.7.
+  - **His real W4 book** (the laptop, 10-09, the dk-status route, exact up to the spares): 4 slate players above $7,900 (WR
+    $9,100, RB $8,400, RB $8,200, WR $8,100), in 11 of his 26 rows; 17 of 26 rows change; **FP −0.18 per row**; flex 1 / 14 / 11
+    → 1 / 13 / 12; pairs 7 → 4. The harness's base plays far more $8k+ players (0.92 per row vs his 0.54), so the harness cost
+    (−0.90) overstates his (−0.18): the transfer caveat in §4.
+- **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 36 lines and 4 sections; only those
+  were read.
+- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **Code:** nfl2 `production/s86-price-cap-20261009` @ `4fdad305` (committed 07:26:04, before study 85's READ; unchanged by the
+  smoke; branched from study 85's `658dd352`):
+  - `experiments/s86_price_cap.py` `b7d741c9…`; `scripts/s86_drive.py` `9d184971…`; `scripts/s86_census.py` `b13d809d…`;
+  - **`scripts/s86_report.py` (the reader) `76df628d…`** (seed 20261131); `tests/test_s86_price_cap.py` `d7608e3a…` (6 tests);
+  - unchanged and sha-asserted: `s81_note5k.py` `b37dbbc9…` (its `s80` / `s73` and their pins), `term_book.py` `62c2306e…`,
+    production's `enter_layout.py` `3cb051ac…`; the plan `ac10ddf6…`.
