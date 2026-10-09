@@ -16,7 +16,7 @@
 #   armed late.
 set -uo pipefail
 SHAPE="mixt"             # his formal yes 2026-10-06: "yes to the winners' mix with the tilt and the quarterback cap" (the tilt removed by his 10-06 yes)
-FRIDAY_HEAD="5eab90f43ec53e50d48c267151e2697388d8e0ea"   # 10-09: the merge batch for his W5 package (A3 cancelled by him; HANDOFF)
+FRIDAY_HEAD="22bf64f19886e483b2279125bc226493d990050e"   # 10-09: the merge batch for his W5 package (5eab90f4) + the arm test for the pair; A3 cancelled by him
 PLAN_SHA=5f8352eebf17860795922f8b5bca754c4ed0566c8c5ca63419e6dacd24e59470     # Rev6 (his FINAL contest order 10-07; Rev3's contests
                                     # re-ordered, the same book; installed 10-07 14:38 after the priority screen's pair (ii);
                                     # Rev3 kept as contests.json.rev3-8625de0e)
@@ -26,10 +26,10 @@ OWN_TILT=0                          # the ownership term (his 10-06 yes: "remove
 MAX_SHARED=4                        # a union row shares at most 4 players with every earlier row (his 10-06 evening yes,
                                     # "Use 4": study 41 PASS, replicated by study 42's GROUP4-GROUP5 on fresh banks, the
                                     # field audit clean; 5 was his afternoon choice; production default 7)
-MAIN_CAP="0.5"                      # the per-player exposure cap share. His 10-09 rule (HANDOFF a391f2e5): "the independent check
-                                    # is whether study 89 shows the 35% cap underperforming 50% on both draws". Study 89 READ
-                                    # (lab 90a0c951): DO NOT ARM 0.35 (A -0.03419, B -0.00603); keep 0.5. Empty refuses to arm
-OWN_CAP_DELTA=0                     # his 10-09 package (HANDOFF 5380e0e7): 15 = each skill player at most his FP projected ownership
+MAIN_CAP="0.35"                     # the per-player exposure cap share: HIS PACKAGE (his yes 10-09 in the laptop's session, "Yes, arm
+                                    # the package"; HANDOFF). The flat 35% alone stays NOT armed (study 89, his rule: DO NOT ARM
+                                    # 0.35 alone), so 0.35 only with OWN_CAP_DELTA=15 (the pair stop below). Empty refuses to arm
+OWN_CAP_DELTA=15                    # his 10-09 package (HANDOFF 5380e0e7): 15 = each skill player at most his FP projected ownership
                                     # + 15 points, ONLY together with MAIN_CAP=0.35 (the tested package); 0 = off (MAIN_CAP 0.5).
                                     # Flipped to (0.35, 15) on Saturday only if the flag, the wiring, the W4 check and 6o all pass
 MIX_FILL=rr                         # the MIX fill order (study 42; his 10-06 evening yes, "Use round-robin"): the cells in
