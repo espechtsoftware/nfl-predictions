@@ -12,6 +12,50 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (10:28 CDT) — OPERATOR: Friday's A3 rehearsal cancelled; "select better today for this week"; the 35% cap trial, the ownership-relative cap test, the FP calibration
+
+**In the laptop's session (verbatim):** "Since we have found how poorly we are currently selecting lineups, there is no reason to
+do the rehearsal at the moment. It is more important to continue these tests to figure out how to select better today for
+this week"
+- **A3 is CANCELLED for today.** The 12:30 / 16:30 FP projected-ownership captures still run (light, perishable).
+- Study 38's 6l integrity gate had no Friday snapshot. The reviewer moves it to the live snapshot (Saturday's arm or
+  Sunday's T-70).
+- FRIDAY_HEAD is still set today, carrying whatever his tests produce.
+- Not rehearsed: the cheap block armed end to end on a fresh W5 build. The Saturday 10:30 canary (d12800-sat) is the first
+  live run of the armed host; check its receipt and lever audit by 11:00.
+
+**In the outside reviewer's session** (about 10:55, his answers to its AskUserQuestion, relayed verbatim). He asked it: "it
+seems we are very bad at selecting lineups. Use whatever tools you have to make suggestions of what we need to fix
+immediately. If it is salary rules causing the problems, let's try changing them. Everything can change today because we need
+to get better immediately".
+- "Lower the per-player exposure maximum from 50% to 35% of lineups for Week 5 (setting change, tested 10-06, the 50% book kept
+  on paper beside it)?" → "Yes, W5 trial (Recommended)". The option text: "Production sets the existing cap setting to 0.35
+  before Saturday's arming; a real-book check on W4 data first (minutes); reversible next week."
+- "Run the ownership-relative cap test (each player at most the field's projected ownership + 15 points) today?" → "Yes,
+  before study 88 (Recommended)" (study 89, the outside reviewer's).
+- "Run the calibration check on Week 4 with FantasyPros projections now (5 minutes)?" → "Yes (Recommended)".
+- Relayed, so the laptop asks him to confirm the 35% cap in its own session before the arm changes.
+
+**Done since (laptop):**
+- **The 35% cap, real-book check** (W4 inputs, W5 arming, OFF = `a4ab2839`; `--main-cap-share 0.35`;
+  `~/rehearsals/flagcheck-cap035-20261009T152537Z`):
+  - FP projection per row 143.70 → 141.39 (−2.31); 17 of 26 rows change;
+  - most rows for one player 13 → 9; players in ≥ 40% of rows 7 → 0; in ≥ 30% 10 → 14; at the cap 9 → 12;
+  - distinct players 48 → 49 (the core spreads, it is not replaced).
+  - The setting is `UNION_MAIN_CAP` (week_env.sh default 0.5; sunday_build_host passes `--main-cap-share`; the arm does not
+    set it today). Arming 0.35 = `UNION_MAIN_CAP=0.35` in `arm_env` (that script is exempt from the CODECHG check).
+  - It also needs check_prospective_gates and study 38's parity amendment (the reviewer: parity pins main_cap_share 0.5, so
+    a live 0.35 would make the week INVALID until amended).
+- **Field A′, the W4 calibration re-centred on FP's pre-lock projections** (`--recentre-fp`, `review/calibration-w1-4-20261009`
+  @ `b3c30649`; proj_fp-w4.csv `8bba650e`, 100% coverage). Less optimistic than our model but still optimistic:
+  - cash 8.7 expected vs 3 (ours 11.6);
+  - top 10% 22.3 vs 7 (ours 28.1);
+  - P(≥ 1 big) 0.133 (ours 0.188); PIT mean 0.35 (ours 0.31).
+  - FP rated his W4 lineups +8.5 points per lineup above the field's (ours +11.0); they scored 3.7 below.
+- **Study 88's census re-run differs in one arm-slate** (TEFLEX, 2023 W11, rows 14/17). The reviewer's diagnosis: CBC
+  tie-breaking that depends on set iteration order (PYTHONHASHSEED; lineup.py bans as a set), under test. If confirmed: GO
+  with a disclosure, plus a lab fix after the week (sorted bans). 88 now waits behind study 89.
+
 ## 2026-10-09 (09:35 CDT) — OPERATOR (relayed): variants of study 87's book "perhaps with a slightly cheaper QB" (study 88); and the calibration check ("I do want to do 3")
 
 **His words** (in the outside reviewer's session, during study 87's run, before its read; relayed to the laptop verbatim, his
