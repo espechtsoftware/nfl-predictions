@@ -2,8 +2,8 @@
 
 **Status: DRAFT 2026-10-08 (21:42 CDT)** by the outside reviewer, before any scored bank. The reviewer (84) reviews, runs
 the binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks and seed scanned).
-- **Banks: the reviewer's next block (provisionally 1671–1676), seed provisionally 20261124** (the reader's SEED; changed at
-  the freeze if the reviewer assigns another).
+- **Banks 1677–1682, seed 20261124** (assigned by the reviewer; 1671–1676 skipped: the laptop found 1671 / 1672 used as seed
+  bases in old lab tests; the seed scanned clean).
 - **Target:** tonight, after study 78. A production option only if ONEPC8 is ENTERABLE and the operator chooses it in the
   morning.
 
@@ -33,6 +33,10 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
   opponent pair included; bring-backs stay possible: one opponent WR / TE and any RBs). The slot is used whether the
   solve is feasible or not; an infeasible one is solved plain and recorded. Spares never. A1 / A2 are untouched (their
   QB pairs are the point of those cells).
+  - **What counts as a pair:** any two of one non-QB team's WR / TE, so a TE and a WR of the same team count; RBs never
+    count, and a DST never counts (it is not a WR / TE).
+  - **A consequence in cell B (disclosed):** B allows several bring-backs today; under the rule a B row's bring-back holds
+    at most ONE opposing WR / TE (an opposing RB can still be a second bring-back).
 - **ONEPC8 (THE DECISION):** the first 8 B / C book solves.
 - **EXPLORATORY ONEPC_ALL:** every B / C book solve (14 at K 26; 2 of them dealt at 22–23, non-big).
 - **PRODUCTION'S EQUIVALENT (for §5):** production's pinned optimize (nfl2 `f69598b`) takes `member_bounds`: (team T's
@@ -52,7 +56,7 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
   built plain.
 
 ## 4. What the harness can and cannot say
-- **The gap transfers (unlike studies 75 and 78):** the harness's LIVE_CB holds a non-QB pair in 6.3 of 26 rows (24%),
+- **THE GAP TRANSFERS (unlike studies 75 and 78), which is why this study is worth its slot:** the harness's LIVE_CB holds a non-QB pair in 6.3 of 26 rows (24%),
   close to his FP book's 27%; ONEPC8 takes it to 3.0 (12%), about the top 1%'s 11%.
 - **Vacuity:** LIVE_CB holds a pair in 4.0 of the 8 rows at the ruled positions, so the rule changes about half of them.
 - **Path dependence:** the rows re-draw the rest of the book (the smoke shared 7.3 of 26 rows with LIVE_CB).
