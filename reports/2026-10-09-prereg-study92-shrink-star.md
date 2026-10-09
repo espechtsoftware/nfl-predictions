@@ -1,6 +1,6 @@
 # Preregistration: study 92, S1 (shrink the projection the solver sees toward the slate's salary curve) and S2 (at least one $8,000+ player per lineup), on his armed Week-5 version, in the harness (DRAFT 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (15:09 CDT)** by the outside reviewer; the code is pushed, the smoke follows study 90's run. The
+**Status: DRAFT 2026-10-09 (15:09 CDT; smoke done)** by the outside reviewer; code and smoke done. The
 reviewer reviews, runs the binding census and FREEZES; the laptop acks.
 - **Banks and seed:** **3012–3023** (set A 3012–3017, set B 3018–3023; sims bases 3062–3073, fields 3712–3723), seed 20261137 — the
   reviewer's block, clear of study 91's by construction; the laptop scans it.
@@ -63,6 +63,13 @@ one TE and one player predicted < 3% per book row; the QB cap 5, the DST cap 6, 
   moves FRIDAY_HEAD; study 38 amendment 6r (the reviewer's) pairs the armed version without each live change on paper.
 
 ## 6. Smoke, census and integrity
+- **The smoke (DONE after study 90's run; bank 1406; 2023 W3, 2023 W11, 2024 W10; `results_bank1406.jsonl` `be0c57a0…`; code `7913aefc`):**
+  7 unit tests pass; every arm 41 rows within the armed caps, 8 term rows, in the pool; **0 infeasible** row-rule and ownership-cap
+  solves in every arm (78 of 78); the pool per slate-bank: RB / WR / TE priced ≥ $8,000 6.0 (min 4); **the shrink moves a skill
+  projection by 0.41 points on average**; rows with a star: ARMED 19.7 → STAR1 26.0 of 26 (stars per row 0.95 → 1.13); rows shared
+  with ARMED: SHRINK07 0.67, STAR1 5.0, SHRINK07_STAR1 0.0 (none identical); the raw-base projection per row vs ARMED: SHRINK07
+  −0.23, STAR1 −0.37, both −0.51; flex WR / TE / RB: ARMED 14.3 / 0 / 11.7, STAR1 18.0 / 0 / 8.0; the full path: the reader exited 0
+  (43 lines; 55 with the two-draw path on a copy); only those were read.
 - BLAS threads pinned to 1 (89's driver). Bank 1406 only for the smoke (after study 90's run): the unit tests, the mechanics smoke
   (2023 W3, 2023 W11, 2024 W10), the binding census, the full-path smoke (reader exit and line count only).
 - **Code:** nfl2 `production/s92-shrink-star-20261009` @ `7913aefc` (branched from study 91's frozen branch `2515e42b`):
