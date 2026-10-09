@@ -8970,3 +8970,14 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
   - It also cuts against his 10-07 ask for more QB + TE stacking.
 - **Recommendation:** NOTE5K8 off. NOTE5K_ALL as a study-38 PAPER arm (W5 if a 6m-style amendment is ready before Friday's
   gate, else W6), on his yes. Not live.
+- **On his real book (10-09, the laptop's outcome-blind W4 check; `reports/2026-10-09-option-w4-checks/`, integration
+  `5cb52edc`, `OUTPUT-no-te5k-all-rows.txt`):**
+  - The setup: W4 inputs with the W5 arming; OFF reproduced `a4ab2839`; the 5 W4 TEs ≥ $5,000 marked OUT through the
+    union's own `--dk-status` path. That route also removes them from the spares and the T-70 replacement pool, which
+    does not affect the 26 book rows.
+  - Rows with such a TE 11 → 0 of 26; 24 of 26 rows change.
+  - **FP projection per row 143.70 → 142.94 (−0.76), more than twice the harness's −0.33.** His FP book leans harder on
+    those TEs.
+  - Flex WR / TE / RB 1 / 14 / 11 → 4 / 7 / 15; QB + own-TE rows 12 → 10.
+  - So the harness priced the rule's cost at less than half what his book would pay, and the +4.7 may flatter it. A paper
+    arm would test it at its real cost.
