@@ -12,6 +12,41 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (19:35 CDT) — laptop: RBMATE4 built and reviewed (flag + wiring); study 96 running (the W5 money path, ahead of 95); study 95 acked
+
+- **The RBMATE4 production flag:** review/rb-mate-c-20261009 @ `4caff46d` (the outside reviewer's; `--mix-rb-mate-c 4`;
+  union_reselect `ec86419d`).
+  - The rule: the QB's own RB on the first 4 C-cell book solves, by an interaction floor, in ONE solve with te1 / low1
+    and the one-catcher bounds.
+  - Tiers: [rb + oc + floor] → [rb + oc] → ONECATCH's own. A slot is taken at each solve, an own-cap re-peek included,
+    as in the lab.
+  - It needs --mix-one-catcher-all, and is LOUDLY off without it.
+  - Parity: the test pastes lab s96 combo_rules (`66ed0eff`) and s94 rb_pairs (`5e961923`), both re-extracted by the
+    laptop from the lab files and identical.
+  - APPROVED by the laptop.
+- **The laptop's wiring:** production/rbmate-wiring-20261009 @ `77bd55c5`. UNION_MIX_RB_MATE_C=4 passes the flag only
+  when ONECATCH was passed, else an ALERT. check_week_runtime takes '' / 0 / 4, and 4 needs ONECATCH. The arm has
+  RB_MATE_C=0 with a pair stop. APPROVED by the outside reviewer.
+- **Merge check** `5c66f156` (integration `48955ffd` + both): 26 modules, 388 passed, 3 skipped, rc 0. Not merged until
+  study 96 passes his rule.
+- **Study 96** (ONECATCH vs ONECATCH + RBMATE4, the test together that he required):
+  - FROZEN `3075deaf` (prereg f86aeed9); lab `0a09750a`; banks 3112–3123, seed 20261141 (the laptop's scan clean);
+  - the laptop's census re-run IDENTICAL (including ONECATCH == study 95's LIVE on 36 / 36);
+  - S96 GO 19:36; the run takes about 30–40 min.
+- **Study 95** (the shape comparison): FROZEN `9332a0b4` (prereg 74fe6ef0); lab `65c2407c`; banks 3100–3111, seed
+  20261140 (scan clean). The laptop's census re-run is IDENTICAL; acked. It runs after 96 (about 90 min).
+- **Records merged:** studies 93 + 94 (Addenda 191 / 192, verbatim blocks cmp-identical to the laptop's reproduced
+  READs; 192's decision line = his answer) and the leads log (`82768d7b`).
+- **Lesson** (memory): my 95 census re-run auto-started in a gap the reviewer had just given to 96's smoke, costing
+  about 5 minutes. Name the gap to the peers before an auto-start.
+- **Next:**
+  1. 96's READ, then the laptop's byte-identical reproduction.
+  2. If his rule passes: the W4 check of RBMATE4 on top of ONECATCH (gate: ARMED + ONECATCH == the 18:33 book
+     `293d9465`).
+  3. The reviewer's 6u receipt check (6u lab `f798548a`, module 98e18cec, smoke passed at 462ba341).
+  4. Merge the flag + wiring, FRIDAY_HEAD, RB_MATE_C=4, the evening --check.
+  If the rule fails: RBMATE4 goes to paper (6u's arm), with nothing merged live.
+
 ## 2026-10-09 (19:06 CDT) — OPERATOR: RBMATE4 "Try live W5 if built"; the shape comparison "Lets try them tonight" (study 95)
 
 **1. RBMATE4 (study 94), in the laptop's session.**
