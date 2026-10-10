@@ -11503,3 +11503,159 @@ secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier fi
 - **His decision:** in the morning (his night rules). The production switch is built and checked, default off (`--mix-rb-mate-c
   4 --mix-rb-mate-scope favhi`; the laptop's Week-4 check: BUF / HOU / SF, 4 of 4 slots ruled); study 38 amendment 6w follows it
   on paper.
+
+## Addendum 198 (2026-10-10): study 100 (the ceiling sweep -- five morning-armable variations of his live book, read on the book's best real lineup, in the harness; his "200+" night notes): the ceiling barely moves -- the pick rule picks OVERLAP3 (+0.7 points on the book's mean best lineup, both draws; big seats ×0.96), which goes to study 101; QBCAP3 passes his big-seat rule but not the ceiling pick; the 200+ rate stays about 12–13% in every arm
+
+**Setup.**
+- **His notes** (in the laptop's session, HANDOFF `f68ebf50`): "...if you're not seeing really good scores when you run your mix,
+  keep trying different variations of it. You know, my hope is that we can get to a point where you're, you're seeing scores, you
+  know, over 200 fairly regularly. So do what you can." Then: "It sounds like you're giving up on the high scores. That's not what
+  I want."
+- **The context:** in his real Week 2–4 fields 200 is a top-0.1–0.25% score; in the harness his live book's best real lineup
+  reaches it on about 11–13% of slate-banks (studies 95–99).
+- **The arms** (study 95's harness, every arm his armed construction -- package + te1 / low1 + ONECATCH -- one setting changed, a
+  test): **LIVE**; **QBCAP3** (the QB cap at 3 rows); **OVERLAP3** (at most 3 shared players); **NOCHEAP** (no cheap +2 block);
+  **OWN10** (the ownership cap at + 10, study 90's); **BBHEAVY** (A1 .37 / A2 .07 / B .42 / C .14; book rows 10 / 2 / 11 / 3).
+- **The read:** the pick statistic is the mean, per slate, of the book's best real lineup points (the max of its 26 rows), each arm
+  − LIVE, pooled and on two draws; P(best ≥ 200) printed beside it; P(≥ 1 big seat) with its guards. **The pick rule (pre-stated,
+  a tested function):** the largest pooled gain in mean best points that is also > 0 on both draws, AND P(≥ 1 big seat) not worse
+  on both draws, AND seats ≥ 0.80; none → keep the live book. Five arms on the same 36 slates as studies 89–99: about one to two
+  pass by chance; a pick goes to study 101 (its design committed before this READ).
+- **Preregistration:** `reports/2026-10-09-prereg-study100-ceiling.md` (DRAFT by the outside reviewer; FROZEN `ac1f567e`, 10-10 00:40
+  CDT, before any scored bank).
+- **Code:** nfl2 `635b64eb`: module `854ecfc3…` (pins s95 `46b80611…`); drive `1dbccbe3…`; census `4b8bdbbc…`; reader `02320e3d…`;
+  tests `d7d92b17…` (8).
+- **Panel:** banks 3260–3271 (A 3260–3265, B 3266–3271), B 20,000, seed 20261144, PYTHONHASHSEED=0; the laptop's scan was clean.
+- **Census** (binding, bank 1406; lab `aae6236b`; the laptop's re-run identical): 0 fallbacks in all 6 arms; ONECATCH 504 of 504
+  everywhere; each arm's one setting binds (QBCAP3 at most 3 rows per QB, 10.7 distinct QBs vs 8.0; OVERLAP3 at most 3 shared;
+  NOCHEAP no block rows; OWN10 58.7 non-DST players vs 50.1; BBHEAVY 10 / 2 / 11 / 3); no arm dealt identical to LIVE; projection
+  per row vs LIVE −1.19 (OWN10) to +0.37 (NOCHEAP).
+- **Read:** the reader `02320e3d`; READ `40cec728` (lab `fd990ddf`). The confirmatory census (`9d0faa4a`, raw shas `82d2ef16`,
+  RUN_ENV `0e5d8b9c`; lab `671b24ee`) was committed before the READ: 0 row-rule / ownership-cap fallbacks in all 6 arms; ONECATCH
+  6,048 of 6,048 in every arm.
+- **Reproduced byte-identically by the laptop** at `fd990ddf` (PYTHONHASHSEED=0): the raw files 3260–3271 pass `sha256sum -c`
+  against `RAW_s100_run.sha256`; the READ is `40cec728` and the confirmatory census `9d0faa4a` (cmp-identical).
+
+**Reader output (verbatim):**
+```
+STUDY 100 READER  sha256 02320e3dceaacb86d2cb7b2a68a56940a34881e150727afa14d9e3071b52b0fd
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [3260, 3261, 3262, 3263, 3264, 3265, 3266, 3267, 3268, 3269, 3270, 3271]  sets {'pooled': [3260, 3261, 3262, 3263, 3264, 3265, 3266, 3267, 3268, 3269, 3270, 3271], 'A': [3260, 3261, 3262, 3263, 3264, 3265], 'B': [3266, 3267, 3268, 3269, 3270, 3271]}  B 20000  seed 20261144  comparisons (('QBCAP3', 'LIVE'), ('OVERLAP3', 'LIVE'), ('NOCHEAP', 'LIVE'), ('OWN10', 'LIVE'), ('BBHEAVY', 'LIVE')) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 93 / 92 / 91 / 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["LIVE", "QBCAP3", "OVERLAP3", "NOCHEAP", "OWN10", "BBHEAVY"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"BBHEAVY": 0.35, "LIVE": 0.35, "NOCHEAP": 0.35, "OVERLAP3": 0.35, "OWN10": 0.35, "QBCAP3": 0.35}, "delta": 0.15, "low_pct": 3.0, "one_catcher": "every arm: study 93's ONECATCH (lead_rules onepc)", "own_arms": ["LIVE", "QBCAP3", "OVERLAP3", "NOCHEAP", "OWN10", "BBHEAVY"], "quotas": {"BBHEAVY": [0.37, 0.07, 0.42, 0.14], "LIVE": [0.3, 0.14, 0.28, 0.28], "NOCHEAP": [0.3, 0.14, 0.28, 0.28], "OVERLAP3": [0.3, 0.14, 0.28, 0.28], "OWN10": [0.3, 0.14, 0.28, 0.28], "QBCAP3": [0.3, 0.14, 0.28, 0.28]}, "row_rules": {"BBHEAVY": ["te1", "low1"], "LIVE": ["te1", "low1"], "NOCHEAP": ["te1", "low1"], "OVERLAP3": ["te1", "low1"], "OWN10": ["te1", "low1"], "QBCAP3": ["te1", "low1"]}, "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "settings": {"BBHEAVY": {"cheap_block": true, "max_shared": 4, "own_delta": 0.15, "qb_cap": 5, "quotas": [0.37, 0.07, 0.42, 0.14]}, "LIVE": {"cheap_block": true, "max_shared": 4, "own_delta": 0.15, "qb_cap": 5, "quotas": [0.3, 0.14, 0.28, 0.28]}, "NOCHEAP": {"cheap_block": false, "max_shared": 4, "own_delta": 0.15, "qb_cap": 5, "quotas": [0.3, 0.14, 0.28, 0.28]}, "OVERLAP3": {"cheap_block": true, "max_shared": 3, "own_delta": 0.15, "qb_cap": 5, "quotas": [0.3, 0.14, 0.28, 0.28]}, "OWN10": {"cheap_block": true, "max_shared": 4, "own_delta": 0.1, "qb_cap": 5, "quotas": [0.3, 0.14, 0.28, 0.28]}, "QBCAP3": {"cheap_block": true, "max_shared": 4, "own_delta": 0.15, "qb_cap": 3, "quotas": [0.3, 0.14, 0.28, 0.28]}}, "skill_sum": 800.0, "source": "blend_pct"}, {"BBHEAVY": [9, 6], "LIVE": [9, 6], "NOCHEAP": [9, 6], "OVERLAP3": [9, 6], "OWN10": [9, 6], "QBCAP3": [9, 6]}, "5f4e1fb9977d349183adc3457782b131673a8bcf06bf3e850af2c149c52bfd4d", "37980da6506df0a799e97b5dae29e670228398cb405be01a3c93cc47f2c7e252", "9cde18bd221e52069b449044a37720996ffb0efafac88202d44f02a7dc898aa8", "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== QBCAP3 vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.01701  [-0.00993, +0.04554] (two-sided 0.95)  seasons 2023 +0.00942, 2024 +0.02459
+  GUARD 1 mean entry pct -0.00621  one-sided lower -0.01137  (must exceed -0.015)
+  GUARD 2 expected big seats 0.54658 vs 0.54533  ratio 1.002  (must be >= 0.80)
+  QBCAP3 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3260, 3261, 3262, 3263, 3264, 3265]: +0.03235  [-0.00649, +0.07616]  seasons 2023 +0.04523, 2024 +0.01946
+  set B [3266, 3267, 3268, 3269, 3270, 3271]: +0.00167  [-0.03698, +0.04065]  seasons 2023 -0.02638, 2024 +0.02973
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.03235, set B +0.00167, the difference +0.03067; seats ratio 1.002)
+  EXPLORATORY the l02 field (pooled): +0.01846  [-0.00918, +0.04827]
+  CEILING (the pick statistic) mean best real lineup points per slate +0.430  [-1.061, +2.015]  seasons 2023 +0.594, 2024 +0.267; set A +1.069; set B -0.208
+  P(best >= 200) +0.00926  [-0.02083, +0.03935]; set A +0.01852; set B +0.00000
+
+== OVERLAP3 vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.00936  [-0.02810, +0.04722] (two-sided 0.95)  seasons 2023 +0.01396, 2024 +0.00475
+  GUARD 1 mean entry pct -0.00529  one-sided lower -0.00873  (must exceed -0.015)
+  GUARD 2 expected big seats 0.52380 vs 0.54533  ratio 0.961  (must be >= 0.80)
+  OVERLAP3 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3260, 3261, 3262, 3263, 3264, 3265]: +0.03680  [-0.00598, +0.07992]  seasons 2023 +0.02265, 2024 +0.05096
+  set B [3266, 3267, 3268, 3269, 3270, 3271]: -0.01809  [-0.06875, +0.03324]  seasons 2023 +0.00528, 2024 -0.04145
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set B -0.01809 < 0  (set A +0.03680, set B -0.01809, the difference +0.05489; seats ratio 0.961)
+  EXPLORATORY the l02 field (pooled): +0.00819  [-0.02965, +0.04578]
+  CEILING (the pick statistic) mean best real lineup points per slate +0.719  [-1.060, +2.534]  seasons 2023 +1.270, 2024 +0.167; set A +0.982; set B +0.456
+  P(best >= 200) +0.00231  [-0.03704, +0.03704]; set A -0.00463; set B +0.00926
+
+== NOCHEAP vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.01225  [-0.02383, +0.04637] (two-sided 0.95)  seasons 2023 -0.02687, 2024 +0.05137
+  GUARD 1 mean entry pct +0.00487  one-sided lower -0.00281  (must exceed -0.015)
+  GUARD 2 expected big seats 0.57431 vs 0.54533  ratio 1.053  (must be >= 0.80)
+  NOCHEAP dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3260, 3261, 3262, 3263, 3264, 3265]: -0.01024  [-0.06027, +0.03404]  seasons 2023 -0.05561, 2024 +0.03513
+  set B [3266, 3267, 3268, 3269, 3270, 3271]: +0.03474  [-0.00160, +0.07104]  seasons 2023 +0.00187, 2024 +0.06760
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.01024 < 0  (set A -0.01024, set B +0.03474, the difference -0.04497; seats ratio 1.053)
+  EXPLORATORY the l02 field (pooled): +0.01266  [-0.02450, +0.04703]
+  CEILING (the pick statistic) mean best real lineup points per slate -0.295  [-1.508, +0.799]  seasons 2023 -1.100, 2024 +0.509; set A -1.164; set B +0.573
+  P(best >= 200) -0.00926  [-0.03009, +0.01157]; set A -0.00926; set B -0.00926
+
+== OWN10 vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.01364  [-0.04461, +0.01902] (two-sided 0.95)  seasons 2023 -0.00463, 2024 -0.02266
+  GUARD 1 mean entry pct -0.00940  one-sided lower -0.01652  (must exceed -0.015)
+  GUARD 2 expected big seats 0.50906 vs 0.54533  ratio 0.933  (must be >= 0.80)
+  OWN10 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3260, 3261, 3262, 3263, 3264, 3265]: -0.00317  [-0.04726, +0.04263]  seasons 2023 +0.00349, 2024 -0.00983
+  set B [3266, 3267, 3268, 3269, 3270, 3271]: -0.02412  [-0.06228, +0.01500]  seasons 2023 -0.01276, 2024 -0.03548
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.00317 < 0; set B -0.02412 < 0  (set A -0.00317, set B -0.02412, the difference +0.02095; seats ratio 0.933)
+  EXPLORATORY the l02 field (pooled): -0.01394  [-0.04579, +0.01899]
+  CEILING (the pick statistic) mean best real lineup points per slate -0.120  [-1.345, +1.082]  seasons 2023 +1.136, 2024 -1.377; set A +1.015; set B -1.255
+  P(best >= 200) -0.00694  [-0.02778, +0.01620]; set A +0.01852; set B -0.03241
+
+== BBHEAVY vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.00205  [-0.03298, +0.03002] (two-sided 0.95)  seasons 2023 +0.01347, 2024 -0.01757
+  GUARD 1 mean entry pct -0.00071  one-sided lower -0.00433  (must exceed -0.015)
+  GUARD 2 expected big seats 0.53884 vs 0.54533  ratio 0.988  (must be >= 0.80)
+  BBHEAVY dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3260, 3261, 3262, 3263, 3264, 3265]: -0.00679  [-0.05535, +0.04117]  seasons 2023 +0.00520, 2024 -0.01878
+  set B [3266, 3267, 3268, 3269, 3270, 3271]: +0.00268  [-0.04284, +0.04722]  seasons 2023 +0.02173, 2024 -0.01636
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.00679 < 0  (set A -0.00679, set B +0.00268, the difference -0.00947; seats ratio 0.988)
+  EXPLORATORY the l02 field (pooled): -0.00218  [-0.03285, +0.02941]
+  CEILING (the pick statistic) mean best real lineup points per slate -0.312  [-2.281, +1.695]  seasons 2023 +1.381, 2024 -2.005; set A -0.429; set B -0.195
+  P(best >= 200) -0.00463  [-0.04861, +0.03472]; set A -0.00000; set B -0.00926
+
+
+== HIS RULE on P(>= 1 big seat) per arm (better on both draws AND seats >= 0.80; information):
+  QBCAP3    A CANDIDATE (better on both draws)  |  guard 1 (mean entry pct, one-sided lower) -0.01137 (passes -0.015)  |  under no true effect about one time in four to one in three
+  OVERLAP3  PAPER ONLY: draw B -0.01809 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.00873 (passes -0.015)  |  under no true effect about one time in four to one in three
+  NOCHEAP   PAPER ONLY: draw A -0.01024 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.00281 (passes -0.015)  |  under no true effect about one time in four to one in three
+  OWN10     PAPER ONLY: draw A -0.00317 is not > 0; draw B -0.02412 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.01652 (FAILS -0.015)  |  under no true effect about one time in four to one in three
+  BBHEAVY   PAPER ONLY: draw A -0.00679 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.00433 (passes -0.015)  |  under no true effect about one time in four to one in three
+
+== THE PICK RULE (pre-stated): the largest pooled gain in mean best points that is > 0 on both draws (mean best points), AND P(>= 1 big seat) not worse on both draws, AND seats ratio >= 0.80; none -> keep the live book
+  QBCAP3    mean best +0.430 (A +1.069, B -0.208); P(>=1 big) A +0.03235, B +0.00167; seats 1.002  ->  not eligible: mean best not > 0 on both draws
+  OVERLAP3  mean best +0.719 (A +0.982, B +0.456); P(>=1 big) A +0.03680, B -0.01809; seats 0.961  ->  ELIGIBLE
+  NOCHEAP   mean best -0.295 (A -1.164, B +0.573); P(>=1 big) A -0.01024, B +0.03474; seats 1.053  ->  not eligible: mean best not > 0 on both draws
+  OWN10     mean best -0.120 (A +1.015, B -1.255); P(>=1 big) A -0.00317, B -0.02412; seats 0.933  ->  not eligible: mean best not > 0 on both draws; P(>= 1 big seat) worse on both draws
+  BBHEAVY   mean best -0.312 (A -0.429, B -0.195); P(>=1 big) A -0.00679, B +0.00268; seats 0.988  ->  not eligible: mean best not > 0 on both draws
+  PICK: OVERLAP3 (to study 101)
+
+  LIVE row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  QBCAP3 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  OVERLAP3 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  NOCHEAP row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  OWN10 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  BBHEAVY row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  LIVE         v2: P(>=1 big) 0.36990  expected big seats 0.54533  P(>=2) 0.12778  entry pct 0.50571  |  l02: P(>=1 big) 0.40163  |  the best real lineup: mean 176.82  P(best >= 200) 0.1227
+               book: projection per row 124.70  salary 49970  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.20  predicted ownership per row 94.4%  distinct QBs 8.1  non-DST players 50.7  rows with 2+ TEs 0.0  low-owned per row 0.647  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  QBCAP3       v2: P(>=1 big) 0.38691  expected big seats 0.54658  P(>=2) 0.12178  entry pct 0.49950  |  l02: P(>=1 big) 0.42010  |  the best real lineup: mean 177.25  P(best >= 200) 0.1319
+               book: projection per row 124.34  salary 49970  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.20  predicted ownership per row 92.9%  distinct QBs 10.7  non-DST players 54.8  rows with 2+ TEs 0.0  low-owned per row 0.689  same-team receiver pair rows 1.5  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  OVERLAP3     v2: P(>=1 big) 0.37926  expected big seats 0.52380  P(>=2) 0.11555  entry pct 0.50042  |  l02: P(>=1 big) 0.40983  |  the best real lineup: mean 177.53  P(best >= 200) 0.1250
+               book: projection per row 124.64  salary 49969  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.3  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.17  predicted ownership per row 94.0%  distinct QBs 8.7  non-DST players 53.0  rows with 2+ TEs 0.0  low-owned per row 0.673  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  NOCHEAP      v2: P(>=1 big) 0.38215  expected big seats 0.57431  P(>=2) 0.13747  entry pct 0.51058  |  l02: P(>=1 big) 0.41430  |  the best real lineup: mean 176.52  P(best >= 200) 0.1134
+               book: projection per row 125.06  salary 49976  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.8  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.18  predicted ownership per row 95.0%  distinct QBs 8.2  non-DST players 49.1  rows with 2+ TEs 0.0  low-owned per row 0.599  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  OWN10        v2: P(>=1 big) 0.35626  expected big seats 0.50906  P(>=2) 0.11797  entry pct 0.49630  |  l02: P(>=1 big) 0.38769  |  the best real lineup: mean 176.70  P(best >= 200) 0.1157
+               book: projection per row 123.49  salary 49972  QB + 2 rows 12.0  most-used skill player 8.8 rows of 26  over 30% 3.1  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 3.66  predicted ownership per row 93.8%  distinct QBs 8.8  non-DST players 58.7  rows with 2+ TEs 0.0  low-owned per row 0.664  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  BBHEAVY      v2: P(>=1 big) 0.36785  expected big seats 0.53884  P(>=2) 0.12290  entry pct 0.50500  |  l02: P(>=1 big) 0.39946  |  the best real lineup: mean 176.50  P(best >= 200) 0.1181
+               book: projection per row 124.60  salary 49969  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.20  predicted ownership per row 94.2%  distinct QBs 8.3  non-DST players 51.7  rows with 2+ TEs 0.0  low-owned per row 0.660  same-team receiver pair rows 1.2  book rows A1 / A2 / B / C 10.0 / 2.0 / 11.0 / 3.0
+```
+
+**Reading.**
+- **The pick: OVERLAP3** (at most 3 players shared between any two lineups): mean best real lineup +0.72 points [−1.06, +2.53]
+  (A +0.98, B +0.46), P(≥ 1 big seat) not worse on both draws (A +3.7, B −1.8), expected big seats ×0.96. It goes to study 101
+  (the same rule on a fresh draw, plus his big-seat rule). Its 200+ rate moves +0.2 points.
+- **QBCAP3** (the QB cap at 3 rows) passes his rule on big seats (A +3.2, B +0.2; ×1.00) but not the ceiling pick (mean best B
+  −0.21); NOCHEAP, OWN10 and BBHEAVY are not eligible (OWN10: big seats worse on both draws, guard 1 fails, −1.19 projected
+  points per lineup).
+- **The ceiling, plainly:** every armable setting tested here moves the book's mean best lineup by less than one point and its
+  200+ rate by about one point either way (LIVE 12.3%); the live book is already near what these settings can reach. Five arms on
+  the same slates: about one to two passes by chance.
+- **In plain words:** none of tonight's simple setting changes lifts the book's best lineup in a way that stands out. The best of
+  them -- making the 26 lineups share fewer players -- adds less than a point to the best lineup on average; it is being checked
+  on a fresh draw (study 101) before it is offered.
