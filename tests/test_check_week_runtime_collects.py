@@ -372,3 +372,22 @@ def test_his_onecatch_rides_only_on_the_row_rules_and_his_package(tmp_path):
         env = fresh(f"g{i}"); env.update(live, **bad)
         k = next(iter(bad))
         assert any(f.startswith("UNION_MIX_ONE_CATCHER_ALL=1 is refused") and f"{k}=" in f for f in _failures(_run(env))), bad
+
+
+def test_his_rbmate_rides_only_on_onecatch(tmp_path):
+    """His 10-09 decision (study 94's RBMATE4): UNION_MIX_RB_MATE_C=4 needs UNION_MIX_ONE_CATCHER_ALL=1 (and so everything
+    that needs); any other value is refused."""
+    def fresh(name):
+        d = tmp_path / name; d.mkdir(); return _healthy(d)
+
+    msg = "UNION_MIX_RB_MATE_C="
+    live = dict(UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix", UNION_MAIN_CAP="0.35", UNION_MAIN_OWN_CAP_DELTA="15",
+                UNION_MIX_ROW_RULES="te1_low1", UNION_MIX_ONE_CATCHER_ALL="1", UNION_MIX_FILL="rr")
+    env = fresh("a"); env.update(live, UNION_MIX_RB_MATE_C="4")
+    assert not any(f.startswith(msg) for f in _failures(_run(env)))
+    env = fresh("b"); env.update(live, UNION_MIX_RB_MATE_C="0")
+    assert not any(f.startswith(msg) for f in _failures(_run(env)))
+    env = fresh("c"); env.update(live, UNION_MIX_RB_MATE_C="8")
+    assert any(f.startswith(msg + "'8' must be 4") for f in _failures(_run(env)))
+    env = fresh("d"); env.update(live, UNION_MIX_ONE_CATCHER_ALL="0", UNION_MIX_RB_MATE_C="4")
+    assert any(f.startswith(msg + "'4' must be 4 (study 94's tested value), with UNION_MIX_ONE_CATCHER_ALL=1") for f in _failures(_run(env)))

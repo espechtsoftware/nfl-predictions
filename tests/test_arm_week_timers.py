@@ -431,3 +431,26 @@ def test_his_onecatch_rides_into_the_units_only_on_top_of_the_row_rules():
     assert ('[[ "$ONE_CATCHER_ALL" == 0 || ( "$ONE_CATCHER_ALL" == 1 && "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 '
             '&& "$SHAPE" == mixt && "$MIX_FILL" == rr \\\n      && "$MIX_COVER" == 0 && "$MIX_RS" == 0 && -z "$BRING_BACK_TOP_WR" '
             '&& "$WINNER_SELECT" == 0 ) ]]') in arm
+
+
+def test_his_rbmate_rides_into_the_units_only_on_top_of_onecatch():
+    """His 10-09 decision (HANDOFF ad00da5c, study 94's RBMATE4, read with ONECATCH in study 96): UNION_MIX_RB_MATE_C reaches
+    the units; the host passes --mix-rb-mate-c 4 only when ONECATCH was passed (ONE_CATCHER_ON), else an ALERT; the builder's
+    refusal line and a house fallback raise the same ALERT; the arm keeps it 0 unless every check passes, 4 only with ONECATCH."""
+    from pathlib import Path
+    r = _run(UNION_MIX_RB_MATE_C="4")
+    assert "UNION_MIX_RB_MATE_C=4" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    root = Path(__file__).resolve().parents[1] / "scripts"
+    host = (root / "sunday_build_host.sh").read_text()
+    assert "UNION_ARGS+=(--mix-one-catcher-all); ONE_CATCHER_ON=1" in host
+    assert ('if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_RB_MATE_C:-0}" != "0" ]]; then\n'
+            '    if (( ONE_CATCHER_ON )) && [[ "${UNION_MIX_RB_MATE_C}" == "4" ]]; then\n      UNION_ARGS+=(--mix-rb-mate-c 4)') in host
+    assert 'rb_mate_alert "ONECATCH is not on for this run' in host
+    assert "grep -q 'RB MATE NOT APPLIED' \"$OUT/union-$RUN_TAG.txt\"" in host
+    assert '"$UNION_MAIN_EFFECTIVE" != "mix" ]]; then\n    rb_mate_alert "the MIX main was refused' in host
+    assert '"$UNION_DIR/rb_mate_not_applied.txt"' in host
+    assert host.index("ONE_CATCHER_ON=1") < host.index("UNION_ARGS+=(--mix-rb-mate-c 4)") < host.index('UNION_RC=0; run_union "${UNION_ARGS[@]}"')
+    arm = (root / "arm_week5_saturday.sh").read_text()
+    assert "\nRB_MATE_C=0 " in arm or "\nRB_MATE_C=4 " in arm
+    assert "UNION_MIX_RB_MATE_C=$RB_MATE_C" in arm
+    assert '[[ "$RB_MATE_C" == 0 || ( "$RB_MATE_C" == 4 && "$ONE_CATCHER_ALL" == 1 ) ]]' in arm

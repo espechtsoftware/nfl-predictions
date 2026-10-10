@@ -523,12 +523,30 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   # His 10-09 decision (study 93's ONECATCH; HANDOFF 90e8470c, "Live W5 if built in time"): at most one WR / TE per team on
   # every B / C (QB + 1) book solve, ONLY on top of his row rules (it was tested only with them, inside the package's
   # ownership cap). Off = unset or 0. Row rules not on = no one-catcher, LOUDLY.
+  ONE_CATCHER_ON=0
   if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_ONE_CATCHER_ALL:-0}" == "1" ]]; then
     if (( ROW_RULES_ON )); then
-      UNION_ARGS+=(--mix-one-catcher-all)
+      UNION_ARGS+=(--mix-one-catcher-all); ONE_CATCHER_ON=1
       echo "ONE CATCHER for $RUN_TAG: ON (at most one WR / TE per team on every QB + 1 book row; with the row rules)"
     else
       one_catcher_alert "the row rules are not on for this run (UNION_MIX_ROW_RULES=${UNION_MIX_ROW_RULES:-unset}, ownership cap on: $OWN_CAP_ON)"
+    fi
+  fi
+  rb_mate_alert() {                                         # his RBMATE4 not applied: the book stands without it, loudly
+    printf '%s run %s: RB MATE NOT APPLIED: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$1" | tee -a "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt"
+    printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+      "!!! RB MATE NOT APPLIED for $RUN_TAG: $1 -- the book stands without it" \
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  }
+  # His 10-09 decision (study 94's RBMATE4, "Try live W5 if built"; HANDOFF ad00da5c): the QB's own RB in the first 4 C-cell
+  # (QB + 1) book rows, ONLY on top of ONECATCH (study 96 read the two together). Off = unset or 0. ONECATCH not on = no RB
+  # mate, LOUDLY.
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_RB_MATE_C:-0}" != "0" ]]; then
+    if (( ONE_CATCHER_ON )) && [[ "${UNION_MIX_RB_MATE_C}" == "4" ]]; then
+      UNION_ARGS+=(--mix-rb-mate-c 4)
+      echo "RB MATE for $RUN_TAG: ON (the QB's own RB in the first 4 QB + 1 C-cell book rows; with ONECATCH and the row rules)"
+    else
+      rb_mate_alert "ONECATCH is not on for this run, or UNION_MIX_RB_MATE_C=${UNION_MIX_RB_MATE_C} is not 4"
     fi
   fi
   # Study 48b's winner-likeness order (operator 10-07: "Test tonight, aim for Week 5"; default off): FP's projected
@@ -638,6 +656,12 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_ONE_CATCHER_ALL:-0}" == "1" && "$UNION_MAIN_EFFECTIVE" != "mix" ]]; then
     one_catcher_alert "the MIX main was refused; the house fallback ($UNION_MAIN_EFFECTIVE) has no one-catcher rule"
   fi
+  if [[ "${UNION_MIX_RB_MATE_C:-0}" != "0" ]] && grep -q 'RB MATE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
+    rb_mate_alert "the union refused it: $(grep -h 'RB MATE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
+  fi
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_RB_MATE_C:-0}" != "0" && "$UNION_MAIN_EFFECTIVE" != "mix" ]]; then
+    rb_mate_alert "the MIX main was refused; the house fallback ($UNION_MAIN_EFFECTIVE) has no RB-mate rule"
+  fi
   if (( OWN_CAP_ON )) && grep -q 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     own_cap_alert "the union refused it: $(grep -h 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
@@ -647,6 +671,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt" "$UNION_DIR/own_cap_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" "$UNION_DIR/row_rules_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" "$UNION_DIR/one_catcher_not_applied.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" "$UNION_DIR/rb_mate_not_applied.txt"
   # the projection source travels with the union dir, so the upload sheet can name it (the outside review 10-06, (1b))
   [[ -n "$UNION_DIR" && -f "$OUT/proj_fp-$RUN_TAG.txt" ]] && cp "$OUT/proj_fp-$RUN_TAG.txt" "$UNION_DIR/proj_source_log.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/proj_source_fallback-$RUN_TAG.txt" ]] && cp "$OUT/proj_source_fallback-$RUN_TAG.txt" "$UNION_DIR/proj_source_fallback.txt"
