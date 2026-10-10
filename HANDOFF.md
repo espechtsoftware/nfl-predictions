@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (15:35 CDT) — OPERATOR: a player's chance of 25–30 points -> study list row 108 (Week 6); his Swift question answered (information only)
+
+- **His words (verbatim):** "Have we tried considering the probability of each player to reach 25 to 30 points?" Also, earlier: "how do we feel about swift on the bears against GB this week since the other lead back is
+  out?" (curiosity, not steering) -> answered with the data: Monangai OUT; Swift 46% carry share, 36% vacated; GB 30th vs RB (ours +9.1);
+  our model 15.5 / P(20+) 24%; FP's Thursday 14.5 may predate the OUT (the O-60 gap); FP ownership 28–36%.
+- **The boom-probability answer (row 108):** tried as lineup objectives many times without a real-field gain; at the player level our
+  p_20_plus is roughly calibrated and ranks booms (W1–4), partly via the mean; the p90 ceilings run high. Unused in the FP-sourced live
+  book. Week 6: a calibration controlling for the mean, then a paper boom block if it adds information.
+
 ## 2026-10-10 (15:12 CDT) — OPERATOR: an independent agent review of each lineup after selection -> study list row 107, flag-only from Sunday
 
 - **His words (verbatim):** "Do you think there would be value to add a step after lineup selection where you (without me steering your selections) analyze each lineup to make sure you agree that it is logical and can be competitive?" (Also his question on the New England turnovers note: answered — a caution on L2's own NE stack, not a
