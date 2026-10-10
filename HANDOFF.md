@@ -20,6 +20,7 @@
 - **For Monday's settlement and money-gate report:** his entries export will hold two lineups that are NOT from the union book.
   Tag them as manual (an "agent-picked" test of his) and keep them out of the book's reconciliation and out of study 38's live
   book; report them on their own line if he asks. Nothing in the build, the arm or the upload changes.
+- **Where (his follow-up, verbatim):** "I'm adding them into a different 4444 qualifier that we're not already in." So no per-user entry limit is shared with the plan's contests; Monday: identify that contest from the entries export.
 - **The state:** ready. Remaining: about 15:30 the refresh + proof; about 16:45 FP ownership + the DK loop check; the arm by
   17:58 (integration 486abe06+, FRIDAY_HEAD 83d68f63, TERM_ROWS=8); the 18:00 canary checks and the s38 gate (lab fad0cbe2 + 6z5
   if acked, prod pin 83d68f63); Sunday's steps per the checklist (FP captures, the T-70, the hot / TD-block / DvP / factor files,
