@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (04:51 CDT) — OPERATOR, in the laptop's session: a recency fade (−2 in the projection when the last game was twice the average)
+
+**His words, verbatim:** "I believe the pros fade players with a big previous week.  Perhaps try something like a 2 point reduction in the projection when the players last game was twice the average or something similar"
+
+**The ledger:**
+- **Study 65** (Addendum 167, 10-08, the pros briefing's S3): −1 for a last game ≥ 1.6× the prior average, plus −1 for a
+  salary rise ≥ $300, as an 8-row block in place of the cheap block. Result −2.5 [−7.2, +2.0] (2023 −6.0, 2024 +1.1; 2022 −1.9):
+  not entered.
+- **Study 34's GAP tilt** (the regulars' habits, including the last game's DK points): NO DIFFERENCE.
+- Both ran on the older construction, so under the post-selection law his version (−2 at 2×, the whole book, the armed
+  construction) is a fair re-test. The prior: no difference, leaning negative.
+
+**Proposed study 109** (the reviewer's design call; the outside reviewer codes), information for his morning:
+- **Arms:** LIVE / FADE2 (2×) / FADE2_16 (1.6×), reusing study 65's flag code. The fade goes in the base projection before the
+  build.
+- **Order:** queued after the floor chain (106 → 107 → 108 if 107 holds).
+- **Production:** no whole-book projection fade switch exists (W6 unless clear).
+
 ## 2026-10-10 (04:44 CDT) — OPERATOR, in the laptop's session: a minimum-projection floor ("no player projected under 8"), then per-position floors if it works
 
 **His words, verbatim:**
