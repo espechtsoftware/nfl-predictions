@@ -12,6 +12,41 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (05:18 CDT) — OPERATOR: more experiments all day, "make sure any necessary processes happen"; a new study idea, usage floors (study-list row 92)
+
+**His words, in the laptop's session (three messages):**
+1. "I expect we will be doing many more experiments today and will have everything wrapped up before sunday.  Please make sure any necessary processes happen (such as data collection)"
+2. "Have we tried anything like “minimum rush attempts per game” for a RB and “minimum pass attempts for QB” and “min targets for WR”?"
+3. "And min touchdowns and min red zone targets"
+
+**1, the processes (the laptop's answer and plan).** Every fixed step runs whatever the experiments do:
+- **Saturday:**
+  - 09:30 s-props (Cloud Scheduler) → the props-guard pre-check → ~09:47 the refresh the laptop launches
+    (build-features → tabpfn-gen TABPFN_UPCOMING=2026:5 → project-slate) → proof lines.
+  - The arm before 10:28 (TERM_ROWS=8 / TERM_SHA; its FP projections capture), then the FP ownership capture.
+  - **10:30 d12800-sat + 10:35 d6400-sat, local:** W4's Sunday D12800 took 2 h 24 min at 8 CBC threads, so about 10:30–13:00.
+    **No scored study runs in that window** (the money path; one heavy job at a time). The receipt check comes by 11:00,
+    then the s38 gate.
+  - ~10:45: the R14 sweep and the OPRK snapshot (light).
+  - The afternoon: studies resume. A passing result he wants goes in by a Saturday-evening re-arm (ARM_LATE=1), before
+    Sunday's 04:30 units.
+- **Sunday:**
+  - The 13 timers: 04:30 props, 04:45 project, 05:00 d12800-sun, 05:30 d6400, 09:10 d3200, 09:12 watchers, 10:33 / 10:47 DK
+    pulls, 10:36 project, 10:40 / 10:46 FP projections, 10:50 T-70 build.
+  - **By hand:** 09:15 FP ownership; 09:30 shadow B; the Route Share pair freezes; the OPRK and s38 snapshots; the paper
+    files; vetting and the upload files.
+- **Monday:** his standings exports, then capture-dk-standings, settlement and the graph refresh.
+- **check_prospective_gates.py --week 5** re-run after the FAVHI change (a construction lever): rc 0, "every gate that
+  must be armed this week is armed and policy-consistent".
+
+**2 + 3, usage floors.** Both ledgers were grepped: **never tested as a construction rule.**
+- The projection model takes these as inputs.
+- Touchdowns were tested only as lineup ordering (study 52; study-list 62).
+- Recorded as study-list row 92: one study, one arm per floor, from prior games only. It queues after 106–109 and before
+  row 91, which stays last.
+- Production has no flag; a passing floor needs a pool filter, tests, the W4 gate and an s38 classification before an
+  evening re-arm. The reviewers have been told.
+
 ## 2026-10-10 (05:09 CDT) — OPERATOR: remove one live rule at a time, as the LAST study (study-list row 91); the morning page §3c merged
 
 **His words, in the laptop's session:** "Did we try what you had planned of removing one rule at a time to see if it was really helpful?  That in my opinion should be the last thing we do after we’ve tried the other experiments"
