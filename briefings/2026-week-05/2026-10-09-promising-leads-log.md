@@ -227,6 +227,12 @@ reviewer and updated as each study is read.
   and no more 200+ lineups (11.8% vs 12.3%). The field's 200+ lineups often look like this after the games, but building them
   before the games costs. The production switch for it stays unmerged.
 
+- **No player projected under 8 (study 106, your question):** tested on your armed book with the RB version included. **Worse on
+  both random opponent sets:** about 2.7 fewer slates in 100 with a big win, 12% fewer expected big wins, a lower average finish,
+  and the best lineup 1.5 points lower. The floor removes the cheap and less-owned players the big wins draw on. So the re-check
+  and the per-position floors (your follow-up, "if it's successful") were not run. In production a floor of 8 on Fantasy Points'
+  projections would touch only 3 of your 26 lineups, a smaller dose of the same thing.
+
 - **Your 10-09 evening question — correlations that could give an edge (three quick screens on your real Weeks 1–4; the plan
   was written down before any result was read):**
   - *Defense strength normalized like DVOA:* already in our model (each defense's points allowed to a position, adjusted for
@@ -242,11 +248,12 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 106 (your question: "no player with a projected score less than 8"):** a floor of 8, and a stronger 10, against your
-  book with the RB version included. In production the floor is one setting on Fantasy Points' projections (on your Week-4 book
-  it changes 3 lineups at 8 and 23 at 10). If one passes your rule, study 107 re-checks it on a fresh set of opponents, and then
-  study 108 tries floors per position (your follow-up).
-- **Study 109 (your idea: fade a player by 2 points after a big previous week):** at twice his average, and at 1.6 times.
-- **Last, by your order:** removing one live rule at a time from your armed book.
+- **Study 109 (your idea: fade a player by 2 points after a big previous week),** plus **at most one "hot" player per lineup** (your
+  "add both today"): being set up now.
+- **Study 110 (the selection ideas you queued from your real fields):** no low-owned players at all; the QB from the top-3 game
+  totals; the cheap block only on popular punts; no QB with his own defense plus at least $49,500 of salary; at most 4 top-value
+  players per lineup (your "add both today").
+- **Study 112 (your usage floors):** minimum rush attempts, pass attempts, targets, touchdowns and red-zone targets per game.
+- **Last, by your order (study 114):** removing one live rule at a time from your armed book.
 
 *Updated as each study is read.*
