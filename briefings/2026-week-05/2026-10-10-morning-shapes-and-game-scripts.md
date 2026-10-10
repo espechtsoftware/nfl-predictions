@@ -23,8 +23,8 @@ something is successful, we'll discuss in the morning how we want to use it."
   best of them (overlap 3) did not hold on a fresh draw: **keep your live settings** (studies 100 / 101). Three new
   constructions for the ceiling (study 102): building **every** lineup on upside raised the 200+ rate (15.5% vs 12.3%) but cost
   big wins (×0.86, worse on both sets); the full game stack was worse on everything; the pick (only the 8 cheap-block lineups on
-  upside, +0.2) did not hold on a fresh draw (study 103). **Keep your live settings.** Building every lineup on upside is the
-  one direct "more 200+" lever (+2–3 slates in 100 reaching 200, on all four opponent sets), at 12–14% fewer expected big wins.
+  upside, +0.2) did not hold on a fresh draw (study 103). **Keep your live settings.** Building every lineup on upside raised
+  the 200+ rate on all four opponent sets (+2–3 slates in 100) and cut big wins on all four (12–14% fewer expected).
 - **Already armed for Week 5 (your decisions):** Fantasy Points' projections, the winners' shape mix, the cheap +2 block, the
   35% cap with the ownership limit (+ 15), at most one TE and one player under 3% per lineup, and one receiver per team in the
   QB + 1 lineups. (The cheap +2 block is entered at Saturday's arming, as designed: TERM_ROWS = 8.)
@@ -271,8 +271,9 @@ READ `4d0b354d`, lab `463d5050`).
 
 **Building every lineup on upside repeated its trade on all four opponent sets (studies 102 and 103):** the best lineup reaches
 200 about 2–3 more slates in 100, and big wins drop about 3 slates in 100 (12–14% fewer expected big wins; its finishes slip).
-**It is the one direct "more 200+" lever found tonight, and by your rule, which counts big wins, it loses.** If you ever want
-to trade big wins for more 200+ lineups, this is the measured price; it has no production switch (Week 6 at the earliest).
+**By your rule, which counts big wins, it loses.** If you ever want to trade big wins for more 200+ lineups, this is the
+measured price; it has no production switch (Week 6 at the earliest). (Other versions tonight also showed higher 200+ rates
+without that cost — the RB version of section 2 among them — but at about 12–14% the 200+ rate is too noisy to rank on.)
 **The full game stack was worse again.** **Suggested: keep your live settings.**
 
 **Using a pick:**
