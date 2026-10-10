@@ -292,6 +292,12 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
   Monday's refresh ran before the result facts existed.
 
 ## Saturday 10-10 (the laptop arms; fail-stop script, ask only if blocked)
+- **BLOCKER found 10-10 (the research agent's code review):** the 18:00 / 18:05 supply preflight (check_build_inputs.py, default
+  --max-age-minutes 120 on the projection batch AND market_source_log) fails if the newest project-slate run is > 120 min old.
+  **Run `gcloud run jobs execute project-slate --project nfl-predictions-503414 --region us-central1 --wait` so it FINISHES between
+  ~16:10 and ~17:50 CT** (~16:50 planned). **Start the arm by 17:35** (its 17:58 cutoff check runs after steps 1–5).
+- **After the arm (HIGH 1):** `~/week5-sunday/ownership_lag.csv` exists and `.venv/bin/python scripts/check_ownership_lag.py
+  ~/week5-sunday/ownership_lag.csv` passes (the own cap's scale reference at tilt 0); any "WARN: ... lag" line from the arm = STOP.
 - **CANARY (the reviewer, 10-06):** the 10:30 `d12800-sat` build is the first live K 26 run through the armed host. By
   11:00, check its receipt (identity f69598b, operational_k 26, tail 0), its lever audit PASS, and the union-args file
   (`--main mix`, the FP source, the term, `--main-qb-cap-rows 5 --main-qb-cap-k 26`). Any failure leaves about 24 hours
@@ -323,6 +329,15 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
 - **The arming message to him names the one-game risk** (the reviewer's pre-mortem follow-up, 10-06): if Saturday's Week-5 build puts most of the book's QBs in one game (Week 4's MIXT replay: 91% in JAX–CIN; the historical slates 25–35%), say so in plain words before lock, with the share and the game.
 
 ## Sunday 10-11
+- **Before upload: the read-out the TODAY page does not show** (the research agent's code review 10-10, HIGH 2): `ls ~/week5-sunday/ALERT-*`
+  and `ls <union dir>/*_not_applied.txt <union dir>/mix_refused.txt` (must be empty); `<union dir>/union_args.txt` holds
+  `--main-own-cap-delta 15 --mix-max-te 1 --mix-max-low-own 1 --mix-one-catcher-all --mix-rb-mate-c 4 --mix-rb-mate-scope favhi
+  --term-block-rows 8`; TODAY's "Source run" is the 155xZ T-70 union; the receipt: exposure_cap_share 0.35, own_cap_source.applied,
+  row_rules_source.applied, row_rules.resolved_without == [], one_catcher_source.applied, rb_mate_source {applied, scope favhi,
+  qb_teams}, term_source.source_sha256 5941678b…, term.term_rows 8. **Replacement rows** (vet_replace_v4 checks legality / shape /
+  salary only): hand-check each for ≤ 1 TE, ≤ 1 sub-3% player, ≤ 1 WR / TE per team on B / C rows (spares carry none of the rules).
+- **After the final arm (Saturday) and until lock:** only doc commits (HANDOFF / README / reports / briefings) reach the production
+  checkout -- PROD_ARMED_HEAD = HEAD at arm time; any arm-script or tests/ commit fails every Sunday role.
 - **The agent's flag-only review of the 26 book rows** (study list row 107; the operator 10-10): after the T-70 union and before
   the upload, review every row unsteered; log per row 'logical' or 'concern' + a one-line reason in the fixed categories (late negative
   news; a stack missing its key piece; a backup QB / role change; weather / roof; no realistic path to a big score) to

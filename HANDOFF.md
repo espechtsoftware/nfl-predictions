@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (16:27 CDT) — the research agent's code review of the Sunday path: a BLOCKER for the 18:00 supply (projection age), confirmed; project-slate re-run at ~16:50; its checks adopted
+
+- **BLOCKER (verified in code by the laptop):** `scripts/run_week_build.sh` runs `check_build_inputs.py` without `--max-age-minutes`, so 120
+  applies to the newest player_projections batch AND the project-slate market_source_log batch; the newest W5 batch is 20:52:12Z (15:52
+  CT), so the 18:00 D12800 (128 min) and 18:05 D6400 would die in the preflight -> no Saturday supply / canary / s38 canary inputs, and
+  Sunday's 05:00 D12800 would be the only supply. **Fix: project-slate re-run so it finishes ~16:53** (manual; ~72 min old at 18:05).
+  The supply move to 18:00 (his "18:00, after a final arm") lacked this step; to be registered as a defect.
+- **HIGH 1:** the Saturday lag file feeds the own cap at tilt 0 (ownership_fp.py's scale reference); the arm only WARNs. After the arm:
+  ownership_lag.csv + check_ownership_lag.py pass; any lag WARN = STOP.
+- **HIGH 2 / MEDIUM:** Sunday's pre-upload read-out (ALERT files, *_not_applied, union_args flags, the 155xZ source run, the receipt
+  fields) and a hand check of replacement rows; start the arm by 17:35; after the final arm only doc commits until lock. All in the
+  checklist. Clean: 41 money-path test modules (rc 0 each at 23a108d3), the gates, the own cap, FAVHI scope, term block, s38 isolation,
+  the DK loop (NRestarts 0), Rev7.
+
 ## 2026-10-10 (15:52 CDT) — the afternoon refresh: the 15:00 odds (20:01Z) -> build-features / tabpfn-gen / project-slate all succeeded; the proof lines PASS
 
 - `~/.cache/laptop-agent/w5_saturday_refresh.sh refresh` + `proof` (15:30:47–15:52:25): rosters_weekly W5 2,436 rows; build-features-zj99t,
