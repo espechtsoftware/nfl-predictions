@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:27 CDT) — OPERATOR: the laptop's L1 revised (no Cincinnati WR) after his Miami-vs-WR question; the private log's new sha 02fdd585
+
+- **His question (verbatim):** "do you have any concerns that DK lists miami 3rd vs WR?" Our features agree in kind (Miami: the worst EPA
+  per dropback, 0.52, but WR fantasy points allowed −14.3 adjusted; TEs +5.4); the laptop's answer: weak evidence as a matchup stat, the
+  real issue is Meyers (CIN WR, FP's 10-08 ~15 vs our model 6.5) in 3 of his 4 hand lineups. Banning Meyers alone picked another CIN WR,
+  so L1 was re-solved with every CIN WR banned (FP market-adjusted 155.5 vs 160.5; our model 135.2 vs 134.3). **His answer: "Swap L1,
+  no CIN WR (Recommended)".** The research agent's R1 / R2 (Meyers in both) are unchanged (its picks).
+- **The private log** `~/private/manual-lineups/w05.json` now sha256 **`02fdd58515470adb806a9d3e97751f9121035c64513c466de04d39a3b6ee2321`**
+  (v2 `519c8271…` kept as `w05.v2-519c8271.json`; v1 `3e012b80…`; the old L1 under `laptop_agent.superseded`; picker
+  `pick_w05_alt_l1.py` `ae8de394…`). The new L1 is active at the 13:54 pull, $50,000; FLAGS none.
+
 ## 2026-10-10 (14:23 CDT) — OPERATOR: the laptop's L2 revised (no Gibbs) after his Arizona run-defense question; the private log's new sha 519c8271
 
 - **His question (verbatim):** "do you have any concerns that draft kings lists arizona 3rd vs the run?" The laptop's answer: the matchup
