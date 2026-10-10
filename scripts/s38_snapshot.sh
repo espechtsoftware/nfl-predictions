@@ -82,6 +82,11 @@ PTD=${S38_PAPER_TDBLOCK_FILE:-}
 # as ~/private/paper-corun/oprk/wNN.csv), copied as paper-oprk-<basename>
 POK=${S38_PAPER_OPRK_FILE:-}
 [[ -z "$POK" || -s "$POK" ]] || die "S38_PAPER_OPRK_FILE '$POK' is missing or empty"
+# S38_PAPER_BOOM_FILE (study 38 amendment 6z7, 10-10: MIXT_QA0_BOOMBLOCK8 on paper, our model's boom-chance block in place of the cheap
+# block; the operator: "Yes, on paper with the 16:50 stop"; written Sunday by reports/2026-10-10-boom/boom_block_file.py as
+# ~/private/paper-corun/boom/wNN.csv), copied as paper-boom-<basename>
+PBM=${S38_PAPER_BOOM_FILE:-}
+[[ -z "$PBM" || -s "$PBM" ]] || die "S38_PAPER_BOOM_FILE '$PBM' is missing or empty"
 [[ -n "$PSRC" ]] || die "the union args name no --proj-source (FP projections fell back?): no FP week for study 38"
 cmp -s "$PSRC" "$OUT/proj_fp-$TAG.csv" || die "--proj-source $PSRC differs from $OUT/proj_fp-$TAG.csv"
 if [[ -n "$OSRC" ]]; then
@@ -122,6 +127,7 @@ if [[ -n "$PMB" ]]; then cp -p "$PMB" "$DEST/paper-mblock-$(basename "$PMB")" ||
 if [[ -n "$PHOT" ]]; then cp -p "$PHOT" "$DEST/paper-hot-$(basename "$PHOT")" || die "copy failed: paper-hot-$(basename "$PHOT")"; fi
 if [[ -n "$PTD" ]]; then cp -p "$PTD" "$DEST/paper-tdblock-$(basename "$PTD")" || die "copy failed: paper-tdblock-$(basename "$PTD")"; fi
 if [[ -n "$POK" ]]; then cp -p "$POK" "$DEST/paper-oprk-$(basename "$POK")" || die "copy failed: paper-oprk-$(basename "$POK")"; fi
+if [[ -n "$PBM" ]]; then cp -p "$PBM" "$DEST/paper-boom-$(basename "$PBM")" || die "copy failed: paper-boom-$(basename "$PBM")"; fi
 # production passes no --dk-status (OPEN-DEFECTS O-16): then NO dk-status file is copied and the build must use none
 if [[ -n "$DSRC" ]]; then cp -p "$DSRC" "$DEST/$(basename "$DSRC")" || die "copy failed: $(basename "$DSRC")"; fi
 cp -p "$ARGS" "$DEST/union-args-$TAG.txt" || die "copy failed: union-args-$TAG.txt"   # ONE union-args file (never also union_args.txt)
@@ -148,6 +154,7 @@ OVR_SRC=$OVR; [[ "$OVR" == "-" ]] && OVR_SRC="(written: {})"
   [[ -n "$PHOT" ]] && SRC["paper-hot-$(basename "$PHOT")"]="$PHOT"
   [[ -n "$PTD" ]] && SRC["paper-tdblock-$(basename "$PTD")"]="$PTD"
   [[ -n "$POK" ]] && SRC["paper-oprk-$(basename "$POK")"]="$POK"
+  [[ -n "$PBM" ]] && SRC["paper-boom-$(basename "$PBM")"]="$PBM"
   if [[ -n "$OSRC" ]]; then SRC["$(basename "$OSRC")"]="$OSRC"; elif [[ -z "$CSRC" ]]; then SRC["ownership_fp-$TAG.csv"]="${OSRC_LABEL:-}"; SRC["ownership_fp-$TAG.csv.receipt.json"]="(written by ownership_fp.py with the export)"; fi
   [[ -n "$CSRC" ]] && SRC["$(basename "$CSRC")"]="$CSRC"
   for n in $(ls "$DEST" | sort); do
