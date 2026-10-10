@@ -16,8 +16,11 @@ reviewer's condition, 10-09 evening). The lab reviewer freezes it (banks and see
 - **Code: study 97's frozen module, census, driver and reader, byte for byte** (nfl2 `production/s97-game-script-20261009`,
   module `7df6f324…`, reader `e5827c73…`, census `346b403f…`, driver `5dff66b7…`; the reader's bootstrap seed 20261142 kept, as the
   frozen reader prints it). Nothing is edited; study 99 is the same run on new banks.
-- **Banks (proposed; the laptop scans):** **3148–3159** (set A 3148–3153, set B 3154–3159; sims bases 3198–3209, fields
-  3848–3859).
+- **Banks (the laptop's clean block):** **3198–3209** (set A 3198–3203, set B 3204–3209; sims bases 3248–3259, fields 3898–3909)
+  — clean against 734 used banks (90–98 included), no season years. **Moved from the first proposal 3148–3159**, which collided:
+  3150–3159 are study 95's sims bases (95's banks 3100–3111 + 50), and every bank from 3150 to 3197 is a sims base of studies
+  95–98 (the cross-use class of 10-09: the {b, b + 50, b + 700} sets of every used bank). The design does not depend on the bank
+  numbers; this is a bank fix before anything ran, recorded here.
 - **Which lines decide:** ONLY the comparisons of the arms study 97's §3 rule picks, by the same §3 rule:
   - a picked RB-with-his-QB version (RBMATE4_FAV / RBMATE4_FAVHI) is CONFIRMED iff it again beats BOTH LIVE and RBMATE4 by his
     rule;
