@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q, 6r, 6s, 6t, 6u, 6v and 6w before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08, 10-09 and 10-10, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q, 6r, 6s, 6t, 6u, 6v, 6w and 6x before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -1278,6 +1278,48 @@ score. Nothing here enters a contest: the money path, its checkout and its files
   - **The integrity gate** pins this module sha (`e7038cba…`) in place of 6v's `0656a38e…`, on the live snapshot. If the scope
     flag merges into FRIDAY_HEAD, `s38-prod-pin` moves there and the gate is re-run.
   - **Order:** this amendment; the laptop's ack; the gate pin; then the flags' default-off merge.
+
+- **Amendment 6x (2026-10-10, before Week 5's lock; no Week-5 outcome exists): the overlap limit 3 followed, and OVERLAP3 on
+  paper.**
+  - **Why.** Study 100's pre-stated ceiling rule picked OVERLAP3 -- at most 3 players shared between any two lineups (Addendum
+    198) -- and study 101's fresh draw did not hold it (Addendum 199: the book's mean best lineup −0.9 points, P(≥ 1 big seat)
+    −1.3, worse on both draws). It failed only in the harness, so its fair test is the real Week-5 field on paper (no money).
+    Production can arm it (`UNION_MEAN_MAX_SHARED=3`; `check_week_runtime` accepts 3–8; the laptop's Week-4 check: 25 of 26
+    rows change, 52 → 60 distinct players, −0.02 FP projected points per lineup). The paper arms follow every live construction
+    setting, so 3 must be a limit they are defined at.
+  - **What changes.**
+    - `SHARED_OK` gains 3: the paper arms follow a live `--mean-max-shared 3`, as they follow 4–7 (amendment 1). 2 and 8 stay
+      parity mismatches.
+    - **MIXT_QA0_MS3** (exploratory): his live book at the overlap limit 3 (`FIXED_SHARED`), every other live setting followed
+      as MIXT_QA0 follows it (`FOLLOW_QA0`: the live term block, the regulars' block, the row rules, ONECATCH, the RB mate --
+      unlike MIXT_QA0_MS7, which stays a full book without the live blocks, amendment 5), while the live limit is not 3;
+      missing ("the same book as MIXT_QA0") when it is.
+    - **MIXT_QA0_MS4** (exploratory): the live book at 4 (`FIXED_SHARED`, `FOLLOW_QA0`), the paired book, built only while the
+      live limit is 3; missing otherwise.
+    - The scorer scores both; the reader prints each against MIXT_QA0 with its contest groups (limited entry, Millionaire) and
+      both books' expected big seats, on the 6r line. Information only: neither is decision-bearing.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6x/`, script `run.sh` `7b9648288c93`, log
+    `79ced26c4dd0`; lab `233ed9fa`; production = `s38-prod-pin` `5faf2f05` (FRIDAY_HEAD); PYTHONHASHSEED=0; the laptop's Week-4 receipts:
+    ONECATCH `e2b66fb9…`, overlap 3 `26b6d462…`):
+    - 54 tests pass (rc 0); union-argument mismatches none in both builds.
+    - **The first smoke (lab `5dbb4c29`) caught a definition gap:** MS3 / MS4 were built as MS7, which stays a full book without
+      the live blocks (amendment 5), so MS3 lacked his live cheap +2 block: the live-3 MIXT_QA0 differed from the paper MS3 and
+      MS4 from the live-4 MIXT_QA0. Fixed in `233ed9fa` (`FOLLOW_QA0`; the 6x test asserts the membership and that no OFF group
+      holds them) before this text; the smoke below is the re-run.
+    - **Live overlap 4 (the ONECATCH receipt):** all 33 earlier arms identical to the Friday gate's build (`gate-w4-friday3`, rows
+      + ranks); MIXT_QA0_MS3 built at the limit 3 (largest overlap 3; 1 of 26 rows shared with MIXT_QA0; FP 140.69 vs 140.70
+      per dealt lineup); MS4 missing as designed.
+    - **Live overlap 3 (the laptop's OVERLAP3 receipt):** MIXT_QA0's largest overlap 3; **MIXT_QA0 equals the live-4 build's
+      MS3, and MS4 equals the live-4 build's MIXT_QA0** (rows + ranks); MS7 unchanged; MS3 missing as designed.
+  - **Code:** lab `233ed9fa` (`932c57b4`, `5dbb4c29` and `233ed9fa`, on 6w's `2f102325`; pushed to
+    production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `9a82569c2a2b4f24b4cfa141cec779a5c2da1f477eee3cb0ab5b8004328f45e7`;
+    - `scripts/s38_score.py` `c4b8bcb61894d50417ea9fdd9b1e3f2acc9251f89fd52eddb0cf2da3563de757`;
+    - `scripts/s38_report.py` `1a1441a8532a25cadb3ce1bab225c8149ededf199290a1a5a61b72eeed7cb0a4`;
+    - `tests/test_s38_paper_corun.py` `622ff1d814fc6a7bb780bd8d29574b382f1236624d66e4258530d7b9eea32840` (54 tests);
+    - `scripts/s38_build.py` unchanged (`15373e14…`).
+  - **The integrity gate** pins this module sha (`9a82569c…`) in place of 6w's `e7038cba…`, on the live snapshot.
+  - **Order:** this amendment; the laptop's ack; the gate pin.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
