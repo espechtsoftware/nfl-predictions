@@ -257,7 +257,9 @@ reviewer and updated as each study is read.
 - **Study 110 (the selection ideas you queued from your real fields):** no low-owned players at all; the QB from the top-3 game
   totals; the cheap block only on popular punts; no QB with his own defense plus at least $49,500 of salary; at most 4 top-value
   players per lineup (your "add both today").
-- **Study 112 (your usage floors):** minimum rush attempts, pass attempts, targets, touchdowns and red-zone targets per game.
+- **Study 112 (your usage floors):** at least 13 carries a game (RBs), 32 pass attempts (QBs), 4.5 targets (WRs / TEs), each
+  set to change about 8–15 of your 26 lineups. Touchdown and red-zone floors were dropped before the run: no level changes
+  fewer than about 16–22 lineups (a zero average removes every player without a recent touchdown at once).
 - **Last, by your order (study 114):** removing one live rule at a time from your armed book.
 
 *Updated as each study is read.*
