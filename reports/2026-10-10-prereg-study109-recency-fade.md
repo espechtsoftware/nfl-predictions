@@ -45,9 +45,13 @@ FAVHI through 96's `combo_rules`, 89's `own_caps`; QB cap 5, overlap 4, the chea
 - **LIVE** — no fade.
 - **FADE2** — a skill player (QB / RB / WR / TE) whose **last regular-season game this season** scored **≥ 2.0 ×** max(the mean
   of his up to 4 games before it, 5), with ≥ 2 such games, has **2 points taken off his simulated mean** ("twice the average").
+  - **The games before it are this season's AND the previous season's** (study 65's `last_game()`: this season's games before
+    the slate's week plus every previous-season game; the last game must be this season's; the prior games are the up-to-4
+    games just before it). So early in a season the average reaches back into the previous season. A production version must
+    do the same (the laptop's precision, 10-10, checked against the code).
 - **FADE2_16** — the same at **1.6 ×** (study 65's dose).
-- **HOT1** (added before the freeze) — **at most one "hot" skill player per book row**; hot = FADE2's flag exactly (last game ≥
-  2.0 × max(the mean of his up to 4 games before it, 5), ≥ 2 such games). **No fade:** the objective is LIVE's. The vehicle is a
+- **HOT1** (added before the freeze) — **at most one "hot" skill player per book row**; hot = FADE2's flag exactly (last game, this
+  season's, ≥ 2.0 × max(the mean of his up to 4 games before it, this season's or the previous season's, 5), ≥ 2 such games). **No fade:** the objective is LIVE's. The vehicle is a
   row rule, (the hot ids, ≤ 1), in the same tier as te1 / low1 (study 91's mechanics: an infeasible solve is re-solved without
   the row rules, recorded); spares never.
 - **The flag** is study 65's frozen `last_game()` (`s65_tailtilt.py` `7667c963…`, from its READ `cf53ef1`). It uses nflverse

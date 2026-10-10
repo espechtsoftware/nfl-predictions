@@ -15,10 +15,11 @@ his decision.**
 - **Code: study 109's frozen module, census, driver and reader, byte for byte** (nfl2 `production/s109-recency-fade-20261010`;
   the shas as frozen in study 109); new banks. The reader prints all of study 109's lines; **ONLY the pick's line vs LIVE
   decides.**
-- **Banks:** the laptop's reservation, with its full-set check and text scan, recorded here before the freeze.
+- **Banks (the laptop's reservation; the full-set check: CLEAN; the text scans running):** **3872–3883** (set A 3872–3877, set
+  B 3878–3883; sims bases 3922–3933, fields 4572–4583).
 - **The reader's seed** is study 109's (20261151): the same bootstrap resamples, so the intervals are correlated with 109's. The
-  pass rule below uses point estimates only (the frozen reader's own seed is kept, as in studies 99, 101, 103, 107, 111 and
-  113).
+  pass rule below uses point estimates only. (The laptop reserved seed 20261158 for this study; it stays unused, because the
+  frozen reader's own seed is kept, as in studies 99, 101, 103, 107, 111 and 113.)
 - **THE PASS RULE (fixed now):** the pick − LIVE on P(≥ 1 big seat) is **better on both draws AND the pooled expected big seats
   ratio ≥ 0.80** (his rule again; guard 1 printed).
   - **Pass, HOT1** → "held on a fresh draw". HOT1 has a production path: one more entry in `row_rule_sets`, carried into the
