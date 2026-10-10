@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (15:06 CDT) — DK-rank paper block (s38 6z6) acked; FRIDAY_HEAD 2e392141; the OPRK writer in; the accuracy prereg drafted
+
+- **s38 6z6, MIXT_QA0_OPRKBLOCK8** (the 8-row paper block on DK's opponent rank, bonus clip(2 × (OPRK − 16) / 16, 0, 2), in place of the cheap
+  block, vs NOTERM, beside MBLOCK8): lab `ebfff041` (module b54dc93a, build 092532e7, score c00daf94, report 094f0581, tests 7faae0f6 (62);
+  prereg dba7163d). **The laptop's smoke reproduction byte-identical** (armedFH 605a904c; synthetic W4 rank file d7336650, mechanics only;
+  W1–4 ranks were never stored). Acked; the gate pin moves to ebfff041.
+- **The snapshot flag** S38_PAPER_OPRK_FILE (production/s38-oprk-snapshot-20261010 @ b1f2324e, APPROVED) merged → **FRIDAY_HEAD =
+  `2e3921412fd7456bb0ce0ca297c31bce140a42cf`** (arm-only a5265d53): tests reading the arm + test_s38_snapshot 70 passed (rc 0); `--check` rc 0
+  (13 units); the W4 gate book aa12ac0e (= integration's Rev7 LIVE). The reviewer moved s38-prod-pin to 2e392141 (byte check SAME).
+- **The writer** `reports/2026-10-10-oprk/oprk_block_file.py` (the outside reviewer's, review/oprk-block-file-20261010 @ 35f4f46a, sha
+  **eaa7ca96**, APPROVED by the lab reviewer; max age 3 h): brought into integration byte for byte (d23b115b); **its 8 tests passed on the
+  branch (rc 0)**; `tests/test_oprk_block_file.py` merges Monday (so FRIDAY_HEAD did not move a fourth time). Sunday steps in the checklist
+  (~10:35 capture; the file within 3 h; S38_PAPER_OPRK_FILE on the snapshot).
+- **The accuracy prereg** `reports/2026-10-10-prereg-oprk-accuracy-w05.md` (reader `oprk_accuracy_reader.py` 4782fcb8; DRAFT, the lab
+  reviewer freezes): refuses before outcomes; the outcome path exercised on synthetic outcomes (exit 0, every line printed). Read Monday.
+
 ## 2026-10-10 (14:59 CDT) — OPERATOR: a quick DST-touchdown test (done: own DST TDs don't persist) and a DK-rank study (accuracy prereg + s38 6z6 paper block, in progress)
 
 - **His words (verbatim):** "Can we do a quick study using the DK rankings that we have (which I believe is only one week so probably not
