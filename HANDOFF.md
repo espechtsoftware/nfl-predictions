@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (15:37 CDT) — OPERATOR: a 'boom chance' block on paper for Sunday (s38 6z7, MIXT_QA0_BOOMBLOCK8), hard stop 16:50
+
+- **His words (verbatim):** "So there's no way we can test anything now." -> the laptop: a paper test can still go into Sunday's
+  comparison; asked "Put a 'boom chance' block on paper for Sunday ... with a hard stop: if it isn't built, checked and merged by 16:50, it
+  becomes Week 6's first paper test?" -> **"Yes, on paper with the 16:50 stop (Recommended)"**.
+- **Split:** the lab reviewer 6z7 (design + code + smoke); the outside reviewer the generator (`reports/2026-10-10-boom/boom_block_file.py`,
+  from our pre-lock W5 projections in player_projections_current); the laptop `S38_PAPER_BOOM_FILE` (production/s38-boom-snapshot-20261010
+  @ e78c77bc, test_s38_snapshot 18 passed; in review) -> merge -> FRIDAY_HEAD + gates + ack. **Nothing merges after 16:50; then Week 6.**
+  Information only (not in 7b's list). Our boom chances exist only for 2026 (player_projections), so no larger calibration today.
+
 ## 2026-10-10 (15:35 CDT) — OPERATOR: a player's chance of 25–30 points -> study list row 108 (Week 6); his Swift question answered (information only)
 
 - **His words (verbatim):** "Have we tried considering the probability of each player to reach 25 to 30 points?" Also, earlier: "how do we feel about swift on the bears against GB this week since the other lead back is
