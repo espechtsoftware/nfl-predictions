@@ -20,6 +20,9 @@
   ratio ≥ 0.80** (his rule again; guard 1 printed). Pass → the floor "held on a fresh draw": information for Week 6, with the
   production change named in study 106 §4. Fail → "did not hold" (not suggested).
 - **If study 106 picks nothing, study 107 is not run** (recorded).
+- **Disclosure (2026-10-10, still before study 106's READ):** study 106's arms were changed before its freeze to carry the
+  operator's adopted RBMATE4_FAVHI in every arm (study 106 §2); study 107 re-runs study 106's frozen code, so it inherits that
+  book: the pick vs LIVE is read on his armed Week-5 book.
 - **His per-position floors** ("try different min projections per position") are study 108: only if study 106 picks and study
   107 holds, its levels from study 106's outcome-blind census so that each binds, its design committed before it runs.
 

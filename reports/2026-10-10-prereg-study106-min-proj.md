@@ -24,6 +24,14 @@ READ.
   10 touches 13.
 
 ## 2. Arms (`experiments/s106_min_proj.py`)
+- **Pre-freeze change (2026-10-10, before any scored bank; the lab reviewer's call):** the operator adopted study 97 / 99's
+  RBMATE4_FAVHI at about 05:00 ("Yes, it seems the RB one should be adopted"; armed for Week 5, production `e8a4d0a4`). Under the
+  post-selection law, a read on the book without it would be a verdict for a book he no longer enters, so **every arm now carries
+  it**: 96's `combo_rules` with 97's FAVHI pairs replaces 93's `lead_rules`. LIVE = his armed Week-5 book, checked equal to
+  study 97's RBMATE4_FAVHI, rows and dealing, on bank 1406 (`--ref97`). The census adds the RB mate's slots (4 per book, every
+  arm). For study 106 the FAVHI pairs are computed **on each arm's pool**: production's `rb_mate_scope_teams` runs
+  on the frame minus `excl`, so a floor that drops a QB or an RB drops its pair.
+
 **Study 95's harness exactly** (its frozen module `s95_shapes.py` `46b80611…`, sha-asserted; `run()` = 95's `run()` with eight
 listed edits, a test asserts it); every arm his live Week-5 construction (the package + te1 / low1 + ONECATCH through 93's
 `lead_rules`, 89's `own_caps`; QB cap 5, overlap 4, the cheap +2 block on 8 rows, the ownership cap + 15, A1 .30 / A2 .14 / B .28
@@ -68,9 +76,10 @@ listed edits, a test asserts it); every arm his live Week-5 construction (the pa
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke (the unit tests, the mechanics smoke 2023 W3 / 2023 W11 /
   2024 W10, the census, the full path: reader exit and line count only).
 - **The smoke:** (a machine gap the lab reviewer names; filled in when it ends).
-- **Code:** nfl2 `production/s106-min-proj-20261010` @ `c484751f` (off study 102's frozen `969f4d3d`):
-  - `experiments/s106_min_proj.py` `66265fbc…` (pins s95 `46b80611…`)
+- **Code:** nfl2 `production/s106-min-proj-20261010` @ `fabf216e` (off study 102's frozen `969f4d3d`; s96 / s97 byte for byte,
+  `0363a84f…` / `7df6f324…`):
+  - `experiments/s106_min_proj.py` `2e49c97c…` (pins s95 `46b80611…`, s97 `7df6f324…`)
   - `scripts/s106_drive.py` `8d5b58e5…`
-  - `scripts/s106_census.py` `5c92123f…`
+  - `scripts/s106_census.py` `ce91be02…`
   - **`scripts/s106_report.py` (the reader) `fb32ae7a…`** (seed 20261149)
-  - `tests/test_s106_min_proj.py` `6c7df8bf…` (9)
+  - `tests/test_s106_min_proj.py` `05f28a49…` (9)

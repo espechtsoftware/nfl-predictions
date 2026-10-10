@@ -25,6 +25,13 @@ planned, since a pick would need one before any use.
     - So the fade's case is the tail and the crowd's ownership, not the mean; the harness reads it on big seats.
 
 ## 2. Arms (`experiments/s109_recency_fade.py`)
+- **Pre-freeze change (2026-10-10, before any scored bank; the lab reviewer's call):** the operator adopted study 97 / 99's
+  RBMATE4_FAVHI at about 05:00 ("Yes, it seems the RB one should be adopted"; armed for Week 5, production `e8a4d0a4`). Under the
+  post-selection law, a read on the book without it would be a verdict for a book he no longer enters, so **every arm now carries
+  it**: 96's `combo_rules` with 97's FAVHI pairs replaces 93's `lead_rules`. LIVE = his armed Week-5 book, checked equal to
+  study 97's RBMATE4_FAVHI, rows and dealing, on bank 1406 (`--ref97`). The census adds the RB mate's slots (4 per book, every
+  arm). For study 109 the FAVHI pairs are computed once on the shared pool (the fade changes only the objective).
+
 **Study 95's harness exactly** (its frozen module `s95_shapes.py` `46b80611…`, sha-asserted; `run()` = 95's `run()` with seven
 listed edits, a test asserts it); every arm his live Week-5 construction (the package + te1 / low1 + ONECATCH through 93's
 `lead_rules`, 89's `own_caps`; QB cap 5, overlap 4, the cheap +2 block on 8 rows, the ownership cap + 15, A1 .30 / A2 .14 / B .28
@@ -67,10 +74,10 @@ listed edits, a test asserts it); every arm his live Week-5 construction (the pa
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke (the unit tests, the mechanics smoke 2023 W3 / 2023 W11 /
   2024 W10, the census, the full path: reader exit and line count only).
 - **The smoke:** (a machine gap the lab reviewer names; filled in when it ends).
-- **Code:** nfl2 `production/s109-recency-fade-20261010` @ `d05b72d0` (off study 102's frozen `969f4d3d`; s65 brought in byte for
-  byte from `cf53ef1`):
-  - `experiments/s109_recency_fade.py` `d3325f39…` (pins s95 `46b80611…`, s65 `7667c963…`)
+- **Code:** nfl2 `production/s109-recency-fade-20261010` @ `f3cd184e` (off study 102's frozen `969f4d3d`; s65 brought in byte for
+  byte from `cf53ef1`, s96 / s97 from `3cf3e8eb` / `af07583e`):
+  - `experiments/s109_recency_fade.py` `d1bf7f94…` (pins s95 `46b80611…`, s65 `7667c963…`, s97 `7df6f324…`)
   - `scripts/s109_drive.py` `f1845246…`
-  - `scripts/s109_census.py` `c3955b41…`
+  - `scripts/s109_census.py` `895aaaf9…`
   - **`scripts/s109_report.py` (the reader) `f1c0790b…`** (seed 20261151)
-  - `tests/test_s109_recency_fade.py` `ca08e23f…` (9)
+  - `tests/test_s109_recency_fade.py` `d2c84155…` (9)
