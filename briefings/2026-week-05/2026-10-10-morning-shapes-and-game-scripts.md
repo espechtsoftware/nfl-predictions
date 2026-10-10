@@ -330,9 +330,16 @@ fixed before study 102 was read).
    approximately. On your real Week-4 book an FP floor of 8 changes 3 of 26 lineups and 10 changes 23 (the laptop's check). A
    floor of 12 is not tested: with the cheap block on, production refuses it (it removes every cheap-block player).
 3. **Study 109 — a recency fade** (your "2 point reduction in the projection when the players last game was twice the
-   average"): at 2.0× and 1.6×, on every lineup of your armed book (with the RB version). **Added this morning, as you said
-   ("Add both today"):** at most one "hot" player per lineup (a player coming off a game at twice his average), with no change
-   to the projections. A pick is re-checked on a fresh draw (study 109b).
+   average"): **READ — worse; keep your book as is.** Against your armed book (with the RB version), each was below on both
+   opponent sets:
+   - **−2 points at twice the average:** −4.7 slates in 100 with a big win (−5.7 / −3.7), 20% fewer expected big wins, the
+     average finish lower (check fails);
+   - **the same at 1.6×:** −5.2 (−4.0 / −6.3), 21% fewer expected big wins, check fails;
+   - **at most one "hot" player per lineup** (added this morning at your "Add both today"; no change to the projections): −1.8
+     (−2.5 / −1.2), 10% fewer expected big wins, the average finish within the check.
+   - The 200+ rate barely moved in any of them. Nothing passed, so the fresh-draw check (109b) is not run (study 109's READ
+     `169cc082`, lab `fb004daf`). In the test model the players coming off a big game are still worth their projection; the
+     pros' habit of fading them did not translate into more big wins here.
 4. **Study 110 — rules from your real Weeks 1–4 fields** (the ideas page you queued): no low-owned player at all; the QB from
    one of the slate's three highest-total games; the cheap block only on popular cheap players; no QB with his own defense and
    at least $49,500 of salary. **Added this morning ("Add both today"):** at most 4 of a lineup's 8 players from the top tenth by
