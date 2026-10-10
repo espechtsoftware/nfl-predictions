@@ -29,7 +29,8 @@ for his decision.**
 - **Where the Out teammate is read:** Out players are not in the k1 pools (study 116 §5), so his status, team and receptions
   come from `player_week_training` (`injury_status`, pre-lock) and the weekly stats, never from the slate frame. `was_active`
   is an outcome and is never read.
-- **Banks (the laptop's reservation; the full-set check of 749 used or reserved banks: CLEAN; the text scans: to follow):**
+- **Banks (the laptop's reservation; the laptop's full-set check (749 used or reserved banks, every {b, b+50, b+700}) and
+  the text scans of both repositories: CLEAN, 10-10):**
   **4328–4339** (set A 4328–4333, set B 4334–4339; sims bases 4378–4389, fields 5028–5039). **Seed:** study 116's reader seed
   (20261161).
 - **Production, if it passes:** DK OUT players leave production's T-70 pool too (`unavailable_ids`), so a production version
