@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (09:56 CDT) — the morning data steps done: FP ownership, the props guard, the refresh, the proof lines; 6z2 (HOT_WRTE1 on paper) pushed; study 112 running
+
+- **FP projected ownership** (08:55): rc 0; W5 now has 3 captures, the newest 13:55:12Z with 1,147 rows.
+- **The DK ingest unit:** active (O-65's interim check).
+- **Props:** ingest-props-g4ts2 succeeded (14:32:59Z). The props guard at the deployed 6fd3ef00: **GUARD PASSES**, props
+  177 / 433 = 40.9% (floor 30%).
+- **The refresh** (`~/.cache/laptop-agent/w5_saturday_refresh.sh`): rosters_weekly W5 2,436 rows (no nflverse ingest needed);
+  build-features-vmxbw (09:33–09:40), tabpfn-gen-5cpdr (09:40–09:52), project-slate-gblrb (09:52–09:55), each succeeded.
+  **The proof lines: PASS.**
+- **s38 6z2** (MIXT_QA0_HOT_WRTE1 on paper, his "Yes, on paper"; lab `0b3aa516`, prereg 1887361b) is pushed and its smoke is
+  clean. The laptop reproduces it after 112's run (one reproduction covers 6z and 6z2); then the 18:00 gate's module pin moves
+  to 1420932a. **The canary snapshot must carry paper-hot-w05.csv (S38_PAPER_HOT_FILE).**
+- **Study 112** (usage floors RUSH 13 / PASS 32 / TGT 4.5): the laptop's ack (census IDENTICAL, 12 tests). The scored run
+  started 09:30:53, ETA about 10:10.
+- **Next:** about 15:30, the afternoon refresh (after the 15:00 odds); about 16:45, FP ownership; the 17:55 arm.
+
 ## 2026-10-10 (09:23 CDT) — study 115 READ: HOT_WRTE1 and FADE2_WRTE slightly worse, so no pick, 115b not run, the switch unmerged; OPERATOR: HOT_WRTE1 on paper in W5 (reproduced byte for byte)
 
 - **Study 115** (the reviewer; lab `46236e09`; confirmatory census `79b87a17` committed before the read). **The laptop reproduced
