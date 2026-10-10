@@ -34,6 +34,9 @@ slate). The lab reviewer reviews and freezes it. **One week, descriptive, decide
 Monday 10-12, after the Week-5 standings load: `python reports/2026-10-10-oprk/oprk_accuracy_reader.py --season 2026 --week 5 --group 154468
 --lock-utc 2026-10-11T17:00:00Z`; the output is pasted verbatim under §5 and the lab reviewer re-runs it. Before outcomes the reader
 refuses ("an input is empty: no read"; checked 10-10 against the 14:31 capture: 587 OPRK, 571 FP rows, 0 realized).
+**The outcome path, exercised 10-10 15:00 CDT on SYNTHETIC outcomes** (fake FPTS = FP + N(0, 6) on W5's real inputs, mechanics only;
+the lab reviewer's rule 1): exit 0; every line printed (4 position rows with both Spearmans and their intervals, the 3-band table;
+156 players). No real outcome was read.
 
 ## 5. Result
 (Monday.)
