@@ -827,9 +827,9 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         j = len(prev)
         if not rb or j >= k:
             return _solve(name, extra_bans, use_term)
-        if rm_pairs and name == "C" and len(rm_state["used"]) < int(rb_mate_c):   # study 94's RBMATE first (absent when off)
+        if rb_mate_c and name == "C" and len(rm_state["used"]) < int(rb_mate_c):  # study 94's RBMATE first (absent when off)
             rm_state["used"].append((name, j))                # the slot is taken, ruled or not
-            got = _solve(name, extra_bans, use_term, rb + oc_bounds, rm_pairs)
+            got = _solve(name, extra_bans, use_term, rb + oc_bounds, rm_pairs)   # no pair in the pool: no floor (as the lab)
             if got[0] is not None:
                 rm_state["ruled"].append((name, j)); rm_state["pending"] = name
                 oc_state["ruled"].append((name, j)); oc_state["pending"] = name
@@ -1148,7 +1148,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                                "resolved_without": [list(x) for x in oc_state["plain"]], "ruled_rows": oc_state["rows"],
                                "pair_rows_book": sum(1 for r in book if paired(r)),
                                "pair_rows_bc": sum(1 for r, cl in zip(book, cell_of) if cl in ONE_CATCHER_CELLS and paired(r))}
-    if rm_pairs:                                               # study 94's receipt block (absent when off)
+    if rb_mate_c:                                              # study 94's receipt block (absent when off)
         if rm_state["pending"] is not None or len(rm_state["rows"]) != len(rm_state["ruled"]):
             raise ValueError(f"RB MATE RECORD BROKEN: {len(rm_state['ruled'])} ruled solves, {len(rm_state['rows'])} committed, "
                              f"pending {rm_state['pending']}")

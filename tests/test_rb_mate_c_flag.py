@@ -138,12 +138,16 @@ def combo_rules(n_rbmate: int, row_cons: list, k_book: int, qb_rb: dict):
 FORCE_ALL_AT = {12}                 # a solve carrying ANY bound at these row indices is infeasible
 FORCE_OC_AT = {21}                  # a solve carrying more than the two row bounds is infeasible
 FORCE_FLOOR_AT = set()              # a FLOORED solve at these row indices is infeasible (set per test)
+TRIGGER_AT = set()                  # with TRIGGER_ID banned (his ownership cap reached) a solve at these rows is infeasible:
+TRIGGER_ID = "p0"                   # every tier fails WITH the cap's bans, so 89's ownership cap re-peeks without them
 
 
 def pick(pool, obj_col, prev, bans, bounds, floor=None):
     """6p's stand-in (the objective order rotated by the rows so far, banned players skipped, every bound held) and, with a
     floor, the first pool pair (sorted) whose two players seed a fillable row; 9 players or None."""
     j = len(prev)
+    if j in TRIGGER_AT and TRIGGER_ID in set(bans or ()):
+        return None
     if bounds and (j in FORCE_ALL_AT or (len(bounds) > 2 and j in FORCE_OC_AT)):
         return None
     if floor and j in FORCE_FLOOR_AT:
@@ -300,12 +304,12 @@ def test_the_floor_changes_the_book_and_off_is_the_onecatch_call(monkeypatch, tm
 
 
 @pytest.mark.parametrize("old,new", [
-    ('if rm_pairs and name == "C" and len(rm_state["used"]) < int(rb_mate_c):',
-     'if rm_pairs and name == "B" and len(rm_state["used"]) < int(rb_mate_c):'),                 # the wrong cell
-    ('if rm_pairs and name == "C" and len(rm_state["used"]) < int(rb_mate_c):',
-     'if rm_pairs and name == "C" and len(rm_state["ruled"]) < int(rb_mate_c):'),                # a dropped floor frees its slot
-    ("got = _solve(name, extra_bans, use_term, rb + oc_bounds, rm_pairs)",
-     "got = _solve(name, extra_bans, use_term, rb, rm_pairs)"),                                     # ONECATCH left out of the floor tier
+    ('if rb_mate_c and name == "C" and len(rm_state["used"]) < int(rb_mate_c):',
+     'if rb_mate_c and name == "B" and len(rm_state["used"]) < int(rb_mate_c):'),                # the wrong cell
+    ('if rb_mate_c and name == "C" and len(rm_state["used"]) < int(rb_mate_c):',
+     'if rb_mate_c and name == "C" and len(rm_state["ruled"]) < int(rb_mate_c):'),               # a dropped floor frees its slot
+    ("got = _solve(name, extra_bans, use_term, rb + oc_bounds, rm_pairs)   # no pair",
+     "got = _solve(name, extra_bans, use_term, rb, rm_pairs)   # no pair"),                                     # ONECATCH left out of the floor tier
 ])
 def test_a_mutated_rule_is_caught(monkeypatch, tmp_path, old, new):
     fr, caps, bounds, cons = OCT.inputs(tmp_path)
@@ -353,3 +357,34 @@ def test_the_audit_reads_the_ruled_rows(tmp_path):
     assert run(tmp_path / "c", {})[0] is False                                             # off
     failed, rec = run(tmp_path / "d", {"rb_mate_source": {"applied": False, "not_applied": "ONECATCH is not applied"}})
     assert failed is False and "NOT APPLIED" in rec["detail"]
+
+
+def test_an_own_cap_re_peek_takes_another_slot_as_the_lab(monkeypatch, tmp_path):
+    """89's ownership cap falls back (every tier infeasible WITH its bans) on the FIRST RBMATE slot, so the solve is re-run
+    without the bans: the lab's OwnCapBuilder calls combo_rules' solve_with again, which takes ANOTHER slot (94 / 96);
+    production's peek re-runs _peek, which does the same. TRIGGER_ID gets an ownership cap of one row, so from his first row on
+    every solve bans him. Rows, spares and every record agree, and the re-peek used two slots on one (cell, j)."""
+    fr, caps, bounds, cons = OCT.inputs(tmp_path)
+    caps = dict(caps, **{TRIGGER_ID: 1})
+    _, _, meta0, _ = production_book(monkeypatch, fr, caps, bounds, 4)
+    j0 = meta0["rb_mate"]["slots"][0][1]
+    monkeypatch.setattr(sys.modules[__name__], "TRIGGER_AT", {j0})
+    book_p, _, meta, spares_p = production_book(monkeypatch, fr, caps, bounds, 4)
+    book_l, spares_l, rec = lab_book(monkeypatch, fr, caps, cons)
+    assert book_p == book_l and spares_p == spares_l and ("C", j0) in rec["own_plain"]       # the re-peek happened at the slot
+    assert [tuple(x) for x in meta["own_cap"]["resolved_without"]] == rec["own_plain"]
+    slots = [tuple(x) for x in meta["rb_mate"]["slots"]]
+    assert slots == rec["rm_used"] and slots[:2] == [("C", j0), ("C", j0)] and len(slots) == 4    # two slots on one (cell, j)
+    assert [tuple(x) for x in meta["rb_mate"]["ruled"]] == rec["rm_ruled"] and [tuple(x) for x in meta["rb_mate"]["resolved_without"]] == rec["rm_plain"]
+    assert ("C", j0) in rec["rm_plain"] and ("C", j0) in rec["rm_ruled"]                         # dropped with the bans, ruled without
+
+
+def test_no_pair_in_the_pool_takes_the_slots_without_a_floor_as_the_lab(monkeypatch, tmp_path):
+    """A pool with no (QB, own RB) pair: the lab's T1 carries no floor (an empty dict) and takes the slot; production the same,
+    its receipt saying pairs 0 (the audit then fails closed on rows without the pair)."""
+    fr, caps, bounds, cons = OCT.inputs(tmp_path)
+    fr = fr[fr.pos != "RB"].reset_index(drop=True)
+    book_p, _, meta, spares_p = production_book(monkeypatch, fr, caps, bounds, 4)
+    book_l, spares_l, rec = lab_book(monkeypatch, fr, caps, cons)
+    assert book_p == book_l and spares_p == spares_l and meta["rb_mate"]["pairs"] == 0 == len(rb_pairs(fr)["qb_rb"])
+    assert [tuple(x) for x in meta["rb_mate"]["slots"]] == rec["rm_used"] and len(rec["rm_used"]) == 4
