@@ -319,9 +319,13 @@ fixed before study 102 was read).
    **Every dose cost big wins on both opponent sets; the 200+ gain jumps around** (+3 at 13 lineups, −1 at 18, +1 at all 26;
    the same all-26 version read +3.2 and +2.3 in studies 102 / 103), so there is no "sweet spot" that buys 200+ lineups without
    giving up big wins. Read on your book before the RB version (study 105's READ `efbea1ce`, lab `6ab0b595`).
-2. **Study 106 — a projection floor** (your "no player with a projected score less than 8"): floors of 8 and 10 against your
-   armed book (with the RB version); a passing floor is re-checked on a fresh draw (study 107), and only then **your
-   per-position floors** (study 108). **A live floor is one existing setting and uses Fantasy Points' projections** (the ones
+2. **Study 106 — a projection floor** (your "no player with a projected score less than 8"): **READ — worse; keep your book
+   as is.** A floor of 8 against your armed book (with the RB version): −2.7 slates in 100 with a big win (−2.7 on set A, −2.7 on
+   set B; interval −7.7 to +2.0), 12% fewer expected big wins, the average finish lower (check fails); its 200+ rate also fell
+   (13.7% → 12.0%). So the fresh-draw check (study 107) and **your per-position floors (study 108) are not run**: they waited on a
+   floor that helped (study 106's READ `0a75e37c`, lab `960c320c`). Before the run, the floor of 10 was dropped: on our
+   model's projections it left almost no cheap players, so the cheap block came out empty (on that scale it acts like
+   production's 12). **A live floor is one existing setting and uses Fantasy Points' projections** (the ones
    your book is built on); the test uses our model's (the only history it has), so a passing floor's number transfers only
    approximately. On your real Week-4 book an FP floor of 8 changes 3 of 26 lineups and 10 changes 23 (the laptop's check). A
    floor of 12 is not tested: with the cheap block on, production refuses it (it removes every cheap-block player).
