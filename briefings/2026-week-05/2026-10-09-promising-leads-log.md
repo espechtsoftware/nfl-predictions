@@ -233,6 +233,12 @@ reviewer and updated as each study is read.
   and the per-position floors (your follow-up, "if it's successful") were not run. In production a floor of 8 on Fantasy Points'
   projections would touch only 3 of your 26 lineups, a smaller dose of the same thing.
 
+- **Fading players after a big game (study 109, your idea; the pros' habit):** on your armed book with the RB version, a 2-point
+  fade for a player whose last game was twice his average read **−4.7** (worse on both random opponent sets, −5.7 / −3.7; 20%
+  fewer expected big wins); the same at 1.6× **−5.2** (−4.0 / −6.3); and **at most one such "hot" player per lineup**, with no
+  fade, **−1.8** (−2.5 / −1.2; 10% fewer expected big wins). Every version was below your book on both sets, so the fresh-draw
+  check was not run. In the test model a player coming off a big game is still worth his projection.
+
 - **Your 10-09 evening question — correlations that could give an edge (three quick screens on your real Weeks 1–4; the plan
   was written down before any result was read):**
   - *Defense strength normalized like DVOA:* already in our model (each defense's points allowed to a position, adjusted for
@@ -248,8 +254,6 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 109 (your idea: fade a player by 2 points after a big previous week),** plus **at most one "hot" player per lineup** (your
-  "add both today"): being set up now.
 - **Study 110 (the selection ideas you queued from your real fields):** no low-owned players at all; the QB from the top-3 game
   totals; the cheap block only on popular punts; no QB with his own defense plus at least $49,500 of salary; at most 4 top-value
   players per lineup (your "add both today").
