@@ -1,10 +1,12 @@
-# Preregistration: study 100, the ceiling sweep — five morning-armable variations of his live book, read on the book's best real lineup, in the harness (DRAFT 2026-10-09)
+# Preregistration: study 100, the ceiling sweep — five morning-armable variations of his live book, read on the book's best real lineup, in the harness (DRAFT 2026-10-09; FROZEN 2026-10-10)
 
-**Status: DRAFT 2026-10-09** (the times are this file's commits) by the outside reviewer; code done (8 tests), the smoke waiting
-for a machine gap. The lab reviewer reviews, runs the binding census and FREEZES; the laptop acks. **Information for his morning
-decision; a pick goes to study 101 (committed before this study's READ).**
-- **Banks and seed (proposed; the laptop's full-set check and scan decide):** **3260–3271** (set A 3260–3265, set B 3266–3271;
-  sims bases 3310–3321, fields 3960–3971) — above every derived seed in use after study 99 (its sims 3248–3259); seed 20261144.
+**Status: FROZEN 2026-10-10 (00:40 CDT)** by the reviewer, after the outside reviewer's DRAFT, the smoke and the binding census,
+before any scored bank. The text changed at the freeze in this status block and §5 (the binding census) only. The laptop acks.
+**Information for his morning decision; a pick goes to study 101 (its preregistration committed before this READ).**
+- **Banks 3260–3271** (set A 3260–3265, set B 3266–3271; sims bases 3310–3321, fields 3960–3971), **seed 20261144**. The laptop's scan was clean: the full set against every used bank's {b, b + 50, b + 700} (studies 90–99 included), no season
+  years, no results file; the repository text scans found only this study's and study 101's own preregs, shas and timings.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run (O-63), recorded in `RUN_ENV_s100.txt` committed with
+  the confirmatory census.
 
 ## 1. Why
 - **The operator, 10-09 evening, in the laptop's session (HANDOFF `f68ebf50`, verbatim):** "...if you're not seeing really good
@@ -63,6 +65,13 @@ listed edits, a test asserts it); every arm his live Week-5 construction (the pa
   each); projection per row vs LIVE QBCAP3 −0.45, OVERLAP3 +0.01, NOCHEAP +0.38, OWN10 −1.03, BBHEAVY −0.06; the full path:
   the drive exited 0 (2 slates), the reader exited 0 (85 lines; 106 with the two-draw path on a copy, the pick-rule block
   printed once); only the census, the exit codes and the line counts were read.
+- **The binding census** (the reviewer's; outcome-blind; bank 1406; 36 slate-banks of 2023–24; code `635b64eb` clean;
+  PYTHONHASHSEED=0; 8 tests pass; lab `aae6236b`: `CENSUS_s100_binding.txt` `309dff13…`, `census_mechanics_bank1406.jsonl`
+  `7e0208ce…`): **0 row-rule and ownership-cap fallbacks in all 6 arms** (936 of 936); **ONECATCH 504 of 504 B / C solves ruled in
+  every arm**; **each arm's one setting binds:** QBCAP3 most rows on one QB 3 (distinct QBs 10.7 vs LIVE 8.0), OVERLAP3 most shared
+  3, NOCHEAP no block rows, OWN10 non-DST players 58.7 vs 50.1 (over 30% 3.0 vs 5.4), BBHEAVY book rows 10 / 2 / 11 / 3; **no arm
+  dealt identical to LIVE** (rows shared: QBCAP3 10.3, OVERLAP3 1.6, NOCHEAP 15.4, OWN10 6.4, BBHEAVY 3.3 of 26); projection per row
+  vs LIVE: QBCAP3 −0.36, OVERLAP3 −0.07, NOCHEAP +0.37, OWN10 −1.19, BBHEAVY −0.11; build 85 s per slate-bank.
 - **Code:** nfl2 `production/s100-ceiling-20261009` @ `635b64eb` (branched from study 98's `ac7dd400`): `experiments/s100_ceiling.py`
   `854ecfc3…` (pins s95 `46b80611…`); `scripts/s100_drive.py` `1dbccbe3…`; `scripts/s100_census.py` `4b8bdbbc…`;
   **`scripts/s100_report.py` (the reader) `02320e3d…`** (seed 20261144); `tests/test_s100_ceiling.py` `d7d92b17…` (8).
