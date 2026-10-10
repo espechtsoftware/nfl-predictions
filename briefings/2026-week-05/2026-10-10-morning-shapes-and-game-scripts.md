@@ -202,7 +202,8 @@ largest gain that is positive on both opponent sets without costing big wins; st
 | Ownership cap + 10 (instead of + 15) | −0.1 (−1.3 to +1.1) | +1.0 | −1.3 | 11.6% | −0.3 / −2.4, ×0.93 | no (big wins worse on both) |
 | More bring-back lineups (A1 37 / A2 7 / B 42 / C 14) | −0.3 (−2.3 to +1.7) | −0.4 | −0.2 | 11.8% | −0.7 / +0.3, ×0.99 | no |
 
-(study 100's READ `40cec728`, lab `fd990ddf`. Your book's best lineup averaged 176.8 points.)
+(study 100's READ `40cec728`, lab `fd990ddf`; reproduced byte for byte by the laptop. Your book's best lineup averaged 176.8
+points.)
 
 **What it says, plainly: these five settings barely move the ceiling.** The best of them adds 0.7 points to the book's best
 lineup on average, and every version's 200+ rate stays within about a point of yours (11–13%). **The pick is overlap 3**
@@ -212,8 +213,9 @@ re-checked — information only.
 
 **The pick on a fresh draw (study 101):** [ ]
 
-**Using a pick:** QB cap 3, no cheap block and the bring-back mix are morning settings (QB_CAP_ROWS / TERM_ROWS / MIX_QUOTAS);
-overlap 3 also needs the lab reviewer's paper-arm update; ownership + 10 needs a prepared production change (built, unmerged).
+**Using the pick, if it holds:** overlap 3 is one morning setting (MAX_SHARED = 3), plus the lab reviewer's paper-arm update
+(the paper arms are defined at 4 to 7 shared players today). It costs little either way: under a point on the best lineup and
+no change in the 200+ rate.
 
 ## 3c. Building for the ceiling: three new constructions (study 102) and the check of its pick (study 103)
 
