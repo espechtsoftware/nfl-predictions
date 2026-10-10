@@ -12428,5 +12428,9 @@ secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier fi
   available for a rule with no production switch.
 - **HOT1** removes the 8.2 rows per book with two or more hot players, at a small cost (−1.8, worse on both draws); on his real
   Week-4 book it would change 5 of 26 lineups (the laptop's count).
+- **Correction (10-10, after the READ; the laptop's recount):** the research page's Week-4 figures quoted in study 109's
+  prereg §1 (20 of 26 lineups with a hot player, 5 with two) used the page's looser screen (8 prior games, floor 3). With
+  study 109's own flag his armed Week-4 book has 24 of 26 lineups with one or more hot players and **14 with two or more**,
+  so HOT1 would change about 14 of his 26 lineups live (study 38's 6y smoke: 14 → 0). The READ is unaffected.
 - **In plain words:** fading players who just had a big game made the book clearly worse -- about 5 fewer slates in 100 with a big
   win, and a fifth fewer expected big wins. Limiting each lineup to one such player was also slightly worse. Nothing here to use.
