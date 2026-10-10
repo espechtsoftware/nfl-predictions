@@ -17,6 +17,14 @@ overnight.**
   Please research all of that and after testing the shapes in general like you're doing, test them in those scenarios. My hope
   is that by morning you'll have suggestions on which of the tested arms should be used in which situations and in what
   percentages."
+- **His two additions, the same evening, while this design was being built (the laptop records them):** "Im open to the RB being
+  naked if the qb underperforms when favored. Ill trust your opinion on that", then "Or the qb from the trailing team etc" and
+  "Do as you suggest". The outside reviewer's answer to him: a favored QB does NOT underperform (the research: 21.1 DK points for
+  a 7+ favorite's QB vs 14.4 for a 7+ underdog's; 25+ in 31.7% vs 11.2%), but he barely moves with his own RB (correlation ≈ 0),
+  so whether the favored RB should sit with his QB, without him, or with the trailing team's QB is a fair question for the
+  harness — hence FAVRB_NAKED4 and FAVRB_OPPQB4 (§2). (The favorite's RB and the opposing QB: correlation +.076, Addendum 27.)
+- **Study 96, read tonight (lab READ `9d479980`):** the unconditional RBMATE4 on top of ONECATCH is **PAPER ONLY** by his rule
+  (−0.00455; A −0.00697, B −0.00213; seats 0.966), every floor held.
 - **The research (before this design; seasons 2018–22 and 2025 only, NO 2023–24 outcome used; `reports/lab-handoffs/
   2026-10-09-game-script-research/`):** the expected winner's RB1 gets about the same carries but about 50% more goal-line
   carries, nearly twice the rushing TDs and 2.5× the chance of a 25-point game; the best case is the favorite in a high-total
@@ -42,6 +50,12 @@ eight listed edits, a test asserts it); **every arm is his live Week-5 construct
   necessarily a blowout: the research's goal-line and TD gains already appear at 3–7 points (below), so the wider cut keeps
   support; no stricter arm is added tonight (multiplicity and run time).
 - **RBMATE4_FAVHI** — only for the **expected winner of a high-total game** (margin ≥ 3 and the game in the slate's top third).
+- **FAVRB_NAKED4** — on the same 4 C-cell slots, an expected winner's RB **without his own QB**: the floor over (QB of another
+  team, RB of a FAV team) pairs (a lineup holds one QB, so the floor means exactly that).
+- **FAVRB_OPPQB4** — on the first 4 **B**-cell slots (QB + 1 + a bring-back), an expected winner's RB **with the trailing team's
+  QB**: the floor over (QB of the FAV team's opponent, RB of the FAV team) pairs, the RB being the row's bring-back (the C cell
+  allows no bring-back). Built by `cell_floor_rules("B", …)`, study 96's `combo_rules` with the slot cell as a parameter (a test
+  asserts that on C it is call-for-call `combo_rules`).
 - **QB2_SHOOT** — on the QB + 2 rows (A1, A2), the QB only from a **high-total game** (either side).
 - **QB2_DOGHI** — on the QB + 2 rows, the QB only from the **trailing side of a high-total game** (margin < 0).
 - **THE SCENARIOS, pre-lock lines only:** each team's implied total and game total = the median of the frame's
@@ -56,17 +70,18 @@ eight listed edits, a test asserts it); **every arm is his live Week-5 construct
 ## 3. The read (the reader `scripts/s97_report.py`)
 - 2023–24 (36 slates); twelve banks as two disjoint draws (the same past slates, two random opponent sets) and pooled; study 63's
   frozen statistics (a test asserts them); two-sided 0.95, B 20,000; the guards gate a PASS only.
-- **Seven comparisons**, his rule printed for each (better on both draws AND the pooled expected big seats ratio ≥ 0.80):
-  RBMATE4 − LIVE; RBMATE4_FAV − LIVE; RBMATE4_FAVHI − LIVE; RBMATE4_FAV − RBMATE4; RBMATE4_FAVHI − RBMATE4; QB2_SHOOT − LIVE;
-  QB2_DOGHI − LIVE.
+- **Eleven comparisons**, his rule printed for each (better on both draws AND the pooled expected big seats ratio ≥ 0.80):
+  RBMATE4 − LIVE; RBMATE4_FAV − LIVE; RBMATE4_FAVHI − LIVE; RBMATE4_FAV − RBMATE4; RBMATE4_FAVHI − RBMATE4; FAVRB_NAKED4 − LIVE;
+  FAVRB_NAKED4 − RBMATE4_FAV; FAVRB_OPPQB4 − LIVE; FAVRB_OPPQB4 − RBMATE4_FAV; QB2_SHOOT − LIVE; QB2_DOGHI − LIVE.
 - **THE SITUATION RULE (fixed now, for the morning suggestion):**
-  - **RB mate:** a conditional version (FAV or FAVHI) is suggested only if it beats BOTH LIVE and the unconditional RBMATE4 by his
-    rule; else the unconditional RBMATE4 if it beats LIVE by his rule here AND study 96 passed; else paper only. If both
-    conditional versions qualify, the one with the higher pooled point vs LIVE.
+  - **The favored RB:** RBMATE4_FAV / RBMATE4_FAVHI (with his own QB) are suggested only if each beats BOTH LIVE and the
+    unconditional RBMATE4 by his rule; FAVRB_NAKED4 / FAVRB_OPPQB4 only if each beats LIVE by his rule. Study 96 read PAPER ONLY,
+    so the unconditional RBMATE4 is not suggested whatever it reads here. If more than one qualifies, the one with the higher
+    pooled point vs LIVE; the NAKED / OPPQB − RBMATE4_FAV comparisons are reported as information on the pairing.
   - **QB + 2 stacks:** QB2_SHOOT or QB2_DOGHI is suggested only if it beats LIVE by his rule; if both, the higher pooled point.
   - The percentages of the four shapes come from study 95's rule (`92108ea0`), never from this study.
 - **The null rate and MULTIPLICITY, plainly:** each comparison passes about one time in four to one in three under no true
-  effect; seven comparisons, so about two false passes are expected; these slates have been read by studies 89–96. A pass is a
+  effect; eleven comparisons, so about three false passes are expected; these slates have been read by studies 89–96. A pass is a
   candidate for his decision and the real-week paper arms, never proof.
 
 ## 4. What the harness can and cannot say
@@ -84,6 +99,6 @@ eight listed edits, a test asserts it); **every arm is his live Week-5 construct
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke: the unit tests, the mechanics smoke (2023 W3, 2023 W11,
   2024 W10), the binding census, the full-path smoke (reader exit and line count only).
 - **The smoke:** (waiting for a machine gap; filled in when it ends).
-- **Code:** nfl2 `production/s97-game-script-20261009` @ `6615eeca` (branched from study 96's census `0a09750a`):
-  `experiments/s97_game_script.py` `9e10cd94…` (pins s96 `0363a84f…`); `scripts/s97_drive.py` `5dff66b7…`; `scripts/s97_census.py`
-  `bd79999b…`; **`scripts/s97_report.py` (the reader) `0d1f4f15…`** (seed 20261142); `tests/test_s97_game_script.py` `5d11f2db…` (13).
+- **Code:** nfl2 `production/s97-game-script-20261009` @ `af07583e` (branched from study 96's census `0a09750a`):
+  `experiments/s97_game_script.py` `7df6f324…` (pins s96 `0363a84f…`); `scripts/s97_drive.py` `5dff66b7…`; `scripts/s97_census.py`
+  `346b403f…`; **`scripts/s97_report.py` (the reader) `e5827c73…`** (seed 20261142); `tests/test_s97_game_script.py` `61f20b91…` (17).
