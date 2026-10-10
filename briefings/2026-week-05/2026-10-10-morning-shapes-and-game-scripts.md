@@ -13,8 +13,9 @@ something is successful, we'll discuss in the morning how we want to use it."
 - **Game situations (studies 97 and 99): one version passed, and it HELD on a fresh draw** — **the QB's own RB in 4 QB + 1
   lineups, only when his team is the expected winner of a high-scoring game.** Study 97 +0.9 (×1.10 expected big wins), study 99
   +3.4 (×1.18): better on all four opponent sets, and the only version that raised the 200+ rate on both reads (15.0% vs
-  11.1% in study 99). Still not clear of chance on its own; your call. The shootout QB + 2 did not
-  pass (−0.7, then +0.5 split); the trailing-side QB + 2 was worse both times (−5.0, −5.6).
+  11.1% in study 99). Still not clear of chance on its own; **your call** — it is merged and left off, and using it is one
+  setting at arming (RB_MATE_C = 4 with RB_MATE_SCOPE = favhi). The shootout QB + 2 did not pass (−0.7, then +0.5 split); the
+  trailing-side QB + 2 was worse both times (−5.0, −5.6).
 - **The RB stack mate, unconditioned (study 96): paper only.** On top of the one-receiver-per-team rule it read −0.5 (worse on
   both opponent sets), although every lineup got its RB. It stays off (RB_MATE_C = 0) unless you choose a version below.
 - **Raising the ceiling (studies 100–103, your "200+" notes):** [ ]
@@ -26,10 +27,11 @@ something is successful, we'll discuss in the morning how we want to use it."
 2023–24, scored on their real results, against two separate random sets of opponents, "A" and "B"). **Your rule** for a change:
 better on both opponent sets, without losing more than 20% of expected big wins. **Under no real effect a change passes that
 rule about one time in three or four.** Studies 95 and 97 make 19 such comparisons (95: 8, 97: 11), all on the same 36
-slates as studies 89–96 — so about five to six passes are expected by chance alone, so a pass is a candidate to try, not
-proof. (The ceiling studies 100 and 102 add eight more, each with its own fresh-draw check.) **The test model builds lineups from its own simulated projections; your book uses Fantasy Points', so a gain there may
-not carry over** (studies 91 and 92 showed both directions). The laptop's Week-4 check shows what a change does to your real
-book.
+slates as studies 89–96 — so about five to six passes are expected by chance alone, and a pass is a candidate, not proof.
+That is why each pick was re-run on a fresh draw (studies 98 and 99); the ceiling studies 100 and 102 add eight more
+comparisons, each with its own fresh-draw check. **The test model builds lineups from its own simulated projections; your book
+uses Fantasy Points', so a gain there may not carry over** (studies 91 and 92 showed both directions). The laptop's Week-4
+check shows what a change does to your real book.
 
 ## About "200+ fairly regularly" (your note to the laptop last night)
 
@@ -44,8 +46,8 @@ From your real Weeks 1–4 fields (the laptop's count, HANDOFF `3ac3bfd7`; aggre
 
 - **Where 200 sits:** in a normal week it is a top-0.1–0.25% score. Our best entry came within 4 points in Week 1 (196.2); none
   of our 535 entries has reached it yet.
-- **Where we start:** in the test model your live book's best lineup reaches 200 on about 13% of slates (already 2–4 times what
-  26 average field lineups would). **The goal is to push that number up.** So far no tested change has moved it more than about
+- **Where we start:** in the test model your live book's best lineup reaches 200 on about 11–13% of slates (studies 95–99;
+  already 2–4 times what 26 average field lineups would). **The goal is to push that number up.** So far no tested change has moved it more than about
   3 in 100 (one reading +8, not repeated), so tonight's last studies aim at the ceiling directly.
 - **What the 200+ lineups in your fields look like** (the laptop's count over every W1–4 entry, `76f42798`): **almost 1 in 5 has
   two or more players from the QB's opponent** — a full game stack, QB + 2 + 2 — against 1.9% of our entries. It describes
