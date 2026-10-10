@@ -16,7 +16,7 @@
 #   armed late.
 set -uo pipefail
 SHAPE="mixt"             # his formal yes 2026-10-06: "yes to the winners' mix with the tilt and the quarterback cap" (the tilt removed by his 10-06 yes)
-FRIDAY_HEAD="2e459a9950b7390750fcbaf8bfb50798df8fa12b"   # 10-09: his package (5eab90f4) + his test-2 row rules (e8c63263 + 58a328b6) + ONECATCH (c391fbd0 + f483644c, LIVE) + the RBMATE4 flag and wiring (4caff46d + 77bd55c5, off) + the zero-quota parser (21fa9d29); A3 cancelled by him
+FRIDAY_HEAD="5faf2f05ba9dfd38db2da118ed85668943a438bc"   # 10-09/10: his package (5eab90f4) + his test-2 row rules (e8c63263 + 58a328b6) + ONECATCH (c391fbd0 + f483644c, LIVE) + the RBMATE4 flag and wiring (4caff46d + 77bd55c5, off) + the zero-quota parser (21fa9d29) + the FAVHI scope (60f6dbe9 + 2bd5bbff, off; studies 97 / 99); A3 cancelled by him
 PLAN_SHA=5f8352eebf17860795922f8b5bca754c4ed0566c8c5ca63419e6dacd24e59470     # Rev6 (his FINAL contest order 10-07; Rev3's contests
                                     # re-ordered, the same book; installed 10-07 14:38 after the priority screen's pair (ii);
                                     # Rev3 kept as contests.json.rev3-8625de0e)
