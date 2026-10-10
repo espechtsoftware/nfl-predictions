@@ -1,7 +1,10 @@
 # Preregistration: study 115b, the go / no-go for study 115's pick — the pick vs LIVE on a fresh draw of the same slates (DRAFT 2026-10-10, committed BEFORE study 115 is read)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer, committed and pushed **before study
-115's READ**. The lab reviewer freezes it after study 115's READ; the laptop acks. **Information for his decision.**
+**Status: NOT RUN (2026-10-10): its condition failed — study 115 (READ_s115.txt `5ecd46e6`, lab `46236e09`) picked nothing.
+Both arms were worse than LIVE on P(≥ 1 big seat) on both draws: HOT_WRTE1 −0.01641 (A −0.00974, B −0.02309; seats 0.951),
+FADE2_WRTE −0.01763 (A −0.03431, B −0.00095; seats 0.926; guard 1 fails); "PICK: none -- keep the live book". Its banks stay
+unused. Recorded under the design fixed before study 115's READ.** Earlier status: DRAFT 2026-10-10 (the times are this file's
+commits) by the outside reviewer, committed and pushed **before study 115's READ**. The lab reviewer freezes it after study 115's READ; the laptop acks. **Information for his decision.**
 
 ## 1. Why
 - Study 115 (`reports/2026-10-10-prereg-study115-wrte-recency.md`) picks at most ONE of two arms by his rule. Picking the larger
