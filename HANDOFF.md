@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (02:50 CDT) — study 101 READ: OVERLAP3 did NOT hold on a fresh draw (the winner's curse); MS3 goes on paper in W5; study 102 running
+
+- **Study 101** (the reviewer; 100's frozen code on banks 3322–3333; lab `36038cd6`, READ_s101 `4b847774`; confirmatory census
+  `7a485e8e`). **The laptop reproduced both byte for byte.**
+  - OVERLAP3 − LIVE: mean best −0.888 (A −1.320, B −0.455); P(≥ 1 big) −0.013 (worse on both draws); seats 0.949.
+  - **The pass rule fails on both parts.**
+  - The reader's "PICK: NOCHEAP" line is 100's pick logic on the new draw, information only per 101's prereg.
+- **In plain words:** fewer shared players looked a little better in 100 and a little worse here. None of the simple settings
+  lifts the ceiling; the live book stands.
+- **Week-5 paper:** the reviewer's study 38 6x puts MIXT_QA0_MS3 (overlap 3) on paper, so Sunday's real outcomes test it. Smoke
+  after 102's run.
+- **Study 102** (the ceiling builds: CEIL_BLOCK8 / CEIL_ALL / TAIL_STACK8) running from 02:47, ETA about 03:35; then 103 if
+  picked, 104 if both.
+
 ## 2026-10-10 (01:42 CDT) — study 100 READ (the ceiling sweep): the pick rule picks OVERLAP3 (mean best +0.7; the 200+ rate flat); study 101 runs
 
 - **Study 100** (the reviewer; lab `fd990ddf`, READ_s100 `40cec728`; confirmatory census `9d0faa4a`). **The laptop reproduced both
