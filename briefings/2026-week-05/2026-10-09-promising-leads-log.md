@@ -288,6 +288,11 @@ reviewer and updated as each study is read.
   carries and 3.0 targets ($6,428) and scored 13.1, with a 20+ game 18% of the time. In DraftKings scoring a catch is worth a
   point, so the pass-catching back with 10 carries often beats the 15-carry grinder; a carries floor removes exactly him.
 
+- **Removing one live rule at a time (study 114, your request, run last):** every removal was worse or a wash. Removing the
+  one-low-owned limit **−5.1** (clearly worse, 15% fewer expected big wins), the 35% cap with the ownership limit **−3.9** (and
+  the 200+ rate 13.4% → 8.8%), the one-TE limit **−3.2**, the RB-with-QB rule **−2.2**; the cheap block **−0.4** and one receiver
+  per team **+0.0** a wash. Keep every rule.
+
 - **Your 10-09 evening question — correlations that could give an edge (three quick screens on your real Weeks 1–4; the plan
   was written down before any result was read):**
   - *Defense strength normalized like DVOA:* already in our model (each defense's points allowed to a position, adjusted for
@@ -303,6 +308,7 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Last, by your order (study 114):** removing one live rule at a time from your armed book.
+
+Nothing as of 10-10 midday: every study queued for today has been read.
 
 *Updated as each study is read.*
