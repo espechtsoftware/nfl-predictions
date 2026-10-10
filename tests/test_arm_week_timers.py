@@ -8,7 +8,7 @@ PIN = "54dd512" + "0" * 33
 
 
 def _run(**env):
-    e = {k: v for k, v in os.environ.items() if not k.startswith(("D800_", "D3200_", "SKIP_", "T70_", "GCP_"))}
+    e = {k: v for k, v in os.environ.items() if not k.startswith(("D800_", "D3200_", "SKIP_", "T70_", "GCP_", "SAT_"))}
     e.update({"EXPECT_SHA": PIN, "GCLOUD": "/bin/true", "NFL_DFS_CLI": "/bin/true", **env})
     return subprocess.run(["bash", str(SCRIPT), "4"], capture_output=True, text=True, env=e)
 
@@ -477,3 +477,61 @@ def test_study97s_favhi_scope_rides_only_with_the_rb_mate_and_a_refused_scope_ne
     assert ("\nRB_MATE_SCOPE=all " in arm or "\nRB_MATE_SCOPE=favhi " in arm) and "QB2_SCOPE" not in arm      # favhi LIVE since 10-10
     assert "UNION_MIX_RB_MATE_SCOPE=$RB_MATE_SCOPE \\" in arm
     assert '[[ "$RB_MATE_SCOPE" == all || ( "$RB_MATE_SCOPE" == favhi && "$RB_MATE_C" == 4 ) ]]' in arm
+
+
+def test_the_saturday_supply_time_defaults_to_1030_and_moves_with_sat_supply_ct():
+    """The operator 2026-10-10 ("I think we should postpone the supply build if we can"; his answer "18:00, after a final
+    arm"): SAT_SUPPLY_CT moves the Saturday D12800 and SAT_FALLBACK_CT the Saturday D6400 (default 5 minutes later);
+    unset is today's 10:30 / 10:35 exactly, and nothing else moves."""
+    base = _run(GROUP="154078")
+    assert base.returncode == 0, base.stderr
+    assert _run(GROUP="154078", SAT_SUPPLY_CT="10:30", SAT_FALLBACK_CT="10:35").stdout == base.stdout
+    d12, d64 = _unit_line(base.stdout, "nfl-week4-d12800-sat-build"), _unit_line(base.stdout, "nfl-week4-d6400-sat-build")
+    assert "2026-10-03 10:30 America/Chicago" in d12 and "RUN_TAG=20261003t1530z-d12800sat-" in d12
+    assert "2026-10-03 10:35 America/Chicago" in d64 and "RUN_TAG=20261003t1535z-d6400sat-" in d64
+    late = _run(GROUP="154078", SAT_SUPPLY_CT="18:00")
+    assert late.returncode == 0, late.stderr
+    d12, d64 = _unit_line(late.stdout, "nfl-week4-d12800-sat-build"), _unit_line(late.stdout, "nfl-week4-d6400-sat-build")
+    assert "2026-10-03 18:00 America/Chicago" in d12 and "RUN_TAG=20261003t2300z-d12800sat-" in d12
+    assert "2026-10-03 18:05 America/Chicago" in d64 and "RUN_TAG=20261003t2305z-d6400sat-" in d64
+    assert "D12800 at 18:00 CT, D6400 fallback at 18:05 CT" in late.stdout
+    rest = lambda out: [l for l in out.splitlines() if "-sat-build" not in l and "D12800 at" not in l]
+    assert rest(late.stdout) == rest(base.stdout)
+    own = _run(GROUP="154078", SAT_SUPPLY_CT="18:00", SAT_FALLBACK_CT="18:20")
+    assert "2026-10-03 18:20 America/Chicago" in _unit_line(own.stdout, "nfl-week4-d6400-sat-build")
+
+
+def test_a_bad_saturday_supply_time_arms_nothing():
+    for env in ({"SAT_SUPPLY_CT": "25:00"}, {"SAT_SUPPLY_CT": "18:0"}, {"SAT_SUPPLY_CT": "1800"},
+                {"SAT_SUPPLY_CT": "23:58"},                                     # + 5 minutes leaves the day
+                {"SAT_SUPPLY_CT": "18:00", "SAT_FALLBACK_CT": "17:59"}, {"SAT_SUPPLY_CT": "18:00", "SAT_FALLBACK_CT": "18:00"}):
+        r = _run(GROUP="154078", **env)
+        assert r.returncode == 2 and "SAT_" in r.stderr and "systemd-run" not in r.stdout, env
+
+
+def test_the_week5_arm_validates_its_saturday_supply_time_and_passes_it_only_when_set():
+    import re
+    arm = (Path(__file__).resolve().parents[1] / "scripts" / "arm_week5_saturday.sh").read_text()
+    m = re.search(r'\nSAT_SUPPLY_CT="([^"]*)" ', arm)
+    assert m and re.fullmatch(r"(|1[0-9]:[0-5][0-9]|2[01]:[0-5][0-9])", m.group(1))   # empty (10:30) or his evening time
+    assert "if [[ -n \"$SAT_SUPPLY_CT\" ]]; then e+=(SAT_SUPPLY_CT=$SAT_SUPPLY_CT); u+=(-u SAT_FALLBACK_CT); " \
+           "else u+=(-u SAT_SUPPLY_CT -u SAT_FALLBACK_CT); fi" in arm
+    assert "(( 10#$(date +%H%M) < 10#$CUTOFF ))" in arm
+    lines = arm.splitlines()
+    i = next(k for k, l in enumerate(lines) if l.startswith("SUPPLY=${SAT_SUPPLY_CT:-10:30}"))
+    snip = "\n".join(lines[i:i + 5])
+    assert lines[i + 4].startswith("_c=")
+
+    def run(v: str, late: str = "0"):
+        body = ('set -uo pipefail; say() { printf "%s\\n" "$*"; }; stop() { say "ARM STOPPED: $*"; exit 1; }\n'
+                f'SAT_SUPPLY_CT="{v}"; ARM_LATE="{late}"\n{snip}\necho "CUTOFF=$CUTOFF"')
+        return subprocess.run(["bash", "-c", body], capture_output=True, text=True)
+
+    assert run("").stdout.strip().endswith("CUTOFF=1028")                        # unset: today's 10:28 check
+    assert run("18:00").stdout.strip().endswith("CUTOFF=1758")
+    assert run("21:00").returncode == 0 and run("", late="1").returncode == 0   # ARM_LATE alone is unchanged
+    for bad in ("21:01", "10:29", "9:00", "25:00", "18:0", "1800"):
+        r = run(bad)
+        assert r.returncode == 1 and "ARM STOPPED: SAT_SUPPLY_CT" in r.stdout, bad
+    r = run("18:00", late="1")
+    assert r.returncode == 1 and "ARM_LATE skips the Saturday supply" in r.stdout
