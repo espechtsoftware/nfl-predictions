@@ -12,6 +12,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (15:52 CDT) — the afternoon refresh: the 15:00 odds (20:01Z) -> build-features / tabpfn-gen / project-slate all succeeded; the proof lines PASS
+
+- `~/.cache/laptop-agent/w5_saturday_refresh.sh refresh` + `proof` (15:30:47–15:52:25): rosters_weekly W5 2,436 rows; build-features-zj99t,
+  tabpfn-gen-kprxb, project-slate-kpvrg (each succeededCount 1). Proof lines PASS (questionable haircut 0.800 on 22; backup-QB gate zeroed 44;
+  q-primary backups 0.200 on 2; returning teammates 3 / 26; cascade adjusted 22 ids, carry-side skips 19). No afternoon props pull exists
+  (the last props snapshot 14:32Z), as planned.
+- **Next:** ~16:40 FP ownership + the DK loop check; the arm by 17:58 (FRIDAY_HEAD cbd1c49e, arm-only head 888b4dd7+); the 18:00 canary.
+
 ## 2026-10-10 (15:46 CDT) — s38 6z7 (boom-chance paper block) acked inside the 16:50 stop; FRIDAY_HEAD cbd1c49e; the boom writer in
 
 - **6z7, MIXT_QA0_BOOMBLOCK8** (lab `ebd3b10f`: module d9589ae6, build a260422c, score fbdbcd72, report aec13c0d, tests ea0b9cfa (63); prereg
