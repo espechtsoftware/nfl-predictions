@@ -277,7 +277,12 @@ def test_the_term_block_rides_into_the_units_and_a_missing_block_stops_publicati
     after = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_after_build.sh").read_text()
     assert '[[ "${TERM_BLOCK_MISSING_OK:-0}" == "1" ]] && echo --accept-term-block-missing' in after
     arm = (Path(__file__).resolve().parents[1] / "scripts" / "arm_week5_saturday.sh").read_text()
-    assert '\nTERM_ROWS="" ' in arm and "UNION_TERM_BLOCK_SHA256=$TERM_SHA" in arm         # M2: empty refuses to arm
+    # M2: empty refuses to arm during the week; Saturday's arm-only commit sets his decision (8 = his cheap +2 trial, with its
+    # pinned TERM_SHA; 0 = none, by a recorded decision) -- the checklist's "Saturday (arming)" step, 10-10: "Keep it on"
+    assert any(f'\nTERM_ROWS="{v}" ' in arm for v in ("", "8", "0")) and "UNION_TERM_BLOCK_SHA256=$TERM_SHA" in arm
+    if '\nTERM_ROWS="8" ' in arm:
+        import re
+        assert re.search(r'\nTERM_SHA="[0-9a-f]{64}" ', arm)
     assert '[[ -n "$TERM_ROWS" ]] || stop "TERM_ROWS is not set' in arm
     assert "\nTERM_FILE=reports/2026-10-08-live-block/cheap2-w5.csv " in arm and "--require-bonus" in arm
 
