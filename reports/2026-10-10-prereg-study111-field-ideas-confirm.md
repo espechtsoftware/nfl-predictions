@@ -4,8 +4,8 @@
 110's READ**. The lab reviewer freezes it after study 110's READ; the laptop acks. **Information for his decision.**
 
 ## 1. Why
-- Study 110 (`reports/2026-10-10-prereg-study110-field-ideas.md`) picks at most ONE of four rules by his rule. Picking the largest
-  of four gains on the same slates flatters the pick (the winner's curse). A fresh draw is the check: studies 98, 101 and 103
+- Study 110 (`reports/2026-10-10-prereg-study110-field-ideas.md`) picks at most ONE of five rules by his rule. Picking the largest
+  of five gains on the same slates flatters the pick (the winner's curse). A fresh draw is the check: studies 98, 101 and 103
   failed it overnight; 99 passed.
 - **Honest limit, plainly:** fresh banks re-use the SAME 36 slates' real outcomes. Study 111 checks the opponent and simulation
   draw and the winner's curse, **not new outcomes — not out-of-sample.**

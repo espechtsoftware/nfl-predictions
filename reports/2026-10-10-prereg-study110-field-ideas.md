@@ -1,4 +1,4 @@
-# Preregistration: study 110, four lineup rules from his real Weeks 1–4 fields, on his armed Week-5 book, in the harness (DRAFT 2026-10-10)
+# Preregistration: study 110, four lineup rules from his real Weeks 1–4 fields and a value cap, on his armed Week-5 book, in the harness (DRAFT 2026-10-10)
 
 **Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer; the design is the lab reviewer's, on
 the outside reviewer's briefing (`briefings/2026-week-05/2026-10-10-selection-ideas-from-real-fields.md`), which **the operator
@@ -19,6 +19,13 @@ goes to study 111** (the fresh-draw check), whose preregistration is committed b
   - forcing stacks into the top games was worse (studies 43, 102);
   - the cheap block is a live trial (study 53 read it at about 6% fewer expected big wins);
   - deleting the salary floor read neutral (Addendum 108, August, an old build).
+- **VAL4, added before the freeze.** The research page (`briefings/2026-week-05/2026-10-10-winner-patterns-and-next-tests.md`
+  §3.2, merged 10-10 05:47) proposed a value cap: the solver fills lineups with the players furthest above their price, and
+  his Sunday book averaged 4.5 top-value-tenth players of 8 (17 lineups with 5–7) while no winning group in his real fields
+  exceeded 3.9. **The operator's answer, 10-10 morning (in the laptop's session): "Add both today (Recommended)"** — VAL4 here
+  and HOT1 in study 109, both before their freezes.
+  - **Its prior leans against it:** study 92's shrink toward the salary curve, the stronger form of the same idea, read
+    −4.4 points pooled on P(≥ 1 big seat), worse on both draws (A −6.6, B −2.2; lab LEDGER, Addendum 190).
 
 ## 2. Arms (`experiments/s110_field_ideas.py`) — the exact definitions (production's switches will match these line for line)
 **Study 95's harness exactly** (its frozen module `s95_shapes.py` `46b80611…`, sha-asserted; `run()` = 95's `run()` with eight
@@ -46,6 +53,14 @@ Each arm makes one change:
   - no QB with his own team's DST: one (team T's QB ids + T's DST id, ≤ 1) constraint per team with both in the pool;
   - a minimum lineup salary of **$49,500** (MIN_LINEUP_SALARY for that solve; live is $49,000);
   - infeasible → the solve without them, recorded. Spares never.
+- **VAL4** (added before the freeze) — **at most 4 of a book row's 8 skill players (QB / RB / WR / TE) from the top value
+  tenth:**
+  - value = the harness's player mean per $1,000 of salary;
+  - ranked within position among the pool's players with a mean ≥ 3 (pandas `rank(pct=True)`, ties `average`);
+  - top tenth = percentile ≥ 0.9. **Disclosed:** the percentile is rank ÷ n, so ≥ 0.9 takes slightly more than a tenth (the top
+    2 of 10 players, the top 4 of 30). The census prints the counts by position.
+  - The vehicle is a row rule, (the value ids, ≤ 4), in the same tier as te1 / low1 (study 91's mechanics: infeasible → the solve
+    without the row rules, recorded); the objective unchanged; spares never.
 - **QBTOP3's and HYGIENE's rules sit beneath every rule tier** (entered before `combo_rules`): their constraints are ADDED to
   the tier's own. A solve that cannot be built drops them first: [row rules + rule] → [row rules] → [rule] → none.
 
@@ -58,31 +73,38 @@ Each arm makes one change:
   - the mean best real lineup points and P(best ≥ 200), printed (information).
 - **THE PICK (pre-stated; study 106's tested function `floor_pick`):** among the arms passing his rule (guard 1 printed, not
   gating), the largest pooled gain. None → "keep the live book". **A pick goes to study 111.**
-- **Multiplicity:** four arms on the same 36 slates as studies 89–109; about one passes by chance.
+- **Multiplicity:** five arms on the same 36 slates as studies 89–109; about one passes by chance.
 
 ## 4. Honest limits and the census
 - **The real-field patterns are measured on actual ownership** (W1–W3) **and FP's projected ownership** (W4). The harness's
   rules use its own predicted ownership (the rescaled blend), as the live low rule does.
 - **QBTOP3 uses the pre-lock totals the frame carries;** production has the same column.
+- **VAL4 ranks on the harness's simulated mean;** production would rank on Fantasy Points' projections (the page's definition,
+  after the FP override on the T-70 frame). The two value lists differ.
 - **The census, per arm:**
   - LOW0's book rows holding a low-owned player (want 0);
   - QBTOP3's book rows with the QB in a top-3 game (want 26) and the QBs it bans;
   - POPPUNT's popular cheap players given the term (an empty block is flagged);
   - HYGIENE's QB + own-DST rows (want 0) and its lowest book salary (want ≥ 49,500);
+  - VAL4's top-value players per row and rows with 5+ (want 0), and the top-value players per slate by position;
   - the book rules' ruled / re-solved-plain solves (> 5% plain is flagged);
   - the RB mate's slots; ONECATCH; rows shared with LIVE; LIVE == 97's RBMATE4_FAVHI.
   - Per-slate fields stay outside the blocks the reader compares.
 - **Production:** each passing rule needs a default-off switch (the laptop builds them to these definitions after this DRAFT),
   a Week-4 check and study 38's classification before any arming. LOW0 needs a small change: `--mix-max-low-own` takes only 1
-  today.
+  today. VAL4 needs a `val4` row rule in `row_rule_sets` and the value tenth computed in `union_reselect` after the FP override.
 
 ## 5. Smoke and code
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke (the unit tests, the mechanics smoke 2023 W3 / 2023 W11 /
   2024 W10, the census, the full path: reader exit and line count only).
 - **The smoke:** (a machine gap the lab reviewer names; filled in when it ends).
-- **Code:** nfl2 `production/s110-field-ideas-20261010` @ `3e5948e7` (off study 102's frozen `969f4d3d`):
-  - `experiments/s110_field_ideas.py` `b73c05fd…` (pins s95 `46b80611…`, s97 `7df6f324…`)
+- **Fixed before any run (found while adding VAL4):** the census's parity expected te1 / low1 on every arm, so LOW0's recorded
+  rules would have stopped it at the first row. It now mirrors the module's rules per arm (a test asserts it). The class was
+  swept: study 109 had the same defect (fixed); 106 and 112 agree.
+- **Code:** nfl2 `production/s110-field-ideas-20261010` @ `083f11e2` (off study 102's frozen `969f4d3d`; VAL4 and the census fix
+  at `083f11e2`):
+  - `experiments/s110_field_ideas.py` `7cbbd46c…` (pins s95 `46b80611…`, s97 `7df6f324…`)
   - `scripts/s110_drive.py` `e01a9146…`
-  - `scripts/s110_census.py` `dded762f…`
-  - **`scripts/s110_report.py` (the reader) `42d1dae6…`** (seed 20261153)
-  - `tests/test_s110_field_ideas.py` `d521eae0…` (14)
+  - `scripts/s110_census.py` `d8c4bc49…`
+  - **`scripts/s110_report.py` (the reader) `79fa2f2e…`** (seed 20261153)
+  - `tests/test_s110_field_ideas.py` `c485859b…` (15)
