@@ -369,6 +369,11 @@ fixed before study 102 was read).
    red-zone targets could not be tested this way:** a player with no touchdown in his recent games averages zero, so any
    touchdown floor removes all of them at once and changes about 22 of 26 lineups; the red-zone floor is similar (16 lineups at
    its lowest step). Both were dropped before the run.
+   **READ — worse; keep your book as is.** Each floor was below your book on both opponent sets: **13 carries −4.6** (−5.2 /
+   −4.0; interval −9.3 to −0.4, the first clearly worse result today), 11% fewer expected big wins; **32 pass attempts −2.7**
+   (−4.1 / −1.4), 11% fewer; **4.5 targets −2.8** (−4.5 / −1.0), 7% fewer; the average finish lower in all three, and the 200+
+   rate lower too. Like the projection floor (study 106), removing low-volume players removes the cheap ones the big wins draw on.
+   The fresh-draw check (study 113) is not run (READ `2525ef14`, lab `a4fd70e9`).
 6. **Last, as you asked (study 114):** "Did we try what you had planned of removing one rule at a time to see if it was really
    helpful? That in my opinion should be the last thing we do after we've tried the other experiments." The shapes were done
    this way (study 95: removing A1, B or C hurt; A2 changed nothing). Study 114 removes each live **rule** in turn from your
