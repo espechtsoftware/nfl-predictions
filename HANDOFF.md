@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (16:44 CDT) — 16:40 FP ownership captured; project-slate re-run (the BLOCKER fix) done; the 18:00 preflight now fails only on chosen-dose.env (the arm writes it)
+
+- **FP projected ownership** (16:40:36): rc 0; 1,147 rows at 21:40:36Z (W5 captures: 10-09 21:33, 10-10 13:55, 10-10 21:40).
+- **project-slate** (16:41:08–16:43:55, project-slate-gr9bl, succeededCount 1): newest player_projections 21:43:47Z, market_source_log
+  21:43:32Z -> 76 / 81 min old at the 18:00 / 18:05 supply (limit 120).
+- **`check_build_inputs.py` (the supply preflight, run by hand):** projections and the market monitor OK (1 min old); the one FAIL is
+  `chosen-dose.env` missing in ~/week5-sunday, which the arm writes (arm_week5_saturday.sh l.171). Re-run after the arm as proof.
+- **The DK loop:** last pair succeeded 15:54:59 CT; next ~16:55. **The arm starts ~17:20** (by 17:35).
+
 ## 2026-10-10 (16:29 CDT) — OPERATOR (to the outside model): "review all the code for the live that's going live this weekend" — three read-only reviews at `23a108d3`; one BLOCKER (tonight's 18:00 supply units), two HIGH; the laptop has the actions
 
 - **Page:** `briefings/2026-week-05/2026-10-10-sunday-code-review.md` (one table: severity, concern, what to do). Nothing in the
