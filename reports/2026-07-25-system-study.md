@@ -11213,3 +11213,76 @@ secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier fi
   before it is offered. Restricting the QB + 2 lineups to trailing teams in shootouts made the book clearly worse.
 - **His decision:** in the morning (his night rules); the production switch (a pair-set scope on `--mix-rb-mate-c`) is being
   prepared default off, with the laptop's Week-4 check and a study 38 paper-arm amendment, only to be ready if he chooses it.
+
+## Addendum 196 (2026-10-09): study 98 (study 95's suggested shape mix -- A1 39.1 / A2 12.2 / B 24.3 / C 24.3, the pre-fixed rule's output -- against his live mix, on a fresh draw of the same slates; information for his morning percentages): on a fresh draw the suggested mix is a coin flip against the live mix (+0.6; set A −0.00005, set B +1.1): PAPER ONLY by his rule -- keep the live 30 / 14 / 28 / 28
+
+**Setup.**
+- **Why** (the laptop's proposal, HANDOFF and the money-path rule "never enter an untested rule"): study 95 (Addendum 194) read no
+  arm passing his rule; its translation rule (`92108ea0`, fixed before 95 ran) turned the read into a suggested mix -- A1 raised by
+  half (removing A1 hurt on both draws while A1 alone did not), the rest kept, re-scaled -- that had never itself been built.
+- **Honesty, plainly:** fresh banks re-use the SAME 36 slates' real outcomes; this checks robustness to the opponent and
+  simulation draw (the kind of flip that turned study 81's +4.7 into study 84's −1.2), not new outcomes; the mix was derived from
+  study 95's read of these slates, so a pass is still weak support.
+- **The arms.** Study 95's harness exactly (its frozen module `46b80611…`, sha-asserted; `run()` = 95's with three listed edits,
+  a test); both arms his live Week-5 construction (the package + te1 / low1 + ONECATCH): **LIVE** 0.30 / 0.14 / 0.28 / 0.28 and
+  **SUGGESTED** (0.30 × 1.5, 0.14, 0.28, 0.28) / 1.15 -- exactly the floats production arms through MIX_QUOTAS (a test); book rows
+  10 / 3 / 7 / 6 (the live block 7 / 2 / 5 / 4, the cheap block 3 / 1 / 2 / 2).
+- **The read:** SUGGESTED − LIVE on P(≥ 1 big seat), pooled and on two draws; his rule printed (better on both draws AND seats ≥
+  0.80); a fail means "keep the live mix" (the laptop's framing). Under no true effect it passes about one time in four to one in
+  three.
+- **Preregistration:** `reports/2026-10-09-prereg-study98-suggested-mix.md` (DRAFT by the outside reviewer; FROZEN `502e82e3`, 10-09
+  22:51 CDT, before any scored bank).
+- **Code:** nfl2 `ac7dd400`: module `328c1255…` (pins s95 `46b80611…`); drive `aaf3fd31…`; census `0bc611ba…`; reader `60d01b13…`;
+  tests `8e3b1d63…` (7).
+- **Panel:** banks 3136–3147 (A 3136–3141, B 3142–3147), B 20,000, seed 20261143, PYTHONHASHSEED=0; the laptop's scan was clean.
+- **Census** (binding, bank 1406; lab `0ec4c928`; the laptop's re-run identical): 0 fallbacks in both arms; ONECATCH 504 / 468 B / C
+  solves ruled, 0 dropped; the book rows as designed; SUGGESTED shares 12.4 of 26 rows with LIVE, dealt identical 0.000, projection
+  per row −0.08; LIVE identical to study 95's LIVE on 36 of 36.
+- **Read:** the reader `60d01b13`; READ `6d78607e` (lab `fb17beb0`). The confirmatory census (`f6a93526`, raw shas `ebf88144`,
+  RUN_ENV `a7fea8b5`; lab `bfcf0213`) was committed before the READ: 0 row-rule / ownership-cap fallbacks in both arms; ONECATCH
+  6,048 / 5,616 B / C solves ruled, 0 dropped.
+- **Reproduced byte-identically by the laptop** at `fb17beb0` (PYTHONHASHSEED=0): the raw files 3136–3147 pass `sha256sum -c`
+  against `RAW_s98_run.sha256`; the READ is `6d78607e` and the confirmatory census `f6a93526` (cmp-identical).
+
+**Reader output (verbatim):**
+```
+STUDY 98 READER  sha256 60d01b1341cbd091042b44443bb2079b15fb55226e40adddc5ccebdc084c10f7
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [3136, 3137, 3138, 3139, 3140, 3141, 3142, 3143, 3144, 3145, 3146, 3147]  sets {'pooled': [3136, 3137, 3138, 3139, 3140, 3141, 3142, 3143, 3144, 3145, 3146, 3147], 'A': [3136, 3137, 3138, 3139, 3140, 3141], 'B': [3142, 3143, 3144, 3145, 3146, 3147]}  B 20000  seed 20261143  comparisons (('SUGGESTED', 'LIVE'),) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 93 / 92 / 91 / 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["LIVE", "SUGGESTED"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"LIVE": 0.35, "SUGGESTED": 0.35}, "delta": 0.15, "low_pct": 3.0, "one_catcher": "every arm: study 93's ONECATCH (lead_rules onepc)", "own_arms": ["LIVE", "SUGGESTED"], "quotas": {"LIVE": [0.3, 0.14, 0.28, 0.28], "SUGGESTED": [0.391304347826087, 0.12173913043478263, 0.24347826086956526, 0.24347826086956526]}, "row_rules": {"LIVE": ["te1", "low1"], "SUGGESTED": ["te1", "low1"]}, "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "skill_sum": 800.0, "source": "blend_pct"}, {"LIVE": [9, 6], "SUGGESTED": [9, 6]}, "5f4e1fb9977d349183adc3457782b131673a8bcf06bf3e850af2c149c52bfd4d", "37980da6506df0a799e97b5dae29e670228398cb405be01a3c93cc47f2c7e252", "9cde18bd221e52069b449044a37720996ffb0efafac88202d44f02a7dc898aa8", "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== SUGGESTED vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.00554  [-0.02596, +0.03627] (two-sided 0.95)  seasons 2023 -0.00348, 2024 +0.01456
+  GUARD 1 mean entry pct -0.00025  one-sided lower -0.00249  (must exceed -0.015)
+  GUARD 2 expected big seats 0.57229 vs 0.56207  ratio 1.018  (must be >= 0.80)
+  SUGGESTED dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3136, 3137, 3138, 3139, 3140, 3141]: -0.00005  [-0.04371, +0.04299]  seasons 2023 +0.00671, 2024 -0.00681
+  set B [3142, 3143, 3144, 3145, 3146, 3147]: +0.01113  [-0.01808, +0.03992]  seasons 2023 -0.01367, 2024 +0.03592
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.00005 < 0  (set A -0.00005, set B +0.01113, the difference -0.01118; seats ratio 1.018)
+  EXPLORATORY the l02 field (pooled): +0.00533  [-0.02547, +0.03558]
+
+
+== HIS RULE (better on both draws AND seats >= 0.80; information for his morning decision):
+  SUGGESTED PAPER ONLY: draw A -0.00005 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.00249 (passes -0.015)  |  under no true effect about one time in four to one in three
+
+  LIVE row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  SUGGESTED row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  LIVE         v2: P(>=1 big) 0.38990  expected big seats 0.56207  P(>=2) 0.12533  entry pct 0.50277  |  l02: P(>=1 big) 0.42146
+               book: projection per row 124.70  salary 49971  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.20  predicted ownership per row 94.5%  distinct QBs 8.2  non-DST players 50.6  rows with 2+ TEs 0.0  low-owned per row 0.660  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  SUGGESTED    v2: P(>=1 big) 0.39543  expected big seats 0.57229  P(>=2) 0.12712  entry pct 0.50252  |  l02: P(>=1 big) 0.42679
+               book: projection per row 124.64  salary 49971  QB + 2 rows 13.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.19  predicted ownership per row 94.3%  distinct QBs 8.3  non-DST players 51.3  rows with 2+ TEs 0.0  low-owned per row 0.663  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 10.0 / 3.0 / 7.0 / 6.0
+```
+
+**Reading.**
+- **SUGGESTED − LIVE: +0.6 [−2.6, +3.6]**, set A −0.00005 (flat), set B +1.1, expected big seats ×1.02. **His rule: PAPER ONLY**
+  (set A not > 0) -- **keep the live mix**, as the laptop framed the study.
+- **With study 95:** no single-shape removal beat the live mix on both draws (95), and the one change the pre-fixed rule
+  produced does not hold on a fresh draw (98). The live 30 / 14 / 28 / 28 stands; nothing tonight says to change the shape
+  percentages for Week 5.
+- **The ceiling (descriptive, the laptop's tabulation of the same rows):** P(the book's best real lineup ≥ 200) LIVE 0.127 vs
+  SUGGESTED 0.109; mean best 176.7 vs 177.1 -- no difference.
+- **In plain words:** the suggested mix -- two more QB-plus-two-with-bring-back lineups -- did no better than your current mix on
+  a fresh set of simulated opponents (even on one set, slightly ahead on the other). Keep the mix you have.
