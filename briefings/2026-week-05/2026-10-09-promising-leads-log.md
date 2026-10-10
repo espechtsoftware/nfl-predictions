@@ -164,6 +164,9 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- Nothing tonight.
+- **Study 96 (tonight, decides Week 5 by your rule):** your armed book with and without the QB's own RB as a stack mate (lead 11),
+  the two rules together. Then the Week-4 book check and the paper check; otherwise it goes to paper.
+- **Study 95 (tonight, after 96; information for Week 6):** the shape comparison you asked for — each shape alone, and the mix
+  with one shape removed at a time, against your live mix.
 
 *Updated as each study is read.*
