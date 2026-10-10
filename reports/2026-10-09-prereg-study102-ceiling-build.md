@@ -82,8 +82,22 @@ B .28 / C .28), **one setting changed** (a test asserts exactly one):
 ## 5. Smoke, census and integrity
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke (the unit tests, the mechanics smoke 2023 W3 / 2023 W11 /
   2024 W10, the census, the full path: reader exit and line count only).
-- **The smoke:** (a machine gap the lab reviewer names; filled in when it ends).
-- **Code:** nfl2 `production/s102-ceiling-build-20261009` @ `4bdfafd4` (branched from study 100's `635b64eb`):
-  `experiments/s102_ceiling_build.py` `71474b60…` (pins s95 `46b80611…`); `scripts/s102_drive.py` `7ac2fefc…`;
-  `scripts/s102_census.py` `78c62d88…`; **`scripts/s102_report.py` (the reader) `581dabd9…`** (seed 20261146);
-  `tests/test_s102_ceiling_build.py` `85811965…` (12).
+- **The smoke (DONE in the gap the lab reviewer named after study 100's run; bank 1406; 2024 W10, 2023 W3, 2023 W11;
+  PYTHONHASHSEED=0; `results_bank1406.jsonl` `eea5931c…`; code `969f4d3d`):** 12 unit tests pass; every arm 41 rows within the
+  package's caps (9 / 6, QB 5, overlap 4), 8 term rows, in the pool; 0 row-rule and 0 ownership-cap fallbacks (78 of 78 each);
+  ONECATCH ruled 42 of 42 B / C book solves, none dropped, every arm; **the binding:** p85 − mean 5.77 points per skill player
+  (5.69–5.92); TAIL_STACK8's A1 book rows 8.00 of 8 full game stacks, 8.00 with the QB's game in the top 4, 8.00 book rows
+  with 5 from one game, its full-stack solves ruled 24 + plain 0 (the other arms 0 full stacks, 0 rows with 5 from a game);
+  rows shared with LIVE CEIL_BLOCK8 18.00, CEIL_ALL 0.67, TAIL_STACK8 1.00 of 26 (dealt identical 0.000 each); projection per
+  row vs LIVE (on the simulated mean) CEIL_BLOCK8 −0.07, CEIL_ALL −0.07, TAIL_STACK8 −0.33; the full path: the drive exited 0
+  (2 slates), the reader exited 0 (57 lines; 70 with the two-draw path on a copy); only the census, the exit codes, the line
+  counts and one error line (below) were read.
+  - **Fixed before the freeze (the first smoke, code `4bdfafd4`):** the reader exited 1 on the full path, "the arm definitions
+    differ across rows": the per-slate ceiling record sat in `m["own"]["ceiling"]`, which study 63's `load()` compares across
+    rows (it excludes only `pred_pool` / `pairs`). It moved to a top-level `m["ceiling"]` (`969f4d3d`); no build change (the
+    census numbers identical). Class swept: only `pred_pool` remains per-slate inside `m["own"]`. Study 103 runs this code;
+    study 104's code will keep every per-slate field out of the compared blocks.
+- **Code:** nfl2 `production/s102-ceiling-build-20261009` @ `969f4d3d` (branched from study 100's `635b64eb`):
+  `experiments/s102_ceiling_build.py` `ca7f4399…` (pins s95 `46b80611…`); `scripts/s102_drive.py` `7ac2fefc…`;
+  `scripts/s102_census.py` `4dcab0b5…`; **`scripts/s102_report.py` (the reader) `581dabd9…`** (seed 20261146);
+  `tests/test_s102_ceiling_build.py` `8b1a410c…` (12).
