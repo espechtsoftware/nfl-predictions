@@ -41,9 +41,10 @@ the book you will enter. It finishes about 20:30, which leaves the night to fix 
 change that makes the time a setting was reviewed and merged; the arm script is set for 18:00 and its check passes.
 
 **Today's queue, in order** (every result is read and reproduced before it reaches you):
-1. Study 106 (your floor of 8), then 107 (its fresh-draw check, if 106 passes).
+1. ~~Study 106 (your floor of 8), then 107~~ **READ: the floor of 8 made the book worse on both sets of opponents (fewer big
+   wins, a lower best lineup). Not used; the re-check (107) and the per-position floors (108) are not run.**
 2. Study 109 (your recency fade at 2× and 1.6×) **plus HOT1** (at most one player coming off a big game per lineup; your "Add both").
-3. Study 108 (per-position floors) if 107 holds.
+3. ~~Study 108 (per-position floors)~~ not run (the floor did not help).
 4. Study 110: the outside reviewer's five ideas (no low-owned players; QB from the top-3 games; popular punts only; no QB with
    his own defense plus $49,500 salary) **plus VAL4** (at most 4 top-value players per lineup); study 111 re-checks a pass.
 5. Your usage floors (carries, pass attempts, targets, touchdowns, red-zone targets), with a re-check if one passes.
