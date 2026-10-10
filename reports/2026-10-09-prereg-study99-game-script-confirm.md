@@ -1,8 +1,20 @@
-# Preregistration: study 99, the confirmation of study 97's picks — study 97's frozen code on a fresh draw of the same slates (DRAFT 2026-10-09, committed BEFORE study 97 is read)
+# Preregistration: study 99, the confirmation of study 97's picks — study 97's frozen code on a fresh draw of the same slates (FROZEN 2026-10-09; the DRAFT committed BEFORE study 97 was read)
 
-**Status: DRAFT 2026-10-09 (21:44 CDT, the commit's clock)** by the outside reviewer, committed and pushed **before study 97's READ** (the lab
-reviewer's condition, 10-09 evening). The lab reviewer freezes it (banks and seed) after study 97's READ; the laptop acks.
-**Information for his morning decision.**
+**Status: FROZEN 2026-10-09 (22:47 CDT)** by the lab reviewer, after study 97's READ (the DRAFT, committed at 21:44 by the commit's
+clock, before that READ, fixed the design; the freeze adds the picks, the banks and the census), before any scored bank of study
+99. The text changed at the freeze in this status block and §3 (the census) only. The laptop acks. **Information for his morning
+decision.**
+- **Study 97's §3 rule picked** (READ `53c1614f`, lab `8b9b3a9d`): **RBMATE4_FAVHI** (the RB version; it beat LIVE, A +0.00541 /
+  B +0.01254, seats 1.097, and RBMATE4, A +0.04243 / B +0.00375, seats 1.152); **no QB + 2 version** (QB2_SHOOT failed; QB2_DOGHI
+  read WORSE). **So the deciding lines of study 99 are RBMATE4_FAVHI vs LIVE and RBMATE4_FAVHI vs RBMATE4: CONFIRMED iff both
+  pass his rule again** (better on both draws AND seats ≥ 0.80); every other line is information.
+- **Banks 3198–3209** (set A 3198–3203, set B 3204–3209; sims bases 3248–3259, fields 3898–3909); study 97's reader, seed
+  20261142 (the disclosure in §2). The laptop's scan was clean: the full set against 734 used banks' {b, b + 50, b + 700} (studies 90–98 included), no season years,
+  no results file; the text scans found only this study's own prereg, dose names, shas, timings and study 97's reader seed (reused by
+  design).
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run, recorded in `RUN_ENV_s99.txt` committed with the
+  confirmatory census. The run starts from lab `0e692e2c` (study 97's READ commit `8b9b3a9d` plus this census; the code is
+  97's `af07583e`, unchanged), on lab branch production/s99-confirm-97-20261009 (results/s99/).
 
 ## 1. Why
 - Study 97 (frozen `88738a69`) makes eleven comparisons on the 36 slates of 2023–24; under no true effect about three pass his
@@ -38,3 +50,8 @@ reviewer's condition, 10-09 evening). The lab reviewer freezes it (banks and see
 - The laptop's full-set bank check and text scan before the freeze; the lab reviewer's binding census (the frozen census on bank
   1406 = study 97's own census, so its numbers equal 97's binding census by construction; it is re-run as the mechanics check);
   PYTHONHASHSEED=0; one heavy job at a time.
+- **The mechanics census at the freeze** (the lab reviewer's; outcome-blind; bank 1406; study 97's frozen code at its READ commit
+  `8b9b3a9d`; PYTHONHASHSEED=0; 17 tests pass; lab `0e692e2c` on production/s99-confirm-97-20261009: `CENSUS_s99_binding.txt`
+  `0e12e7da…`, `census_mechanics_bank1406.jsonl` `8a11b646…`): **identical to study 97's binding census** (lab `707f60ea`) -- the
+  census text with the build time masked, and all 36 mechanics rows apart from the timing fields and the code-sha field (the
+  laptop already reproduced 97's census for its ack).
