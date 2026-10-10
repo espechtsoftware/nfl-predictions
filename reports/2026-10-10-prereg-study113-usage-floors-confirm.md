@@ -4,8 +4,8 @@
 112's READ**. The lab reviewer freezes it after study 112's READ; the laptop acks. **Information for his decision.**
 
 ## 1. Why
-- Study 112 (`reports/2026-10-10-prereg-study112-usage-floors.md`) picks at most ONE of five usage floors by his rule. Picking
-  the largest of five gains on the same slates flatters the pick (the winner's curse); a fresh draw is the check (studies 98, 101
+- Study 112 (`reports/2026-10-10-prereg-study112-usage-floors.md`) picks at most ONE of three usage floors by his rule (TD and
+  RZ were dropped before its freeze). Picking the largest of three gains on the same slates flatters the pick (the winner's curse); a fresh draw is the check (studies 98, 101
   and 103 failed it overnight; 99 passed).
 - **Honest limit, plainly:** fresh banks re-use the SAME 36 slates' real outcomes. Study 113 checks the opponent and simulation
   draw and the winner's curse, **not new outcomes — not out-of-sample.**
