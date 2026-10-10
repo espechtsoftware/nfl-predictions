@@ -17,7 +17,7 @@ overnight.**
   Please research all of that and after testing the shapes in general like you're doing, test them in those scenarios. My hope
   is that by morning you'll have suggestions on which of the tested arms should be used in which situations and in what
   percentages."
-- **His two additions, the same evening, while this design was being built (the laptop records them):** "Im open to the RB being
+- **His two additions, the same evening, while this design was being built (HANDOFF `63a821d4`, verbatim; the clock 20:12):** "Im open to the RB being
   naked if the qb underperforms when favored. Ill trust your opinion on that", then "Or the qb from the trailing team etc" and
   "Do as you suggest". The outside reviewer's answer to him: a favored QB does NOT underperform (the research: 21.1 DK points for
   a 7+ favorite's QB vs 14.4 for a 7+ underdog's; 25+ in 31.7% vs 11.2%), but he barely moves with his own RB (correlation ≈ 0),
