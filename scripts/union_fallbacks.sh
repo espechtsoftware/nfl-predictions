@@ -30,6 +30,7 @@ mix_to_house_args() {
       --mix-rb-mate-c) skip=1 ;;                                      # study 96's RB mate (10-09): MIX-only, with its value
       --mix-rb-mate-scope) skip=1 ;;                                  # study 97's RB-mate scope (10-09): MIX-only, with its value
       --mix-max-band|--mix-band) skip=1 ;;                           # the band cap (10-10): MIX-only, each with its value
+      --mix-qb-max-salary|--mix-qb-max-salary-cells) skip=1 ;;       # the QB salary cap by cell (10-10): MIX-only, each with its value
       --main-own-cap-fallback-share) take_fb=1; own_cap=1 ;;
       --priority-order) ;;
       *) OUT_ARGS+=("$x") ;;

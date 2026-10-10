@@ -724,7 +724,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
              row_bounds: list | None = None,
              one_catcher: bool = False,
              rb_mate_c: int = 0,
-             rb_mate_qb_teams: set[str] | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             rb_mate_qb_teams: set[str] | None = None,
+             cell_bounds: dict[str, list] | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -872,6 +873,10 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
 
     row_state: dict = {"ruled": [], "plain": []}
     rb = [(sorted(ids), int(lo), int(hi)) for ids, lo, hi in (row_bounds or [])]
+    cb = {c: [(sorted(ids), int(lo), int(hi)) for ids, lo, hi in bs] for c, bs in (cell_bounds or {}).items() if bs}   # per-cell (QB salary)
+    if cb and not rb:
+        raise ValueError("cell_bounds ride in the row-rule tier: they need row_bounds")
+    cb_state: dict = {"ruled": [], "plain": []}
 
     # study 93's ONECATCH (default off: every solve below byte for byte as before): on a B / C book solve the bounds
     # (team T's pool WR / TE, 0, 1) ride with rb in one call; the record lists [cell, j] of the ruled and the dropped solves
@@ -911,27 +916,32 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         j = len(prev)
         if not rb or j >= k:
             return _solve(name, extra_bans, use_term)
+        rbx = rb + cb.get(name, [])                            # the cell's own bounds (the QB salary cap) ride in the tier
         if rb_mate_c and name == "C" and len(rm_state["used"]) < int(rb_mate_c):  # study 94's RBMATE first (absent when off)
             rm_state["used"].append((name, j))                # the slot is taken, ruled or not
-            got = _solve(name, extra_bans, use_term, rb + oc_bounds, rm_pairs)   # no pair in the pool: no floor (as the lab)
+            got = _solve(name, extra_bans, use_term, rbx + oc_bounds, rm_pairs)  # no pair in the pool: no floor (as the lab)
             if got[0] is not None:
                 rm_state["ruled"].append((name, j)); rm_state["pending"] = name
                 oc_state["ruled"].append((name, j)); oc_state["pending"] = name
                 row_state["ruled"].append((name, j))
+                if name in cb: cb_state["ruled"].append((name, j))
                 return got
             rm_state["plain"].append((name, j))                # infeasible: the floor dropped, ONECATCH and rb kept
         if oc_bounds and name in ONE_CATCHER_CELLS:            # study 93's ONECATCH first (absent when off)
-            got = _solve(name, extra_bans, use_term, rb + oc_bounds)
+            got = _solve(name, extra_bans, use_term, rbx + oc_bounds)
             if got[0] is not None:
                 oc_state["ruled"].append((name, j)); oc_state["pending"] = name
                 row_state["ruled"].append((name, j))
+                if name in cb: cb_state["ruled"].append((name, j))
                 return got
             oc_state["plain"].append((name, j))                # infeasible: the one-catcher dropped, rb kept
-        got = _solve(name, extra_bans, use_term, rb)
+        got = _solve(name, extra_bans, use_term, rbx)
         if got[0] is not None:
             row_state["ruled"].append((name, j))
+            if name in cb: cb_state["ruled"].append((name, j))
             return got
         row_state["plain"].append((name, j))
+        if name in cb: cb_state["plain"].append((name, j))
         return _solve(name, extra_bans, use_term)
 
     def _solve(name: str, extra_bans: frozenset = frozenset(), use_term: bool = False, member_bounds: list | None = None,
@@ -1216,6 +1226,9 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                        "caps_from_book_entries": k},
             "source": ("nfl2 experiments/s18_stack_shapes.py @ 5869a1b (CELLS, allocate, interleave, mix_book)" if portfolio == "mix"
                        else "nfl2 experiments/s18_stack_shapes.py @ 5869a1b (WS, whole_book; PASSED, Addendum 129)")}
+    if cb:                                                     # the per-cell QB salary cap's record (absent when off)
+        meta["cell_bounds"] = {"cells": sorted(cb), "ruled_solves": len(cb_state["ruled"]),
+                               "resolved_without": [list(x) for x in cb_state["plain"]]}
     if rb:                                                     # study 91's receipt block (absent when off)
         meta["row_rules"] = {"bounds": [{"ids": len(ids), "lo": lo, "hi": hi} for ids, lo, hi in rb],
                              "ruled_solves": len(row_state["ruled"]), "resolved_without": [list(x) for x in row_state["plain"]]}
@@ -1522,6 +1535,11 @@ def main(argv: list[str] | None = None) -> int:
                          "salary in --mix-band (inclusive) per main-book row, in the row-rule tier (with --mix-max-te / "
                          "--mix-max-low-own); LOUDLY off when the row rules are not applied; an infeasible solve drops the tier, recorded")
     ap.add_argument("--mix-band", default=None, help="with --mix-max-band 1: the salary band 'LO:HI' in dollars, e.g. 5300:6000")
+    ap.add_argument("--mix-qb-max-salary", type=int, default=0,
+                    help="the QB salary cap by cell (the operator 10-10; default 0 = off): in --mix-qb-max-salary-cells, no QB above "
+                         "this DK salary on a main-book row, in the row-rule tier (needs the applied row rules); an infeasible solve "
+                         "drops the tier, recorded")
+    ap.add_argument("--mix-qb-max-salary-cells", default=None, help="with --mix-qb-max-salary: the MIX cells, e.g. B,C")
     ap.add_argument("--mix-one-catcher-all", action="store_true",
                     help="study 93's ONECATCH (default off): every B / C (QB + 1) BOOK solve, the live and the term block alike, "
                          "holds at most ONE WR / TE of every team, in one solve with the row rules; infeasible -> re-solved with "
@@ -1634,6 +1652,16 @@ def main(argv: list[str] | None = None) -> int:
                          "--mix-max-low-own): it sits in their tier")
     if a.mix_band is not None and not a.mix_max_band:
         raise SystemExit("--mix-band is read only by --mix-max-band 1")
+    qb_sal_cells: tuple[str, ...] = ()
+    if a.mix_qb_max_salary:
+        qb_sal_cells = tuple(c.strip() for c in str(a.mix_qb_max_salary_cells or "").split(",") if c.strip())
+        if (not 3000 <= a.mix_qb_max_salary <= 10000 or not qb_sal_cells or len(set(qb_sal_cells)) != len(qb_sal_cells)
+                or any(c not in MIX_CELLS for c in qb_sal_cells) or a.main != "mix" or a.mix_portfolio != "mix"
+                or a.mix_max_te is None or a.mix_max_low_own is None):
+            raise SystemExit("--mix-qb-max-salary S (3,000..10,000) needs --mix-qb-max-salary-cells (distinct MIX cells, e.g. B,C), "
+                             "--main mix --mix-portfolio mix and the row rules (--mix-max-te / --mix-max-low-own): it sits in their tier")
+    elif a.mix_qb_max_salary_cells is not None:
+        raise SystemExit("--mix-qb-max-salary-cells is read only with --mix-qb-max-salary")
     if a.mix_max_band:
         parse_band(a.mix_band)
     if a.mix_rb_mate_scope != "all" and a.mix_rb_mate_c != 4:
@@ -1851,6 +1879,19 @@ def main(argv: list[str] | None = None) -> int:
                 band_meta.update({"applied": True, "pool_band_players": len(band_set)})
                 print(f"BAND CAP: at most {a.mix_max_band} RB / WR / TE with salary ${lo:,}-${hi:,} per main row ({len(band_set)} in the "
                       f"pool after the exclusions; in the row-rule tier)", flush=True)
+        qbs_meta, qbs_cells = None, None
+        if a.mix_qb_max_salary:                              # the QB salary cap by cell (the operator 10-10), in the row-rule tier
+            qbs_meta = {"qb_max_salary": int(a.mix_qb_max_salary), "cells": list(qb_sal_cells)}
+            if not row_bounds:
+                qbs_meta.update({"applied": False, "not_applied": "the row rules are not applied"})
+                print(f"\n!!! QB SALARY CAP NOT APPLIED: {qbs_meta['not_applied']} -- the book is built without it\n", flush=True)
+            else:
+                pool_q = fr[~fr.id.astype(str).isin(set(excl)) & (fr.pos.astype(str) == "QB")]
+                dear = set(pool_q.id.astype(str)[(pd.to_numeric(pool_q.salary, errors="coerce") > a.mix_qb_max_salary).to_numpy()])
+                qbs_cells = {c: [(dear, 0, 0)] for c in qb_sal_cells} if dear else {}
+                qbs_meta.update({"applied": True, "ids": sorted(dear), "pool_qbs": int(len(pool_q)), "pool_qbs_over": len(dear)})
+                print(f"QB SALARY CAP: no QB above ${a.mix_qb_max_salary:,} on {'/'.join(qb_sal_cells)} main rows ({len(dear)} of "
+                      f"{len(pool_q)} pool QBs over it; in the row-rule tier)", flush=True)
         oc_on, oc_meta = False, None
         if a.mix_one_catcher_all:                            # study 93: only with the applied row rules, else LOUDLY off
             oc_on = bool(row_bounds)
@@ -1903,7 +1944,7 @@ def main(argv: list[str] | None = None) -> int:
                                                                        cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
                                                                        bring_back_top_wr_rows=bb_rows, own_cap=own_cap,
                                                                        row_bounds=row_bounds, one_catcher=oc_on, rb_mate_c=rm_c,
-                                                                       rb_mate_qb_teams=rm_teams)
+                                                                       rb_mate_qb_teams=rm_teams, cell_bounds=qbs_cells)
             if own_cap_meta is not None:
                 mix_meta["own_cap_source"] = own_cap_meta
             if row_meta is not None:
@@ -1915,6 +1956,12 @@ def main(argv: list[str] | None = None) -> int:
                     mix_meta["band_cap"] = {**{k: band_meta[k] for k in ("band_lo", "band_hi", "max", "applied", "pool_band_players")},
                                             "ids": sorted(band_set), "dk_ids": sorted(k for k in (_dk_text(dkm.get(i)) for i in band_set) if k),
                                             "resolved_without": (mix_meta.get("row_rules") or {}).get("resolved_without", [])}
+            if qbs_meta is not None:                         # the QB salary cap by cell
+                mix_meta["qb_salary_cap_source"] = dict(qbs_meta)
+                if qbs_meta.get("applied"):
+                    cbm = mix_meta.get("cell_bounds") or {}
+                    mix_meta["qb_salary_cap"] = {**{k: qbs_meta[k] for k in ("qb_max_salary", "cells", "applied", "ids", "pool_qbs_over")},
+                                                 "ruled": cbm.get("ruled_solves", 0), "resolved_without": cbm.get("resolved_without", [])}
             if oc_meta is not None:
                 mix_meta["one_catcher_source"] = oc_meta
             if oc_on:
@@ -1967,7 +2014,7 @@ def main(argv: list[str] | None = None) -> int:
                                                                       cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
                                                                       bring_back_top_wr_rows=bb_rows, own_cap=own_cap,
                                                                       row_bounds=row_bounds, one_catcher=oc_on, rb_mate_c=rm_c,
-                                                                       rb_mate_qb_teams=rm_teams)
+                                                                       rb_mate_qb_teams=rm_teams, cell_bounds=qbs_cells)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
                 if oc_on:
                     print("(the ownership-term book) " + one_catcher_line(own_mix.get("one_catcher")), flush=True)
