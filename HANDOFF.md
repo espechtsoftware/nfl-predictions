@@ -12,6 +12,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (18:19 CDT) — OPERATOR (relayed by the research agent; his typed "go" in the laptop's session still required before the arm): the status-exclusion file (A) live tonight; the band cap rule built; the W4 checks A / B / C / D / band-cap
+
+- **His decisions, relayed by nfl-predictions-d9** (17:50 "this is non-negotiable unless it is certain to break things tomorrow"; 18:05 "Justin
+  Jefferson STAYS"; ~18:14 "my preference would strongly be the cap of one tonight ... if that's impossible ... full removal tonight is the
+  other option"). He declined the laptop's AskUserQuestion; **before the arm the laptop asks him for a typed "go" in its own session**.
+- **The exclusions (A):** `~/week5-sunday/dk-status-w05.csv` (read-only; sha256 **1ac591e47405596f8139d01e8dfe1829e25310ec05cb822174fd199bea731a1c**;
+  16 rows, status OUT: Martin-Robinson, McConkey, Jeanty (DNP); Kamara, McLaurin, Slayton, Dowdle, Kolar, Jefferson, Stevenson, Holani,
+  Addison, Caleb Williams, Wright, Young, Tate (Questionable + limited)) via the existing `--dk-status` path (`unavailable_ids`, matched on
+  dk_player_id; no code). Study 38 already classifies `dk_status` as an input, copies the file into the snapshot and applies it to every
+  paper arm (the lab reviewer, checked at ebd3b10f): **the file must stay unchanged until the snapshot.**
+- **W4 fixed-book checks** (the gate build aa12ac0e baseline; his pre-set rule: every rule applied; band arms also >= 18 rows with two $7k+ and
+  mean FP per row no worse than −3.0):
+  - A (status): all rules applied; 4 rows changed; FP +0.24; Higbee's 3 rows gone; best real 158.72 (the gate's 177.90 row held an
+    excluded player; in-sample) -> **live**.
+  - B ($5,000–6,400 removed): row-rule fallbacks 2; FP −5.25 -> out. C ($5,500–6,900): fallbacks 5 + ONECATCH relaxed 2; FP −4.57 -> out.
+  - D ($5,300–6,000 removed, w04 5cddb534): all rules applied; FP −3.96 (misses −3.0) -> the fallback only.
+  - **The band cap** (at most ONE RB / WR / TE at $5,300–6,000 per row; production/band-cap-20261010, uncommitted at the check): OFF ==
+    aa12ac0e; A == bba04323; **A + cap: every rule applied (resolved_without []), every row <= 1 band player (was up to 3; 14 rows with
+    2+), FP −0.90, rows with two $7k+ 18, ownership sum 125.4, best real 181.38 (in-sample).**
+- **The band cap build:** union_reselect `--mix-max-band 1 --mix-band 5300:6000` (a member bound in the row-rule tier, inclusive band, the pool
+  after the exclusions; receipt band_cap_source / band_cap with band_lo, band_hi, max, applied, ids, dk_ids, pool_band_players,
+  resolved_without); host (UNION_MIX_MAX_BAND / UNION_MIX_BAND, only with the row rules, loud alert), fallbacks, timers, check_week_runtime,
+  the arm (DK_STATUS_FILE / DK_STATUS_SHA pinned; MAX_BAND / BAND); tests/test_band_cap_flag.py. The lab reviewer's s38 6z8 (FOLLOW_QA0
+  follows the cap; MIXT_QA0_NOBAND) in parallel. The haircut (O-68) stays Week 6.
+- **Next:** the tests (29 modules + the new one) -> push for review -> 6z8 ack -> merge, FRIDAY_HEAD, gates -> project-slate ~19:50 ->
+  his typed go -> the arm (by 20:58; else ARM_LATE=1, which he accepted) -> the 21:00 canary must show the exclusions (no file id in any row
+  or spare; receipt dk_status = the pinned path) and the cap.
+
 ## 2026-10-10 (17:17 CDT) — OPERATOR: the Saturday supply moved 18:00 -> 21:00; NOT armed yet (waiting for his next instructions; the arm by 20:58)
 
 - **His words (verbatim):** "We are going to delay the 6 o'clock build for a few hours. Please get that going and I will follow up with your
