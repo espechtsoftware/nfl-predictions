@@ -99,7 +99,21 @@ Each arm makes one change:
 ## 5. Smoke and code
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke (the unit tests, the mechanics smoke 2023 W3 / 2023 W11 /
   2024 W10, the census, the full path: reader exit and line count only).
-- **The smoke:** (a machine gap the lab reviewer names; filled in when it ends).
+- **The smoke (DONE 10-10, 06:24:21–06:26:55 CDT, in the gap the lab reviewer named after the laptop's study-109 census; bank
+  1406; 2024 W10, 2023 W11, 2023 W3; PYTHONHASHSEED=0; code `083f11e2`; `results_bank1406.jsonl` `88ae979e…`):**
+  - the unit tests 15 passed;
+  - every arm 26 book rows within the package's caps; row rules 78 of 78 ruled, none infeasible; RB-mate slots 12 of 12 and
+    ONECATCH 42 of 42, none dropped, every arm; **LIVE identical to study 97's RBMATE4_FAVHI, rows and dealing, on 3 of 3**;
+  - **each rule binds** (LIVE → the arm): LOW0's rows with a low-owned player 16.33 → 0; QBTOP3's QB in a top-3 game 11.67 → 26
+    of 26 (book rules ruled 78, none plain; 31.7 QBs banned per slate); POPPUNT's block applied on every slate (popular cheap
+    players given the term 5.7, min 5); HYGIENE's QB + own-DST rows 1.33 → 0 (book rules 78, none plain); VAL4's rows with 5+
+    top-value players 13.33 → 0 (top-value players per slate QB / RB / WR / TE 3.0 / 5.3 / 7.3 / 3.7);
+  - **one half of HYGIENE did not bind on the smoke slates:** LIVE's lowest book salary was already $49,700, so the $49,500
+    floor changed nothing there; the binding census on the 36 slates shows how often it binds;
+  - dealt identical to LIVE: 0.000 for every arm but HYGIENE (0.333); none above 0.80. VAL4 shares no row with LIVE; its
+    projection per row is within ±0.05 of LIVE's on each slate;
+  - the full path: the reader exited 0 (80 lines; 106 two-draw). Only the census, the exit codes and the line counts were
+    read.
 - **Fixed before any run (found while adding VAL4):** the census's parity expected te1 / low1 on every arm, so LOW0's recorded
   rules would have stopped it at the first row. It now mirrors the module's rules per arm (a test asserts it). The class was
   swept: study 109 had the same defect (fixed); 106 and 112 agree.
