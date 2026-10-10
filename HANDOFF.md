@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (03:28 CDT) — study 102 READ (ceiling builds): the pick is CEIL_BLOCK8 (study 103 runs); CEIL_ALL raises the 200+ rate on both draws but costs big wins; TAIL_STACK8 is worse
+
+Reported by the reviewer (lab `2ec19654`, READ_s102 `3a992f7f`; confirmatory census committed before the read); **the laptop's
+byte-for-byte reproduction follows the reviewer's 103 census**.
+- **CEIL_BLOCK8** (the 8 cheap-block rows built on the sim 85th percentile instead of the mean):
+  - mean best +0.195 [−0.731, +1.371] (A +0.359, B +0.031); P(≥ 1 big) A +0.001, B −0.010 (not worse on both); seats 0.967;
+  - **ELIGIBLE, the pick → study 103**; P(best ≥ 200) +0.009 (A +0.019, B 0.000).
+- **CEIL_ALL** (the whole book on the 85th percentile):
+  - mean best −0.529; P(≥ 1 big) −0.035 (worse on both); seats 0.862; guard 1 FAILS; not eligible;
+  - **but P(best ≥ 200) +0.032 on BOTH draws (0.155 vs 0.123).** It buys the 200+ rate with big wins: the trade his goal runs
+    into, information for him.
+- **TAIL_STACK8** (the A1 rows as QB + 2 + 2 opponents in the top-4-total games):
+  - mean best **−1.679 [−3.020, −0.318]** (worse on both; the interval excludes 0); P(≥ 1 big) −0.032; seats 0.897; not
+    eligible;
+  - the real-field profile (2+ opponents in 18.5% of 200+ lineups) did not translate into a better build (it conditioned on
+    the outcome, as the reviewer cautioned).
+  - Its switch `4c3cad58` and wiring `e7a9bd26` stay unmerged; the reviewer reviewed both, no defect.
+- **Production:** CEIL_BLOCK8 has no switch (it needs a per-player 85th percentile around FP's projections), so if 103 holds it
+  is Week 6 at the earliest. Study 104 (FAVHI + CEIL_BLOCK8 vs FAVHI) runs only if 103 holds.
+
 ## 2026-10-10 (02:50 CDT) — study 101 READ: OVERLAP3 did NOT hold on a fresh draw (the winner's curse); MS3 goes on paper in W5; study 102 running
 
 - **Study 101** (the reviewer; 100's frozen code on banks 3322–3333; lab `36038cd6`, READ_s101 `4b847774`; confirmatory census
