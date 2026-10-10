@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:05 CDT) — OPERATOR: two hand-entered lineups (another agent's picks) are his own test; "we can consider ourselves ready"
+
+- **His words (the laptop's session, verbatim):** "The two lineups I asked the other agent to create, I'm just going to enter those
+  manually myself. So don't worry about those. This is just a, a different test of seeing if having the agent pick them directly
+  helps. If there's nothing more we can try this week, we can consider ourselves ready."
+- **For Monday's settlement and money-gate report:** his entries export will hold two lineups that are NOT from the union book.
+  Tag them as manual (an "agent-picked" test of his) and keep them out of the book's reconciliation and out of study 38's live
+  book; report them on their own line if he asks. Nothing in the build, the arm or the upload changes.
+- **The state:** ready. Remaining: about 15:30 the refresh + proof; about 16:45 FP ownership + the DK loop check; the arm by
+  17:58 (integration 486abe06+, FRIDAY_HEAD 83d68f63, TERM_ROWS=8); the 18:00 canary checks and the s38 gate (lab fad0cbe2 + 6z5
+  if acked, prod pin 83d68f63); Sunday's steps per the checklist (FP captures, the T-70, the hot / TD-block / DvP / factor files,
+  the snapshot before 12:00).
+
 ## 2026-10-10 (14:00 CDT) — OPERATOR: the qualifiers / booms / matchups page read; two stars -> "Test it now for this week", then (after the slot count) "Paper this week, test for W6"
 
 - **His words:** "Read this. Is there anything we can try today with this info?" (briefings/2026-week-05/2026-10-10-qualifiers-booms-and-matchups.md,
