@@ -474,6 +474,6 @@ def test_study97s_favhi_scope_rides_only_with_the_rb_mate_and_a_refused_scope_ne
     assert "grep -q 'RB MATE SCOPE NOT APPLIED' \"$OUT/union-$RUN_TAG.txt\"" in host
     assert "qb2" not in host.lower()                                                      # no QB + 2 scope is built
     arm = (root / "arm_week5_saturday.sh").read_text()
-    assert "\nRB_MATE_SCOPE=all " in arm and "QB2_SCOPE" not in arm
+    assert ("\nRB_MATE_SCOPE=all " in arm or "\nRB_MATE_SCOPE=favhi " in arm) and "QB2_SCOPE" not in arm      # favhi LIVE since 10-10
     assert "UNION_MIX_RB_MATE_SCOPE=$RB_MATE_SCOPE \\" in arm
     assert '[[ "$RB_MATE_SCOPE" == all || ( "$RB_MATE_SCOPE" == favhi && "$RB_MATE_C" == 4 ) ]]' in arm
