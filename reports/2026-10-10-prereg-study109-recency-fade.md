@@ -89,7 +89,17 @@ FAVHI through 96's `combo_rules`, 89's `own_caps`; QB cap 5, overlap 4, the chea
 ## 5. Smoke and code
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke (the unit tests, the mechanics smoke 2023 W3 / 2023 W11 /
   2024 W10, the census, the full path: reader exit and line count only).
-- **The re-smoke after HOT1 (REQUIRED before the freeze; a gap the lab reviewer names):** (filled in when done).
+- **The re-smoke after HOT1 (DONE 10-10, 06:14:29–06:16:40 CDT, in the gap the lab reviewer named after the laptop's study-106
+  reproduction; bank 1406; 2024 W10, 2023 W11, 2023 W3; PYTHONHASHSEED=0; code `96745acd`; `results_bank1406.jsonl`
+  `c0871091…`):**
+  - the unit tests 10 passed;
+  - every arm 41 rows within the package's caps; row rules 78 of 78 ruled, none infeasible; RB-mate slots 12 of 12 ruled and
+    ONECATCH 42 of 42, none dropped, every arm; **LIVE identical to study 97's RBMATE4_FAVHI, rows and dealing, on 3 of 3**;
+  - the fades unchanged from the first smoke (FADE2 21.0 flagged, LIVE's rows holding one 19.0, its own 2.0; FADE2_16 36.3,
+    23.3, 8.3);
+  - **HOT1 binds:** hot players per book row LIVE 1.08 → HOT1 0.86; rows with 2+ hot LIVE 7.67 (max 9) → HOT1 0 (max 0); dealt
+    identical to LIVE 0.000;
+  - the full path: the reader exited 0 (54 lines; 70 two-draw). Only the census, the exit codes and the line counts were read.
 - **The first smoke, before HOT1 (DONE in the gap the lab reviewer named during the laptop's study-106 ack; bank 1406; 2024 W10, 2023 W11, 2023 W3;
   PYTHONHASHSEED=0; `results_bank1406.jsonl` `8d508ec6…`; code `f3cd184e`, the census fixed at `070003f1`):** every arm 41 rows
   within the package's caps; RB-mate slots 12 of 12 ruled, every arm; ONECATCH 42 of 42, none dropped, every arm; **LIVE
