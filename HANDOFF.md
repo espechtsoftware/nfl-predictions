@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (07:16 CDT) — OPERATOR (relaying the researcher): HOT1 as a study-38 paper arm in Week 5; VAL4 too if study 110 reads it negative
+
+**His words, in the laptop's session:** "Here's what the researcher said after reviewing recent changes.  Since the harness and the real fields disagree on hot players, a HOT1 paper arm in study 38 would let Week 5's real results arbitrate at no cost to the book. The same applies to VAL4 if study 110 reads it negative."
+
+- **The laptop's reading:** his request, and his 10-06 rule (an idea that fails only under our ratings gets the fair paper
+  test on live weeks). Study 109 read HOT1 −1.8 in the harness; the real W2–4 fields pointed the other way.
+- **Asked of the lab reviewer** (s38's owner): an amendment adding MIXT_QA0_HOT1 (his live construction + at most one hot
+  player per book row, 109's frozen 2.0× flag on W5's real data), built from Sunday's snapshot. MIXT_QA0_VAL4 likewise, only if
+  110 reads VAL4 negative.
+  - It needs the code, a smoke and the 6l parity classification before Sunday's snapshot. If it doesn't fit, it's Week 6, and
+    he is told.
+- **The production side, if useful:** a W5 hot-id file with last_game()'s exact rule, in a format agreed first.
+- **Recorded:** study-list row 95.
+
 ## 2026-10-10 (07:08 CDT) — study 109 READ: the recency fade and HOT1 are all WORSE, so the pick is none; 109b not run (reproduced byte for byte)
 
 - **Study 109** (the reviewer; lab `fb004daf`; confirmatory census `781765df` committed before the read; 432 / 432 rows).
