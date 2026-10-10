@@ -12,6 +12,47 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (20:22 CDT) — laptop: everything merged for the morning (FRIDAY_HEAD `2e459a99`); the Saturday-morning arming runbook
+
+**Merged tonight.** Every item is default off or unset and byte for byte (W4 gates `293d9465`).
+- The RBMATE4 flag `4caff46d` and its wiring `77bd55c5`.
+- The zero-quota parser `21fa9d29`.
+- **The tests.** Merged tree `e5fff486` == the check worktree `a2e6c151`: 29 modules, 413 passed, 3 skipped. Study 38
+  6u + 6v: 51 passed against it.
+- **FRIDAY_HEAD = `2e459a99`** (arm commit `dbd074c6`). ONE_CATCHER_ALL=1; RB_MATE_C=0; MIX_QUOTAS empty.
+- **Study 38:** 6u + 6v acked and merged (gate pin `0656a38e`). The reviewer moves s38-prod-pin to `2e459a99` and re-runs
+  the gate check. The laptop's W4 gate builds on `2e459a99` go in the slot before 95's run.
+- **Records merged:** 96 (Addendum 193; block == the laptop's READ_s96 `9d479980`), the 95 / 96 preregs, the leads log
+  `6db4cb65`.
+
+**Saturday-morning runbook (his decisions → arming before 10:28).** No prompts to him overnight. He decides first thing,
+then:
+1. **Shape percentages** (study 95 + his choice): set `MIX_QUOTAS="A1=a,A2=b,B=c,C=d"` in the arm (an arm-only commit).
+   - Each value ≥ 0, the sum 1. Empty = today's 0.30 / 0.14 / 0.28 / 0.28.
+   - The 8 tested arms are already built on his W4 book (reports/2026-10-09-option-w4-checks, `quota_w4_builds.sh`; the
+     exact floats are there).
+   - For any other split, build it once with the same runner (about 10 s) before arming.
+   - Study 38 6v follows a zero cell.
+2. **RB stack:**
+   - RB_MATE_C stays 0: study 96 read the unconditioned RBMATE4 PAPER ONLY.
+   - A game-script version from study 97 (FAV / FAVHI / NAKED / OPPQB) has NO production flag yet: it is a pair-set
+     filter on `--mix-rb-mate-c` (the outside reviewer's mapping).
+   - If 97 reads a candidate tonight, the team prepares its flag (default off) before morning, with parity + W4 check +
+     a 6w, so his word is only a switch.
+3. **Before arming:**
+   - set TERM_ROWS=8 / TERM_SHA `5941678b…` (the M2 forcing step);
+   - run `bash scripts/arm_week5_saturday.sh --check` on the production checkout (before 10:28, no ARM_LATE): 13 units;
+     the dose line names every setting;
+   - then arm.
+4. **10:30 canary receipt, by 11:00:**
+   - own_cap_source applied, cap_share_used 0.35;
+   - row_rules applied;
+   - one_catcher_source applied (14 B / C ruled, 0 re-solved on W4's shape);
+   - cell_quotas_override = his split (or null);
+   - rb_mate absent unless chosen;
+   - the term block.
+   Then the union dir goes to the reviewer for the s38 gate (pin `0656a38e`, s38-prod-pin `2e459a99`).
+
 ## 2026-10-09 (20:12 CDT) — OPERATOR: the favored RB naked or with the trailing QB, "Do as you suggest" (study 97 arms); study 96 READ PAPER ONLY (reproduced); the W4 RBMATE4 check and the shape builds
 
 **His words, in the outside reviewer's session, relayed verbatim** (relayed as "about 20:15 CDT"; this entry's clock reads 20:12, so that time is approximate and earlier in fact):
