@@ -271,6 +271,12 @@ reviewer and updated as each study is read.
   and red-zone floors could not be dosed (a zero average removes every player without a recent touchdown at once) and were
   dropped before the run. With the projection floor (106), the same lesson: removing low-volume players removes the cheap ones
   the big wins draw on.
+  **Double-checked at your request (10-10):** the carries numbers are right — production's carries over the last 4 games match
+  an independent count from the weekly stats (correlation 0.98; only 1.5% of 2023–24 running-back weeks land on the other side
+  of 13). What the floor did, by the real scores: the backs it took out of the book averaged 10.6 carries but 4.2 targets a
+  game ($6,058) and scored 14.3 DraftKings points, with a 20+ game 26% of the time; the backs that replaced them averaged 15.5
+  carries and 3.0 targets ($6,428) and scored 13.1, with a 20+ game 18% of the time. In DraftKings scoring a catch is worth a
+  point, so the pass-catching back with 10 carries often beats the 15-carry grinder; a carries floor removes exactly him.
 
 - **Your 10-09 evening question — correlations that could give an edge (three quick screens on your real Weeks 1–4; the plan
   was written down before any result was read):**
