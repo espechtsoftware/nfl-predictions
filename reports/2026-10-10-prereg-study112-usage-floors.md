@@ -28,11 +28,18 @@ reproduces. **A pick goes to study 113** (the fresh-draw check), whose preregist
 term and the FAVHI pairs (106's `arm_pool` pattern = production's `excl`). DSTs are exempt. **A player with no value (no prior
 game, or no feature row) is kept** and counted.
 - **RUSH** — RBs with fewer than **X_RUSH carries per game** leave (production's point-in-time feature `carries_l4`).
-- **PASS** — QBs with fewer than **X_PASS pass attempts per game** leave (nflverse weekly `attempts`, the mean over his last 4
-  regular-season games strictly before the slate's week, across seasons; study 48's source and window, as a per-game mean).
+- **PASS** — QBs with fewer than **X_PASS pass attempts per game** leave (nflverse weekly `attempts`, the mean over his last up to
+  4 regular-season games **of the same season** strictly before the slate's week; study 48's source, production's window).
 - **TGT** — WRs and TEs with fewer than **X_TGT targets per game** leave (`targets_l4`).
 - **TD** — RBs, WRs and TEs with fewer than **X_TD touchdowns per game** leave (nflverse weekly rushing + receiving TDs, the
-  last-4 per-game mean, across seasons).
+  same within-season last-4 per-game mean).
+- **All five measures use production's within-season window:** up to 4 prior games of the same season. The SQL is
+  `sql/features/014_player_week_usage.sql`, window `w4 = PARTITION BY gsis_id, season ORDER BY week ROWS BETWEEN 4 PRECEDING AND
+  1 PRECEDING`. Early-season slates have fewer or no values, and Week 1 has none; a player with no value is kept.
+  - **One small difference, disclosed:** production's window counts the last 4 player-week rows, with inactive weeks inside it
+    skipped in the average. The weekly-stats window counts the last 4 games played.
+  - **Correction before any run:** the first draft computed attempts and TDs across seasons (the lab reviewer's first call); that
+    was fixed after the lab reviewer's static review found production's window is within-season.
 - **RZ** — RBs, WRs and TEs with fewer than **X_RZ red-zone targets per game** leave (`rz20_targets_l4`).
 - **Not used:** `xfp_l4` (Addendum 121's voided leak) and every `y_*` column (outcomes).
 
@@ -71,8 +78,8 @@ game, or no feature row) is kept** and counted.
 - **Multiplicity:** five arms on the same 36 slates as studies 89–111; about one to two pass by chance.
 
 ## 5. Honest limits and production
-- **Last-4 games across seasons (the lab reviewer's call):** in 2023–24 early weeks the windows include the previous season. In
-  Week 5 of 2026, production's last-4 are this season's Weeks 1–4, so the windows match there.
+- **The within-season window:** in 2023–24, early-season slates rest on fewer games, and Week 1 on none (those players kept). In
+  Week 5 of 2026, production's window is the same (Weeks 1–4).
 - **The harness builds on its own simulated means;** his book uses Fantasy Points' projections. A floor removes the same players
   in both (the usage data is shared), but which lineups result differs.
 - **Production has no such flag.** A pass needs:
@@ -92,10 +99,10 @@ game, or no feature row) is kept** and counted.
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke and the census (the unit tests, the mechanics smoke 2023 W3
   / 2023 W11 / 2024 W10, the census with its threshold scan, the full path: reader exit and line count only).
 - **The smoke and the chosen thresholds:** (filled in when done).
-- **Code:** nfl2 `production/s112-usage-floors-20261010` @ `7451b5dd` (off study 106's frozen `afdfad8c`):
-  - `experiments/s112_usage_floors.py` `fb6ee63c…` (pins s106 `45a8d3dd…`)
+- **Code:** nfl2 `production/s112-usage-floors-20261010` @ `24a88fb1` (off study 106's frozen `afdfad8c`):
+  - `experiments/s112_usage_floors.py` `6fd4813c…` (pins s106 `45a8d3dd…`)
   - `scripts/s112_drive.py` `c06f7644…`
   - `scripts/s112_census.py` `59d9a542…`
   - **`scripts/s112_report.py` (the reader) `0e54f0d1…`** (seed 20261155)
-  - `tests/test_s112_usage_floors.py` `d4bac8f6…` (12)
+  - `tests/test_s112_usage_floors.py` `21dd7700…` (12)
   - The module's thresholds change if the rule's choices differ; the code line is then updated before the freeze.
