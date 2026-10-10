@@ -817,7 +817,8 @@ def test_study_56s_cell_quotas_replace_the_mix_quotas_everywhere_and_unset_is_to
 
 
 @pytest.mark.parametrize("spec, msg", [
-    ("A1=0.4,A2=0.26,B=0.17", "exactly"), ("A1=0.4,A2=0.26,B=0.17,C=0.2", "sum to"), ("A1=0.4,A2=0.26,B=0.34,C=0", "> 0"),
+    ("A1=0.4,A2=0.26,B=0.17", "exactly"), ("A1=0.4,A2=0.26,B=0.17,C=0.2", "sum to"), ("A1=0.5,A2=0.26,B=0.34,C=-0.1", ">= 0"),
+    ("A1=0,A2=0,B=0,C=0", "at least one > 0"),
     ("A1=0.4,A2=x,B=0.17,C=0.17", "not a number"), ("A1=0.4,A1=0.26,B=0.17,C=0.17", "twice"), ("A1:0.4", "CELL=QUOTA"),
 ])
 def test_the_cell_quota_switch_refuses_a_malformed_spec(spec, msg):
@@ -833,3 +834,42 @@ def test_study_56s_qb2half_allocations_at_k26_and_the_15_spares():
     assert M.allocate(list(qb2half.values()), 26) == [11, 7, 4, 4]
     assert M.allocate([c[0] for c in M.MIX_CELLS.values()], 26) == [8, 4, 7, 7]
     assert M.allocate(list(qb2half.values()), 15) == [7, 4, 2, 2]
+
+
+# ---- study 95's shape arms (the operator 10-09: "we're going to decide the percentages of each of the successful shapes
+# first thing in the morning"): a cell at 0 (NO_x) or one cell at 1 (ONLY_x) -----------------------------------------------
+
+def test_a_cell_at_zero_gets_no_rows_and_one_cell_at_one_gets_them_all(monkeypatch):
+    """Study 95's NO_A2 / ONLY_A1: the quota list carries the 0, the cell stays a cell, allocate and interleave give it no
+    rows; the other cells take the rows in proportion. The parser takes the specs."""
+    no_a2 = ur.parse_cell_quotas("A1=0.35,A2=0,B=0.325,C=0.325")
+    assert no_a2 == {"A1": 0.35, "A2": 0.0, "B": 0.325, "C": 0.325}
+    only_a1 = ur.parse_cell_quotas("A1=1,A2=0,B=0,C=0")
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    _install(monkeypatch, [])
+    r, c, m, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, fill="rr", cell_quotas=no_a2)
+    assert "A2" not in c and m["cells"]["A2"]["target_rows"] == 0 and len(r) == k
+    assert [m["cells"][n]["target_rows"] for n in ("A1", "A2", "B", "C")] == M.allocate(list(no_a2.values()), k)
+    _install(monkeypatch, [])
+    r1, c1, m1, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, fill="rr", cell_quotas=only_a1)
+    assert set(c1) == {"A1"} and len(r1) == k and m1["cells"]["A1"]["target_rows"] == k
+
+
+def test_a_cell_at_zero_gets_no_rows_in_the_term_block_either(monkeypatch):
+    """The cheap block (term_rows 8 of 26) allocates each block by the same quota list: NO_C gives C no live and no term
+    rows; the book is still 26 rows, the live block 18 and the term block 8."""
+    no_c = ur.parse_cell_quotas("A1=0.4166666666666667,A2=0.19444444444444445,B=0.3888888888888889,C=0")
+    (rows, cells, meta, _), _calls = _term(monkeypatch, 8, {"p39": 2.0}, cell_quotas=no_c)
+    assert "C" not in cells and len(rows) == 26
+    assert meta["term"]["live_block"]["target_rows"]["C"] == 0 and meta["term"]["term_block"]["target_rows"]["C"] == 0
+    assert sum(meta["term"]["live_block"]["target_rows"].values()) == 18 and sum(meta["term"]["term_block"]["target_rows"].values()) == 8
+
+
+def test_a_zero_cell_still_passes_a_failed_cells_quota_to_a1(monkeypatch):
+    """As live and as study 95: a cell that cannot solve passes its remaining quota to A1, counted, even with A1 at 0."""
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    calls = []
+    _install_valued(monkeypatch, calls, {"B": 0, "C": 1, "A1": 2, "A2": 3}, fail_cells=("B",))
+    no_a1 = ur.parse_cell_quotas("A1=0,A2=0.2,B=0.4,C=0.4")
+    r, c, m, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, fill="rr", cell_quotas=no_a1)
+    assert "B" not in c and m["passes_to_A1"] == m["cells"]["B"]["target_rows"] > 0 and c.count("A1") == m["passes_to_A1"]

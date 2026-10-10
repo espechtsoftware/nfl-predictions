@@ -463,8 +463,11 @@ def apply_proj_source(fr: pd.DataFrame, csv_path: Path, frame_path: Path) -> tup
 
 def parse_cell_quotas(spec: str) -> dict[str, float]:
     """--mix-cell-quotas "A1=0.40,A2=0.26,B=0.17,C=0.17" (study 56; the operator 10-07, his priority test this week):
-    the MIX cells' entry quotas in place of mix_shapes.MIX_CELLS'. Exactly the four MIX cells, every value > 0, the sum 1
-    (within 1e-9); anything else raises ValueError. The cells' RULES are unchanged."""
+    the MIX cells' entry quotas in place of mix_shapes.MIX_CELLS'. Exactly the four MIX cells, every value >= 0 and at least
+    one > 0, the sum 1 (within 1e-9); anything else raises ValueError. The cells' RULES are unchanged. A cell at 0 gets no rows
+    in either block but stays a cell (study 95's NO_x / ONLY_x arms, nfl2 s95_shapes.py: the quota list S28.QUOTAS with a 0,
+    the cell kept, a failed cell's quota still passing to A1, counted) -- the operator 10-09: "we're going to decide the
+    percentages of each of the successful shapes first thing in the morning"."""
     out: dict[str, float] = {}
     for part in str(spec).split(","):
         name, sep, val = part.strip().partition("=")
@@ -479,8 +482,8 @@ def parse_cell_quotas(spec: str) -> dict[str, float]:
             raise ValueError(f"--mix-cell-quotas: {name}={val!r} is not a number") from None
     if set(out) != set(MIX_CELLS):
         raise ValueError(f"--mix-cell-quotas: the cells must be exactly {sorted(MIX_CELLS)} (got {sorted(out)})")
-    if any(not v > 0 for v in out.values()):
-        raise ValueError("--mix-cell-quotas: every quota must be > 0")
+    if any(not v >= 0 for v in out.values()) or not any(v > 0 for v in out.values()):
+        raise ValueError("--mix-cell-quotas: every quota must be >= 0, at least one > 0")
     if abs(sum(out.values()) - 1.0) > 1e-9:
         raise ValueError(f"--mix-cell-quotas: the quotas sum to {sum(out.values())}, not 1")
     return {n: out[n] for n in MIX_CELLS}
