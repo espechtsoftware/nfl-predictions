@@ -6,8 +6,10 @@ something is successful, we'll discuss in the morning how we want to use it."
 
 ## The short version
 
-**One decision for you this morning:** whether to turn on the RB version below (the QB's own RB, only for the expected winner of
-a high-scoring game; one setting at arming). **Everything else: keep Week 5 as armed** — no other change held up overnight.
+**One decision for you this morning — DECIDED: adopted (armed).** The RB version below (the QB's own RB, only for the expected
+winner of a high-scoring game) is armed for Week 5 (RB_MATE_C = 4, RB_MATE_SCOPE = favhi; your words: "Yes, it seems the RB one
+should be adopted."; production `e8a4d0a4`, FRIDAY_HEAD `b00c5e43`). **Everything else: Week 5 as armed** — no other change held
+up overnight.
 
 - **Shape percentages (studies 95 and 98): keep today's A1 30% / A2 14% / B 28% / C 28%.** Your mix held up — removing A1, B
   or C was worse on both opponent sets. The rule fixed beforehand suggested a small shift (A1 39% / A2 12% / B 24% / C 24%), but
@@ -17,8 +19,7 @@ a high-scoring game; one setting at arming). **Everything else: keep Week 5 as a
   lineups, only when his team is the expected winner of a high-scoring game.** Study 97 +0.9 (×1.10 expected big wins), study 99
   +3.4 (×1.18): better on all four opponent sets. Its 200+ rate was a little higher on both reads (12.7% vs 11.8% in 97,
   15.0% vs 11.1% in 99), as were several other versions' (the 200+ rate is noisy at about 12%). Still not clear of chance on
-  its own; **your call** — it is merged and left off, and using it is one
-  setting at arming (RB_MATE_C = 4 with RB_MATE_SCOPE = favhi). The shootout QB + 2 did not pass (−0.7, then +0.5 split); the
+  its own; **you adopted it: armed for Week 5** (RB_MATE_C = 4 with RB_MATE_SCOPE = favhi). The shootout QB + 2 did not pass (−0.7, then +0.5 split); the
   trailing-side QB + 2 was worse both times (−5.0, −5.6).
 - **The RB stack mate, unconditioned (study 96): paper only.** On top of the one-receiver-per-team rule it read −0.5 (worse on
   both opponent sets), although every lineup got its RB. It stays off (RB_MATE_C = 0) unless you choose a version below.
@@ -194,9 +195,8 @@ call.
 - **The RB version for the expected winner of a high-scoring game (study 99 confirmed it):** its switch is built, reviewed and
   checked on your Week-4 book (Buffalo, Houston and San Francisco; all 4 lineups got their RB, −0.11 projected points per
   lineup). The lab reviewer's paper-arm update is in, and the switch is **merged at `5faf2f05`, left off**; the laptop's
-  Week-4 gates at the merged state passed (00:40: with it off, your book is byte for byte today's). **Using it is one setting
-  at arming (RB_MATE_C = 4 with RB_MATE_SCOPE = favhi, one arm-only commit), only if you say yes;** leaving it off keeps
-  today's book.
+  Week-4 gates at the merged state passed (00:40: with it off, your book is byte for byte today's). **Adopted on your word and
+  armed for Week 5** (RB_MATE_C = 4 with RB_MATE_SCOPE = favhi; `e8a4d0a4`, FRIDAY_HEAD `b00c5e43`, the arming check passes).
 - **No QB + 2 version passed,** so none was built.
 
 ## 3b. Raising the ceiling: five variations of your book (study 100) and the check of its pick (study 101)
