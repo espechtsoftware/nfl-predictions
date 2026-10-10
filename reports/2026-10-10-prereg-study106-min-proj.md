@@ -1,12 +1,14 @@
-# Preregistration: study 106, a projection floor — "no player with a projected score less than 8" — on his live book, in the harness (DRAFT 2026-10-10)
+# Preregistration: study 106, a projection floor — "no player with a projected score less than 8" — on his live book, in the harness (DRAFT 2026-10-10; FROZEN 2026-10-10)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer; the design is the lab reviewer's final
-call, following the laptop's plan. The lab reviewer reviews, runs the binding census, freezes, runs and reads; the laptop acks and
-reproduces. **Information for his decision; a pick goes to study 107**, whose preregistration is committed before this study's
-READ.
-- **Banks and seed (the laptop's full-set check and text scan: CLEAN against every used or reserved bank, studies 90–105;
-  the only hits salaries, timings, counts, player ids or hex):** **3482–3493** (set A 3482–3487, set B 3488–3493; sims bases 3532–3543, fields 4182–4193); the reader's bootstrap
-  seed **20261149**.
+**Status: FROZEN 2026-10-10 (05:36 CDT)** by the lab reviewer, after the outside reviewer's DRAFT and code, the smoke and the
+binding census, before any scored bank. The text changed at the freeze in this status block and §5 (the binding census) only.
+The laptop acks. **Information for his decision; a pick goes to study 107** (its preregistration committed before this READ).
+- **Banks 3482–3493** (set A 3482–3487, set B 3488–3493; sims bases 3532–3543, fields 4182–4193), the reader's bootstrap seed
+  **20261149**. The laptop's scan was clean: the full set against every used or reserved bank's {b, b + 50, b + 700} (617 used banks across
+  both repositories, studies 90–105 and the reserved blocks included), no results file; the text scans found only salaries,
+  timings, counts, player ids and LineStar pids (incidental), and study 107's own preregistration.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run, recorded in `RUN_ENV_s106.txt` committed with the
+  confirmatory census. The run starts from lab `39aca9da` on production/s106-min-proj-20261010 (results/s106/).
 
 ## 1. Why
 - **The operator, 10-10 early morning, in the laptop's session (verbatim):** "Have you tried any kind of rules like "no player
@@ -106,6 +108,14 @@ listed edits, a test asserts it); every arm his live Week-5 construction (the pa
   - **Earlier smokes before the freeze, disclosed:** at `3dfe4c95` the unit stub lacked two fields and MINPROJ10 stopped at 32
     of 41 rows; at `3a852618` run() allows a short spare tail (production's "not a refusal") and requires the 26 book rows;
     that smoke's census flagged MINPROJ10 (change 3).
+- **The binding census at the freeze** (the lab reviewer's; outcome-blind; bank 1406; 36 slate-banks of 2023-24; PYTHONHASHSEED=0;
+  9 tests pass; lab `39aca9da` on production/s106-min-proj-20261010: `CENSUS_s106_binding.txt` `7c209df5…`,
+  `census_mechanics_bank1406.jsonl` `0d8a9edb…`): 0 row-rule / ownership-cap fallbacks in both arms; ONECATCH 504 of 504 in both;
+  **the adopted FAVHI binds in both:** RB-mate slots 144 of 144 (ruled 143 / 142, re-solved without the floor 1 / 2); **LIVE
+  identical to study 97's RBMATE4_FAVHI, rows and dealing, on 36 of 36 slate-banks**; **the floor binds:** MINPROJ8's pool 124.8
+  (102.6 skill players, from 250.9), dropped QB / RB / WR / TE 21.4 / 33.8 / 51.9 / 41.2 per slate-bank, LIVE's book rows holding
+  a dropped player 12.1 of 26 (min 0); the cheap block never empty (cheap players with a term 4.8 per slate-bank, against 88.0);
+  FAVHI pairs 4.4 (min 1) against 17.9; spares 15 of 15 in both arms; low-owned per row 0.588 vs 0.641; distinct QBs 8.6 vs 8.1.
 - **Code:** nfl2 `production/s106-min-proj-20261010` @ `afdfad8c` (off study 102's frozen `969f4d3d`; s96 / s97 byte for byte,
   `0363a84f…` / `7df6f324…`):
   - `experiments/s106_min_proj.py` `45a8d3dd…` (pins s95 `46b80611…`, s97 `7df6f324…`)
