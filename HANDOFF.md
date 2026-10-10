@@ -12,6 +12,33 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (08:23 CDT) — study 110 READ: none of the five field ideas (+ VAL4) passes his rule, so the pick is none; 111 not run; VAL4 goes on paper (s38 6z) (reproduced byte for byte)
+
+- **Study 110** (the reviewer; lab `73efac12`; confirmatory census `e11661b8` committed before the read; 432 / 432 rows).
+  **The laptop reproduced both byte for byte:** READ_s110 `763ae1fb` (reader 79fa2f2e); census `37e99504` (d8c4bc49).
+- **Each arm − LIVE (FAVHI in all), P(≥ 1 big seat), set A / B, seats:**
+
+  | Arm | Pooled | A / B | Seats | Note |
+  |---|---|---|---|---|
+  | LOW0 | +0.3 | −0.3 / +0.8 | ×1.11 | mixed |
+  | QBTOP3 | −3.6 | −3.8 / −3.4 | ×0.91 | guard 1 FAILS |
+  | POPPUNT | +1.0 | +2.3 / −0.2 | ×1.05 | mixed |
+  | HYGIENE | −0.6 | −0.5 / −0.7 | ×1.00 | the QB–DST ban alone (the $49,500 floor never binds) |
+  | VAL4 | −2.9 | −2.6 / −3.3 | ×0.92 | worse on both |
+
+- **PICK: none.** 111 is not run.
+- **Disclosed:** LOW0's row-rule fallback in 15 of 11,232 solves; its FAVHI floor re-solved without the floor in 138 of 1,728
+  slots (LIVE 12).
+- **VAL4 read negative**, so by his words ("The same applies to VAL4 if study 110 reads it negative") the reviewer's s38
+  amendment 6z puts MIXT_QA0_VAL4 on paper (value on FP's projections; no new file). Smoke and the laptop's ack come after
+  the 115 smoke.
+- **For him, in plain words:**
+  - none of the five ideas beat his book on both random opponent sets;
+  - "no low-owned players" and "popular punts only" were close but mixed;
+  - the top-3-game QB and the value cap were clearly worse;
+  - the hygiene rule changes almost nothing (one W4 lineup).
+- **Next:** the 115 smoke → freeze → ack → run (the WR / TE recency test, for this week).
+
 ## 2026-10-10 (08:05 CDT) — OPERATOR: the dealing review read (merged, one correction); the FFWC qualifier's pin moves to row 2 (plan Rev7 installed; PLAN_SHA 6ce16979)
 
 - **His request:** "Review" the outside model's `briefings/2026-week-05/2026-10-10-dealing-review.md` (b538ad7b).

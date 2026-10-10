@@ -46,8 +46,10 @@ change that makes the time a setting was reviewed and merged; the arm script is 
 2. ~~Study 109 (your recency fade at 2× and 1.6×) plus HOT1~~ **READ: all three made the book worse on both sets of opponents
    (the fade about 5 fewer slates in 100 with a big win; at most one hot player about 2 fewer). Not used.**
 3. ~~Study 108 (per-position floors)~~ not run (the floor did not help).
-4. Study 110: the outside reviewer's five ideas (no low-owned players; QB from the top-3 games; popular punts only; no QB with
-   his own defense plus $49,500 salary) **plus VAL4** (at most 4 top-value players per lineup); study 111 re-checks a pass.
+4. ~~Study 110: the outside reviewer's five ideas + VAL4~~ **READ: none beat your book on both sets of opponents. "No low-owned
+   players" and "popular punts only" were close but mixed; the top-3-game QB and the value cap were clearly worse; the hygiene
+   rule changes almost nothing. The value cap goes on paper this Sunday (your "if negative"), beside the hot-player cap.**
+4b. **Added at your word: the hot-player rule on WR/TE only (study 115), for THIS week if it passes.**
 5. Your usage floors (carries, pass attempts, targets, touchdowns, red-zone targets), with a re-check if one passes.
 6. **Last, as you asked:** each live rule removed one at a time.
 
