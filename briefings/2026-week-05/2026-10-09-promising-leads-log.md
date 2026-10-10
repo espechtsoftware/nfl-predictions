@@ -150,6 +150,17 @@ reviewer and updated as each study is read.
   separable from zero on its own. The switch is built and checked on your Week-4 book (it chose BUF, HOU and SF), and is OFF
   until you say so.
 
+### 14. Your book without the cheap +2 block (studies 100, 101) — *information for your Week-5 trial, not a test*
+- Your Week-5 trial runs the cheap +2 block in 8 lineups. Studies 100 and 101 each carried a version of your book without it,
+  as a side comparison.
+- **Study 100: +1.2** without the block (set A −1.0, set B +3.5; about 5% more expected big wins). **Study 101: +2.8** (sets
+  +3.8 / +1.9; about 14% more expected big wins). Study 53 had read the block at about 6% fewer expected big wins. So three
+  reads in the test model put the block's cost at about 5–13% of expected big wins. That is inside the trial's stop line: it
+  stops if your book trails the book without the block in every live week, or falls below 0.80× its expected big wins.
+- The best lineup: −0.3 and +0.1 points without the block — no change.
+- **Not a test:** side comparisons on the same past slates. Your trial is judged on the real Week-5 results, where the book
+  without the block is scored on paper beside yours (Monday 10-12, then 10-19).
+
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
   the full game stack (74), two bring-backs (76) — each at or below your book on 2023–24.
@@ -183,6 +194,13 @@ reviewer and updated as each study is read.
   −3.9), 13% fewer expected big wins, and 0.7 projected points per lineup lower. Trailing teams do throw more, but forcing
   those QBs into the QB + 2 lineups costs more than it gains.
 
+- **The ceiling sweep (studies 100, 101; your "scores over 200" request):** five one-setting changes to your book — the QB in at
+  most 3 lineups, at most 3 players shared between any two lineups, ownership + 10, a heavier A1 / B mix, no cheap block. None
+  raised the book's best lineup by more than about a point. The one the pre-written rule picked (at most 3 shared, +0.7) read
+  **−0.9 on a fresh set of opponents** and fewer big wins on both sets: the luck of the first draw. The QB in at most 3 lineups
+  passed your big-win rule once (+1.7) and was mixed on the fresh set (−0.4). In the test model your book's best lineup reaches
+  200 on about 12–13% of past slates whatever the setting. (At most 3 shared is planned as a paper version for Week 5.)
+
 - **Your 10-09 evening question — correlations that could give an edge (three quick screens on your real Weeks 1–4; the plan
   was written down before any result was read):**
   - *Defense strength normalized like DVOA:* already in our model (each defense's points allowed to a position, adjusted for
@@ -198,6 +216,9 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 100 (tonight, your "scores over 200" request):** a sweep of the settings that could raise the book's best lineup.
+- **Study 102 (running now, about 03:35):** building for the ceiling instead of the average — the 8 cheap-block lineups on each
+  player's upside (his 85th-percentile score), the whole book on it, and the A1 lineups as full game stacks (the QB, 2 of his
+  receivers and 2 opponents) in the slate's top-4 games. If the pre-written rule picks one, study 103 re-reads it on a fresh set
+  of opponents, and if it holds, study 104 tries it together with lead 13.
 
 *Updated as each study is read.*
