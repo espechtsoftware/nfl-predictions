@@ -1494,6 +1494,36 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     snapshot's `S38_PAPER_TDBLOCK_FILE` merges, after a byte check of the files the gate reads from the production checkout.
   - **Order:** this amendment; the laptop's ack (a reproduction of the smoke); the gate pin.
 
+- **Amendment 7b (2026-10-10, before Week 5's lock; no Week-5 outcome exists): a two-week adoption rule for the paper arms with
+  real-field support. In force by his decision, verbatim (the laptop's session, AskUserQuestion, with this text): "Set it as
+  written (Recommended)".** Asked at the same time: "Keep 5; paper tests it (Recommended)" (the QB cap stays 5; TOPCAP6 carries
+  the hedge on paper) and "Paper only (Recommended)" (HOT_WRTE1 stays on paper; its switch unmerged).
+  - **Why.** The afternoon page (item 4): the harness and the real fields disagree on the input-level rules this week, and
+    study 38's own verdict needs four weeks all positive, slower than his horizon. A rule written now, before any Week-5
+    result, keeps a two-week read a test rather than a choice made after seeing the numbers.
+  - **The arms it covers (fixed now; no other arm may use it):** MIXT_QA0_HOT1 (6y), MIXT_QA0_HOT_WRTE1 (6z2), MIXT_QA0_VAL4 (6z),
+    MIXT_QA0_STAR1 (S2, 6r), MIXT_QA0_NOTERM (the live book without the cheap block), MIXT_QA0_MS3 (6x) and MIXT_QA0_TOPCAP6
+    (6z3).
+  - **The statistic, per week and per arm:** d = P(≥ 1 big seat) of the arm's book minus that of MIXT_QA0 (his live book that
+    week), in the real Millionaire field, as study 38's scorer computes it (`p1`, big_seat_stats). This is the reader's 6r line,
+    "− QA0". Every arm here is read against MIXT_QA0, including NOTERM, because adopting it would replace the live book.
+  - **THE RULE:** an arm is **adoptable for Week 7, by his decision**, iff:
+    - Weeks 5 and 6 are both VALID by study 38's rule (the books built live, the manifest checked, the union arguments
+      matching, under 1% of names missing);
+    - the arm was built in both weeks (not missing);
+    - **d > 0 in Week 5 AND d > 0 in Week 6**;
+    - the expected big seats summed over the two weeks, the arm's over MIXT_QA0's, is ≥ 0.80 (study 38's guard 2, at two weeks).
+    - Mean entry pct (guard 1) is printed, not gating.
+    - If an arm is missing or a week is invalid, it is NOT adoptable under this rule (no substitute week).
+  - **What a pass means, plainly:** with one slate a week, d > 0 in both weeks happens about **1 time in 4** for an arm with no
+    real effect. Across these 7 arms, **one or two false passes are expected**. A pass is a candidate for his decision, never an
+    automatic switch. If several pass, the reader lists them by the summed d; he chooses at most one per week.
+  - **Changes between the weeks:** if a live construction setting changes for Week 6, the Week-6 arms follow it (FOLLOW_QA0, as
+    always), and Week 6's d is read against Week 6's live book. The amendment that makes the change says so.
+  - **What it does not change:** study 38's frozen primary (RS0 − QA0 over four weeks) and its verdicts. The two-week line is
+    printed as its own block, after the 6r line, from Week 6's reader run. The reader code for that line is a separate,
+    reviewed amendment before Week 6's read; its text must print exactly the rule above.
+
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
 - **Study 37** (Addendum 142): the regulars' structure (about 11 QB stacks and a steep player curve, their own tier
