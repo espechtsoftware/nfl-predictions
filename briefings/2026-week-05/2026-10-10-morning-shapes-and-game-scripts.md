@@ -6,9 +6,10 @@ something is successful, we'll discuss in the morning how we want to use it."
 
 ## The short version
 
-- **Shape percentages (study 95):** your mix held up — removing A1, B or C was worse on both opponent sets. The rule fixed
-  beforehand suggests a small shift: **A1 39% / A2 12% / B 24% / C 24%** (two more QB + 2 + bring-back lineups), on a weak
-  signal; keeping today's 30 / 14 / 28 / 28 is just as defensible.
+- **Shape percentages (studies 95 and 98): keep today's A1 30% / A2 14% / B 28% / C 28%.** Your mix held up — removing A1, B
+  or C was worse on both opponent sets. The rule fixed beforehand suggested a small shift (A1 39% / A2 12% / B 24% / C 24%), but
+  on a fresh draw (study 98) it was no better on one of the two opponent sets (+0.6 overall, a coin flip), so it is not
+  suggested.
 - **Game situations (study 97):** one version passed — **the QB's own RB in 4 QB + 1 lineups, only when his team is the expected
   winner of a high-scoring game** (+0.9, better on both opponent sets, ×1.10 expected big wins); small and not clear of chance;
   re-run on a fresh draw by study 99. The shootout QB + 2 did not pass (−0.7); the trailing-side QB + 2 was clearly worse (−5.0).
@@ -86,9 +87,11 @@ them; A2 stays.
 reading chance alone gives about one time in three or four), and the new mix itself was never tested. **Keeping today's mix is
 just as defensible; the change is small (two lineups) and either choice is reasonable.**
 
-**The suggested mix against today's, on a fresh draw of the same past slates (study 98, the laptop's proposal):** [ ] — a
-check against a lucky draw, not new games. Arming any mix is one setting
-(MIX_QUOTAS = A1 0.3913 / A2 0.1217 / B 0.2435 / C 0.2435).
+**The suggested mix against today's, on a fresh draw of the same past slates (study 98, the laptop's proposal): it did not
+hold.** +0.6 (−2.6 to +3.6); set A 0.0, set B +1.1; ×1.02 expected big wins — not better on both opponent sets, so by your
+rule it stays on paper (study 98's READ `6d78607e`, lab `fb17beb0`). **Suggested: keep today's 30 / 14 / 28 / 28** (nothing
+to change at arming). If you want the shift anyway, it is one setting (MIX_QUOTAS = A1 0.3913 / A2 0.1217 / B 0.2435 /
+C 0.2435); the evidence for it is a coin flip.
 
 ## 2. Game situations (study 97)
 
