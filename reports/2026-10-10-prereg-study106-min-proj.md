@@ -14,8 +14,10 @@ READ.
   per position".
 - **Neither ledger has a floor above 1.0** (production's `--min-proj` 1.0 drops only the near-inactive).
 - **The prior, stated first: NO DIFFERENCE, leaning negative.** The ledger's construction evidence favors cheap players:
-  - winners carry a sub-$4,000 punt (Addenda 4–5);
-  - the 10-07 brainstorm's whole-field cheap odds ratio was 1.88;
+  - Milly winners carry a sub-$4,000 punt (Addenda 4–5);
+  - in his real W1–4 Millionaires, a lineup with 2+ sub-$4,000 non-DST players reached the top 1% more often than the same
+    user's other lineups: odds ratio 1.88 [1.75, 2.01], within user-week (`reports/2026-10-07-brainstorm-data-and-models.md`
+    §1.1). That is after the fact, like any outcome-conditioned profile;
   - the cheap +2 block is in the live book as a trial.
   - A floor of 8 or more removes most sub-$4,000 skill players.
 - **On his armed Week-4 book, by Fantasy Points' projections (the laptop):** a floor of 6 touches 0 of 26 lineups; 8 touches 3;
