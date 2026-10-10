@@ -107,15 +107,18 @@ reviewer and updated as each study is read.
 - +0.8 (A +0.9, B +0.6), 3% fewer expected big wins; costs 0.9 more projected points per lineup on your real book.
 - A second reading of the package against your old 50% book: +0.3 (the first read was +1.2) — roughly even in the test model.
 
-### 11. The QB's own running back as a stack mate, 4 lineups (study 94) — *passed your rule; a Week-6 candidate*
+### 11. The QB's own running back as a stack mate, 4 lineups (study 94) — *passed your rule; live in Week 5 if built and every check passes (your decision)*
 - **Study 94 (36 past slates, two random opponent sets), on your armed version:** in the first 4 QB-plus-one lineups, the QB,
   one of his receivers and his own running back. **+2.0** (set A +1.7, set B +2.4); about 3% more expected big wins. It passed
   your "better on both draws" rule. Under no true effect a rule passes about one time in four to one in three, and two of the
   five leads read tonight passed (this and one receiver per team), which is about what chance gives.
 - **Where the gain came from:** all from the 2023 slates (+4.4); 2024 was −0.4.
 - **Real book (Week 4):** 3 of the first 4 QB-plus-one lineups change.
-- **Not read: on top of one receiver per team.** That rule is armed for Week 5, so this one needs its own read on top of it
-  before Week 6. Your decision on it is open (Week-5 paper or later); there is no production switch for it yet.
+- **Not yet read on top of one receiver per team.** That rule is armed for Week 5, so this one needs its own read on top of it
+  before it can go live.
+- **Your decision (10-09): "Try live W5 if built".** Tonight: a test of it together with one receiver per team (study 96, your
+  rule), the production switch, the Week-4 check and the paper-arm check. It goes live at Saturday's 10:28 arming only if all
+  pass; otherwise it goes to paper. It would be the fourth change this week.
 
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
