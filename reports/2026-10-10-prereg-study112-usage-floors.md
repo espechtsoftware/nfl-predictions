@@ -32,7 +32,7 @@ game, or no feature row) is kept** and counted.
   4 regular-season games **of the same season** strictly before the slate's week; study 48's source, production's window).
 - **TGT** — WRs and TEs with fewer than **X_TGT targets per game** leave (`targets_l4`).
 - **TD** — RBs, WRs and TEs with fewer than **X_TD touchdowns per game** leave (nflverse weekly rushing + receiving TDs, the
-  same within-season last-4 per-game mean).
+  same within-season last-4 per-game mean). **DROPPED before the freeze by §3's rule** (no threshold in range; §3).
 - **All five measures use production's within-season window:** up to 4 prior games of the same season. The SQL is
   `sql/features/014_player_week_usage.sql`, window `w4 = PARTITION BY gsis_id, season ORDER BY week ROWS BETWEEN 4 PRECEDING AND
   1 PRECEDING`. Early-season slates have fewer or no values, and Week 1 has none; a player with no value is kept.
@@ -40,7 +40,8 @@ game, or no feature row) is kept** and counted.
     skipped in the average. The weekly-stats window counts the last 4 games played.
   - **Correction before any run:** the first draft computed attempts and TDs across seasons (the lab reviewer's first call); that
     was fixed after the lab reviewer's static review found production's window is within-season.
-- **RZ** — RBs, WRs and TEs with fewer than **X_RZ red-zone targets per game** leave (`rz20_targets_l4`).
+- **RZ** — RBs, WRs and TEs with fewer than **X_RZ red-zone targets per game** leave (`rz20_targets_l4`). **DROPPED before the
+  freeze by §3's rule** (no threshold in range; §3).
 - **Not used:** `xfp_l4` (Addendum 121's voided leak) and every `y_*` column (outcomes).
 
 ## 3. THE THRESHOLD RULE (fixed now, BEFORE any census is run; the lab reviewer's)
@@ -65,6 +66,22 @@ game, or no feature row) is kept** and counted.
   - Where a choice differs from the run's threshold, the threshold is set to the choice and the smoke re-run. The arm's own checks
     are then read at that value.
   - The lab reviewer checks the census lines and the chosen numbers before the freeze; this file records them.
+- **THE CHOICES (the lab reviewer's scan census, 10-10: bank 1406, the 36 slates, LIVE == study 97's RBMATE4_FAVHI on 36 of 36;
+  `CENSUS_s112_binding.txt` `5cd978bf…` at the placeholders):** LIVE's book rows touched, mean per slate-bank:
+  - **RUSH → 13 carries** (12: 7.4; **13: 10.6**; 14: 14.8; the placeholder 8: 1.5);
+  - **PASS → 32 attempts** (30: 7.2; **32: 10.5**; 34: 14.3);
+  - **TGT → 4.5 targets** (4.0: 7.8; **4.5: 11.4**; 5.0: 15.1);
+  - **TD: none in range → DROPPED.** Every value from 0.05 to 0.25 touches 21.5 rows, and 0.3 and up 24.4. A player with no
+    touchdown in his window has a per-game mean of 0, so any floor removes all of them at once; there is no dose between "none"
+    and "most of the book". His "min touchdowns" cannot be tested as a floor this way.
+  - **RZ: none in range → DROPPED.** 0.1 and 0.2 touch 15.7 (just above 15), 0.3 and up 21.3.
+  - **Recorded at the placeholders (moot for the dropped arms):** TD and RZ fell back on 19 and 22 of 936 row-rule solves,
+    ONECATCH dropped 6 and 9.
+  - **To watch at PASS 32 (the re-smoke and the binding census):** at the placeholder some slates had no FAVHI pair left (min
+    0); the RB mate's floor was re-solved without it in 5 of 144 slots, as production turns the RB mate off when no pair exists.
+    Disclosed here; the binding census reports it at 32.
+  - The arms' own checks at the chosen values (the cheap block never empty, ONECATCH ≤ 5% dropped, the RB-mate slots) are read
+    in the re-smoke and the binding census before the freeze.
 
 ## 4. The read (the reader `scripts/s112_report.py`)
 - **Study 100's reader with study 106's edits, relabelled** (a test asserts them); study 63's statistics; two draws and pooled;
@@ -75,7 +92,8 @@ game, or no feature row) is kept** and counted.
   - the mean best real lineup points and P(best ≥ 200), printed.
 - **THE PICK (pre-stated; study 106's tested function `floor_pick`):** among the arms passing his rule (guard 1 printed, not
   gating), the largest pooled gain. None → "keep the live book". **A pick goes to study 113.**
-- **Multiplicity:** five arms on the same 36 slates as studies 89–111; about one to two pass by chance.
+- **Multiplicity:** three arms (TD and RZ dropped before the freeze) on the same 36 slates as studies 89–111; about one passes
+  by chance.
 
 ## 5. Honest limits and production
 - **The within-season window:** in 2023–24, early-season slates rest on fewer games, and Week 1 on none (those players kept). In
@@ -112,11 +130,12 @@ game, or no feature row) is kept** and counted.
     them at once. RZ at 0.1 already touches 17.3;
   - the full path: the reader exited 0 (80 lines; 106 two-draw). Only the census, the exit codes and the line counts were
     read.
-- **The chosen thresholds:** (filled in from the binding census, then the re-smoke at them).
-- **Code:** nfl2 `production/s112-usage-floors-20261010` @ `24a88fb1` (off study 106's frozen `afdfad8c`):
-  - `experiments/s112_usage_floors.py` `6fd4813c…` (pins s106 `45a8d3dd…`)
+- **The chosen thresholds:** RUSH 13, PASS 32, TGT 4.5; TD and RZ dropped (§3). **The re-smoke at them:** (filled in when done;
+  a gap the lab reviewer names after the study-110 run).
+- **Code:** nfl2 `production/s112-usage-floors-20261010` @ `e111a611` (off study 106's frozen `afdfad8c`; the placeholders were
+  `24a88fb1`; the chosen thresholds and the two dropped arms at `e111a611`):
+  - `experiments/s112_usage_floors.py` `16bbe046…` (pins s106 `45a8d3dd…`)
   - `scripts/s112_drive.py` `c06f7644…`
-  - `scripts/s112_census.py` `59d9a542…`
-  - **`scripts/s112_report.py` (the reader) `0e54f0d1…`** (seed 20261155)
-  - `tests/test_s112_usage_floors.py` `21dd7700…` (12)
-  - The module's thresholds change if the rule's choices differ; the code line is then updated before the freeze.
+  - `scripts/s112_census.py` `41a7c150…`
+  - **`scripts/s112_report.py` (the reader) `8c8991a9…`** (seed 20261155)
+  - `tests/test_s112_usage_floors.py` `45e5f3bd…` (12)
