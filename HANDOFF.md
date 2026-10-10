@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (00:27 CDT) — study 99 READ: RBMATE4_FAVHI CONFIRMED on a fresh draw; its 200+ rate up on both reads; production merges default off after 6w
+
+- **Study 99** (the reviewer; study 97's frozen code on banks 3198–3209; lab `79387d43`, READ_s99 `9a796eb1`; confirmatory census
+  `c88489dd`). **The laptop reproduced both byte for byte** (97's reader `e5827c73` / census `346b403f`).
+  - **FAVHI vs LIVE:** +0.034 [−0.004, +0.074]; A +0.058, B +0.009; seats 1.179. A candidate.
+  - **FAVHI vs RBMATE4:** +0.028; A +0.028, B +0.028; seats 1.169. A candidate.
+  - **Both deciding lines pass, so the verdict is CONFIRMED.**
+  - Information: FAV vs LIVE also passes here (+0.015); RBMATE4 vs LIVE +0.006 (B −0.019); NAKED / OPPQB / SHOOT paper;
+    **QB2_DOGHI worse again** (−0.056 [−0.104, −0.007]).
+- **The 200+ rate** (descriptive, the real points of the 26 rows):
+  - FAVHI 15.0% vs LIVE 11.1% in 99 (mean best 178.9 vs 176.8);
+  - 12.7% vs 11.8% in 97;
+  - the one version tonight that raised the book's ceiling on both reads.
+- **In plain words for him:** the RB stacked with his own QB only when that team is the expected winner of a high-scoring game
+  read +0.9 (97) and +3.4 (99), better on all four opponent sets, with 10–18% more expected big wins and a higher 200+ rate.
+  Not clear of zero on its own; the morning decision is his.
+- **Production:**
+  - the favhi flag `60f6dbe9` + wiring `2bd5bbff` merge **default off** after the reviewer's 6w (+ 6x classification) passes
+    its smoke and is acked, per the merge order (HANDOFF `51b325b6`);
+  - then FRIDAY_HEAD, the laptop's W4 gates, and the reviewer's pin and gate;
+  - **his morning switch:** RB_MATE_C=4 + RB_MATE_SCOPE=favhi in an arm-only commit, with the W4 check `b6680c2c` already done.
+
 ## 2026-10-09 (23:28 CDT) — study 98 READ: the suggested mix did NOT hold on a fresh draw (PAPER ONLY), so keep the live 30 / 14 / 28 / 28; study 99 running
 
 - **Study 98** (the reviewer; lab `fb17beb0`, READ_s98 `6d78607e`; confirmatory census `f6a93526`). **The laptop reproduced
