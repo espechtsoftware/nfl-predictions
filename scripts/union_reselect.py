@@ -587,6 +587,13 @@ def one_catcher_line(block: dict | None) -> str:
             f"of one team {b.get('pair_rows_book')} (B / C {b.get('pair_rows_bc')})")
 
 
+def rb_mate_line(block: dict | None) -> str:
+    """Study 96's one printed line."""
+    b = block or {}
+    return (f"RB MATE: the QB's own RB on the first {b.get('rows_cap')} C-cell book rows ({b.get('pairs')} pairs); slots "
+            f"{len(b.get('slots') or [])}, ruled {len(b.get('ruled') or [])}, re-solved without it {len(b.get('resolved_without') or [])}")
+
+
 def row_rule_sets(source: Path, t70: pd.DataFrame, exclude: set[str], low_pct: float) -> tuple[set[str], set[str], dict]:
     """Study 91's row rules (nfl2 experiments/s91_row_rules.py; the W5 paper arm's study 38 6p low_owned, lab b03ddaac): the
     pool's TEs, and the pool's SKILL players whose Fantasy Points projected ownership -- the ownership_fp file's fp_own_raw,
@@ -637,7 +644,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
              bring_back_top_wr_rows: int | None = None,
              own_cap: dict[str, int] | None = None,
              row_bounds: list | None = None,
-             one_catcher: bool = False) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             one_catcher: bool = False,
+             rb_mate_c: int = 0) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -693,7 +701,13 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     appended to row_bounds, ONE call; infeasible -> the same solve with row_bounds only (the one-catcher dropped first,
     recorded (cell, j)), then row_bounds' own fallback (nfl2 experiments/s93_leads.py lead_rules @ 5f4e1fb9, onepc, inside
     6p's row rules and 89's own_caps). Needs row_bounds, the MIX portfolio, fill rr, no cover, no half-and-half, no study-71
-    floor."""
+    floor.
+    rb_mate_c N (study 94's RBMATE4 with study 93's ONECATCH, read together by study 96; the operator 10-09 "Try live W5 if
+    built"; default 0 = off, byte for byte today's book): on the first N C-cell solves while j < k (build order; the live and
+    the term block; a slot is taken at the solve, whether ruled or not, so an ownership-cap re-peek takes another; spares
+    never) the row holds its QB's OWN RB: the pinned optimize's interaction floor over (QB, RB of the QB's team) pool pairs,
+    weight 1, floor 1, in ONE call with row_bounds and the one-catcher bounds; infeasible -> the same solve without the floor
+    (recorded), then ONECATCH's own tiers (nfl2 experiments/s96_onecatch_rbmate.py combo_rules @ 3cf3e8eb). Needs one_catcher."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
@@ -794,12 +808,34 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                 oc_team.setdefault(str(p["team"]), []).append(str(p["id"]))
         oc_bounds = [(sorted(ids), 0, 1) for _, ids in sorted(oc_team.items())]
 
+    # study 94's RBMATE on top of ONECATCH (default 0 = off: every solve below byte for byte as before): the first N C-cell
+    # book solves carry the interaction floor over (QB, his team's RB) pairs with rb + the one-catcher bounds in one call.
+    rm_state: dict = {"used": [], "ruled": [], "plain": [], "rows": [], "pending": None}
+    rm_pairs: dict = {}
+    if rb_mate_c:
+        if not oc_bounds or int(rb_mate_c) != rb_mate_c or rb_mate_c < 0:
+            raise ValueError(f"rb_mate_c {rb_mate_c} needs one_catcher (and so the row rules) and an integer >= 0")
+        rm_rbs: dict[str, list[str]] = {}
+        for p in pool:
+            if p["pos"] == "RB":
+                rm_rbs.setdefault(str(p["team"]), []).append(str(p["id"]))
+        rm_pairs = {(str(p["id"]), r): 1.0 for p in pool if p["pos"] == "QB" for r in rm_rbs.get(str(p["team"]), [])}
+
     def _peek(name: str, extra_bans: frozenset = frozenset(), use_term: bool = False):
         """Study 91's row rules around _solve (absent when row_bounds is None): on a book solve (j < k) the bounds ride as
         member_bounds, one call; infeasible -> the same solve without them, recorded. Called inside peek's ownership cap."""
         j = len(prev)
         if not rb or j >= k:
             return _solve(name, extra_bans, use_term)
+        if rm_pairs and name == "C" and len(rm_state["used"]) < int(rb_mate_c):   # study 94's RBMATE first (absent when off)
+            rm_state["used"].append((name, j))                # the slot is taken, ruled or not
+            got = _solve(name, extra_bans, use_term, rb + oc_bounds, rm_pairs)
+            if got[0] is not None:
+                rm_state["ruled"].append((name, j)); rm_state["pending"] = name
+                oc_state["ruled"].append((name, j)); oc_state["pending"] = name
+                row_state["ruled"].append((name, j))
+                return got
+            rm_state["plain"].append((name, j))                # infeasible: the floor dropped, ONECATCH and rb kept
         if oc_bounds and name in ONE_CATCHER_CELLS:            # study 93's ONECATCH first (absent when off)
             got = _solve(name, extra_bans, use_term, rb + oc_bounds)
             if got[0] is not None:
@@ -814,7 +850,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         row_state["plain"].append((name, j))
         return _solve(name, extra_bans, use_term)
 
-    def _solve(name: str, extra_bans: frozenset = frozenset(), use_term: bool = False, member_bounds: list | None = None):
+    def _solve(name: str, extra_bans: frozenset = frozenset(), use_term: bool = False, member_bounds: list | None = None,
+               floor: dict | None = None):
         """The cell's next row on the CURRENT state, not committed: (ids, objective value, fallback) or (None, None, None).
         use_term: on the term block's objective (projection + the capped term). fallback: None, or why a study-71 cell's
         row was built WITHOUT the top-WR floor ("infeasible with the floor" / "no pairs"), or "plain" for a designated solve
@@ -830,6 +867,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                   bans=bans or None, env=env, second_game_pair=games if which == "all" else None, qb_game_max=qmax)
         if member_bounds:                                      # study 91's row rules (absent when off)
             kw["member_bounds"] = member_bounds
+        if floor:                                              # study 94's RBMATE floor (absent when off; never with study 71)
+            kw.update(interaction_floor_weights=floor, interaction_floor=1.0)
         fb = None
         if name in bb_cells and floor_open():
             lu = optimize(use_pool, interaction_floor_weights=bb_pairs, interaction_floor=1.0, **kw) if bb_pairs else None
@@ -849,6 +888,11 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
 
     def commit(ids: list[str], value: float | None = None, cell: str | None = None, fb: str | None = None) -> list[str]:
         prev.append(frozenset(ids)); count.update(ids)
+        if rm_state["pending"] is not None:                    # study 94's record (nothing when off)
+            row = sorted(str(i) for i in ids)
+            rm_state["rows"].append({"cell": rm_state["pending"], "commit_index": len(prev) - 1, "row": row,
+                                     "row_sha256": hashlib.sha256(",".join(row).encode()).hexdigest()})
+            rm_state["pending"] = None
         if oc_state["pending"] is not None:                    # study 93's record (nothing when off)
             row = sorted(str(i) for i in ids)
             oc_state["rows"].append({"cell": oc_state["pending"], "commit_index": len(prev) - 1, "row": row,
@@ -1104,6 +1148,13 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                                "resolved_without": [list(x) for x in oc_state["plain"]], "ruled_rows": oc_state["rows"],
                                "pair_rows_book": sum(1 for r in book if paired(r)),
                                "pair_rows_bc": sum(1 for r, cl in zip(book, cell_of) if cl in ONE_CATCHER_CELLS and paired(r))}
+    if rm_pairs:                                               # study 94's receipt block (absent when off)
+        if rm_state["pending"] is not None or len(rm_state["rows"]) != len(rm_state["ruled"]):
+            raise ValueError(f"RB MATE RECORD BROKEN: {len(rm_state['ruled'])} ruled solves, {len(rm_state['rows'])} committed, "
+                             f"pending {rm_state['pending']}")
+        meta["rb_mate"] = {"cell": "C", "rows_cap": int(rb_mate_c), "pairs": len(rm_pairs),
+                           "slots": [list(x) for x in rm_state["used"]], "ruled": [list(x) for x in rm_state["ruled"]],
+                           "resolved_without": [list(x) for x in rm_state["plain"]], "ruled_rows": rm_state["rows"]}
     if own_cap:                                                # study 89's receipt block (absent when off)
         meta["own_cap"] = {"players": len(own_cap), "ruled_solves": len(own_state["ruled"]),
                            "resolved_without": [list(x) for x in own_state["plain"]],
@@ -1371,6 +1422,11 @@ def main(argv: list[str] | None = None) -> int:
                          "main-book row whose FP projected ownership (--main-own-cap-source's fp_own_raw, raw %%; blank = 0%%) is below "
                          "--mix-low-own-pct (1)")
     ap.add_argument("--mix-low-own-pct", type=float, default=3.0, help="study 91: the low-ownership threshold in percent (3)")
+    ap.add_argument("--mix-rb-mate-c", type=int, default=0,
+                    help="study 94's RBMATE4 with ONECATCH (study 96; default 0 = off; only 4, the tested value): the first N "
+                         "C-cell BOOK solves hold the QB's own RB (an interaction floor), in one solve with the row rules and "
+                         "the one-catcher bounds; infeasible -> without the floor, recorded. Needs --mix-one-catcher-all; LOUDLY off "
+                         "whenever ONECATCH is not applied")
     ap.add_argument("--mix-one-catcher-all", action="store_true",
                     help="study 93's ONECATCH (default off): every B / C (QB + 1) BOOK solve, the live and the term block alike, "
                          "holds at most ONE WR / TE of every team, in one solve with the row rules; infeasible -> re-solved with "
@@ -1477,6 +1533,9 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--mix-one-catcher-all is defined on his armed version only (study 93): --main mix --mix-portfolio mix "
                          "--mix-fill rr with the ownership cap and --mix-max-te 1 --mix-max-low-own 1, and no --mix-cover-games / "
                          "--mix-rs-rows / --mix-bring-back-top-wr / --winner-select")
+    if a.mix_rb_mate_c not in (0, 4) or (a.mix_rb_mate_c and not a.mix_one_catcher_all):
+        raise SystemExit("--mix-rb-mate-c takes 0 or 4 (study 96's tested value) and needs --mix-one-catcher-all (it was read only on "
+                         "top of ONECATCH)")
     if a.main_own_cap_delta and a.main_cap_share != 0.5 and a.main_own_cap_fallback_share is None:
         raise SystemExit("--main-own-cap-delta with --main-cap-share != 0.5 needs --main-own-cap-fallback-share (his rule 10-09: a "
                          "refused ownership cap must never leave the flat player cap running alone)")
@@ -1679,6 +1738,12 @@ def main(argv: list[str] | None = None) -> int:
             oc_meta = {"applied": True} if oc_on else {"applied": False, "not_applied": "the row rules are not applied"}
             if not oc_on:
                 print(f"\n!!! ONE CATCHER NOT APPLIED: {oc_meta['not_applied']} -- the book is built without it\n", flush=True)
+        rm_c, rm_meta = 0, None
+        if a.mix_rb_mate_c:                                  # study 96: only with the applied ONECATCH, else LOUDLY off
+            rm_c = a.mix_rb_mate_c if oc_on else 0
+            rm_meta = {"applied": True} if rm_c else {"applied": False, "not_applied": "ONECATCH is not applied"}
+            if not rm_c:
+                print(f"\n!!! RB MATE NOT APPLIED: {rm_meta['not_applied']} -- the book is built without it\n", flush=True)
         dcap = max(1, int(a.main_dst_cap * a.entries)) if a.main_dst_cap else None
         qcap = a.main_qb_cap_rows
         bonus, own_meta = own_bonus(a.main_own_source, fr, excl, a.main_own_tilt, a.main_own_min_coverage) if a.main_own_tilt else ({}, {})
@@ -1709,7 +1774,7 @@ def main(argv: list[str] | None = None) -> int:
                                                                        term_rows=term_rows, term_bonus=term_bonus,
                                                                        cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
                                                                        bring_back_top_wr_rows=bb_rows, own_cap=own_cap,
-                                                                       row_bounds=row_bounds, one_catcher=oc_on)
+                                                                       row_bounds=row_bounds, one_catcher=oc_on, rb_mate_c=rm_c)
             if own_cap_meta is not None:
                 mix_meta["own_cap_source"] = own_cap_meta
             if row_meta is not None:
@@ -1718,6 +1783,10 @@ def main(argv: list[str] | None = None) -> int:
                 mix_meta["one_catcher_source"] = oc_meta
             if oc_on:
                 print(one_catcher_line(mix_meta.get("one_catcher")), flush=True)
+            if rm_meta is not None:
+                mix_meta["rb_mate_source"] = rm_meta
+            if rm_c:
+                print(rb_mate_line(mix_meta.get("rb_mate")), flush=True)
             if bb_cells:
                 print(bring_back_top_wr_line(mix_meta.get("bring_back_top_wr")), flush=True)
             if a.term_block_rows:
@@ -1761,10 +1830,12 @@ def main(argv: list[str] | None = None) -> int:
                                                                       cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
                                                                       cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
                                                                       bring_back_top_wr_rows=bb_rows, own_cap=own_cap,
-                                                                      row_bounds=row_bounds, one_catcher=oc_on)
+                                                                      row_bounds=row_bounds, one_catcher=oc_on, rb_mate_c=rm_c)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
                 if oc_on:
                     print("(the ownership-term book) " + one_catcher_line(own_mix.get("one_catcher")), flush=True)
+                if rm_c:
+                    print("(the ownership-term book) " + rb_mate_line(own_mix.get("rb_mate")), flush=True)
                 if bb_cells:
                     print("(the ownership-term book) " + bring_back_top_wr_line(own_mix.get("bring_back_top_wr")), flush=True)
             else:

@@ -35,6 +35,8 @@ The checks (each named in the output):
   book_rows_legal            mean rows distinct, sleeve rows distinct (a sleeve row may repeat a mean row), complete, ids in the frame
   one_catcher                --mix-one-catcher-all (study 93): every ruled row named by the receipt (by identity) is a main row
                              holding at most ONE WR / TE of every team; off (or declared and not applied) -> nothing to check
+  rb_mate                    --mix-rb-mate-c (study 96): every ruled row named by the receipt (by identity) is a main row holding
+                             its QB and an RB of the QB's team; off (or declared and not applied) -> nothing to check
 """
 from __future__ import annotations
 
@@ -426,6 +428,29 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
         detail = "--mix-one-catcher-all off"
     record("one_catcher", (in_main == want == len(oc_rows) and not paired) if oc else True, detail,
            ruled=want, resolved_without=len((oc or {}).get("resolved_without") or []), in_main=in_main, with_pair=len(paired))
+
+    # ---- rb_mate (study 96's --mix-rb-mate-c): every ruled row named by the receipt (ruled_rows, by identity) is a main row
+    # holding its QB and an RB of the QB's team; nothing when off or declared and not applied (the host alerts).
+    rm = (_mx.get("with_term") or {}).get("rb_mate") or _mx.get("rb_mate")
+    rm_src = _mx.get("rb_mate_source") or {}
+    rm_rows = [frozenset(str(i) for i in f.get("row") or []) for f in ((rm or {}).get("ruled_rows") or [])]
+    rm_in_main = sum(1 for r in rm_rows if r in main_sets)
+
+    def has_own_rb(r) -> bool:
+        qbs = [i for i in r if pos.get(i) == "QB"]
+        return len(qbs) == 1 and any(pos.get(i) == "RB" and team.get(i) == team.get(qbs[0]) for i in r)
+    rm_bad = [sorted(r) for r in rm_rows if not has_own_rb(r)]
+    rm_want = len((rm or {}).get("ruled") or [])
+    if rm:
+        detail = (f"--mix-rb-mate-c {rm.get('rows_cap')}: slots {len(rm.get('slots') or [])}, ruled {rm_want}, re-solved without it "
+                  f"{len(rm.get('resolved_without') or [])}; {rm_in_main} of {len(rm_rows)} ruled rows in the main book; {len(rm_bad)} "
+                  f"without the QB's own RB" + (f" (e.g. {rm_bad[0][:4]})" if rm_bad else ""))
+    elif rm_src.get("applied") is False:
+        detail = f"--mix-rb-mate-c declared and NOT APPLIED ({rm_src.get('not_applied')}): nothing to check"
+    else:
+        detail = "--mix-rb-mate-c off"
+    record("rb_mate", (rm_in_main == rm_want == len(rm_rows) and not rm_bad) if rm else True, detail,
+           ruled=rm_want, resolved_without=len((rm or {}).get("resolved_without") or []), in_main=rm_in_main, without_own_rb=len(rm_bad))
 
     failed = [c["check"] for c in checks if not c["ok"]]
     return {"run": str(run), "layout": layout, "checks": checks, "failed": failed, "ok": not failed}
