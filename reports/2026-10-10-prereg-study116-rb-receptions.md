@@ -85,7 +85,20 @@ sets, the cheap block's term and the FAVHI pairs (112's `usage_pool` = 106's `ar
 ## 6. Smoke and code
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke and the census (the unit tests, the mechanics smoke 2023 W3
   / 2023 W11 / 2024 W10, the census with its threshold scan, the full path: reader exit and line count only).
-- **The smoke at the placeholders:** (filled in when done).
+- **The smoke at the placeholders (DONE 10-10, 10:32:43–10:34:37 CDT, in the gap the lab reviewer named after the laptop's
+  study-114 ack; bank 1406; 2024 W10, 2023 W11, 2023 W3; PYTHONHASHSEED=0; code `1d58fbbc`; `results_bank1406.jsonl`
+  `3dfe436e…`):**
+  - the unit tests 12 passed;
+  - every arm 26 book rows within the package's caps; row rules 78 of 78 ruled, none infeasible; RB-mate slots 12 of 12 and
+    ONECATCH 42 of 42, none dropped, every arm; spares 15 of 15; the cheap block never empty (86 given the term in every arm);
+    **LIVE identical to study 97's RBMATE4_FAVHI on 3 of 3**; coverage 316.7 frame rows with a receptions value per slate-bank;
+  - LIVE's rows touched: REC (< 2.0) 9.0 (min 4), REC_LOW (< 1.5) 4.7 (min 2); dealt identical to LIVE 0.000 for both;
+  - **the RBs dropped per slate-bank:** REC 33.3 (under $5,000 24.3 / $5,000–6,900 8.7 / $7,000+ 0.3; their prior targets 1.11
+    a game); REC_LOW 24.3 (18.0 / 6.0 / 0.3; 0.79 targets). FAVHI pairs left: REC 7.7 (min 5), REC_LOW 11.0 (min 7);
+  - **the 3-slate scan** (a preview; the binding census on the 36 slates decides): 1.5 → 4.7 rows, 2.0 → 9.0, 2.5 → 13.7, 3.0
+    → 20.0; the rule picks REC 2.0 and REC_LOW 1.5 here;
+  - the full path: the reader exited 0 (41 lines; 52 two-draw). Only the census, the exit codes and the line counts were
+    read.
 - **The chosen thresholds:** (filled in from the binding census, then the re-smoke at them).
 - **Code:** nfl2 `production/s116-rec-floor-20261010` @ `1d58fbbc` (off study 112's `262be08b`, whose module is the frozen
   `16bbe046`):
