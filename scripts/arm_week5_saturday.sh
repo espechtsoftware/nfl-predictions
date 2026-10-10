@@ -43,6 +43,11 @@ RB_MATE_C=0                         # his 10-09 decision (HANDOFF ad00da5c, "Try
                                     # own RB in the first 4 QB + 1 (C) book rows, ONLY with ONE_CATCHER_ALL=1 (study 96 read the
                                     # two together); set to 4 only if 96 passes his rule and the flag, the wiring, the W4 check and
                                     # 6u pass; 0 = off
+RB_MATE_SCOPE=all                   # study 97's game-script scope of the RB mate (his 10-09 evening request, HANDOFF 543f2695 /
+                                    # 63a821d4): all = study 94's pairs (read PAPER ONLY with ONECATCH, study 96); fav / favhi /
+                                    # naked / oppqb only with RB_MATE_C=4, only if 97 reads it a candidate and HE decides
+QB2_SCOPE=off                       # study 97's QB + 2 game-script scope (A1 / A2 QBs from high-total games, or their trailing
+                                    # side): off / high / doghi, only with ONE_CATCHER_ALL=1 and HIS decision
 MIX_FILL=rr                         # the MIX fill order (study 42; his 10-06 evening yes, "Use round-robin"): the cells in
                                     # turn, a row per shape for the top QBs (the outside reviewer's arm; NO DIFFERENCE on
                                     # P(>=1 big), +9% expected seats). group = the earlier book; value is NOT to be armed
@@ -98,6 +103,8 @@ stop() { say "ARM STOPPED: $*"; exit 1; }
       && "$MIX_COVER" == 0 && "$MIX_RS" == 0 && -z "$BRING_BACK_TOP_WR" && "$WINNER_SELECT" == 0 ) ]] \
   || stop "ONE_CATCHER_ALL=$ONE_CATCHER_ALL: 0, or 1 with ROW_RULES=te1_low1, his package (OWN_CAP_DELTA=15), SHAPE=mixt, MIX_FILL=rr, MIX_COVER=0, MIX_RS=0, no BRING_BACK_TOP_WR and WINNER_SELECT=0 (the union refuses the rest)"
 [[ "$RB_MATE_C" == 0 || ( "$RB_MATE_C" == 4 && "$ONE_CATCHER_ALL" == 1 ) ]] || stop "RB_MATE_C=$RB_MATE_C: 0, or 4 with ONE_CATCHER_ALL=1 (study 96)"
+[[ "$RB_MATE_SCOPE" == all || ( "$RB_MATE_SCOPE" =~ ^(fav|favhi|naked|oppqb)$ && "$RB_MATE_C" == 4 ) ]] || stop "RB_MATE_SCOPE=$RB_MATE_SCOPE: all, or fav / favhi / naked / oppqb with RB_MATE_C=4 (study 97)"
+[[ "$QB2_SCOPE" == off || ( "$QB2_SCOPE" =~ ^(high|doghi)$ && "$ONE_CATCHER_ALL" == 1 ) ]] || stop "QB2_SCOPE=$QB2_SCOPE: off, or high / doghi with ONE_CATCHER_ALL=1 (study 97)"
 [[ "$MIX_FILL" == group || ( ( "$MIX_FILL" == value || "$MIX_FILL" == rr ) && "$SHAPE" == mixt ) ]] || stop "MIX_FILL=$MIX_FILL: group, or value / rr with SHAPE=mixt"
 [[ "$MIX_COVER" =~ ^[0-8]$ && ( "$MIX_COVER" == 0 || "$SHAPE" == mixt ) ]] || stop "MIX_COVER=$MIX_COVER: 0..8, and not 0 only with SHAPE=mixt"
 [[ "$MIX_RS" == 0 || ( "$MIX_RS" =~ ^(9|13|17)$ && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_COVER" == 0 ) ]] || stop "MIX_RS=$MIX_RS: 0, or 9 / 13 / 17 with SHAPE=mixt, MIX_FILL=rr and MIX_COVER=0"
@@ -173,7 +180,7 @@ arm_env() {
   env "${u[@]}" "${e[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head PROD_ARMED_HEAD=$(git -C "$P" rev-parse HEAD) \
     D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \
     LEV_CBC_THREADS=8 EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00 \
-    UNION_PROJ_SOURCE=fp UNION_MAIN_OWN_TILT=$OWN_TILT UNION_MEAN_MAX_SHARED=$MAX_SHARED UNION_MAIN_CAP=$MAIN_CAP UNION_MAIN_OWN_CAP_DELTA=$OWN_CAP_DELTA UNION_MIX_ROW_RULES=$ROW_RULES UNION_MIX_ONE_CATCHER_ALL=$ONE_CATCHER_ALL UNION_MIX_RB_MATE_C=$RB_MATE_C \
+    UNION_PROJ_SOURCE=fp UNION_MAIN_OWN_TILT=$OWN_TILT UNION_MEAN_MAX_SHARED=$MAX_SHARED UNION_MAIN_CAP=$MAIN_CAP UNION_MAIN_OWN_CAP_DELTA=$OWN_CAP_DELTA UNION_MIX_ROW_RULES=$ROW_RULES UNION_MIX_ONE_CATCHER_ALL=$ONE_CATCHER_ALL UNION_MIX_RB_MATE_C=$RB_MATE_C UNION_MIX_RB_MATE_SCOPE=$RB_MATE_SCOPE UNION_MIX_QB2_SCOPE=$QB2_SCOPE \
     T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 UNION_SATURDAY_RUN=auto UNION_PMO=0 "$@"
 }
 # 6. not too late: the Saturday D12800 is 10:30
@@ -181,7 +188,7 @@ SKIP="d6400"; EXPECT_N=13                  # 11 + the second Sunday FP capture (
 if [[ "${ARM_LATE:-0}" == 1 ]]; then SKIP="d6400 d12800sat d6400sat"; EXPECT_N=11; say "ARM_LATE=1: Saturday supply units skipped (operator decision)"; fi
 [[ "${ARM_LATE:-0}" == 1 ]] || (( 10#$(date +%H%M) < 1028 )) || stop "it is $(date +%H:%M); the 10:30 Saturday D12800 would be in the past. Operator decision: ARM_LATE=1 (no Saturday supply builds, $((EXPECT_N - 2)) timers)"
 if [[ "$CHECK" == --check ]]; then
-  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; player cap $MAIN_CAP of the book; ownership cap ${OWN_CAP_DELTA} points; row rules ${ROW_RULES:-off}; one catcher per team $ONE_CATCHER_ALL; RB mate in C rows $RB_MATE_C; MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT; priority order $PRIORITY_ORDER; bring-back top WR ${BRING_BACK_TOP_WR:-off}${BRING_BACK_TOP_WR_ROWS:+ on $BRING_BACK_TOP_WR_ROWS rows}; term block $TERM_ROWS${TERM_SHA:+ (file ${TERM_SHA:0:12})}"
+  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; player cap $MAIN_CAP of the book; ownership cap ${OWN_CAP_DELTA} points; row rules ${ROW_RULES:-off}; one catcher per team $ONE_CATCHER_ALL; RB mate in C rows $RB_MATE_C (scope $RB_MATE_SCOPE); QB2 scope $QB2_SCOPE; MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT; priority order $PRIORITY_ORDER; bring-back top WR ${BRING_BACK_TOP_WR:-off}${BRING_BACK_TOP_WR_ROWS:+ on $BRING_BACK_TOP_WR_ROWS rows}; term block $TERM_ROWS${TERM_SHA:+ (file ${TERM_SHA:0:12})}"
   UNITS=$(arm_env "$SKIP" bash scripts/arm_week_timers.sh 5 2>&1 | grep -oE 'nfl-week5-[a-z0-9-]+' | sort -u)
   for s in $SKIP; do UNITS=$(echo "$UNITS" | grep -vx "nfl-week5-$(echo $s | sed -E 's/^(d[0-9]+)sat$/\1-sat/')-build"); done
   echo "$UNITS" | sed 's/^/  planned: /'

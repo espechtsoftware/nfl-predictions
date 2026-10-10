@@ -541,12 +541,35 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   # His 10-09 decision (study 94's RBMATE4, "Try live W5 if built"; HANDOFF ad00da5c): the QB's own RB in the first 4 C-cell
   # (QB + 1) book rows, ONLY on top of ONECATCH (study 96 read the two together). Off = unset or 0. ONECATCH not on = no RB
   # mate, LOUDLY.
+  # Study 97's game-script scope (default all = the line above, unscoped): the RB mate and its scope go in TOGETHER or not
+  # at all -- a scope that cannot be passed must never widen to "all" (study 96 read the unscoped RBMATE4 PAPER ONLY).
+  RB_MATE_ON=0; RB_SCOPE="${UNION_MIX_RB_MATE_SCOPE:-all}"
   if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_RB_MATE_C:-0}" != "0" ]]; then
-    if (( ONE_CATCHER_ON )) && [[ "${UNION_MIX_RB_MATE_C}" == "4" ]]; then
-      UNION_ARGS+=(--mix-rb-mate-c 4)
-      echo "RB MATE for $RUN_TAG: ON (the QB's own RB in the first 4 QB + 1 C-cell book rows; with ONECATCH and the row rules)"
+    if (( ONE_CATCHER_ON )) && [[ "${UNION_MIX_RB_MATE_C}" == "4" && "$RB_SCOPE" =~ ^(all|fav|favhi|naked|oppqb)$ ]]; then
+      UNION_ARGS+=(--mix-rb-mate-c 4); RB_MATE_ON=1
+      [[ "$RB_SCOPE" != all ]] && UNION_ARGS+=(--mix-rb-mate-scope "$RB_SCOPE")
+      echo "RB MATE for $RUN_TAG: ON, scope $RB_SCOPE (study 94 / 97's pairs in the first 4 QB + 1 book rows; with ONECATCH and the row rules)"
     else
-      rb_mate_alert "ONECATCH is not on for this run, or UNION_MIX_RB_MATE_C=${UNION_MIX_RB_MATE_C} is not 4"
+      rb_mate_alert "ONECATCH is not on for this run, or UNION_MIX_RB_MATE_C=${UNION_MIX_RB_MATE_C} is not 4, or the scope '$RB_SCOPE' is unknown"
+    fi
+  elif [[ "${UNION_MAIN:-mean}" == "mix" && "$RB_SCOPE" != all ]]; then
+    rb_mate_alert "UNION_MIX_RB_MATE_SCOPE=$RB_SCOPE without UNION_MIX_RB_MATE_C=4"
+  fi
+  qb2_scope_alert() {                                       # study 97's QB2 scope not applied: the book stands without the bans
+    printf '%s run %s: QB2 SCOPE NOT APPLIED: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$1" | tee -a "$OUT/ALERT-qb2-scope-not-applied-$RUN_TAG.txt"
+    printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+      "!!! QB2 SCOPE NOT APPLIED for $RUN_TAG: $1 -- the book stands without the scope bans" \
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  }
+  # Study 97's QB + 2 game-script scope (default off): the A1 / A2 book solves ban the QBs outside the scenario (high = a
+  # high-total game; doghi = its trailing side), ONLY on top of ONECATCH and the row rules (as 97 read it); else LOUDLY off.
+  QB2_SCOPE_V="${UNION_MIX_QB2_SCOPE:-off}"
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "$QB2_SCOPE_V" != off ]]; then
+    if (( ONE_CATCHER_ON )) && [[ "$QB2_SCOPE_V" =~ ^(high|doghi)$ ]]; then
+      UNION_ARGS+=(--mix-qb2-scope "$QB2_SCOPE_V")
+      echo "QB2 SCOPE for $RUN_TAG: ON, $QB2_SCOPE_V (the A1 / A2 book rows' QBs from the scenario's games; with ONECATCH and the row rules)"
+    else
+      qb2_scope_alert "ONECATCH is not on for this run, or the scope '$QB2_SCOPE_V' is unknown"
     fi
   fi
   # Study 48b's winner-likeness order (operator 10-07: "Test tonight, aim for Week 5"; default off): FP's projected
@@ -662,6 +685,15 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_RB_MATE_C:-0}" != "0" && "$UNION_MAIN_EFFECTIVE" != "mix" ]]; then
     rb_mate_alert "the MIX main was refused; the house fallback ($UNION_MAIN_EFFECTIVE) has no RB-mate rule"
   fi
+  if (( RB_MATE_ON )) && grep -q 'RB MATE SCOPE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
+    rb_mate_alert "the union refused the scope (the RB mate is off): $(grep -h 'RB MATE SCOPE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
+  fi
+  if [[ "${UNION_MIX_QB2_SCOPE:-off}" != "off" ]] && grep -q 'QB2 SCOPE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
+    qb2_scope_alert "the union refused it: $(grep -h 'QB2 SCOPE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
+  fi
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_QB2_SCOPE:-off}" != "off" && "$UNION_MAIN_EFFECTIVE" != "mix" ]]; then
+    qb2_scope_alert "the MIX main was refused; the house fallback ($UNION_MAIN_EFFECTIVE) has no QB2 scope"
+  fi
   if (( OWN_CAP_ON )) && grep -q 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     own_cap_alert "the union refused it: $(grep -h 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
@@ -672,6 +704,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" "$UNION_DIR/row_rules_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" "$UNION_DIR/one_catcher_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" "$UNION_DIR/rb_mate_not_applied.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/ALERT-qb2-scope-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-qb2-scope-not-applied-$RUN_TAG.txt" "$UNION_DIR/qb2_scope_not_applied.txt"
   # the projection source travels with the union dir, so the upload sheet can name it (the outside review 10-06, (1b))
   [[ -n "$UNION_DIR" && -f "$OUT/proj_fp-$RUN_TAG.txt" ]] && cp "$OUT/proj_fp-$RUN_TAG.txt" "$UNION_DIR/proj_source_log.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/proj_source_fallback-$RUN_TAG.txt" ]] && cp "$OUT/proj_source_fallback-$RUN_TAG.txt" "$UNION_DIR/proj_source_fallback.txt"

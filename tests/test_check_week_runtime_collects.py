@@ -391,3 +391,26 @@ def test_his_rbmate_rides_only_on_onecatch(tmp_path):
     assert any(f.startswith(msg + "'8' must be 4") for f in _failures(_run(env)))
     env = fresh("d"); env.update(live, UNION_MIX_ONE_CATCHER_ALL="0", UNION_MIX_RB_MATE_C="4")
     assert any(f.startswith(msg + "'4' must be 4 (study 94's tested value), with UNION_MIX_ONE_CATCHER_ALL=1") for f in _failures(_run(env)))
+
+
+
+def test_study97s_scopes_ride_only_on_their_base(tmp_path):
+    """Study 97: an RB-mate scope only with UNION_MIX_RB_MATE_C=4; a QB2 scope only with ONECATCH; the defaults pass."""
+    def fresh(name):
+        d = tmp_path / name; d.mkdir(); return _healthy(d)
+
+    live = dict(UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix", UNION_MAIN_CAP="0.35", UNION_MAIN_OWN_CAP_DELTA="15",
+                UNION_MIX_ROW_RULES="te1_low1", UNION_MIX_ONE_CATCHER_ALL="1", UNION_MIX_FILL="rr")
+    rs, q2 = "UNION_MIX_RB_MATE_SCOPE=", "UNION_MIX_QB2_SCOPE="
+    env = fresh("a"); env.update(live, UNION_MIX_RB_MATE_SCOPE="all", UNION_MIX_QB2_SCOPE="off")
+    assert not any(f.startswith(rs) or f.startswith(q2) for f in _failures(_run(env)))
+    env = fresh("b"); env.update(live, UNION_MIX_RB_MATE_C="4", UNION_MIX_RB_MATE_SCOPE="favhi", UNION_MIX_QB2_SCOPE="doghi")
+    assert not any(f.startswith(rs) or f.startswith(q2) for f in _failures(_run(env)))
+    env = fresh("c"); env.update(live, UNION_MIX_RB_MATE_SCOPE="fav")                       # no RB mate
+    assert any(f.startswith(rs + "'fav'") for f in _failures(_run(env)))
+    env = fresh("d"); env.update(live, UNION_MIX_RB_MATE_C="4", UNION_MIX_RB_MATE_SCOPE="blowout")
+    assert any(f.startswith(rs + "'blowout'") for f in _failures(_run(env)))
+    env = fresh("e"); env.update(live, UNION_MIX_ONE_CATCHER_ALL="0", UNION_MIX_QB2_SCOPE="high")
+    assert any(f.startswith(q2 + "'high'") for f in _failures(_run(env)))
+    env = fresh("f"); env.update(live, UNION_MIX_QB2_SCOPE="shoot")
+    assert any(f.startswith(q2 + "'shoot'") for f in _failures(_run(env)))

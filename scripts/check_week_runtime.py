@@ -270,6 +270,13 @@ def main():
     if _rm not in ("", "0") and (_rm != "4" or _oc != "1"):
         fail(f"UNION_MIX_RB_MATE_C={_rm!r} must be 4 (study 94's tested value), with UNION_MIX_ONE_CATCHER_ALL=1 (study 96 read the two "
              "together)")
+    # study 97's game-script scopes (default all / off): the RB-mate scope only with the RB mate; the QB2 scope only on ONECATCH
+    _rs = os.environ.get("UNION_MIX_RB_MATE_SCOPE", "")
+    if _rs not in ("", "all") and (_rs not in ("fav", "favhi", "naked", "oppqb") or _rm != "4"):
+        fail(f"UNION_MIX_RB_MATE_SCOPE={_rs!r} must be all / fav / favhi / naked / oppqb, and a scope only with UNION_MIX_RB_MATE_C=4")
+    _q2 = os.environ.get("UNION_MIX_QB2_SCOPE", "")
+    if _q2 not in ("", "off") and (_q2 not in ("high", "doghi") or _oc != "1"):
+        fail(f"UNION_MIX_QB2_SCOPE={_q2!r} must be off / high / doghi, and a scope only with UNION_MIX_ONE_CATCHER_ALL=1")
     _fill = os.environ.get("UNION_MIX_FILL", "")
     if _fill and (_fill not in ("group", "value", "rr") or os.environ.get("UNION_MAIN") != "mix"):
         fail(f"UNION_MIX_FILL={_fill!r} must be group, value or rr, with UNION_MAIN=mix (got UNION_MAIN={os.environ.get('UNION_MAIN')!r})")
