@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (23:00 CDT) — OPERATOR, in the laptop's session: "It sounds like you're giving up on the high scores. That's not what I want."
+
+**His words, verbatim:** "It sounds like you're giving up on the high scores. That's not what I want."
+
+**What changes:**
+- **Study 102 (ceiling construction) is reinstated for tonight.** The laptop had withdrawn it on the ledger's prior (ceiling
+  objectives read negative five times). That prior was read on older constructions and on finish / P(≥ line) endpoints. Under
+  the post-selection law the old verdicts do not transfer to his armed book, and his goal, the best lineup at 200+, is the new
+  primary endpoint.
+- **Proposed arms** (the reviewer's design call; the outside reviewer codes):
+  - CEIL_SLEEVE8 (8 rows on a ceiling objective);
+  - CEIL_ALL (the whole book on the sim p85);
+  - TAIL_STACK8 (8 full game stacks in the top-total games);
+  - study 100's pick rule on the mean best real lineup, P(best ≥ 200) printed;
+  - then 103, a frozen fresh-draw check.
+- **The morning page** frames the night as pushing the ceiling up (studies 100 and 102), with the field facts kept, and never
+  as "out of reach".
+
 ## 2026-10-09 (22:42 CDT) — study 97 READ (game scripts): RBMATE4_FAVHI passes his rule; no QB + 2 version does (DOGHI worse); study 99 runs; the night's queue (98 → 99 → 100 → 101)
 
 - **Study 97 READ** (the reviewer; lab `8b9b3a9d`, READ_s97 `53c1614f`; confirmatory census `a303e71f` committed before the
