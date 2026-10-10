@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:03 CDT) — OPERATOR (to the outside model): two hand-built lineups requested from the matchup read; given in chat only (rosters not recorded: public repo, pre-lock)
+
+- **His words:** "could you manually put together one or two lineups for me that you think looking at these matchups for this week look like a
+  good call?" Two lineups were built from the Week-5 main-slate data (DK salaries and statuses at the 13:54 CDT pull of group 154468, FP's
+  10-08 projections and 12:55 ownership, the environment features) and validated for positions, salary and statuses; they were given to him
+  in chat. **They are his hand entries, outside the book and its rules** (the W4 hand-added Millionaire seat is the precedent: the money gate
+  excludes a hand-entry contest without a captured payout ladder). Nothing in the armed book changes.
+- **Shape, for the record:** (1) the Detroit passing stack with the Arizona tight end as the bring-back, a 9%-owned lead back in a good
+  rushing matchup, a cheap Cincinnati receiver, the Chargers' receiver behind the cornerback flag, a cheap favourite's defense (ownership sum
+  about 111); (2) the Cincinnati stack with a Miami bring-back, two $8,000+ players from the late 45.5 game, the same back and receiver
+  (ownership sum about 79).
+
 ## 2026-10-10 (13:45 CDT) — outside model: the qualifiers' history and persistence, where the 30-point games come from, and this week's matchup read (docs only)
 
 - **His questions (this session):** "in the qualifiers like 4444 and 555 - how much historic data do we have? Do the same people - with limited
