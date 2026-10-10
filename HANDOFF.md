@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (20:43 CDT) — OPERATOR (information, not a decision): the shootout QB + 2 in place of today's QB + 2
+
+**His words, in the outside reviewer's session (relayed as "about 20:50 CDT"; this entry's clock reads 20:43, so that time is approximate), relayed verbatim:**
+"When you are considering how to use any proven shapes later, i think there might be merit for the qb+2 that you are designing now for shootouts instead of the existing qb+2 that we already have in the book.  Of course we'll go with what works best and your suggestions but that's what im thinking at the moment"
+
+**The outside reviewer's answer to him:**
+- That is exactly study 97's **QB2_SHOOT**. It REPLACES the QB choice of the existing QB + 2 rows (A1 and A2; the same
+  shares and the same bring-back rules) with QBs from the slate's high-total games.
+- In the reviewer's census, the QB + 2 rows from high-total games go from 8.1 to 12.0 of 12, at about −0.11 projected
+  points per row.
+- QB2_SHOOT − LIVE answers his question directly. The morning page presents it in his words ("the shootout QB + 2 in
+  place of today's QB + 2"), under the rule fixed before the run.
+- In production it is `--mix-qb2-scope high` (pre-wired, default off; finished only if 97 passes it; never together with
+  an RB mate).
+
 ## 2026-10-09 (20:35 CDT) — laptop: the W4 gates pass on FRIDAY_HEAD 2e459a99; study 95 running; study 97 frozen; the study-97 scope wiring pre-written (off)
 
 - **W4 known-answer gates on FRIDAY_HEAD `2e459a99`** (20:28): OFF == `a4ab2839`; ARMED + ONECATCH == `293d9465`. The merged
