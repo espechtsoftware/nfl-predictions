@@ -1,8 +1,12 @@
-# Preregistration: study 96, the QB's own RB as a stack mate (RBMATE4) together with one receiver per team (ONECATCH), on his armed Week-5 book, in the harness — his Week-5 decision (DRAFT 2026-10-09)
+# Preregistration: study 96, the QB's own RB as a stack mate (RBMATE4) together with one receiver per team (ONECATCH), on his armed Week-5 book, in the harness — his Week-5 decision (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (19:19 CDT; smoke done 19:29)** by the outside reviewer; code and smoke done (§5). The reviewer reviews, runs the binding census and FREEZES; the laptop acks. **This read decides Week 5 by his rule.**
-- **Banks and seed:** **3112–3123** (set A 3112–3117, set B 3118–3123; sims bases 3162–3173, fields 3812–3823), seed 20261141 —
-  the laptop's full-set check is clean against 698 used banks, study 95's included; its text-scan tally follows.
+**Status: FROZEN 2026-10-09 (19:32 CDT)** by the reviewer, after the outside reviewer's DRAFT, the smoke and the binding census,
+before any scored bank. The text changed at the freeze in this status block and §5 (the binding census) only. The laptop acks.
+**This read decides Week 5 by his rule** (with every production check).
+- **Banks 3112–3123** (set A 3112–3117, set B 3118–3123; sims bases 3162–3173, fields 3812–3823), **seed 20261141**. The laptop's scan was clean: the full set against 698 used banks' {b, b + 50, b + 700} (study 95 included), no season
+  years; the repository text scans found only incidental shas and timings, and this study's own reader and test.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run (O-63), recorded in `RUN_ENV_s96.txt` committed with
+  the confirmatory census.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
 
@@ -59,8 +63,15 @@ spares, Rev6, his live cell quotas.
   book solve, none dropped** (42 of 42 in both arms); **RBMATE: slots used 12 (4 per slate-bank), floors ruled 12, dropped 0**;
   QB + own-RB rows ONECATCH 3.3 → ONECATCH_RBMATE4 6.3; the (QB, own RB) pairs per slate-bank 126.0 (min 105); rows shared with
   ONECATCH 5.67 of 26, dealt identical 0.000; projection per row vs ONECATCH +0.05; **ONECATCH's rows and dealing identical to
-  study 95's LIVE (the reviewer's 95 smoke) on 3 of 3 slate-banks**; the full path: the reader exited 0 (24 lines; 28 with the
+  study 95's LIVE (the outside reviewer's 95 smoke) on 3 of 3 slate-banks**; the full path: the reader exited 0 (24 lines; 28 with the
   two-draw path on a copy); only the census, the exit codes and the line counts were read.
+- **The binding census** (the reviewer's; outcome-blind; bank 1406; 36 slate-banks of 2023–24; code `3cf3e8eb` clean;
+  PYTHONHASHSEED=0; 12 tests pass; lab `0a09750a`: `CENSUS_s96_binding.txt` `95048d09…`, `census_mechanics_bank1406.jsonl`
+  `7cf16e30…`): **0 row-rule and ownership-cap fallbacks in both arms** (936 of 936); **ONECATCH ruled on every B / C book
+  solve, 0 dropped** (504 of 504 in both arms); **RBMATE: slots used 144 (4 per slate-bank), floors ruled 144, dropped 0**;
+  QB + own-RB rows ONECATCH 2.9 → ONECATCH_RBMATE4 5.2; the (QB, own RB) pairs per slate-bank 120.5 (min 82); rows shared with
+  ONECATCH 7.03 of 26, **dealt identical 0.000**; projection per row vs ONECATCH −0.00; **ONECATCH's rows and dealing identical
+  to study 95's LIVE (the reviewer's 95 binding census, lab `65c2407c`) on 36 of 36 slate-banks**; build 48 s per slate-bank.
 - **Code:** nfl2 `production/s96-onecatch-rbmate-20261009` @ `3cf3e8eb` (branched from study 95's census `65c2407c`):
   `experiments/s96_onecatch_rbmate.py` `0363a84f…` (pins s94 `2eb7835b…`; `combo_rules` text `66ed0eff…`); `scripts/s96_drive.py`
   `ef706189…`; `scripts/s96_census.py` `f9c9e7c7…`; **`scripts/s96_report.py` (the reader) `a7cdf787…`** (seed 20261141);
