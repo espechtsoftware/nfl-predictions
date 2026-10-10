@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (15:06 CDT) — the OPRK accuracy prereg FROZEN (282a0dbf); the 18:00 canary gate is final (lab ebfff041 vs prod 2e392141) — tonight's snapshot inputs
+
+- **Frozen** 15:06 by the lab reviewer (review/oprk-accuracy-freeze-20261010 @ 4e629a0e, merged d199d7b0): reader 4782fcb8; Monday the
+  laptop runs it, pastes the output under §5, the reviewer re-runs it.
+- **The canary (about 20:30, after the D12800 union):** from the canary union dir, write (all exercise-only; Sunday's are the real ones):
+  1. `paper_hot_flags.py --frame <union>/frame.parquet --season 2026 --week 5 --out ~/private/paper-corun/hot-canary/w05.csv`;
+  2. a Saturday TD file: `scripts/td_value_block_file.py --season 2026 --week 5 --frame <union>/frame.parquet --as-of <UTC within 3 h after
+     the latest props snapshot> --out ~/private/paper-corun/tdblock-canary/w05.csv`;
+  3. an OPRK file: a fresh `capture_dk_attributes.py --group 154468 --group 154470`, then `oprk_block_file.py --season 2026 --week 5
+     --group 154468 --frame <union>/frame.parquet --as-of <UTC just after it> --out ~/private/paper-corun/oprk-canary/w05.csv`;
+  4. `s38_snapshot.sh` with every paper file + S38_PAPER_HOT_FILE / S38_PAPER_TDBLOCK_FILE / S38_PAPER_OPRK_FILE; send the union dir and
+     the snapshot to the reviewer. Expected built (not missing): HOT1, HOT_WRTE1, VAL4, TOPCAP6, TDBLOCK8, STAR2, STAR2_8, OPRKBLOCK8.
+
 ## 2026-10-10 (15:06 CDT) — DK-rank paper block (s38 6z6) acked; FRIDAY_HEAD 2e392141; the OPRK writer in; the accuracy prereg drafted
 
 - **s38 6z6, MIXT_QA0_OPRKBLOCK8** (the 8-row paper block on DK's opponent rank, bonus clip(2 × (OPRK − 16) / 16, 0, 2), in place of the cheap
