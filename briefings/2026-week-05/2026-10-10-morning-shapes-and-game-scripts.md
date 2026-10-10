@@ -305,6 +305,21 @@ the RB version plus the pick in one book, against the RB version alone, fixed be
 It runs only if study 102 picks something and study 103 holds it. **Not run: study 103 did not hold the pick** (the condition
 fixed before study 102 was read).
 
+## What is still running this morning (information for Week 6 unless a result is clear)
+
+1. **Study 105 — the upside dose curve:** how many 200+ lineups each step of "more lineups on upside" (13, 18, 26 of 26) buys,
+   and what it costs in big wins.
+2. **Study 106 — a projection floor** (your "no player with a projected score less than 8"): floors of 8 / 10 / 12 against your
+   book; a passing floor is re-checked on a fresh draw (study 107), and only then **your per-position floors** (study 108).
+   Production's floor today filters on our own projections, not Fantasy Points', so a live FP floor needs a small change first.
+3. **Study 109 — a recency fade** (your "2 point reduction in the projection when the players last game was twice the
+   average"): at 2.0× and 1.6×, on every lineup.
+4. **Last, as you asked:** "Did we try what you had planned of removing one rule at a time to see if it was really helpful?
+   That in my opinion should be the last thing we do after we've tried the other experiments." The shapes were done this way
+   (study 95: removing A1, B or C hurt; A2 changed nothing). Removing each live **rule** from the full armed book is not done
+   yet; it comes after the studies above, probably after the Saturday arming (a dropped rule would go through the Saturday
+   re-arm).
+
 ## 4. The rest of last evening (for the record)
 
 - **One receiver per team in the QB + 1 lineups (study 93): armed** (+2.0, better on both sets; your "Live W5 if built").
