@@ -161,15 +161,18 @@ reviewer and updated as each study is read.
 - **Not a test:** side comparisons on the same past slates. Your trial is judged on the real Week-5 results, where the book
   without the block is scored on paper beside yours (Monday 10-12, then 10-19).
 
-### 15. Building lineups on their upside instead of their average (study 102) — *more 200+ lineups, fewer big wins; the block form re-checked by study 103*
+### 15. Building lineups on their upside instead of their average (studies 102, 103) — *more 200+ lineups, fewer big wins, on every opponent set; the 8-lineup form did not hold*
 - **The idea:** each player counted at his 85th-percentile score (a good day) instead of his average when the lineups are
   built — the most direct way to aim at your "scores over 200".
 - **Every lineup built that way:** the book's best lineup reached 200 on **15.5% of past slates against 12.3%** for your book,
   higher on both random opponent sets (+3.2 each). **But big wins fell:** about 3.5 fewer slates in 100 with a big win (both
   sets worse), 14% fewer expected big wins, and its average finish slipped (a safety check failed). It trades big wins for
   200+ lineups.
-- **Only the 8 cheap-block lineups built that way:** a tiny gain (+0.2 points on the best lineup, 13.2% at 200+, about 3%
-  fewer expected big wins). The pre-written rule picked it, so **study 103 is re-checking it on a fresh set of opponents now**.
+- **Study 103, a fresh set of opponents, the same trade again:** 200+ on 16.4% of slates against 14.1% (higher on both sets),
+  big wins about 3 fewer slates in 100 (both sets worse), 12% fewer expected big wins. **Across the two studies the 200+ rate was
+  higher and big wins lower on all four opponent sets** — a consistent trade, not a gain by your rule (which counts big wins).
+- **Only the 8 cheap-block lineups built that way:** a tiny gain in study 102 (+0.2 points on the best lineup), which **did not
+  hold** on study 103's fresh set (one set below zero). So the combination with lead 13 (study 104) was not run.
 - **Not usable in Week 5 either way:** production has no switch for it yet (it needs an upside score around Fantasy Points'
   projections); Week 6 at the earliest.
 
@@ -234,7 +237,7 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 103 (now):** lead 15's 8-lineup version on a fresh set of opponents, by the rule written before study 102 was read.
-  If it holds, study 104 tries it together with lead 13 (the RB for the expected winner of a high-scoring game).
+- **Study 105 (information for Week 6):** how the trade in lead 15 grows with the number of lineups built on upside — 13, 18
+  and all 26 against your book — so that you can see how many extra 200+ slates each lost big win buys.
 
 *Updated as each study is read.*
