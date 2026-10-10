@@ -265,6 +265,11 @@ def main():
     if _oc == "1" and _oc_bad:
         fail(f"UNION_MIX_ONE_CATCHER_ALL=1 is refused by the union with {', '.join(_oc_bad)} (it needs portfolio mix, fill rr, "
              "no cover / half rows, no bring-back top WR, no winner select)")
+    # his 10-09 decision (study 94's RBMATE4): the QB's own RB in the first 4 C rows, only on top of ONECATCH (study 96)
+    _rm = os.environ.get("UNION_MIX_RB_MATE_C", "")
+    if _rm not in ("", "0") and (_rm != "4" or _oc != "1"):
+        fail(f"UNION_MIX_RB_MATE_C={_rm!r} must be 4 (study 94's tested value), with UNION_MIX_ONE_CATCHER_ALL=1 (study 96 read the two "
+             "together)")
     _fill = os.environ.get("UNION_MIX_FILL", "")
     if _fill and (_fill not in ("group", "value", "rr") or os.environ.get("UNION_MAIN") != "mix"):
         fail(f"UNION_MIX_FILL={_fill!r} must be group, value or rr, with UNION_MAIN=mix (got UNION_MAIN={os.environ.get('UNION_MAIN')!r})")
