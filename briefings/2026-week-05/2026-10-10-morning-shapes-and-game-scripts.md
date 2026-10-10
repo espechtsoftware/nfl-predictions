@@ -345,7 +345,12 @@ fixed before study 102 was read).
    at least $49,500 of salary. **Added this morning ("Add both today"):** at most 4 of a lineup's 8 players from the top tenth by
    value. A pick is re-checked on a fresh draw (study 111).
 5. **Study 112 — usage floors** (your minimum rush attempts, pass attempts, targets, touchdowns and red-zone targets): one floor
-   per version, each from games before the slate only; a pick is re-checked on a fresh draw (study 113).
+   per version, each from this season's games before the slate only; a pick is re-checked on a fresh draw (study 113). The
+   levels were set by a rule written down before any result: each floor changes about 8–15 of your 26 lineups. **That gives at
+   least 13 carries a game for running backs, 32 pass attempts for QBs and 4.5 targets for receivers and TEs.** **Touchdowns and
+   red-zone targets could not be tested this way:** a player with no touchdown in his recent games averages zero, so any
+   touchdown floor removes all of them at once and changes about 22 of 26 lineups; the red-zone floor is similar (16 lineups at
+   its lowest step). Both were dropped before the run.
 6. **Last, as you asked (study 114):** "Did we try what you had planned of removing one rule at a time to see if it was really
    helpful? That in my opinion should be the last thing we do after we've tried the other experiments." The shapes were done
    this way (study 95: removing A1, B or C hurt; A2 changed nothing). Study 114 removes each live **rule** in turn from your
