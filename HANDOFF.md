@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (18:47 CDT) — The band cap MERGED (FRIDAY_HEAD f224e469); rule 2 (the B / C QB salary cap) built and W4-checked, under review; no arm yet (his typed go pending)
+
+- **Rule 1 merged:** production/band-cap-20261010 @ 9cf72591 -> integration merge **f224e4691ea3a8421da8988ba1b1a61f52697ad1**; arm-only
+  FRIDAY_HEAD commit 7838c18c; pushed (tip 9c38b344 adds only the origin HANDOFF commit 1a34d43e). Tests reading the arm and the merged
+  scripts: 442 passed, 3 skipped (rc 0). W4 gate on 7838c18c (`~/rehearsals/gate-7838c18c-*`): OFF == **aa12ac0e** (the known answer);
+  status + band == **b91f1ed0** (the branch build). The lab reviewer: live-receipt build with the W4 Lcap receipt f6610744 passed (18 band
+  ids agree; 44 of 44 arms equal its dry run); s38 6z8 prereg review/s38-6n-20261009 @ 6ee821cb; **s38-prod-pin = f224e469, the gate =
+  ece98fa5** (union_reselect byte-identical to 9cf72591; no src/ change).
+- **Rule 2 (his "in cells B and C, QB salary <= 6400", relayed by d9 with stop rule: (a) the RB-mate floor cannot be met, (b) any rule in a
+  resolved_without list, (c) the W4 check misses his bars; time stop 20:40, else arm with A + band only):** production/qb-salary-cap-20261010
+  @ **6065b9f2** (pushed; off 9cf72591). union_reselect `--mix-qb-max-salary 6400 --mix-qb-max-salary-cells B,C`: the pool QBs above the
+  cap as one member bound (ids, 0, 0) appended to the row-rule tier on the named cells' book solves only (mix_rows `cell_bounds`), so it rides
+  and drops with te1 / low1 / band; receipt qb_salary_cap_source / qb_salary_cap + cell_bounds; host / fallbacks / timers /
+  check_week_runtime / the arm (QB_MAX_SALARY / QB_MAX_SALARY_CELLS); tests/test_qb_salary_cap_flag.py (incl. a functional ban on the
+  ONECATCH / RB-mate fixture; empty = off byte for byte). Tests reading the changed scripts: 453 passed, 3 skipped (rc 0).
+- **Rule 2 W4 check** (`~/rehearsals/qbsal-w4-6065b9f2-20261010T234559Z`): OFF == aa12ac0e; status + band == b91f1ed0 (rule 2 off is
+  byte-identical); **status + band + rule 2: book c97ea74e, receipt d526bb53** -- 0 of 14 B / C rows with a QB over $6,400 (ruled 14 of 14);
+  nothing resolved without (row rules, ONECATCH, RB mate, band, QB cap); RB mate 4 / 4 ruled, all on HOU (Stroud $5,700; the receipt's
+  qb_teams lists the favhi set before the cap: BUF / HOU / SF); **FP per row -0.77 vs OFF** (-0.27 vs status + band); Stroud QB in 5 of 7
+  C rows. **All three of his bars met.** The lab reviewer's 6z9 smoke (lab 857a8266): every rule-following arm 0 B / C rows over the cap;
+  NOQBSAL == the band-only QA0.
+- **Next:** the lab reviewer's classification / static review / live-receipt build on 6065b9f2 -> 6z9 prereg + my ack -> merge + arm-only
+  FRIDAY_HEAD + tests + W4 gate (by 20:40, else A + band only) -> project-slate ~19:50 (O-67) -> **his typed go in the laptop's session**
+  -> the arm-only settings (DK_STATUS_FILE / DK_STATUS_SHA 1ac591e4..., MAX_BAND=1, BAND=5300:6000, and QB_MAX_SALARY=6400 /
+  QB_MAX_SALARY_CELLS=B,C if merged) -> the arm by 20:58 -> ownership lag check + check_build_inputs.py -> the 21:00 canary.
+
 ## 2026-10-10 (18:19 CDT) — OPERATOR (relayed by the research agent; his typed "go" in the laptop's session still required before the arm): the status-exclusion file (A) live tonight; the band cap rule built; the W4 checks A / B / C / D / band-cap
 
 - **His decisions, relayed by nfl-predictions-d9** (17:50 "this is non-negotiable unless it is certain to break things tomorrow"; 18:05 "Justin
