@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (22:33 CDT) — OPERATOR, in the laptop's session: "keep trying different variations of it ... scores over 200 fairly regularly"
+
+**His words, verbatim:** "It seems you're making a lot of progress. You know, you have all night to, to do things. So if you're not seeing really good scores when you run your mix, keep trying different variations of it. You know, my hope is that we can get to a point where you're, you're seeing scores, you know, over 200 fairly regularly. So do what you can."
+
+**What "over 200" means today** (the laptop's descriptive count from study 95's results, real DK points of the 26 book rows on
+2023–24 slates; no selection made on it):
+- the live book has at least one lineup ≥ 200 on 13.0% of slate-banks;
+- its best lineup averages 177.5 (median 176.2);
+- on 17 of the 36 slates some bank's book reached 200;
+- the shape arms range from 10.4% (B alone) to 16.0% (A2 alone).
+- So the shape percentages barely move it, and his target needs more than the mix.
+
+**The plan, in the night's rules** (no prompts to him; everything tested, with a confirmation before any suggestion):
+1. **Descriptive (light, now):** the 200+ rate of every arm already run on the harness (studies about 63–97), paired against
+   each study's own reference. It generates hypotheses only.
+2. **An exploration study:** the most promising variations, built from armable switches where possible, with the endpoint
+   P(the book's best lineup ≥ 200) and his big-seat rule as the guard. Its selection rule is committed before its run.
+3. **A frozen confirmation on the unused 2022 slates** (the out-of-sample practice from study 46c) for whatever the
+   exploration picks.
+4. The morning page reports the 200+ rate beside every result.
+
 ## 2026-10-09 (21:41 CDT) — study 95 READ (the shapes): no arm passes his rule; the pre-fixed rule suggests A1 39.1 / A2 12.2 / B 24.3 / C 24.3 (weak, untested as a mix); study 97 running
 
 - **Study 95 READ** (the reviewer; lab `8735c6de`, READ_s95 `976a7558`; confirmatory census `f92d342c` committed before the
