@@ -74,6 +74,26 @@
   10:40 / 10:46 FP projections, 10:50 T-70.
 - 09:15 FP ownership.
 - After the T-70 union: the DvP / factor / hot files, then the s38 snapshot before 12:00 (checklist `7417a2b3`).
+## 2026-10-10 (07:58 CDT) — outside model: the dealing reviewed (how rows get ranks and entries; whether the front rows are the best); docs only
+
+- **His question:** "review the way in which we are putting together the lineups into the entries. Are we getting the best lineups up
+  front? Check how that sorting works." **The page:** `briefings/2026-week-05/2026-10-10-dealing-review.md` (+ index row), on
+  `review/additional-suggestions-20261010` with the second screen. FRIDAY_HEAD untouched.
+- **Mechanics:** rank = build order; `interleave` gives rank 1 to A1; the cheap block at ranks 2 / 5 / 9 / 12 / 15 / 18 / 22 / 25; projection
+  falls with rank; vetting sinks within the cell; ENTER_ORDER greedy. **Rev6 head deal:** entries per row 4 / 3 / 3 / 3 / 2…2 / 1 (spread
+  would be 3 / 2 / 2…): nearly flat. Row 1 = the FFWC pin + the first single-entry satellite + two super-satellites.
+- **"Best" is by projection only.** On W4's slate rows 1 / 3 / 4 are the most value-dense (6–7 of 8 top-value players), chalkiest
+  (FP ownership sums 181 / 168 / 166) and star-less. Rank vs realized W4 points: corr +0.08 (projection vs points −0.09); row 1
+  scored 107.3 (4th worst), the best row was rank 22 (a cheap-block row, 177.9); the 8 block rows averaged 128 vs 123 for the live
+  rows. The W4 ENTERED book: rows 1–2 (28 of 147 entries) were the worst segment (106.7 vs 119.7 for rows 61–110); the head
+  weighting cost about 2.9 points per entry. The ledgers agree (32, 42, 59, 48b, 52, 24: no difference or worse).
+- **Duplication by ownership-sum band (realized, W1–4):** 160+ copied 25–52% of the time in the Millionaire (130–160: 7–16%;
+  under 100: 2–4%); in his contests 4–8% where readable. The ownership PRODUCT understates this badly (0.002 expected copies for
+  row 1 vs 4–8% observed): the SUM band is the predictor to use (row 50).
+- **Suggested (class E, his call):** keep the chalkiest rows out of the one-seat contests — pin the FFWC qualifier to a row under about
+  130 ownership instead of row 1, and start the single-entry satellites from the middle of the book; expected cost zero, the copy risk
+  removed; no build change (a plan edit + the relayout check). Add a Monday "points by book rank" line. Stop buying sort rules.
+
 ## 2026-10-10 (07:40 CDT) — outside model: a second screen of the W1–4 fields (ownership fixed; hot by position; the regulars' satellite dealing) and the additional suggestions (docs only; nothing armed)
 
 - **His request:** "do a little more research and see if there are additional suggestions". **The page:**
