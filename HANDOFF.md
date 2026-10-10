@@ -12,6 +12,49 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (07:36 CDT) — laptop: TODAY'S RUNBOOK to the 18:00 arm and the canary (his decision "18:00, after a final arm")
+
+**Morning (data; the laptop):**
+- 08:55: FP projected-ownership capture
+  (`flock -w 300 ~/.cache/nfl-dfs/fantasy-points-profile.lock timeout 300 .venv/bin/python -m nfl_dfs.ops.fantasy_points_ownership collect --week 5`).
+- After s-props (09:30): `bash ~/.cache/laptop-agent/w5_saturday_refresh.sh props`, then `... refresh` at about 09:47
+  (build-features → tabpfn-gen TABPFN_UPCOMING=2026:5 → project-slate), then `... proof`.
+- Check `systemctl --user is-active nfl-host-dk-ingest` + the newest 154468 pull (O-65's interim rule).
+
+**Day (studies):**
+- The queue, to his 17:30 stop: 110 (+ VAL4) run 07:35 → READ about 08:25 → reproduction → 111 if a pick → 112 (usage floors) → 113 if
+  a pick → 114 (remove one rule; LAST) → 114b if a removal.
+- **Production switches** for any pass, default OFF, matched line for line to the frozen arm, each with: tests; the W4 gates (OFF
+  a4ab2839, ARMED + ONECATCH 293d9465, LIVE c605cab6 unchanged when off); a W4 ON check; and the reviewer's s38 classification
+  (6l default-deny). Only NO_CHEAP / NO_FAVHI are armable today among 114's removals.
+- Afternoon:
+  - about 15:30 (after s-odds 15:00): the refresh again (`w5_saturday_refresh.sh refresh` + `proof`), so the arm builds on
+    fresh projections;
+  - about 16:45: FP ownership again.
+
+**The arm (about 17:30–17:58):**
+- His decisions on any passing study (no prompts while he sleeps; prepared as one-setting switches, asked when he is up).
+- The arm-only commit: TERM_ROWS=8 / TERM_SHA 5941678b… (his final word on the cheap block), the adopted switches, and
+  FRIDAY_HEAD = the last code merge.
+- Pull the production checkout (clean), then `bash scripts/arm_week5_saturday.sh --check` (13 units), then arm before 17:58.
+  The arm's own FP projections capture runs.
+
+**The canary (18:00 d12800-sat + 18:05 d6400-sat; about 2.5 h on the laptop):**
+- **The receipt checks:** own_cap_source applied (cap_share_used 0.35); row_rules applied; one_catcher_source applied;
+  rb_mate_source applied, scope favhi; the term block; any new switch applied.
+- **The canary's paper-hot file** (the reviewer: so the gate exercises HOT1):
+  `.venv/bin/python reports/2026-10-10-paper-hot/paper_hot_flags.py --frame <canary union dir>/frame.parquet --season 2026 --week 5
+  --out ~/private/paper-corun/hot-canary/w05.csv`.
+- **The canary snapshot:** `s38_snapshot.sh` with every paper file + `S38_PAPER_HOT_FILE=~/private/paper-corun/hot-canary/w05.csv`,
+  to a canary DEST. The reviewer's integrity gate: lab s38 10b30f18 (module bd25620d), prod 7a20dd74.
+- A second R14 sweep after the canary (new FP articles only).
+
+**Sunday:**
+- The timers: 04:30 props, 04:45 project, 05:00 d12800-sun, 09:10 d3200, 09:12 watchers, 10:33 / 10:47 DK pulls, 10:36 project,
+  10:40 / 10:46 FP projections, 10:50 T-70.
+- 09:15 FP ownership.
+- After the T-70 union: the DvP / factor / hot files, then the s38 snapshot before 12:00 (checklist `7417a2b3`).
+
 ## 2026-10-10 (07:35 CDT) — study 38 amendment 6y (MIXT_QA0_HOT1 on paper) ACKED; the snapshot change merged (FRIDAY_HEAD 7a20dd74); 110 acked; real-book bindings
 
 - **6y** (the reviewer; lab `10b30f18`; prereg review/s38-6n-20261009 @ da749a01, file sha 3c64491c7527) adds HOT1 on paper,
