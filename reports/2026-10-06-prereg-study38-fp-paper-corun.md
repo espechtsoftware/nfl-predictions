@@ -1367,6 +1367,41 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     study 110 reads it negative") is decided at study 110's READ.
   - **Order:** this amendment; the laptop's ack; the gate pin.
 
+- **Amendment 6z (2026-10-10, before Week 5's lock; no Week-5 outcome exists): study 110's VAL4 on paper.**
+  - **Why.** The operator, relaying the researcher: "Since the harness and the real fields disagree on hot players, a HOT1
+    paper arm in study 38 would let Week 5's real results arbitrate at no cost to the book. The same applies to VAL4 if study
+    110 reads it negative." Study 110 read VAL4 −2.9, worse on both draws, expected big seats ×0.92 (Addendum 205, READ
+    `763ae1fb`); the field screen behind it pointed the other way (4 of 4 real weeks, after the fact).
+  - **What changes.**
+    - **MIXT_QA0_VAL4** (exploratory): his live construction (`FOLLOW_QA0`: every live setting, FAVHI included) plus **at most
+      4 of the 8 skill players per row from the top value tenth**, in the live row-rule tier (ONE list with the live rules, the
+      HOT1 pattern).
+    - **"Top value" = study 110's value_ids on FP's projections:** the paper pool's projection (the build's mean_projection,
+      Fantasy Points' after the override -- what production's switch would read) per $1,000 of DraftKings salary, ranked
+      WITHIN POSITION (QB / RB / WR / TE) among the pool's players projected ≥ 3 with a salary (pandas rank(pct=True), ties
+      'average'); the top tenth = percentile ≥ 0.9. Study 110 ranked the harness's simulated means; the rule is the same.
+    - **No new file:** the snapshot frame's own projections and salaries. The arm is always built.
+    - The scorer scores it; the reader prints it on the 6r line against MIXT_QA0 with its contest groups and both books'
+      expected big seats. Information only. The build manifest records the top-value count by position, and each arm's
+      top-value players per row and rows with 5+.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z/`, script `run.sh` `d67abf501efb`,
+    log `898a9e203382`; lab `87fcb9b7`; production = `s38-prod-pin` `7a20dd74`; PYTHONHASHSEED=0; the laptop's Week-4 FAVHI
+    receipt `80cf84f1…` and its `paper-hot-w04.csv` `58aa89a4…`):
+    - 57 tests pass (rc 0); union-argument mismatches none.
+    - **All 35 arms of 6y's smoke build identical** (rows + ranks); VAL4 built (36 arms).
+    - The pool's top-value players: 20 (QB 3 / RB 5 / WR 8 / TE 4). **VAL4: 0 rows with 5+ top-value players** (MIXT_QA0: 17 of
+      26 -- the same 17 lineups the laptop counted VAL4 would change on his real Week-4 book), 3.92 top-value per row (MIXT_QA0 4.50), 0 rows shared with
+      MIXT_QA0, FP 140.37 vs 140.57 per dealt lineup, no fallback row.
+  - **Code:** lab `87fcb9b7` (on 6y's `10b30f18`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `9b5cb25162556c216f935c079a4f8447af54a0111690becb76e0c9d591a0d260`;
+    - `scripts/s38_build.py` `e394c7bcddf173c651d1b2c2312738cb0886a5123bc2bb71507c0c1cff06db28` (unchanged);
+    - `scripts/s38_score.py` `9b1973152e5a48e6ad53f61477308ed17049c355646e63730e6c2e1ca485af30`;
+    - `scripts/s38_report.py` `9dd6c7857d28f6ddbfbe34ce322a7027d8ccc3e0e3b855ca76741a6353a78132`;
+    - `tests/test_s38_paper_corun.py` `c7bd978b6b8b93c498225d3ea15acee2db71cdcc80b146f034e73e66a3173829` (57 tests).
+  - **The integrity gate** pins this module sha in place of 6y's `bd25620d…`; the production pin stays FRIDAY_HEAD (`7a20dd74`;
+    6z needs nothing new from production).
+  - **Order:** this amendment; the laptop's ack; the gate pin.
+
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
 - **Study 37** (Addendum 142): the regulars' structure (about 11 QB stacks and a steep player curve, their own tier
