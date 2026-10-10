@@ -40,6 +40,7 @@ reviewer and updated as each study is read.
   version → 4/11/11 at −0.31 projected points per lineup.
 - **Related, flat:** "no tight end in the flex" (study 85) +0.2; 2022 +3.4.
 - **Versions to consider later:** 3 or 4 lineups; with lead 2's TE ban; a paper test on real weeks.
+- **Re-read on your armed Week-5 version (study 93, 8 lineups): −0.3** (opponent set A −0.9, set B +0.3) — flat. Paper only.
 
 ### 4. A small bonus for tight ends in 8 lineups — *slightly positive, all three tested forms*
 - **Study 63:** pass-catching TEs +2 → **+1.3** (2022 +2.5); against the toughest pass defences → **+1.9** (2022 +1.1); cheap
@@ -55,13 +56,23 @@ reviewer and updated as each study is read.
 - **In combinations it did not hold:** with the one-catcher and flex rules (study 83) −1.9; the same on another draw (84)
   +1.0; with the TE ban (84) −2.0.
 - **Versions to consider later:** alone, re-read on a fresh draw; 6 lineups (+1.8 on its first read).
+- **Re-read on your armed Week-5 version (study 93): −0.2** (opponent set A +1.4, set B −1.8) — flat. Paper only.
 
-### 6. One receiver per team, all of the QB + 1 lineups (study 79) — *small, positive in both checks*
+### 6. One receiver per team, all of the QB + 1 lineups (study 79) — *ARMED for Week 5 (your decision; every check passed)*
 - **8-lineup version +2.0** (2023 +0.2, 2024 +3.8), 2022 +1.3 — but it changes nothing in your real book.
 - **The every-lineup version +2.1**, 2022 +0.8 (a side reading). **Real book:** removes 6 of your 7 same-team receiver pairs
   away from the QB; 8 lineups change; no projection cost (+0.03).
 - **With the TE ban (84): +0.3.**
 - **Versions to consider later:** the every-lineup version alone, re-read on a fresh draw.
+- **Re-read on your armed Week-5 version (study 93; 36 past slates, two random opponent sets): +2.0** (set A +3.6, set B +0.5);
+  about 11% more expected big wins — it passed your "better on both draws" rule, the only one of study 93's three to do so.
+  Under no true effect a rule passes about one time in four to one in three.
+- **Your decision (10-09): "Live W5 if built in time".** Built and tested tonight (production flag `--mix-one-catcher-all`; it
+  matches the tested rule line for line, including the cheap-block lineups). It goes live at Saturday's arming only if the
+  Week-4 check and the paper-arm check pass; your armed book without it is scored on paper beside it. Otherwise it goes to paper.
+- **Both checks passed on 10-09:** on your real Week-4 book the rule removed all 5 same-team receiver pairs away from the QB
+  (19 of 26 lineups change; −0.06 projected points per lineup), and the paper arms follow it, with the book without it
+  scored beside it. It is armed for Saturday.
 
 ### 7. At least one star ($8,000+) in each of the first 8 lineups (study 78) — *positive in every season, but barely tested*
 - **+2.1** (2023 +1.5, 2024 +2.7), 2022 +1.0 — a side reading; the test model's book already had a star in most of those
@@ -83,6 +94,32 @@ reviewer and updated as each study is read.
 - **On your Week-4 book:** no player in more than 9 of 26 lineups (was 13), players in 40%+ of lineups 7 → 0, distinct
   players 48 → 54, about 2.9 projected points per lineup lower.
 
+### 9. At most one TE and at most one very-low-owned player per lineup (study 91) — *LIVE in Week 5 (your decision)*
+- **Study 91 (36 past slates, two random opponent sets), on top of your package:** both rules **+4.1** (A +3.2, B +5.0), 8% more
+  expected big wins — passed your "better on both draws" rule. The low-ownership half alone +2.8 (a clean pass); the TE half
+  alone +0.9 (flat, a third time).
+- **On your real book** the low-ownership half rarely triggers (Fantasy Points' projections and ownership agree), so live it acts
+  mostly as "no TE in the flex". **Week-4 real-contest replay:** the armed version finished best (59th percentile, 20 top-10%,
+  6 cashes, 0.57× vs the package's 55th / 13 / 3 / 0.29×) — partly hindsight.
+- Your package without these rules is scored on paper beside it.
+
+### 10. Ownership + 10 instead of + 15 (study 90) — *a tie; kept + 15 (your decision)*
+- +0.8 (A +0.9, B +0.6), 3% fewer expected big wins; costs 0.9 more projected points per lineup on your real book.
+- A second reading of the package against your old 50% book: +0.3 (the first read was +1.2) — roughly even in the test model.
+
+### 11. The QB's own running back as a stack mate, 4 lineups (study 94) — *passed your rule; live in Week 5 if built and every check passes (your decision)*
+- **Study 94 (36 past slates, two random opponent sets), on your armed version:** in the first 4 QB-plus-one lineups, the QB,
+  one of his receivers and his own running back. **+2.0** (set A +1.7, set B +2.4); about 3% more expected big wins. It passed
+  your "better on both draws" rule. Under no true effect a rule passes about one time in four to one in three, and two of the
+  five leads read tonight passed (this and one receiver per team), which is about what chance gives.
+- **Where the gain came from:** all from the 2023 slates (+4.4); 2024 was −0.4.
+- **Real book (Week 4):** 3 of the first 4 QB-plus-one lineups change.
+- **Not yet read on top of one receiver per team.** That rule is armed for Week 5, so this one needs its own read on top of it
+  before it can go live.
+- **Your decision (10-09): "Try live W5 if built".** Tonight: a test of it together with one receiver per team (study 96, your
+  rule), the production switch, the Week-4 check and the paper-arm check. It goes live at Saturday's 10:28 arming only if all
+  pass; otherwise it goes to paper. It would be the fourth change this week.
+
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
   the full game stack (74), two bring-backs (76) — each at or below your book on 2023–24.
@@ -91,6 +128,10 @@ reviewer and updated as each study is read.
 - The three rules together (83): −1.9; on another draw +1.0 (noise).
 - Your four price rules on the whole book (85): **−3.1**, 23% fewer expected big wins; defense ≤ $3,000 alone −1.1; exactly
   one receiver ≤ $4,500 alone −1.7.
+- **Shrinking the projections toward the salary curve (S1, study 92): −4.4** (both draws worse), 15% fewer expected big wins —
+  although its Week-4 real-contest replay had a big win (in-sample). On paper in Week 5.
+- **One $8,000+ player in every lineup (S2):** failed on Week 4's real contests (50th vs 59th percentile, 2 vs 6 cashes) and read
+  −5.8 in the test model. On paper in Week 5.
 - No player over $7,900 in the book (86): **−4.9** (2023 −4.4, 2024 −5.5); about 18% fewer expected big wins; 2022 −0.3. Its
   real-book cost is small (−0.18 projected points per lineup; 17 of 26 lineups change), but the test model reads it clearly
   worse — the stars are worth keeping.
@@ -100,11 +141,29 @@ reviewer and updated as each study is read.
   top receiver) **−2.3**, and below on 2022 too (−1.5). Removing the caps alone: −1.7. Against the no-caps book, the price
   rules cost −4.4 and the QB rules −0.6. Without the QB cap, one QB took up to 24 of 26 lineups.
 
+- **Your study-87 book re-read, and a cheaper QB (study 88, your "slightly cheaper QB" request):** 87's book on a fresh draw
+  **−3.1** against the live book (2022 +4.4) — about 3 points below, as on the first read. **No QB priced $7,000 or more, on top
+  of it: −1.7 more** (2022 −3.3), 19% fewer expected big wins. A TE allowed in the flex: +0.2 (no change). Nothing for Week 5.
+
+- **A defense with its own team's running back, 8 lineups (study 94): −1.0** (both random opponent sets below: −0.1, −1.9);
+  3% fewer expected big wins. And in real contests it would do worse: the field already pairs a back with his own defense more
+  than any other pair, which the test model's opponents do not.
+
+- **Your 10-09 evening question — correlations that could give an edge (three quick screens on your real Weeks 1–4; the plan
+  was written down before any result was read):**
+  - *Defense strength normalized like DVOA:* already in our model (each defense's points allowed to a position, adjusted for
+    the offenses it faced, last six weeks), and it adds almost nothing; the plain matchup bonus read flat three times (studies
+    50, 51 and the Week-5 paper arms). Fantasy Points' projection prices matchups too.
+  - *A receiver's points per route against THIS defense's man / zone mix (Fantasy Points' coverage data):* **no signal** over
+    four weeks (−0.02; Week 3's hint did not hold).
+  - *Receivers whose route share just jumped or fell (regression to the mean):* **no signal** (−0.04).
+  - *Does the crowd know something? (ownership as a forecast):* **yes, against OUR old projections** — players the field liked
+    more than their projection and price said beat our projection (top fifth +0.8 points a player, bottom fifth −0.5; passed
+    its test), mostly in Weeks 1–2. **But against Fantasy Points' projection (Week 4, the only week with both) it adds nothing**
+    (+0.01): FP's projection already carries what the crowd knows. That is why switching to FP and the ownership cap point the
+    right way; it is not a new lever on top of them.
+
 ## Still running
-- **Study 88 (running after study 89; your "slightly cheaper QB" request):** 87's book again on a fresh draw (the second reading
-  the rule above asks for), plus three versions of it: no QB priced $7,000 or more; a TE ($5,000 or less) allowed in the flex;
-  and both. Why these: in the 2026 Week 1–4 Millionaires the top 1% rarely played a $7,000+ QB (3% of lineups vs the field's
-  9%), and they put a TE in the flex MORE often than the field (37% vs 28%), so 87's "no TE in the flex" rule goes against
-  what the winners did. All built without the usage caps, as in 87.
+- Nothing tonight.
 
 *Updated as each study is read.*
