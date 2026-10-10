@@ -26,9 +26,12 @@
   - **Across 102 + 103 (four opponent sets):** more 200+ lineups and fewer big wins every time. A consistent trade, not a gain
     by his rule.
   - **TAIL_STACK8:** worse again (mean best −0.83; big seats worse on both; ×0.90).
-- **The night's construction answer to "over 200":** nothing tested raises the 200+ rate without giving up big wins. FAVHI is the
-  one change that passed his rule twice (with a slightly higher 200+ rate, like several others). Building the whole book for the
-  ceiling buys more 200s at the cost of contest wins. The live book stands, plus FAVHI as his morning option.
+- **The night's construction answer to "over 200"** (corrected: "nothing raises 200+ without giving up big wins" was wrong):
+  - FAVHI passed his rule twice, and its 200+ rate was a little higher on both reads, as were several other arms' (FAV,
+    RBMATE4, OPPQB, SHOOT), without a big-win cost. The rate is noisy at about 12%.
+  - CEIL_ALL raised 200+ by more, on all four opponent sets, but cut big wins on all four (a consistent trade, not a gain by his
+    rule).
+  - The live book stands, plus FAVHI as his morning option.
 - **Next:**
   - the reviewer's 6x tests and smoke (MS3 on paper);
   - an optional study 105, a CEIL dose-response (W6 information), at the reviewer's call;
