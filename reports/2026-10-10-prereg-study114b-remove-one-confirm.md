@@ -1,6 +1,10 @@
 # Preregistration: study 114b, the go / no-go for study 114's suggested removal — the removal vs LIVE on a fresh draw of the same slates (DRAFT 2026-10-10, committed BEFORE study 114 is read)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer, committed and pushed **before study
+**Status: NOT RUN (2026-10-10): its condition failed — study 114 (READ_s114.txt `f436c5d8`, lab `d3a523e5`) suggested no
+removal: "SUGGESTED REMOVAL: none -- keep every live rule". Removing the package −0.03880, te1 −0.03206, low1 −0.05127 (WORSE,
+interval clear of zero), FAVHI −0.02165 — each worse on both draws (STILL HELPING); the cheap block −0.00412 and ONECATCH
++0.00038 — keep, no clear evidence. Its banks stay unused. Recorded under the design fixed before study 114's READ.** Earlier
+status: DRAFT 2026-10-10 (the times are this file's commits) by the outside reviewer, committed and pushed **before study
 114's READ**. The lab reviewer freezes it after study 114's READ; the laptop acks. **Information for his decision.**
 
 ## 1. Why
