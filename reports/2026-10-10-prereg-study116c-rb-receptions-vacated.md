@@ -1,6 +1,8 @@
 # Preregistration: study 116c, the receptions floor with a vacated exception — keep a backup running back when the team's pass-catching back is ruled Out (DRAFT 2026-10-10, committed BEFORE study 116 is read; conditional)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer, on the lab reviewer's design (10-10,
+**Status: NOT RUN (2026-10-10): its condition failed — study 116 (READ_s116.txt `cbb4e8e1`, lab `78c67c61`) picked nothing. Neither
+dose was better than LIVE on P(≥ 1 big seat) on both draws: REC (2.0) −0.01400 (A −0.01225, B −0.01574; seats 0.990; guard 1
+fails), REC_LOW (1.5) +0.00345 (A +0.01384, B −0.00694; seats 1.053); "PICK: none -- keep the live book". Its banks stay unused. No code was written. Recorded under the design fixed before study 116's READ.** Earlier status: DRAFT 2026-10-10 (the times are this file's commits) by the outside reviewer, on the lab reviewer's design (10-10,
 about 10:45), committed and pushed **before study 116's READ**. **Conditional: it runs only if study 116 picks a dose**; its
 code is written only then. The lab reviewer reviews, runs the census, freezes, runs and reads; the laptop acks. **Information
 for his decision.**

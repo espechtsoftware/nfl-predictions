@@ -1,6 +1,8 @@
 # Preregistration: study 116b, the go / no-go for study 116's pick — the pick vs LIVE on a fresh draw of the same slates (DRAFT 2026-10-10, committed BEFORE study 116 is read)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer, committed and pushed **before study
+**Status: NOT RUN (2026-10-10): its condition failed — study 116 (READ_s116.txt `cbb4e8e1`, lab `78c67c61`) picked nothing. Neither
+dose was better than LIVE on P(≥ 1 big seat) on both draws: REC (2.0) −0.01400 (A −0.01225, B −0.01574; seats 0.990; guard 1
+fails), REC_LOW (1.5) +0.00345 (A +0.01384, B −0.00694; seats 1.053); "PICK: none -- keep the live book". Its banks stay unused. Recorded under the design fixed before study 116's READ.** Earlier status: DRAFT 2026-10-10 (the times are this file's commits) by the outside reviewer, committed and pushed **before study
 116's READ**. The lab reviewer freezes it after study 116's READ; the laptop acks. **Information for his decision.**
 
 ## 1. Why
