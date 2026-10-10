@@ -18,9 +18,12 @@ READ. **The operator's order (10-10, via the laptop): "Hold 114 until after"** �
   (18.0%). **That was seen in the real outcomes of these same 36 slates.** A receptions floor read on them is therefore partly
   in-sample: study 116b's fresh banks re-draw the opponents and simulations, not the outcomes. The unused 2022 slates are not
   available in this harness (no pre-lock ownership predictions for 2022).
-- **So a pass reads "consistent with the idea on the same slates", never "out-of-sample".** The out-of-sample route is a study
-  38 paper arm on Week 5's real results, which needs a receptions file in the pre-lock snapshot; that is the operator's
-  decision (the lab reviewer has put it to the laptop).
+- **So a pass reads "consistent with the idea on the same slates", never "out-of-sample".**
+- **His decision, before this study is read (10-10, in the laptop's session, verbatim):** asked about the paper-arm route,
+  "Please try it now and only of successful include it this week"; asked what "successful" means, "116 and re-check pass
+  (Recommended)". **So: if study 116 picks a dose AND study 116b confirms it, the floor goes into his real Week-5 entries**
+  (the laptop builds the default-off production switch to this file's measure); there is no paper arm. If either fails,
+  nothing changes. He made this decision knowing the in-sample caveat above (the laptop's plain-words relay).
 - **The pass-catcher reason is an argument, not a measurement:** DraftKings pays a point per catch, so a back who catches
   passes can outscore a heavier-carry back.
 - **The prior: NO DIFFERENCE, leaning negative.** Every floor tested today read worse on both draws: the projection floor
@@ -68,10 +71,10 @@ sets, the cheap block's term and the FAVHI pairs (112's `usage_pool` = 106's `ar
 - **THE PICK (pre-stated; study 106's tested function `floor_pick`):** among the arms passing his rule (guard 1 printed, not
   gating), the largest pooled gain. None → "keep the live book". **A pick goes to study 116b.**
 - **Multiplicity:** two doses on the same 36 slates as studies 89–115.
-- **What a pass would mean (pre-stated):** "consistent with the idea on the same slates" (§1). It is put to him as in-sample
-  harness evidence, with the study 38 paper arm as the recommended route. Production has no receptions floor: a default-off
-  switch (the `excl` pool filter on a pre-lock receptions file, its mean over stat-line games only, §2), its tests, the Week-4
-  check and study 38's classification would be needed. Arming is his decision.
+- **What a pass would mean (pre-stated):** "consistent with the idea on the same slates" (§1). **His decision (§1): a pick
+  that study 116b confirms goes into his Week-5 entries.** The production switch (default off; the `excl` pool filter on a
+  pre-lock receptions file, its mean over stat-line games only, §2) is built by the laptop to this file's measure, with its
+  tests, the Week-4 check and study 38's classification before the arm.
 
 ## 5. Honest limits and the census
 - **The harness builds on its own simulated means;** his book uses Fantasy Points' projections. The floor removes the same

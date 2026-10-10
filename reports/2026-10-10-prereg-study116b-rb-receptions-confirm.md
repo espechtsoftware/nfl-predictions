@@ -21,10 +21,11 @@
   frozen reader's own seed is kept, as in studies 99, 101, 103, 107, 109b, 111, 113, 114b and 115b.)
 - **THE PASS RULE (fixed now):** the pick − LIVE on P(≥ 1 big seat) is **better on both draws AND the pooled expected big seats
   ratio ≥ 0.80** (his rule again; guard 1 printed).
-  - **Pass** → "held on a fresh draw of the same slates": put to him as in-sample harness evidence, with the study 38 paper arm
-    on Week 5's real results as the recommended route. Production has no receptions floor (a default-off switch, its tests,
-    the Week-4 check and study 38's classification would be needed); arming is his decision.
-  - **Fail** → "did not hold" (not suggested).
+  - **Pass** → "held on a fresh draw of the same slates" → **the floor goes into his Week-5 entries.** His decision, before
+    study 116 is read (10-10, verbatim): "Please try it now and only of successful include it this week"; "successful" = "116
+    and re-check pass (Recommended)". The laptop's default-off switch (study 116 §2's measure), its tests, the Week-4 check and
+    study 38's classification come before the arm.
+  - **Fail** → "did not hold": nothing changes this week.
 - **If study 116 picks nothing, study 116b is not run** (recorded).
 
 ## 3. Integrity
