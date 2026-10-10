@@ -42,6 +42,48 @@
   the arming checklist.
 - **The machine:** my W4 builds overlapped the reviewer's smoke by about 15 s (13:30:58–13:31:13); it changed nothing (37 of 37 arms
   identical), disclosed in 6z3's text.
+## 2026-10-10 (13:45 CDT) — outside model: the qualifiers' history and persistence, where the 30-point games come from, and this week's matchup read (docs only)
+
+- **His questions (this session):** "in the qualifiers like 4444 and 555 - how much historic data do we have? Do the same people - with limited
+  numbers of entries - win consistently?"; "Please do further analysis on ways we can improve scores this week"; "Also look at how this weeks
+  matchups suggest certain plays". **The page:** `briefings/2026-week-05/2026-10-10-qualifiers-booms-and-matchups.md` (+ index row), on
+  `review/additional-suggestions-20261010`.
+- **Qualifiers:** only 2026 W2–4: 12 limited-entry contests (4444 ×4 at 380–402 entries / 12 per user; 555 ×3 and 333 ×2 at 68–79 / 2 per user;
+  3 small FFWC sats), 2,229 entries, 517 users; plus the two 5,000-entry 150-max FFWC qualifiers (W1, W3). **Persistence = chance:** a user with a
+  top-10% entry in one week had 11.3% top-10% entries later vs 10.1% for the rest (chance benchmark 10.2%, 7.5–13.2%); rank correlation of mean
+  finish across weeks 0.04; 37 top-3 finishes by 29 users, one user top 3 in two weeks; the top-3 finishers' other 307 entries at the field
+  average. Regulars: 49% of entries, 21% of top-3s. (The pooled "repeaters at 2x" read is volume: 150-entry users.)
+- **Booms (W1–4, 661 skill player-weeks projected 5+, 28 games of 30+):** by tier 0 / 1.8% / 11.0% / 38.5% (<4k / 4–6k / 6–8k / 8k+); TE 1 of
+  105; projection rank top 3 16.7% vs 16+ 1.4%; **the top-total game 1 of 52 (1.9%), ranks 2–3 8 of 109 (7.3%)**; owned 20%+ 14.3% vs under 5%
+  1.8%. The Sunday book's skill slots: 17% under $4k, 46% at $6–8k, 10% at $8k+ → 0.74 expected 30+ games per lineup at tier rates; three are needed.
+- **Matchups (the four signals that beat the market: implied total, underdog, wind, top CB out):** DET 30.0 implied / ARI 24.5 (54.5), the field at
+  23% of all FP ownership on those two teams, heaviest on the DET RB while ARI's defense is the slate's worst vs the pass (0.44 EPA/dropback) and
+  good vs the run (−0.17); CIN 25.3 implied (−7) vs MIA's 0.52 EPA/dropback with CIN receivers under 8% owned = the clearest environment + low
+  ownership spot; DEN's top CB out → LAC receivers (the only CB flag); FAVHI's three pairs (DET, NE, SEA) all meet good run defenses (−0.17 / −0.18 /
+  −0.28) — information for Monday; FP's projections run 3.5–3.6 points per implied point for the two highest-implied teams vs 4.1–4.5 for low ones
+  (flat against the market's team totals, the one strict-bar signal; study 64's S1 is the frozen fix, W8 at the earliest). No picks: the book takes
+  players by FP projection per dollar under the rules; the only lever that moves rows between games today is the QB cap.
+- Merge: `git merge --no-ff review/additional-suggestions-20261010`.
+
+## 2026-10-10 (13:28 CDT) — OPERATOR (to the outside model): "I want to score this week" — the live options for today's arm, ranked (docs only; his decisions pending)
+
+- **His words, verbatim, after the afternoon page's paper-arm recommendations:** "I want to score this week".
+- **The page:** `briefings/2026-week-05/2026-10-10-score-this-week.md` (+ index row), on `review/additional-suggestions-20261010`.
+  It lists only what can be in Sunday's book before the 17:55 arm, each with its evidence both ways, its W4 cost, what it needs, and
+  my call. **For the laptop and reviewers: his decision on each is still to be asked; nothing here is armed.**
+  1. **O-60, the late-scratch next-man-up bump** — a repair, not a bet: wire `review/late-scratch-bump-20261008` @ fbad73be (15 tests,
+     default off) with `--dk-status` from the 10:47 pull; W4 gates byte for byte with it off; one ON check with a simulated scratch; the
+     reviewer's review; the `--check`. My call: do it if it can finish by about 17:00; otherwise W6 as planned.
+  2. **QB cap 3 (QB_CAP_ROWS=3)** — the hedge: the W4 book has 10 of 26 rows on the top-total game's two QBs; the Milly was won from ranks
+     2–3 in W1 / W3 / W4; study 100 +1.7 (both sets) then 101 −0.4 (a wash). One existing setting; a 15-minute W4 check first (rows
+     changed, FP per row, FAVHI's 4 rows and ONECATCH intact); s38 follows the QB cap. My call: yes if the check is clean and he accepts
+     a wash in the test model for a book not 38% on one game.
+  3. **HOT_WRTE1 live** — the fields for (odds 0.37 / 0.70 / 0.40 in W2–4; the book holds 1.08 hot WR/TE per lineup), the harness twice
+     against (109 −1.8, 115 −1.6). The study-115 switch is unmerged. My call: his; I would not override a twice-negative read; it stays on
+     paper (6z2) either way.
+- **Everything else as armed** (package, te1/low1, ONECATCH, FAVHI, the cheap block per his 12:30 decision, Rev7). No new harness study this
+  afternoon (a one-in-three false-pass rate; no time for a fresh draw).
+- Merge: `git merge --no-ff review/additional-suggestions-20261010`.
 
 ## 2026-10-10 (13:07 CDT) — outside model: the afternoon page (where the room is; three items that could still change Sunday's chances; a two-week paper rule for W6); docs only
 
