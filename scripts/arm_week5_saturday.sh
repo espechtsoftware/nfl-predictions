@@ -2,7 +2,8 @@
 # Saturday 2026-10-10: the agent arms Week 5 itself (operator 10-03: arm without him, ask only if blocked). DRAFTED Tue
 # 10-06 from w4_arm_saturday.sh; FINALISED Friday after his decisions -- it REFUSES to arm until SHAPE and FRIDAY_HEAD
 # are set below. Run AFTER the Saturday 09:47 refresh (build-features -> tabpfn-gen -> project-slate) has succeeded.
-# Stops at the first failure with "ARM STOPPED: <why>" -> ask the operator. Must finish before 10:30 CT.
+# Stops at the first failure with "ARM STOPPED: <why>" -> ask the operator. Must finish before the Saturday supply (10:30 CT,
+# or SAT_SUPPLY_CT below).
 #   bash scripts/arm_week5_saturday.sh [--check]   (tracked for review 10-06; Saturday runs the reviewed copy)     (--check: steps 0 and 6 only, nothing written or armed)
 #
 # Week-5 changes vs Week 4 (reports/2026-10-06-week5-arming-checklist.md):
@@ -84,6 +85,10 @@ TERM_SHA=""                         # its sha256, pinned (the arm refuses a mism
 TERM_CAP=2.0                        # the block's cap in projected points = its dose (matchup and cheap +2: 2.0; cheap +4:
                                     # 4.0); the arm refuses a bonus file whose largest bonus exceeds it (the union would clip
                                     # a +4 file to +2 silently: a different rule from the one tested) and a cap outside (0, 5]
+SAT_SUPPLY_CT=""                    # the Saturday D12800's time, CT (the D6400 5 minutes later); empty = 10:30 as before. His 10-10
+                                    # decision ("I think we should postpone the supply build if we can"; his answer "18:00, after a
+                                    # final arm"): the arm-only commit sets 18:00 and arms ONCE with his final settings, so the
+                                    # canary builds the book he enters. From 10:30 to 21:00 (about 2.5 h, done before Sunday's 04:30)
 CLASS_SHA=92cec73388193a107c235ff3d8e8dafeea9a2d5d0121b481814b2e4fe0802f13   # O-42 (10-07): the class sleeve's model
                                     # (week_env's CLASS_SLEEVE_EVERY=2 makes every build's preflight need $W/class_model.json
                                     # + .sha256): W4's class_model_w4_w1w3 (W1 + W3), installed 10-07, unless the reviewer's
@@ -92,6 +97,11 @@ P=$HOME/projects/nfl-predictions; W=$HOME/week5-sunday; PY=$P/.venv/bin/python; 
 say() { printf '%s %s\n' "$(date +%H:%M:%S)" "$*"; }
 stop() { say "ARM STOPPED: $*"; exit 1; }
 [[ "$SHAPE" == mixt || "$SHAPE" == ct ]] || stop "SHAPE is not set (Friday: mixt or ct, his choice)"
+SUPPLY=${SAT_SUPPLY_CT:-10:30}
+[[ "$SUPPLY" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ && ! "$SUPPLY" < "10:30" && ! "$SUPPLY" > "21:00" ]] \
+  || stop "SAT_SUPPLY_CT=$SAT_SUPPLY_CT: HH:MM from 10:30 to 21:00 (the D12800 takes about 2.5 h and must end well before Sunday's 04:30 units)"
+[[ "${ARM_LATE:-0}" == 1 && -n "$SAT_SUPPLY_CT" ]] && stop "SAT_SUPPLY_CT=$SAT_SUPPLY_CT with ARM_LATE=1: ARM_LATE skips the Saturday supply; set one or the other"
+_c=$(( 10#${SUPPLY%:*} * 60 + 10#${SUPPLY#*:} - 2 )); CUTOFF=$(printf '%02d%02d' $(( _c / 60 )) $(( _c % 60 )))   # 10:30 -> 1028
 [[ -n "$TERM_ROWS" ]] || stop "TERM_ROWS is not set (Saturday: 8 for his cheap +2 trial, or 0 by a recorded decision)"
 [[ ( "$MAIN_CAP" == 0.5 && "$OWN_CAP_DELTA" == 0 ) || ( "$MAIN_CAP" == 0.35 && "$OWN_CAP_DELTA" == 15 && "$SHAPE" == mixt ) ]] \
   || stop "MAIN_CAP=$MAIN_CAP with OWN_CAP_DELTA=$OWN_CAP_DELTA: (0.5, 0) = the book as before, or (0.35, 15) = his package with SHAPE=mixt; the flat 35% never runs alone"
@@ -173,16 +183,18 @@ arm_env() {
   local u=() e=()
   if [[ "$SHAPE" == mixt ]]; then e+=(UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_MIX_FILL=$MIX_FILL UNION_MIX_COVER_GAMES=$MIX_COVER UNION_MIX_RS_ROWS=$MIX_RS UNION_WINNER_ORDER=$WINNER_ORDER UNION_WINNER_SELECT=$WINNER_SELECT UNION_PRIORITY_ORDER=$PRIORITY_ORDER UNION_MIX_BRING_BACK_TOP_WR=$BRING_BACK_TOP_WR UNION_MIX_BRING_BACK_TOP_WR_ROWS=$BRING_BACK_TOP_WR_ROWS UNION_TERM_BLOCK_ROWS=$TERM_ROWS UNION_TERM_BLOCK_SOURCE=$P/$TERM_FILE UNION_TERM_BLOCK_TILT=0.20 UNION_TERM_BLOCK_CAP=$TERM_CAP UNION_TERM_BLOCK_SHA256=$TERM_SHA); [[ -n "$MIX_QUOTAS" ]] && e+=(UNION_MIX_CELL_QUOTAS=$MIX_QUOTAS) || u+=(-u UNION_MIX_CELL_QUOTAS); else u+=(-u UNION_MIX_CELL_QUOTAS -u UNION_PRIORITY_ORDER -u UNION_MIX_PORTFOLIO -u UNION_MIX_FILL -u UNION_MIX_COVER_GAMES -u UNION_MIX_RS_ROWS -u UNION_WINNER_ORDER -u UNION_WINNER_SELECT -u UNION_TERM_BLOCK_ROWS -u UNION_TERM_BLOCK_SOURCE -u UNION_TERM_BLOCK_TILT -u UNION_TERM_BLOCK_CAP -u UNION_TERM_BLOCK_SHA256); e+=(UNION_MAIN=pmo_x50); fi
   if [[ -n "$QB_CAP_ROWS" ]]; then e+=(UNION_MAIN_QB_CAP_ROWS=$QB_CAP_ROWS UNION_MAIN_QB_CAP_K=$QB_CAP_K); else u+=(-u UNION_MAIN_QB_CAP_ROWS -u UNION_MAIN_QB_CAP_K); fi
+  if [[ -n "$SAT_SUPPLY_CT" ]]; then e+=(SAT_SUPPLY_CT=$SAT_SUPPLY_CT); u+=(-u SAT_FALLBACK_CT); else u+=(-u SAT_SUPPLY_CT -u SAT_FALLBACK_CT); fi
   env "${u[@]}" "${e[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head PROD_ARMED_HEAD=$(git -C "$P" rev-parse HEAD) \
     D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \
     LEV_CBC_THREADS=8 EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00 \
     UNION_PROJ_SOURCE=fp UNION_MAIN_OWN_TILT=$OWN_TILT UNION_MEAN_MAX_SHARED=$MAX_SHARED UNION_MAIN_CAP=$MAIN_CAP UNION_MAIN_OWN_CAP_DELTA=$OWN_CAP_DELTA UNION_MIX_ROW_RULES=$ROW_RULES UNION_MIX_ONE_CATCHER_ALL=$ONE_CATCHER_ALL UNION_MIX_RB_MATE_C=$RB_MATE_C UNION_MIX_RB_MATE_SCOPE=$RB_MATE_SCOPE \
     T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 UNION_SATURDAY_RUN=auto UNION_PMO=0 "$@"
 }
-# 6. not too late: the Saturday D12800 is 10:30
+# 6. not too late: the Saturday D12800 is at SAT_SUPPLY_CT (10:30 when empty); the arm must finish 2 minutes before it
 SKIP="d6400"; EXPECT_N=13                  # 11 + the second Sunday FP capture (10:46; the outside review 10-06) + the 10:47 DK pull (O-59, 10-08)
 if [[ "${ARM_LATE:-0}" == 1 ]]; then SKIP="d6400 d12800sat d6400sat"; EXPECT_N=11; say "ARM_LATE=1: Saturday supply units skipped (operator decision)"; fi
-[[ "${ARM_LATE:-0}" == 1 ]] || (( 10#$(date +%H%M) < 1028 )) || stop "it is $(date +%H:%M); the 10:30 Saturday D12800 would be in the past. Operator decision: ARM_LATE=1 (no Saturday supply builds, $((EXPECT_N - 2)) timers)"
+[[ "${ARM_LATE:-0}" == 1 ]] || (( 10#$(date +%H%M) < 10#$CUTOFF )) || stop "it is $(date +%H:%M); the $SUPPLY Saturday D12800 would be in the past. Operator decision: ARM_LATE=1 (no Saturday supply builds, $((EXPECT_N - 2)) timers)"
+[[ -n "$SAT_SUPPLY_CT" ]] && say "the Saturday supply moves (his 10-10 decision): D12800 at $SAT_SUPPLY_CT CT, D6400 5 minutes later; the arm must finish by $CUTOFF"
 if [[ "$CHECK" == --check ]]; then
   say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; player cap $MAIN_CAP of the book; ownership cap ${OWN_CAP_DELTA} points; row rules ${ROW_RULES:-off}; one catcher per team $ONE_CATCHER_ALL; RB mate in C rows $RB_MATE_C (scope $RB_MATE_SCOPE); MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT; priority order $PRIORITY_ORDER; bring-back top WR ${BRING_BACK_TOP_WR:-off}${BRING_BACK_TOP_WR_ROWS:+ on $BRING_BACK_TOP_WR_ROWS rows}; term block $TERM_ROWS${TERM_SHA:+ (file ${TERM_SHA:0:12})}"
   UNITS=$(arm_env "$SKIP" bash scripts/arm_week_timers.sh 5 2>&1 | grep -oE 'nfl-week5-[a-z0-9-]+' | sort -u)

@@ -25,6 +25,10 @@
 # outside review 10-06: one 240-second attempt was the only post-inactives chance). SKIP_UNITS key: fpproj (skips all
 # three). The union's FP source (UNION_PROJ_SOURCE=fp) reads the newest capture before its build; the T-70 build refuses a
 # capture from before the 10:30 inactives and falls back to ours (operator 10-06).
+#
+# 2026-10-10 (the operator: "I think we should postpone the supply build if we can"; his answer "18:00, after a final
+# arm"): SAT_SUPPLY_CT=HH:MM moves the Saturday D12800 (default 10:30 CT) and SAT_FALLBACK_CT the Saturday D6400 (default
+# 5 minutes after the supply; it must be later). Unset = 10:30 / 10:35 exactly, as before.
 set -Eeuo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -62,6 +66,12 @@ SATURDAY=$(date -u -d "$SUNDAY - 1 day" +%Y-%m-%d)
 tag() { local t; t=$(TZ=America/Chicago date -d "$SUNDAY $1" +%s); echo "$(date -u -d "@$t" +%Y%m%dt%H%Mz)-$2-$CODE_TAG"; }
 sat() { local t; t=$(TZ=America/Chicago date -d "$SATURDAY $1" +%s); echo "$(date -u -d "@$t" +%Y%m%dt%H%Mz)-$2-$CODE_TAG"; }
 
+SAT_SUPPLY_CT=${SAT_SUPPLY_CT:-10:30}
+[[ "$SAT_SUPPLY_CT" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ ]] || { echo "SAT_SUPPLY_CT=$SAT_SUPPLY_CT: not HH:MM" >&2; exit 2; }
+_m=$(( 10#${SAT_SUPPLY_CT%:*} * 60 + 10#${SAT_SUPPLY_CT#*:} + 5 ))
+SAT_FALLBACK_CT=${SAT_FALLBACK_CT:-$(printf '%02d:%02d' $(( _m / 60 )) $(( _m % 60 )))}
+[[ "$SAT_FALLBACK_CT" =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ && "$SAT_FALLBACK_CT" > "$SAT_SUPPLY_CT" ]] \
+  || { echo "SAT_FALLBACK_CT=$SAT_FALLBACK_CT: not HH:MM later than SAT_SUPPLY_CT=$SAT_SUPPLY_CT on the same day" >&2; exit 2; }
 D12800_LEV=${D12800_LEV:-2560}; D12800_BOOM=${D12800_BOOM:-10240}
 D6400_LEV=${D6400_LEV:-1280}; D6400_BOOM=${D6400_BOOM:-5120}
 D3200_LEV=${D3200_LEV:-640}; D3200_BOOM=${D3200_BOOM:-2560}
@@ -107,8 +117,8 @@ WATCH_FLAGS=()
 [[ -n "${PROMOTE_FIRST_ENTRY:-}" ]] && WATCH_FLAGS+=("PROMOTE_FIRST_ENTRY=$PROMOTE_FIRST_ENTRY")
 [[ -n "${RUN_FIRST_PROMOTION:-}" ]] && WATCH_FLAGS+=("RUN_FIRST_PROMOTION=$RUN_FIRST_PROMOTION")
 
-L12800=("${BASE_ENV[@]}" "${SHADOW_FLAGS[@]}" "PAID_LEV=$D12800_LEV" "PAID_BOOM=$D12800_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(sat 10:30 d12800sat)" "$DRIVER")
-L6400SAT=("${BASE_ENV[@]}" "PAID_LEV=$D6400_LEV" "PAID_BOOM=$D6400_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(sat 10:35 d6400sat)" "$DRIVER")
+L12800=("${BASE_ENV[@]}" "${SHADOW_FLAGS[@]}" "PAID_LEV=$D12800_LEV" "PAID_BOOM=$D12800_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(sat "$SAT_SUPPLY_CT" d12800sat)" "$DRIVER")
+L6400SAT=("${BASE_ENV[@]}" "PAID_LEV=$D6400_LEV" "PAID_BOOM=$D6400_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(sat "$SAT_FALLBACK_CT" d6400sat)" "$DRIVER")
 L6400=("${BASE_ENV[@]}" "PAID_LEV=$D6400_LEV" "PAID_BOOM=$D6400_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(tag 05:30 d6400)" "$DRIVER")
 # sweep item 12: the 09:10 build is the floor only until the T-70 build starts; if it finishes later its dirs are marked
 # superseded (the watcher never publishes them), so a slow 09:10 union can never displace the T-70 union.
@@ -178,7 +188,7 @@ PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_sets.py sets --season $
 # with UNION_MAIN_OWN_PREDICTOR=tabpfn or fp (TabPFN is fp's first fallback): Saturday's lags (BigQuery) -- the Sunday unions then fit on the laptop GPU:
 PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_tabpfn.py lags --season ${SEASON:-2026} --week ${WEEK} --out ${OUT}/ownership_lags.csv
 #
-# Saturday $SATURDAY: D12800 at 10:30 CT, D6400 fallback at 10:35 CT; Sunday: D6400 05:30 CT, D3200 09:10 CT,
+# Saturday $SATURDAY: D12800 at $SAT_SUPPLY_CT CT, D6400 fallback at $SAT_FALLBACK_CT CT; Sunday: D6400 05:30 CT, D3200 09:10 CT,
 # D800 T-70 at 10:50 CT, persistent watchers at 09:12 CT, FP projections capture at $FP_PROJ_CT CT$( [[ "${T70_PROJECT:-0}" == 1 ]] && echo "; T-70 DK pulls $T70_PULL_CT and $T70_PULL2_CT CT, T-70 project-slate $T70_PROJECT_CT CT")$( [[ -n "${T70_MIN_PROJ_CT:-}" ]] && echo "; the T-70 build needs projections generated after $T70_MIN_PROJ_CT CT").
 EOT
 
@@ -214,8 +224,8 @@ if [[ "$RUN" == "--run" ]]; then
     [[ -x "$NFL_DFS_CLI" ]] || { echo "nfl-dfs CLI not executable: $NFL_DFS_CLI" >&2; exit 2; }
   fi
 fi
-arm d12800sat "$SATURDAY 10:30" "$U12800" L12800
-arm d6400sat "$SATURDAY 10:35" "$U6400SAT" L6400SAT
+arm d12800sat "$SATURDAY $SAT_SUPPLY_CT" "$U12800" L12800
+arm d6400sat "$SATURDAY $SAT_FALLBACK_CT" "$U6400SAT" L6400SAT
 arm d6400 "$SUNDAY 05:30" "$U6400" L6400
 arm d3200 "$SUNDAY 09:10" "$U3200" L3200
 arm t70 "$SUNDAY 10:50" "$U800" L800
