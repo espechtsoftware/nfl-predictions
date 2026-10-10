@@ -12,6 +12,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (05:48 CDT) — OPERATOR: HOT1 into study 109 and VAL4 into study 110, today (study-list row 95)
+
+- **The laptop's question:** "The page suggests new tests. Two can join today's studies before they freeze: HOT1 (at most one 'hot' player per lineup) in the recency study 109, and VAL4 (at most 4 top-value players per lineup) in the selection-ideas study 110. Add them?"
+- **His answer: "Add both today (Recommended)".**
+- **Both reviewers told:** the lab reviewer designs; the outside reviewer drafts. HOT1 uses 109's own hot flag in the row-rule
+  tier; VAL4 caps top-tenth value players at 4 of 8. Each joins before its study's freeze (about +20 min of machine time;
+  everything still ends by 17:30). The production switches follow the DRAFTs after the static review.
+
 ## 2026-10-10 (05:46 CDT) — the laptop's review of the research page (winner patterns, `40c0a748`): merged with three corrections; its study-list row renumbered 94
 
 **His request, in the laptop's session:** "Review" the research agent's page
