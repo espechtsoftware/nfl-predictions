@@ -58,7 +58,9 @@ Each arm makes one change:
   - value = the harness's player mean per $1,000 of salary;
   - ranked within position among the pool's players with a mean ≥ 3 (pandas `rank(pct=True)`, ties `average`);
   - top tenth = percentile ≥ 0.9. **Disclosed:** the percentile is rank ÷ n, so ≥ 0.9 takes slightly more than a tenth (the top
-    2 of 10 players, the top 4 of 30). The census prints the counts by position.
+    2 of 10 players, the top 4 of 30). The census prints the counts by position. **It is the page's own cut** (the screen
+    `reports/2026-10-10-winner-patterns/winner_patterns.py`: projection per dollar, `groupby(pos).rank(pct=True)` among skill
+    players projected ≥ 3, counted at ≥ 0.9), so the harness tests the rule he approved; the lab reviewer kept it (10-10).
   - The vehicle is a row rule, (the value ids, ≤ 4), in the same tier as te1 / low1 (study 91's mechanics: infeasible → the solve
     without the row rules, recorded); the objective unchanged; spares never.
 - **QBTOP3's and HYGIENE's rules sit beneath every rule tier** (entered before `combo_rules`): their constraints are ADDED to
