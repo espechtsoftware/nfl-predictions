@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (04:44 CDT) — OPERATOR, in the laptop's session: a minimum-projection floor ("no player projected under 8"), then per-position floors if it works
+
+**His words, verbatim:**
+- "Have you tried any kind of rules like “no player with a projected score less than 8”"
+- then: "Maybe start with that and if it’s successful, try different min projections per position"
+
+**The laptop's answer:**
+- Not at that level. Production's --min-proj 1.0 (Q4b) only drops skill players projected under 1 point (inactives).
+- The related reads went the other way (NOTE5K, CAP7900, BOOK85, CHEAPQB, STUDS, the cheap +2 block). The 2025 Milly winners
+  almost always carried a sub-$4k punt that boomed (system study Addenda 4 / 5).
+- **On his armed W4 book** (outcome-blind): a floor of 8 on FP's projections touches only 3 of 26 lineups (1 player); a floor of 10
+  touches 13 of 26. On our model's projections, 9 and 14.
+- **A production detail:** union_reselect's --min-proj filters on `fr.mean_projection` (OUR model), while the book optimizes on
+  FP's. A live FP-based floor needs a small production change; LIVE_MIN_PROJ also cuts the lab's candidate generation.
+
+**The plan:**
+- **Study 106:** projection floors on the armed construction, on the harness. The reviewer designs (arms suggested
+  MINPROJ8 / 10 / 12 so each binds), the outside reviewer codes; his rule on big seats; mean best and P(best ≥ 200) printed.
+- **If it's successful: study 107**, per-position floors (QB / RB / WR / TE separately), his second instruction.
+- Both are information for his decision, read and reproduced before the morning if the machine allows (study 105 runs first).
+
 ## 2026-10-10 (04:28 CDT) — laptop: the pins for the morning (FRIDAY_HEAD 5faf2f05; s38 gate module 9a82569c); the morning page merged; study 105 (dose-response, W6 information) in progress
 
 **The state for Saturday's arming** (the runbook in HANDOFF `7a8f137c`, with these pins):
