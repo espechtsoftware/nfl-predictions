@@ -14,6 +14,7 @@ something is successful, we'll discuss in the morning how we want to use it."
   re-run on a fresh draw by study 99. The shootout QB + 2 did not pass (−0.7); the trailing-side QB + 2 was clearly worse (−5.0).
 - **The RB stack mate, unconditioned (study 96): paper only.** On top of the one-receiver-per-team rule it read −0.5 (worse on
   both opponent sets), although every lineup got its RB. It stays off (RB_MATE_C = 0) unless you choose a version below.
+- **Raising the ceiling (studies 100–103, your "200+" notes):** [ ]
 - **Already armed for Week 5 (your decisions):** Fantasy Points' projections, the winners' shape mix, the cheap +2 block, the
   35% cap with the ownership limit (+ 15), at most one TE and one player under 3% per lineup, and one receiver per team in the
   QB + 1 lineups. (The cheap +2 block is entered at Saturday's arming, as designed: TERM_ROWS = 8.)
@@ -21,9 +22,9 @@ something is successful, we'll discuss in the morning how we want to use it."
 **How to read the numbers:** "+2.0" means about 2 more slates in 100 with a big win, on the test model (36 past slates of
 2023–24, scored on their real results, against two separate random sets of opponents, "A" and "B"). **Your rule** for a change:
 better on both opponent sets, without losing more than 20% of expected big wins. **Under no real effect a change passes that
-rule about one time in three or four.** Tonight's two studies make 19 such comparisons (95: 8, 97: 11), all on the same 36
+rule about one time in three or four.** Studies 95 and 97 make 19 such comparisons (95: 8, 97: 11), all on the same 36
 slates as studies 89–96 — so about five to six passes are expected by chance alone, so a pass is a candidate to try, not
-proof. **The test model builds lineups from its own simulated projections; your book uses Fantasy Points', so a gain there may
+proof. (The ceiling studies 100 and 102 add eight more, each with its own fresh-draw check.) **The test model builds lineups from its own simulated projections; your book uses Fantasy Points', so a gain there may
 not carry over** (studies 91 and 92 showed both directions). The laptop's Week-4 check shows what a change does to your real
 book.
 
@@ -38,14 +39,20 @@ From your real Weeks 1–4 fields (the laptop's count, HANDOFF `3ac3bfd7`; aggre
 | 3 | 0.25% | 206.0 | 239.8 | 178.9 |
 | 4 | 0.18% | 205.4 | 234.2 | 182.6 |
 
-- **In a normal week, 200 is a top-0.1–0.25% score — roughly a contest-winning one.** None of our 535 entries reached it (best
-  196.2).
-- In the test model your live book's best lineup reaches 200 on about 13% of slates — already 2–4 times what 26 average field
-  lineups would. No change tested so far moved that by more than about 3 points in 100 (one reading +8, not repeated).
-- More lineups don't raise the ceiling by themselves: building 41 rows instead of 26 lifts the chance that the best one reaches
-  200 only from 13.0% to 13.9% (the laptop's count) — which lineups are built matters, not how many.
-- So "200+ regularly" means winning a contest most weeks; tonight's work tries to raise the book's ceiling (its best lineup),
-  and **every suggestion below shows its 200+ rate** next to the big-win numbers.
+- **Where 200 sits:** in a normal week it is a top-0.1–0.25% score. Our best entry came within 4 points in Week 1 (196.2); none
+  of our 535 entries has reached it yet.
+- **Where we start:** in the test model your live book's best lineup reaches 200 on about 13% of slates (already 2–4 times what
+  26 average field lineups would). **The goal is to push that number up.** So far no tested change has moved it more than about
+  3 in 100 (one reading +8, not repeated), so tonight's last studies aim at the ceiling directly.
+- **What the 200+ lineups in your fields look like** (the laptop's count over every W1–4 entry, `76f42798`): **almost 1 in 5 has
+  two or more players from the QB's opponent** — a full game stack, QB + 2 + 2 — against 1.9% of our entries. It describes
+  lineups after the games were played (they cluster in the games that went off, mostly in Week 1), so it does not show that
+  building them helps; **study 102 tests exactly that, building them before the games.**
+- More lineups alone don't do it: building 41 rows instead of 26 lifts the chance that the best one reaches 200 only from 13.0%
+  to 13.9% (the laptop's count). Which lineups are built matters.
+- **Tonight's two ceiling studies:** five variations of your existing settings (study 100) and three new ways of building for
+  the ceiling (study 102). Each pick is re-run on a fresh draw (studies 101 / 103), and **every suggestion shows its 200+ rate**
+  next to the big-win numbers.
 
 ## 1. The shape percentages (study 95)
 
@@ -171,6 +178,26 @@ largest gain that is positive on both opponent sets without costing big wins; st
 
 **Using a pick:** QB cap 3, no cheap block and the bring-back mix are morning settings (QB_CAP_ROWS / TERM_ROWS / MIX_QUOTAS);
 overlap 3 also needs the lab reviewer's paper-arm update; ownership + 10 needs a prepared production change (built, unmerged).
+
+## 3c. Building for the ceiling: three new constructions (study 102) and the check of its pick (study 103)
+
+Your note: "It sounds like you're giving up on the high scores. That's not what I want." Three new ways of building your book,
+each one change, read the same way as 3b (the best real lineup, the 200+ rate beside it, the same pick rule); study 103 re-runs the
+pick on a fresh draw.
+
+| Version | Best lineup vs your book | Set A | Set B | 200+ rate (yours: [ ]) | Big wins | Picked? |
+|---|---|---|---|---|---|---|
+| The 8 cheap-block lineups built on each player's upside (his 85th-percentile score) instead of his average | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |
+| Every lineup built on upside | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |
+| The 8 QB + 2 + bring-back lineups as full game stacks (QB + 2 + 2 from the opponent, 5 from one game) in the 4 highest-total games | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |
+
+**What earlier tests said:** building on upside lost in every earlier test (study 26: −2.7, about 18% fewer expected big wins);
+the full game stack read no difference before (studies 26 and 74), but those built the whole book or a different shape.
+
+**The pick:** [ ] — **on a fresh draw (study 103):** [ ]
+
+**Using a pick:** none of the three is an existing setting; a pick that holds needs a production switch with a parity test
+first. **Week 5 only if that is built and tested Saturday and you say yes; otherwise Week 6.**
 
 ## 4. The rest of last evening (for the record)
 
