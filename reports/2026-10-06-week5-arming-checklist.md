@@ -318,6 +318,10 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
 - **The arming message to him names the one-game risk** (the reviewer's pre-mortem follow-up, 10-06): if Saturday's Week-5 build puts most of the book's QBs in one game (Week 4's MIXT replay: 91% in JAX–CIN; the historical slates 25–35%), say so in plain words before lock, with the share and the game.
 
 ## Sunday 10-11
+- **The agent's flag-only review of the 26 book rows** (study list row 107; the operator 10-10): after the T-70 union and before
+  the upload, review every row unsteered; log per row 'logical' or 'concern' + a one-line reason in the fixed categories (late negative
+  news; a stack missing its key piece; a backup QB / role change; weather / roof; no realistic path to a big score) to
+  `~/private/agent-review/w05.json`; its sha into HANDOFF before 12:00. **No row changes** beyond the existing OUT / inactive rules.
 - **His four hand-entered lineups: the pre-lock check** (the operator 10-10: "please add to your schedule to check for any concerns
   about those 4 lineups prior to lock. including re-check both stacks against the 10:30 inactives, the Henderson pivot if
   Stevenson sits, and the Arizona roof"; R1 / R2 the research agent's, L1 / L2 the laptop's; private log

@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (15:12 CDT) — OPERATOR: an independent agent review of each lineup after selection -> study list row 107, flag-only from Sunday
+
+- **His words (verbatim):** "Do you think there would be value to add a step after lineup selection where you (without me steering your selections) analyze each lineup to make sure you agree that it is logical and can be competitive?" (Also his question on the New England turnovers note: answered — a caution on L2's own NE stack, not a
+  defense matter; the market's 24.5 already prices it; no change.)
+- **The laptop's answer:** yes, as a FLAG-ONLY step first (an untested rule may not change an entered book; judgment drifts toward chalk;
+  selection by judgment has read near chance). From Sunday: the 26 rows reviewed unsteered after the T-70 build, flags logged privately in
+  fixed categories, sha in HANDOFF before lock, no changes beyond the OUT / inactive rules; Monday: do flagged rows score worse? (checklist
+  Sunday step; row 107).
+
 ## 2026-10-10 (15:06 CDT) — the OPRK accuracy prereg FROZEN (282a0dbf); the 18:00 canary gate is final (lab ebfff041 vs prod 2e392141) — tonight's snapshot inputs
 
 - **Frozen** 15:06 by the lab reviewer (review/oprk-accuracy-freeze-20261010 @ 4e629a0e, merged d199d7b0): reader 4782fcb8; Monday the
