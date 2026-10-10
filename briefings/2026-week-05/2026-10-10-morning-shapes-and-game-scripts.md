@@ -114,6 +114,10 @@ expected winner of a high-scoring game** — +0.9 against your book, better on b
 wins; it also beats the unconditioned RB version on both sets (+2.3). **No QB + 2 version qualifies:** the shootout QB + 2 read
 −0.7 (better on one set, worse on the other), and the trailing-side version was clearly worse (−5.0).
 
+**Its 200+ rate** (descriptive, the laptop's count over study 97's books): the book's best lineup reached 200 real points on
+12.7% of slates with this version against 11.8% for your book (the plain RB version 14.4%, the naked version 13.7%); the best
+lineup's average was 175.6–178.2 across all versions — on the ceiling every version is within the noise.
+
 **How much to trust it:** small and not clear of zero; of the eleven comparisons two passed — both are this one version (against
 your book and against the plain RB version, so they move together) — about what chance alone gives. Study 99 re-runs it on a fresh
 draw.
