@@ -12,6 +12,43 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (21:41 CDT) — study 95 READ (the shapes): no arm passes his rule; the pre-fixed rule suggests A1 39.1 / A2 12.2 / B 24.3 / C 24.3 (weak, untested as a mix); study 97 running
+
+- **Study 95 READ** (the reviewer; lab `8735c6de`, READ_s95 `976a7558`; confirmatory census `f92d342c` committed before the
+  read). **The laptop reproduced both byte for byte.**
+  - Removing one shape (NO_x − LIVE, pooled; set A / set B; seats):
+
+    | Removed | Pooled | Set A | Set B | Seats |
+    |---|---|---|---|---|
+    | A1 | −0.020 | −0.012 | −0.028 | 0.919 |
+    | A2 | +0.001 | −0.002 | +0.004 | 1.018 |
+    | B | −0.025 | −0.004 | −0.047 | 0.919 |
+    | C | −0.012 | −0.002 | −0.021 | 0.935 |
+
+  - One shape alone (ONLY_x − LIVE):
+
+    | Alone | Pooled | Set A | Set B | Note |
+    |---|---|---|---|---|
+    | A1 | −0.005 | +0.009 | −0.020 | guard 1 FAILS |
+    | A2 | +0.010 | +0.024 | −0.004 | guard 1 FAILS |
+    | B | −0.045 | −0.040 | −0.050 | seats 0.813 |
+    | C | −0.037 | −0.044 | −0.030 | seats 0.863 |
+
+  - No arm passes his rule. The live mix held up against every version with one shape removed.
+- **The percentage rule fixed before the read** (`92108ea0`), applied by the reviewer and re-applied independently by the
+  laptop:
+  - removing A1 hurt on both draws, and A1 alone was not worse on both, so A1 is raised ×1.5;
+  - B and C are kept (worse removed, but also worse alone on both); A2 is kept.
+  - **Suggested mix: A1 39.1 / A2 12.2 / B 24.3 / C 24.3** (rows 10 / 3 / 7 / 6 against live 8 / 4 / 7 / 7).
+  - **Weak:** NO_A1's interval is [−6.9, +2.8], and both draws negative happens about 1 time in 3–4 under no effect. The mix
+    itself is untested.
+- **Proposed: study 98, SUGGESTED vs LIVE on fresh banks** (3136–3147, seed 20261143; the laptop's full-set check is clean).
+  It is committed before its run, runs after 97 (about 20–25 min) and is read by about 23:30, so the morning choice rests on
+  a test.
+- **Study 97:** the laptop's census re-run is IDENTICAL (with --ref95), acked, S97 GO. The run started at 21:40 (after the
+  laptop's 95 reader exited: the reviewer's guard waited for it), ETA about 22:30–22:45.
+- **The W4 known-answer build of the suggested mix** is held until 97's run ends (one heavy job at a time).
+
 ## 2026-10-09 (20:43 CDT) — OPERATOR (information, not a decision): the shootout QB + 2 in place of today's QB + 2
 
 **His words, in the outside reviewer's session (relayed as "about 20:50 CDT"; this entry's clock reads 20:43, so that time is approximate), relayed verbatim:**
