@@ -68,7 +68,7 @@
   (3+ such players: odds 0.28–0.48 every week; his contests' top 3 0.95 vs field 1.61); the Sunday book 0.69 per lineup under FP
   ownership (one lineup with 3+). Our W1–3 entered books were at 2.2–4.0.
 - **Information:** chalk flips by week (top 1% chalkier than the field in W1–3, far less in W4) → no chalk floor, support for
-  row 93; duplication is not our problem (ours 3.3% / 0% copied vs the field 8.5% / 2.1%); the regulars' satellite lineups sit
+  row 94 (the week-level scoring forecast; "row 93" in the draft, corrected at the laptop's merge); duplication is not our problem (ours 3.3% / 0% copied vs the field 8.5% / 2.1%); the regulars' satellite lineups sit
   at the median of their own book by projection and are their most unique (8,170 lineups, 172 users) → the head layout's premise
   is not theirs (the harness says the deal does not matter); the QB-rank cap withdrawn (no clean rule by band); the hot flag's
   definition does not explain 109's read (the W2–4 pattern holds under 109's exact flag: 0.51 / 0.70 / 0.33).
