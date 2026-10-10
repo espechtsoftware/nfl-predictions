@@ -17,7 +17,7 @@
 #   armed late.
 set -uo pipefail
 SHAPE="mixt"             # his formal yes 2026-10-06: "yes to the winners' mix with the tilt and the quarterback cap" (the tilt removed by his 10-06 yes)
-FRIDAY_HEAD="7a20dd74c36710a501c7a34b8adcbd06e4dcec69"   # 10-10: + s38_snapshot.sh S38_PAPER_HOT_FILE (study 38 6y; reviewed, APPROVED; union / host / timers code == c08dadcd). Before: 10-10: + the O-65 DK-loop fix (scripts/host_ingest_dk_loop.sh + its test; reviewed, APPROVED; union / host / timers code == d2b2b326). Before: 10-10: + SAT_SUPPLY_CT (his "18:00, after a final arm"; reviewed, APPROVED; union / host code == b00c5e43). Before: 10-10: + the arm test for FAVHI LIVE (tests only; union code == 5faf2f05). 10-09/10: his package (5eab90f4) + his test-2 row rules (e8c63263 + 58a328b6) + ONECATCH (c391fbd0 + f483644c, LIVE) + the RBMATE4 flag and wiring (4caff46d + 77bd55c5, off) + the zero-quota parser (21fa9d29) + the FAVHI scope (60f6dbe9 + 2bd5bbff, off; studies 97 / 99); A3 cancelled by him
+FRIDAY_HEAD="83d68f632c1d89cb61ba2453ec678cd3a2f451a6"   # 10-10: + s38_snapshot.sh S38_PAPER_TDBLOCK_FILE (study 38 6z4; reviewed, APPROVED; feada447) + the M2 test accepting Saturday's TERM_ROWS; union / host / timers code == 7a20dd74. Before: 10-10: + s38_snapshot.sh S38_PAPER_HOT_FILE (study 38 6y; reviewed, APPROVED; union / host / timers code == c08dadcd). Before: 10-10: + the O-65 DK-loop fix (scripts/host_ingest_dk_loop.sh + its test; reviewed, APPROVED; union / host / timers code == d2b2b326). Before: 10-10: + SAT_SUPPLY_CT (his "18:00, after a final arm"; reviewed, APPROVED; union / host code == b00c5e43). Before: 10-10: + the arm test for FAVHI LIVE (tests only; union code == 5faf2f05). 10-09/10: his package (5eab90f4) + his test-2 row rules (e8c63263 + 58a328b6) + ONECATCH (c391fbd0 + f483644c, LIVE) + the RBMATE4 flag and wiring (4caff46d + 77bd55c5, off) + the zero-quota parser (21fa9d29) + the FAVHI scope (60f6dbe9 + 2bd5bbff, off; studies 97 / 99); A3 cancelled by him
 PLAN_SHA=6ce1697924ef7a21b312e44be05ee606213016375e8c37eed0732863c1e83f58     # Rev7 = Rev6 + the FFWC qualifier's pin row 1 -> 2 (his 10-10 decision on the dealing review: "Move it to row 2 (Recommended)"; Rev6 kept as contests.json.rev6-5f8352ee). Rev6: (his FINAL contest order 10-07; Rev3's contests
                                     # re-ordered, the same book; installed 10-07 14:38 after the priority screen's pair (ii);
                                     # Rev3 kept as contests.json.rev3-8625de0e)
@@ -72,7 +72,7 @@ WINNER_ORDER=0                      # study 48b: re-order the book by study 48's
                                     # on the big-entry ranks); 0 = off. 1 only after 48b's READ, the W2-4 check and HIS yes
 WINNER_SELECT=0                     # study 48d: keep, per cell, the most winner-like of the book rows + spares (study
                                     # 48's frozen score); 0 = off. 1 only after 48d's READ, a rehearsal and HIS yes
-TERM_ROWS=""                        # SATURDAY sets it (the outside review 10-07, M2: a forcing step): 8 = his cheap +2 trial
+TERM_ROWS="8"                       # SET 10-10 (his "Keep it on (Recommended)" after study 114's read). SATURDAY sets it (the outside review 10-07, M2: a forcing step): 8 = his cheap +2 trial
                                     # (his 10-07 decision), 0 = none (only by a recorded decision); empty REFUSES to arm.
                                     # The live term block (Saturday's one slot: the matchup block, the cheap block or none;
                                     # his decision at arming, each only if its frozen Saturday rule says ENTERABLE -- study
@@ -81,7 +81,7 @@ TERM_ROWS=""                        # SATURDAY sets it (the outside review 10-07
                                     # the rehearsal are recorded; a book built WITHOUT it is not published (his decision)
 TERM_FILE=reports/2026-10-08-live-block/cheap2-w5.csv    # in the FRIDAY_HEAD checkout ($P): his cheap trial's file (Thursday,
                                     # cheap_block_file.py --group 154468); the prior-top file is paper only and the check refuses it
-TERM_SHA=""                         # its sha256, pinned (the arm refuses a mismatch)
+TERM_SHA="5941678b4b378a6f49bbcf7f2e1086d4b37a94d655a5d29e2365fee12e4325a2"   # its sha256, pinned (the arm refuses a mismatch)
 TERM_CAP=2.0                        # the block's cap in projected points = its dose (matchup and cheap +2: 2.0; cheap +4:
                                     # 4.0); the arm refuses a bonus file whose largest bonus exceeds it (the union would clip
                                     # a +4 file to +2 silently: a different rule from the one tested) and a cap outside (0, 5]
