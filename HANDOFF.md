@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:49 CDT) — OPERATOR: the laptop's L2 defense Commanders -> Texans (the leftover $700); the private log's sha 2d162428
+
+- **His words (verbatim):** "we have money for any of the defenses - in L2, do you still prefer the commanders?"; then "I'm good with the
+  texans if that's what you prefer over shuffling the lineup to move money elsewhere" and "or is that money better spent elsewhere I
+  meant." The laptop checked every single-player upgrade within +$700 under L2's stack / bring-back rules: none better (TE only Bowers,
+  FLEX Garrett Wilson a wash); the Texans (vs TEN, opponent implied 15.75, −7.0; our model 8.83 vs 7.52; FP 8.31 vs 8.51; FP ownership 4.4%
+  vs 24.6%) are the best use. L2 $49,800; FLAGS none. The Texans are now in 2 of his 4 hand lineups (R1 too).
+- **The private log** now sha256 **`2d162428ef9b3131a3565b81b1f68a1f6535dc65e00cdf044e3f8b89ebd4dfdf`** (v5 `ee224e1a…` kept).
+
 ## 2026-10-10 (14:42 CDT) — OPERATOR: the laptop's L1 FLEX Allen -> Emanuel Wilson (Cleveland 5th vs RB); the private log's sha ee224e1a
 
 - **His question (verbatim):** "cleveland is listed at the 5th best against RB according to DK - any concern?" Our features: CLE allows
