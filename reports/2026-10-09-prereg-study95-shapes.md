@@ -1,10 +1,17 @@
-# Preregistration: study 95, the shape comparison — each lineup shape alone, and the mix without one shape at a time, against his live Week-5 book, in the harness (DRAFT 2026-10-09)
+# Preregistration: study 95, the shape comparison — each lineup shape alone, and the mix without one shape at a time, against his live Week-5 book, in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (18:53 CDT; smoke done 18:59)** by the outside reviewer; code and smoke done (§5). The reviewer
-reviews, runs the binding census and FREEZES; the laptop acks. **Week-6 information; nothing changes for Week 5.**
-- **Banks and seed (proposed):** **3100–3111** (set A 3100–3105, set B 3106–3111; sims bases 3150–3161, fields 3800–3811), seed
-  20261140 — clear of studies 91–94's {b, b + 50, b + 700} by construction (3048–3059 would collide with study 91's sims bases);
-  the laptop scans.
+**Status: FROZEN 2026-10-09 (19:16 CDT)** by the reviewer, after the outside reviewer's DRAFT, the smoke and the binding census,
+before any scored bank. The text changed at the freeze in this status block and §5 (the binding census) only. The laptop acks.
+**Week-6 information; nothing changes for Week 5.**
+- **Banks 3100–3111** (set A 3100–3105, set B 3106–3111; sims bases 3150–3161, fields 3800–3811), **seed 20261140**. The laptop's scan was clean: the full set against 686 used banks' {b, b + 50, b + 700} (studies 90–94 included), no season
+  years, no results_bank file on disk; the repository text scans (nfl-predictions 18,538 blobs, nfl2 8,445) found the numbers only
+  in this study's own prereg, reader and test, plus three incidental timing values in an l03 drive log.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run (O-63), recorded in `RUN_ENV_s95.txt` committed with
+  the confirmatory census.
+- **The §5 disclosure, checked by the reviewer:** the smoke's full-path reader output (`~/s95-panel/fullpath/report.txt`, written
+  18:59:04) names the reader `e9c0b4d5…`, the frozen reader; the five code files were last modified by 18:56:08, before that
+  output, and `2ca40a3f` (18:59:36) holds them unchanged (the worktree clean, every sha as quoted). Nothing was changed after the
+  smoke's rule lines were printed. They come from bank 1406 (not a scored bank) on two of the 36 slates.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
 
@@ -76,6 +83,14 @@ asserts the text), which `term_book` reads at call time for both the live and th
 - **Disclosure (the reviewer's slip):** checking the reader's heading on the full-path copy, the reviewer's grep also printed the
   per-arm rule lines of that SMOKE (bank 1406, two slates, the same copy as both "draws"). Those numbers come from no scored bank
   and carry no information; the design (arms, decision, reader) was fixed in code before and nothing was changed after.
+- **The binding census** (the reviewer's; outcome-blind; bank 1406; 36 slate-banks of 2023–24; code `2ca40a3f` clean;
+  PYTHONHASHSEED=0; 7 tests pass; lab `65c2407c`: `CENSUS_s95_binding.txt` `e0f53bc7…`, `census_mechanics_bank1406.jsonl`
+  `6d966811…`): **0 row-rule and ownership-cap fallbacks in every arm** (936 of 936); **ONECATCH ruled on every B / C book
+  solve, 0 dropped** (LIVE 504, ONLY_B / ONLY_C 936, NO_A1 720, NO_A2 612, NO_B / NO_C 360; none in ONLY_A1 / ONLY_A2); **the
+  book rows per cell as quoted** (LIVE 8 / 4 / 7 / 7; NO_A1 0 / 6 / 10 / 10; NO_A2 9 / 0 / 9 / 8; NO_B 10 / 6 / 0 / 10; NO_C
+  10 / 6 / 10 / 0; each ONLY_x 26 of its cell), no pass to A1; **no arm dealt identical to LIVE** (rows shared 0.25–6.0 of
+  26); projection per row vs LIVE −0.61 (ONLY_A1) to +0.21 (ONLY_C); same-team receiver pair rows away from the QB: LIVE
+  1.2, ONLY_A1 2.0, ONLY_A2 3.2, ONLY_B / ONLY_C 0.0; build 109 s per slate-bank.
 - **Code:** nfl2 `production/s95-shapes-20261009` @ `2ca40a3f` (branched from study 94's `a1367c2d`): `experiments/s95_shapes.py`
   `46b80611…` (pins s93 `5f4e1fb9…`); `scripts/s95_drive.py` `b000d60f…`; `scripts/s95_census.py` `e7da2408…`;
   **`scripts/s95_report.py` (the reader) `e9c0b4d5…`** (seed 20261140); `tests/test_s95_shapes.py` `e3f9ad50…` (7).
