@@ -12,6 +12,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (20:35 CDT) — laptop: the W4 gates pass on FRIDAY_HEAD 2e459a99; study 95 running; study 97 frozen; the study-97 scope wiring pre-written (off)
+
+- **W4 known-answer gates on FRIDAY_HEAD `2e459a99`** (20:28): OFF == `a4ab2839`; ARMED + ONECATCH == `293d9465`. The merged
+  RBMATE4 flag and the zero-quota parser change nothing while off or unset. The reviewer moved s38-prod-pin to `2e459a99`
+  and re-ran their gate check (armedOC + armedRM).
+- **Study 95** (the shapes): scored run from 20:33, ETA about 22:00. Its percentage-translation rule was fixed BEFORE the
+  read, in reports/2026-10-09-study95-percentage-rule.md (`92108ea0`, on the 95 prereg branch):
+  - halve a shape whose removal helped on both draws;
+  - drop it only if the pooled interval is also above 0;
+  - raise ×1.5 a shape whose removal hurt on both draws;
+  - ONLY_x is information.
+- **Study 97** (the game-script arms) FROZEN `88738a69` (prereg e54cad06); lab `707f60ea`; banks 3124–3135 (scan clean).
+  - Census: 0 fallbacks; LIVE == 95's LIVE 36 / 36; DOGHI bans dropped 20 / 432; floors FAVHI 143 / 144, OPPQB 138 / 144.
+  - The laptop's census re-run (--ref95) goes in the gap after 95; then 97's run (about 40 min).
+- **Prepared, all default off, so his morning word is a switch** (agreed with the outside reviewer):
+  - **Wiring:** production/scope-wiring-20261009 @ `75424249` (the laptop's; approved by the outside reviewer at `5107664f`,
+    the pair refusal re-looked).
+    - UNION_MIX_RB_MATE_SCOPE (all / fav / favhi / naked / oppqb) goes in only TOGETHER with --mix-rb-mate-c 4. **A refused
+      scope turns the RB mate off and never widens to the unscoped RBMATE4** (study 96: PAPER ONLY).
+    - UNION_MIX_QB2_SCOPE (off / high / doghi) needs ONECATCH.
+    - **The QB2 scope with ANY RB mate fails closed** (untested together), in the host, check_week_runtime, the arm and
+      the CLI.
+  - **The flags:** the outside reviewer's shared scenario code is review/game-script-scopes-20261010 @ `bee58d7b`
+    (unmerged). The flags `--mix-rb-mate-scope` / `--mix-qb2-scope` are finished only for the arms study 97 passes, with
+    parity to 97's frozen texts, the laptop's W4 check and a study 38 6w.
+- **The morning one-pager:** the outside reviewer's skeleton, review/morning-onepager-20261010 @ `b4eae72e`
+  (briefings/2026-week-05/2026-10-10-morning-shapes-and-game-scripts.md). The laptop and the reviewer check it.
+
 ## 2026-10-09 (20:22 CDT) — laptop: everything merged for the morning (FRIDAY_HEAD `2e459a99`); the Saturday-morning arming runbook
 
 **Merged tonight.** Every item is default off or unset and byte for byte (W4 gates `293d9465`).
