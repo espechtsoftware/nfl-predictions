@@ -352,6 +352,12 @@ fixed before study 102 was read).
      slates, where your book's lowest lineup was $49,300; the book was unchanged on about half of them).
    - Nothing passed, so the fresh-draw check (study 111) is not run (study 110's READ `763ae1fb`, lab `73efac12`). The two
      leans are in the leads log for a fresh draw later.
+4b. **Study 115 — the recency rules on wide receivers and tight ends only** (your "Test today for this week"): **READ — worse;
+   keep your book as is.** At most one "hot" WR / TE per lineup: −1.6 (−1.0 / −2.3), 5% fewer expected big wins; 2 points off
+   each hot WR / TE: −1.8 (−3.4 / −0.1), 7% fewer, the average finish lower. Both smaller losses than the all-position versions
+   (study 109) but still below your book on both opponent sets, so the fresh-draw check (115b) is not run (READ `5ecd46e6`, lab
+   `46236e09`). The real fields' pattern (lineups with a hot receiver won less often) does not show up when the lineups are built
+   before the games in the test model.
 5. **Study 112 — usage floors** (your minimum rush attempts, pass attempts, targets, touchdowns and red-zone targets): one floor
    per version, each from this season's games before the slate only; a pick is re-checked on a fresh draw (study 113). The
    levels were set by a rule written down before any result: each floor changes about 8–15 of your 26 lineups. **That gives at
