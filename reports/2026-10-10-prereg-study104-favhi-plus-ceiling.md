@@ -45,7 +45,7 @@ ONECATCH, 89's `own_caps`, QB cap 5, overlap 4, the cheap +2 block, A1 .30 / A2 
   harness builds on simulator means; his book on Fantasy Points' projections.
 
 ## 4. Banks, integrity, production
-- **Banks (the laptop's full-set check: clean; text scan to follow):** **3408–3419** (set A 3408–3413, set B 3414–3419; sims
+- **Banks (the laptop's full-set check and text scan: CLEAN, banks and seed):** **3408–3419** (set A 3408–3413, set B 3414–3419; sims
   bases 3458–3469, fields 4108–4119); the reader's bootstrap seed **20261147** (new).
 - The census on bank 1406 before the freeze; PYTHONHASHSEED=0; one heavy job at a time.
 - **Production if it passes:** one small reviewed commit opens the wiring's pair refusal (RB_MATE_SCOPE = favhi with
