@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (13:28 CDT) — OPERATOR (to the outside model): "I want to score this week" — the live options for today's arm, ranked (docs only; his decisions pending)
+
+- **His words, verbatim, after the afternoon page's paper-arm recommendations:** "I want to score this week".
+- **The page:** `briefings/2026-week-05/2026-10-10-score-this-week.md` (+ index row), on `review/additional-suggestions-20261010`.
+  It lists only what can be in Sunday's book before the 17:55 arm, each with its evidence both ways, its W4 cost, what it needs, and
+  my call. **For the laptop and reviewers: his decision on each is still to be asked; nothing here is armed.**
+  1. **O-60, the late-scratch next-man-up bump** — a repair, not a bet: wire `review/late-scratch-bump-20261008` @ fbad73be (15 tests,
+     default off) with `--dk-status` from the 10:47 pull; W4 gates byte for byte with it off; one ON check with a simulated scratch; the
+     reviewer's review; the `--check`. My call: do it if it can finish by about 17:00; otherwise W6 as planned.
+  2. **QB cap 3 (QB_CAP_ROWS=3)** — the hedge: the W4 book has 10 of 26 rows on the top-total game's two QBs; the Milly was won from ranks
+     2–3 in W1 / W3 / W4; study 100 +1.7 (both sets) then 101 −0.4 (a wash). One existing setting; a 15-minute W4 check first (rows
+     changed, FP per row, FAVHI's 4 rows and ONECATCH intact); s38 follows the QB cap. My call: yes if the check is clean and he accepts
+     a wash in the test model for a book not 38% on one game.
+  3. **HOT_WRTE1 live** — the fields for (odds 0.37 / 0.70 / 0.40 in W2–4; the book holds 1.08 hot WR/TE per lineup), the harness twice
+     against (109 −1.8, 115 −1.6). The study-115 switch is unmerged. My call: his; I would not override a twice-negative read; it stays on
+     paper (6z2) either way.
+- **Everything else as armed** (package, te1/low1, ONECATCH, FAVHI, the cheap block per his 12:30 decision, Rev7). No new harness study this
+  afternoon (a one-in-three false-pass rate; no time for a fresh draw).
+- Merge: `git merge --no-ff review/additional-suggestions-20261010`.
+
 ## 2026-10-10 (13:07 CDT) — outside model: the afternoon page (where the room is; three items that could still change Sunday's chances; a two-week paper rule for W6); docs only
 
 - **His request:** "We are done with all of the experiments. We still have 5 hours until the build ... any ideas that you think can
