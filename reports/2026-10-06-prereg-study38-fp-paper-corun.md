@@ -1693,6 +1693,49 @@ score. Nothing here enters a contest: the money path, its checkout and its files
   - **Order:** this amendment; production's band switch reviewed; the live-mode check with its receipt; the laptop's ack; the
     pins; all before the arm (about 20:45); otherwise the laptop arms late (ARM_LATE=1, the fallback he accepted).
 
+- **Amendment 6z9 (2026-10-10, before Week 5's lock; no Week-5 outcome exists): the paper arms follow the live B / C QB salary
+  cap.**
+  - **Why.** The operator's last LIVE rule for Week 5 (relayed: "That is my final change, I promise"): in cells B and C the QB's
+    DK salary must be at most $6,400; A1 / A2 unrestricted. Production: `--mix-qb-max-salary 6400 --mix-qb-max-salary-cells B,C`,
+    the ban of the pool's QBs above the cap appended to the row-rule tier's list on B / C book solves only (its `cell_bounds`), so
+    it rides and drops with te1 / low1 / the band. Study 38's rule: the paper arms follow every live construction setting.
+  - **What changes.**
+    - Both arguments are classified **"checked"** (the cap: int, default 0 = off; the cells: "B,C", default None); a cap needs the
+      live row rules and known cells.
+    - **The vehicle, `qb_cell_ban()`:** a CapBuilder layer entered inside S37.built_with and before the row rules. On a B / C
+      BOOK solve whose call already carries row-rule constraints (a rule tier), it appends (sorted(qb_ids), "<=", 0) in ONE call.
+      An infeasible call returns None, so the tier logic drops the tier WITH the ban, as production's tier list does. The plain
+      last tier, other cells and spares are unchanged.
+    - qb_ids = the POOL's QBs with DK salary strictly above the cap, after the exclusions. An empty set means no layer
+      (production's).
+    - Every rule-following arm carries it; TODAY / NORR carry no rules.
+    - **The receipt must agree:** `qb_salary_cap_source` / `qb_salary_cap` (applied; the cap and cells; the id set).
+    - **MIXT_QA0_NOQBSAL** (exploratory): his live book without the cap, the paired paper book, built only while it is live;
+      reference MIXT_QA0.
+  - **The smoke** (Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z9/`, script `run.sh` `12db9b671b76`, log
+    `18d0b8f4d961`; lab `857a8266`; PYTHONHASHSEED=0; the 6z8 smoke's inputs):
+    - 65 tests pass (rc 0); union-argument mismatches none in both builds.
+    - **The band only:** all 44 arms of the 6z8 smoke's band build identical; NOQBSAL missing.
+    - **The band plus `--mix-qb-max-salary 6400 --mix-qb-max-salary-cells B,C`** (a dry run, before production's receipt
+      existed): 6 pool QBs over $6,400. **Every rule-following arm checked (QA0, NOBAND, HOT1, LOW5, TE1, NOONECATCH) has 0 B / C
+      book rows with a QB over the cap.** The ban was ruled on 14 B / C solves with 0 dropped. NOQBSAL has 5 such rows and TODAY 7
+      (unruled). **NOQBSAL equals the band-only build's MIXT_QA0, rows and ranks.** MIXT_QA0's FP per dealt lineup 140.12 → 139.75.
+    - **With production's real receipt** (the laptop's QB-cap branch `6065b9f2` on Week 4 with the W4 status file and the band:
+      `w4-AQ/receipt.json` `d526bb53…`; `live/run.sh` `e291f7901995`, log `70ad54a2fe32`; the status file passed as `--dk-status` to both):
+      **every union check passes (no mismatch)**: the band's 17 ids and the cap's 6 QB ids agree with s38's recomputed sets, and
+      the status file's copy is identical to the original. MIXT_QA0 has 0 B / C rows with a QB over the cap (the ban ruled 14, 0
+      dropped), NOQBSAL 5. `union_classification` on 6065b9f2's argparse: no mismatch.
+  - **Code:** lab `857a8266` (on 6z8's `ece98fa5`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `45d4f1034a326cf54cb6a86df70ddd6d9004f57c11584b362e99b359ac227051`;
+    - `scripts/s38_build.py` `a260422c50a0a5b7f9789b71b9a43005e383df12425cabe84928bf5272f57f81` (unchanged);
+    - `scripts/s38_score.py` `d100a7bcd3969b8e7eb37682224ec7354dc91d72a2461eeacabb83699411b23f`;
+    - `scripts/s38_report.py` `a1822d250a6c1a66c7cae54a122b2bffddfd00b045817d19e031c9ea2060fd53`;
+    - `tests/test_s38_paper_corun.py` `a46233cca10b290222b8b6653aa38e8abd1344de425bd09a8f50401f9eabe2fe` (65 tests).
+  - **The integrity gate** pins this module sha in place of 6z8's `7fd93877…`; the production pin moves with FRIDAY_HEAD when the
+    QB-cap switch merges (the byte check confirms the union_reselect diff is the reviewed QB-cap code only).
+  - **Order:** this amendment; production's switch reviewed; the live-receipt check; the laptop's ack; the pins; all by the
+    20:40 stop, else the arm goes with the status file and the band cap only (the laptop's stated fallback).
+
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
 - **Study 37** (Addendum 142): the regulars' structure (about 11 QB stacks and a steep player curve, their own tier
