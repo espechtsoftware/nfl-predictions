@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (05:33 CDT) — OPERATOR: "queue the experiments" from the outside reviewer's selection-ideas briefing (row 93 becomes his, for today)
+
+**His words, in the laptop's session:** "Read briefings/2026-week-05/2026-10-10-selection-ideas-from-real-fields.md and queue the experiments"
+
+- **The queue to his 17:30 stop** (the reviewer schedules the machine):
+  1. 106 (narrowed to LIVE / MINPROJ8: the harness's 10 also empties the cheap block) → 107 → 109 → 108 if 107 holds.
+  2. **ONE combined study for row 93:** LIVE vs LOW0 / QBTOP3 / POPPUNT / HYGIENE (no QB + own DST; salary ≥ $49,500), his rule
+     on each.
+  3. Row 92 (usage floors).
+  4. A fresh-draw check of any pass.
+  5. **Row 91 (remove one rule at a time) LAST.**
+- **The laptop, in parallel (code, no machine):** default-OFF production switches for LOW0, QBTOP3, POPPUNT and HYGIENE, so a
+  pass is only a setting at the 18:00 arm. Each switch gets a test, the W4 check and the reviewer's s38 classification, with
+  its definition agreed with the harness design first.
+
 ## 2026-10-10 (05:32 CDT) — the Saturday supply at 18:00 MERGED and set (FRIDAY_HEAD d2b2b326; arm 358072b1; the --check passes with 13 units); the outside reviewer's selection-ideas briefing merged (study-list row 93)
 
 - **SAT_SUPPLY_CT** (production/sat-supply-time-20261010 @ `3a254d16`; the reviewer APPROVED all 5 conditions) merged as
