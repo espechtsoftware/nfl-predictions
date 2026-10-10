@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (05:09 CDT) — OPERATOR: remove one live rule at a time, as the LAST study (study-list row 91); the morning page §3c merged
+
+**His words, in the laptop's session:** "Did we try what you had planned of removing one rule at a time to see if it was really helpful?  That in my opinion should be the last thing we do after we’ve tried the other experiments"
+
+**The laptop's answer to him:**
+- **The shapes: done.** Study 95's leave-one-out arms (10-09 21:41) removed each of the four shapes. No removal helped (A1, B
+  and C worse on both draws; A2 a wash), so all four stay; study 98 then kept 30 / 14 / 28 / 28.
+- **The rules: not done.** Each live rule was tested on top of the rules before it: the package (cap 0.35 + FP ownership
+  +15), te1_low1, the cheap block, ONECATCH, and tonight FAVHI. No study has removed each from the full armed book.
+- **As he asks, it runs LAST:** after 105, the floors (106 / 107, and 108 if 107 holds) and the fade (109). That is likely
+  Saturday after the 10:28 arming. A rule that hurts can still be dropped by the Saturday-afternoon re-arm (ARM_LATE=1;
+  hard stop Saturday night).
+- **Bookkeeping:** study-list row 91 (the arms; the couplings the design must settle; the drop rule committed before the run).
+  The reviewers have been told. The study number is assigned when it is designed.
+
+**Merged:** the outside reviewer's page §3c (`ae165c8e`, merge `34186565`). It holds the laptop's tabulation of why "built
+for high scores" doesn't win more, re-computed identically by the outside reviewer. It is descriptive, after the reads.
+
 ## 2026-10-10 (05:05 CDT) — FAVHI armed (e8a4d0a4 + the test fix b00c5e43 = FRIDAY_HEAD); his question on the arming time; the laptop's test-pipe slip
 
 - **Armed:** RB_MATE_C=4, RB_MATE_SCOPE=favhi (e8a4d0a4).
