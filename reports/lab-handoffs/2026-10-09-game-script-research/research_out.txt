@@ -1,0 +1,77 @@
+team-games 3142; seasons [np.int64(2018), np.int64(2019), np.int64(2020), np.int64(2021), np.int64(2022), np.int64(2025)]; total terciles [44.  47.5]
+
+== by expected margin (all totals)
+mb                     dog 7+  dog 3-7  pick-em  fav 3-7   fav 7+
+n                     491.000  733.000  899.000  618.000  401.000
+RB1 carries            12.430   12.992   13.719   13.731   13.461
+RB1 GL carries (<=5)    0.568    0.689    0.735    0.794    0.838
+RB1 share of team GL    0.259    0.264    0.275    0.280    0.263
+RB1 rush TD             0.310    0.427    0.426    0.532    0.576
+RB1 DK                 11.979   13.390   14.055   15.519   15.788
+RB1 P(DK>=20)           0.153    0.198    0.238    0.282    0.307
+RB1 P(DK>=25)           0.077    0.113    0.137    0.178    0.192
+team pass rate          0.592    0.591    0.575    0.568    0.555
+QB att                 31.059   32.954   32.444   33.359   32.748
+QB DK                  14.426   17.020   17.897   19.909   21.052
+QB P(DK>=25)            0.112    0.165    0.199    0.254    0.317
+WR1 tgt                 6.957    7.396    7.591    7.587    7.616
+WR1 DK                 11.449   13.320   14.397   14.646   16.157
+corr QB-RB1             0.081    0.087    0.039    0.066   -0.035
+corr QB-WR1             0.408    0.371    0.347    0.329    0.297
+
+== by game total (all margins)
+tb                    low total  mid total  high total
+n                      1200.000    920.000    1022.000
+RB1 carries              13.532     13.292      13.088
+RB1 GL carries (<=5)      0.652      0.689       0.838
+RB1 share of team GL      0.278      0.260       0.271
+RB1 rush TD               0.403      0.439       0.509
+RB1 DK                   13.296     14.021      15.068
+RB1 P(DK>=20)             0.207      0.227       0.268
+RB1 P(DK>=25)             0.114      0.132       0.169
+team pass rate            0.561      0.582       0.593
+QB att                   30.447     33.102      34.570
+QB DK                    15.522     18.040      20.719
+QB P(DK>=25)              0.124      0.201       0.298
+WR1 tgt                   7.079      7.561       7.782
+WR1 DK                   12.707     13.658      15.699
+corr QB-RB1               0.102      0.048       0.036
+corr QB-WR1               0.373      0.364       0.321
+
+== the operator's scenarios
+scen                  big fav (7+), not high  dog in shootout  dog, not shootout  fav in shootout     other
+n                                    344.000          405.000            819.000          405.000  1169.000
+RB1 carries                           13.715           12.719             12.790           13.395    13.750
+RB1 GL carries (<=5)                   0.805            0.785              0.569            0.936     0.712
+RB1 share of team GL                   0.257            0.265              0.260            0.287     0.274
+RB1 rush TD                            0.599            0.437              0.352            0.602     0.422
+RB1 DK                                15.335           13.945             12.269           16.727    14.121
+RB1 P(DK>=20)                          0.297            0.222              0.159            0.331     0.235
+RB1 P(DK>=25)                          0.177            0.131              0.083            0.227     0.134
+team pass rate                         0.543            0.602              0.586            0.583     0.571
+QB att                                31.686           34.422             31.092           34.793    32.441
+QB DK                                 19.971           19.029             14.471           22.516    17.832
+QB P(DK>=25)                           0.276            0.225              0.104            0.360     0.190
+WR1 tgt                                7.529            7.709              6.978            7.807     7.541
+WR1 DK                                15.409           14.809             11.462           16.103    14.244
+corr QB-RB1                            0.021            0.043              0.095           -0.014     0.037
+corr QB-WR1                            0.311            0.361              0.374            0.284     0.347
+
+== stack pairs: mean and P(pair >= 45 DK) by scenario
+                           n   qb_rb  qb_rb_p45   qb_wr  qb_wr_p45
+scen                                                              
+big fav (7+), not high   344  35.306      0.209  35.380      0.253
+dog in shootout          405  32.975      0.210  33.838      0.222
+dog, not shootout        819  26.756      0.083  25.931      0.092
+fav in shootout          405  39.243      0.338  38.619      0.309
+other                   1169  31.954      0.163  32.076      0.178
+
+== per season (fav 7+ RB1 carries / dog-in-shootout QB att): stability
+        fav7 RB1 car  rest RB1 car  fav7 RB1 GL5  rest RB1 GL5  dog-shootout QB att  rest QB att
+season                                                                                          
+2018           13.84         13.13          0.96          0.68                34.72        33.28
+2019           14.31         13.36          0.84          0.67                34.15        33.46
+2020           12.82         12.26          0.66          0.82                34.75        33.42
+2021           13.59         12.87          0.82          0.66                33.14        32.42
+2022           12.55         13.37          0.84          0.64                34.68        31.22
+2025           14.52         14.51          0.98          0.74                35.67        30.36
