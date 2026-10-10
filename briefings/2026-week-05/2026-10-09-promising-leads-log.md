@@ -173,6 +173,11 @@ reviewer and updated as each study is read.
   higher and big wins lower on all four opponent sets** — a consistent trade, not a gain by your rule (which counts big wins).
 - **Only the 8 cheap-block lineups built that way:** a tiny gain in study 102 (+0.2 points on the best lineup), which **did not
   hold** on study 103's fresh set (one set below zero). So the combination with lead 13 (study 104) was not run.
+- **Study 105, how much of the book on upside (13, 18 or all 26 lineups):** every amount cost big wins on both opponent sets
+  (13 lineups: about 2 fewer slates in 100 with a big win; 18: about 4.5 fewer; all 26: about 3.4 fewer), and each one's average
+  finish slipped. What it bought in 200+ lineups was not reliable: about 3 more slates in 100 at 13 lineups, none at 18, and 1
+  at all 26 on this set (all 26 read +3 and +2 in studies 102 / 103). **There is no amount that gets more 200+ lineups without
+  giving up big wins.** (Read on your book before the RB version was added.)
 - **Not usable in Week 5 either way:** production has no switch for it yet (it needs an upside score around Fantasy Points'
   projections); Week 6 at the earliest.
 
@@ -237,7 +242,11 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 105 (information for Week 6):** how the trade in lead 15 grows with the number of lineups built on upside — 13, 18
-  and all 26 against your book — so that you can see how many extra 200+ slates each lost big win buys.
+- **Study 106 (your question: "no player with a projected score less than 8"):** a floor of 8, and a stronger 10, against your
+  book with the RB version included. In production the floor is one setting on Fantasy Points' projections (on your Week-4 book
+  it changes 3 lineups at 8 and 23 at 10). If one passes your rule, study 107 re-checks it on a fresh set of opponents, and then
+  study 108 tries floors per position (your follow-up).
+- **Study 109 (your idea: fade a player by 2 points after a big previous week):** at twice his average, and at 1.6 times.
+- **Last, by your order:** removing one live rule at a time from your armed book.
 
 *Updated as each study is read.*
