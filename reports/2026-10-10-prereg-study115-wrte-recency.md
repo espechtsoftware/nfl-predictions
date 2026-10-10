@@ -3,7 +3,7 @@
 **Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer; the design is the laptop's proposal
 with the lab reviewer's calls. The lab reviewer reviews, runs the binding census, freezes, runs and reads; the laptop acks and
 reproduces. **A pick goes to study 115b** (the fresh-draw check), whose preregistration is committed before this study's READ.
-- **Banks and seed (the laptop's reservation; the full-set check: CLEAN; the text scans: running):** **3946–3957** (set A
+- **Banks and seed (the laptop's reservation; the full-set check: CLEAN; the text scans of both repositories: CLEAN, 10-10):** **3946–3957** (set A
   3946–3951, set B 3952–3957; sims bases 3996–4007, fields 4646–4657); the reader's bootstrap seed **20261159**.
 - **Timing (the lab reviewer's order):** after study 110 (and 111 if 110 picks), before 112, so that a pick and its fresh-draw
   check can READ before his 17:55 arm.

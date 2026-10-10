@@ -14,7 +14,7 @@
 - **Code: study 115's frozen module, census, driver and reader, byte for byte** (nfl2 `production/s115-wrte-recency-20261010`;
   the shas as frozen in study 115); new banks. The reader prints all of study 115's lines; **ONLY the pick's line vs LIVE
   decides.**
-- **Banks (the laptop's reservation; the full-set check: CLEAN; the text scans: running):** **3984–3995** (set A 3984–3989, set B
+- **Banks (the laptop's reservation; the full-set check: CLEAN; the text scans of both repositories: CLEAN, 10-10):** **3984–3995** (set A 3984–3989, set B
   3990–3995; sims bases 4034–4045, fields 4684–4695).
 - **The reader's seed** is study 115's (20261159): the same bootstrap resamples, so the intervals are correlated with 115's. The
   pass rule below uses point estimates only. (The laptop reserved seed 20261160 for this study; it stays unused, because the
