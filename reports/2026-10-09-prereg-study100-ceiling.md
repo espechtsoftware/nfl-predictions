@@ -27,7 +27,10 @@ listed edits, a test asserts it); every arm his live Week-5 construction (the pa
 - **OVERLAP3** — at most 3 players shared between any two rows.
 - **NOCHEAP** — no cheap +2 block (study 42's live fill over 26 rows, `mix_fill.mix_book_fill`, the same patched builder).
 - **OWN10** — the ownership cap at + 10 (study 90's).
-- **BBHEAVY** — each no-bring-back cell halved into its bring-back twin: A1 .37 / A2 .07 / B .42 / C .14 (rows 9 / 2 / 11 / 4).
+- **BBHEAVY** — each no-bring-back cell halved into its bring-back twin: A1 .37 / A2 .07 / B .42 / C .14. **Book rows 10 / 2 /
+  11 / 3** (each block is allocated at its own size, as the live book: the 18 live rows 7 / 1 / 8 / 2, the 8 cheap-block rows
+  3 / 1 / 3 / 1). **Correction before the freeze (the smoke's census):** this file first said 9 / 2 / 11 / 4, the allocation
+  over 26 rows at once, which the book never uses; the quotas, the code and the design are unchanged.
 
 ## 3. The read (the reader `scripts/s100_report.py`)
 - Study 95's statistics (63's, a test asserts them); two draws and pooled; two-sided 0.95, B 20,000.
@@ -51,7 +54,15 @@ listed edits, a test asserts it); every arm his live Week-5 construction (the pa
 ## 5. Smoke, census and integrity
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke (the unit tests, the mechanics smoke 2023 W3 / 2023 W11 /
   2024 W10, the census, the full path: reader exit and line count only).
-- **The smoke:** (a machine gap the lab reviewer names; filled in when it ends).
+- **The smoke (DONE in the gap the lab reviewer named, after study 99's run; bank 1406; 2023 W3, 2023 W11, 2024 W10;
+  PYTHONHASHSEED=0; `results_bank1406.jsonl` `fb522637…`; code `635b64eb`):** 8 unit tests pass; every arm 41 rows within the
+  package's caps (9 / 6, QB 5 — QBCAP3 3 — overlap 4 — OVERLAP3 3), in the pool; the cheap-block rows 8 (NOCHEAP 0); 0 row-rule
+  and 0 ownership-cap fallbacks (78 of 78 each); ONECATCH ruled 42 of 42 B / C book solves, none dropped, every arm; the most
+  rows on one QB 5.0 (QBCAP3 3.0), the most shared 4.0 (OVERLAP3 3.0); book rows LIVE 8 / 4 / 7 / 7, BBHEAVY 10 / 2 / 11 / 3;
+  rows shared with LIVE QBCAP3 9.00, OVERLAP3 1.67, NOCHEAP 15.67, OWN10 7.33, BBHEAVY 4.67 of 26 (dealt identical 0.000
+  each); projection per row vs LIVE QBCAP3 −0.45, OVERLAP3 +0.01, NOCHEAP +0.38, OWN10 −1.03, BBHEAVY −0.06; the full path:
+  the drive exited 0 (2 slates), the reader exited 0 (85 lines; 106 with the two-draw path on a copy, the pick-rule block
+  printed once); only the census, the exit codes and the line counts were read.
 - **Code:** nfl2 `production/s100-ceiling-20261009` @ `635b64eb` (branched from study 98's `ac7dd400`): `experiments/s100_ceiling.py`
   `854ecfc3…` (pins s95 `46b80611…`); `scripts/s100_drive.py` `1dbccbe3…`; `scripts/s100_census.py` `4b8bdbbc…`;
   **`scripts/s100_report.py` (the reader) `02320e3d…`** (seed 20261144); `tests/test_s100_ceiling.py` `d7d92b17…` (8).
