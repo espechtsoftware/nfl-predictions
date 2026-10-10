@@ -66,8 +66,9 @@ From your real Weeks 1–4 fields (the laptop's count, HANDOFF `3ac3bfd7`; aggre
 - More lineups alone don't do it: building 41 rows instead of 26 lifts the chance that the best one reaches 200 only from 13.0%
   to 13.9% (the laptop's count). Which lineups are built matters.
 - **Tonight's two ceiling studies** (sections 3b and 3c): five variations of your existing settings (study 100) and three new
-  ways of building for the ceiling (study 102), each pick re-run on a fresh draw (studies 101 / 103). **Neither pick held.** The
-  one way found to get more 200+ lineups — building every lineup on upside — costs about 12–14% of expected big wins.
+  ways of building for the ceiling (study 102), each pick re-run on a fresh draw (studies 101 / 103). **Neither pick held.**
+  Building every lineup on upside raised the 200+ rate on all four opponent sets, at a cost of about 12–14% of expected big
+  wins; the RB version of section 2 also showed higher 200+ rates (without that cost), but at about 12–14% the rate is noisy.
 
 ## 1. The shape percentages (study 95)
 
