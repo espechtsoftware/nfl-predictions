@@ -12434,3 +12434,182 @@ secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier fi
   so HOT1 would change about 14 of his 26 lineups live (study 38's 6y smoke: 14 → 0). The READ is unaffected.
 - **In plain words:** fading players who just had a big game made the book clearly worse -- about 5 fewer slates in 100 with a big
   win, and a fifth fewer expected big wins. Limiting each lineup to one such player was also slightly worse. Nothing here to use.
+
+## Addendum 205 (2026-10-10): study 110 (the lineup rules he queued from his real Weeks 1–4 fields -- no low-owned player at all, the QB from the top-3 game totals, the cheap block only on popular punts, no QB with his own defense plus $49,500, at most 4 top-value players -- on his armed Week-5 book with the adopted FAVHI, in the harness): no arm passes his rule -- no low-owned player (LOW0) +0.3 and the cheap block only on popular punts (POPPUNT) +1.0 are mixed across the draws; the QB from the top-3 game totals (QBTOP3) −3.6, at most 4 top-value players (VAL4) −2.9 and the hygiene rule (HYGIENE) −0.6 are worse on both: keep the live book; study 111 not run
+
+**Setup.**
+- **His words** (10-10, the laptop's session): "Read briefings/2026-week-05/2026-10-10-selection-ideas-from-real-fields.md and
+  queue the experiments" (study list row 93); then, on VAL4 (the research page's §3.2): "Add both today (Recommended)".
+- **The source:** the outside reviewer's screen of his real Weeks 1–4 main-slate fields (1.66 million lineups, 86 contests;
+  aggregates only): each idea pointed the same way in 4 of 4 weeks among about 33 features screened (about 4 could be luck);
+  after the fact.
+- **The arms** (study 95's harness, every arm his armed construction with the adopted FAVHI; each one change):
+  - **LOW0:** the live low-ownership rule at its own threshold (predicted ownership < 3%) with a count of 0 instead of 1;
+  - **QBTOP3:** every book solve's QB from a game among the slate's top-3 pre-lock game totals (ties included), the other QBs
+    banned on book solves (beneath every rule tier; infeasible → the solve without it, recorded);
+  - **POPPUNT:** the cheap +2 term only on sub-$4,000 skill players with predicted ownership ≥ 5%;
+  - **HYGIENE:** no QB with his own team's DST in a book row, and a book-row minimum salary of $49,500;
+  - **VAL4:** at most 4 of the 8 skill players from the top value tenth (the player mean per $1,000, ranked within position among
+    players with a mean ≥ 3; percentile ≥ 0.9), a row rule in the te1 / low1 tier.
+- **The read and the pick:** his rule per arm (P(≥ 1 big seat) better on both draws AND the pooled seats ratio ≥ 0.80; guard 1
+  printed, not gating); mean best and P(best ≥ 200) printed; the pick the passing arm with the largest pooled gain → study 111
+  (its design committed before this READ). Five arms: about one to two false passes.
+- **Preregistration:** `reports/2026-10-10-prereg-study110-field-ideas.md` (DRAFT by the outside reviewer with the exact
+  definitions the production switches would match; VAL4 added and the census's per-arm RULES fixed before the freeze, both
+  disclosed; FROZEN `9d04b3ca`, 10-10 07:13 CDT, before any scored bank).
+- **Code:** nfl2 `083f11e2` (off study 102's frozen `969f4d3d`; s96 / s97 byte for byte): module `7cbbd46c…` (pins s95
+  `46b80611…`, s97 `7df6f324…`); drive `e01a9146…`; census `d8c4bc49…`; reader `79fa2f2e…`; tests `c485859b…` (15).
+- **Panel:** banks 3580–3591 (A 3580–3585, B 3586–3591; sims 3630–3641, fields 4280–4291), B 20,000, seed 20261153,
+  PYTHONHASHSEED=0; the laptop's scan was clean.
+- **Census** (binding, bank 1406; lab `00ec8dcf`; the laptop's re-run identical, with `--ref97`): LIVE identical to study 97's
+  RBMATE4_FAVHI on 36 of 36; ONECATCH 504 of 504 in every arm; each arm binds (low-owned rows 16.67 → 0.03; the QB in the top-3
+  games 14.69 → 25.81 of 26; popular cheap players termed 5.1 per slate; QB + own DST rows 0.86 → 0; rows with 5+ top-value
+  players 13.36 → 0). Disclosed: LOW0's 1 row-rule fallback and its FAVHI floor re-solved without the floor in 12 of 144 slots;
+  QBTOP3's 7 book-rule fallbacks; HYGIENE's $49,500 floor never binds (LIVE's lowest book salary $49,700), so that arm reads the
+  QB–DST ban alone.
+- **His real Week-4 book** (the laptop's outcome-blind count): LOW0 changes 4 of 26 lineups, QBTOP3 6, VAL4 17, HYGIENE 1.
+- **Read:** the reader `79fa2f2e`; READ `763ae1fb` (lab `73efac12`). The confirmatory census (`37e99504`, raw shas `9ffa6703`,
+  RUN_ENV `be490baf`, run code `00ec8dcf`; lab `e11661b8`) was committed before the READ: ONECATCH 6,048 of 6,048 and RB-mate
+  slots 1,728 of 1,728 in every arm; 0 ownership-cap fallbacks; row-rule fallbacks 0 except LOW0's 15 of 11,232. Disclosed:
+  LOW0's FAVHI floor re-solved without the floor in 138 of 1,728 slots (LIVE 12); QBTOP3's book rule re-solved plain in 69
+  solves (its QB in the top-3 games 25.87 of 26); HYGIENE's $49,500 floor did bind on the scored banks (LIVE's lowest book
+  salary $49,300; 11 solves re-solved plain), and HYGIENE's book was dealt identical to LIVE's on 53.5% of slate-banks.
+- **Reproduced byte-identically by the laptop** at `73efac12` (PYTHONHASHSEED=0): the raw files 3580–3591 pass `sha256sum -c`
+  against `RAW_s110_run.sha256`; the READ is `763ae1fb` and the confirmatory census `37e99504` (cmp-identical).
+
+**Reader output (verbatim):**
+```
+STUDY 110 READER  sha256 79fa2f2ebbd4f1556f0461153a2e995b4dce46cc9305286497e0197dc72820e8
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [3580, 3581, 3582, 3583, 3584, 3585, 3586, 3587, 3588, 3589, 3590, 3591]  sets {'pooled': [3580, 3581, 3582, 3583, 3584, 3585, 3586, 3587, 3588, 3589, 3590, 3591], 'A': [3580, 3581, 3582, 3583, 3584, 3585], 'B': [3586, 3587, 3588, 3589, 3590, 3591]}  B 20000  seed 20261153  comparisons (('LOW0', 'LIVE'), ('QBTOP3', 'LIVE'), ('POPPUNT', 'LIVE'), ('HYGIENE', 'LIVE'), ('VAL4', 'LIVE')) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 93 / 92 / 91 / 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["LIVE", "LOW0", "QBTOP3", "POPPUNT", "HYGIENE", "VAL4"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"HYGIENE": 0.35, "LIVE": 0.35, "LOW0": 0.35, "POPPUNT": 0.35, "QBTOP3": 0.35, "VAL4": 0.35}, "delta": 0.15, "low_pct": 3.0, "one_catcher": "every arm: study 93's ONECATCH (lead_rules onepc)", "own_arms": ["LIVE", "LOW0", "QBTOP3", "POPPUNT", "HYGIENE", "VAL4"], "quotas": {"HYGIENE": [0.3, 0.14, 0.28, 0.28], "LIVE": [0.3, 0.14, 0.28, 0.28], "LOW0": [0.3, 0.14, 0.28, 0.28], "POPPUNT": [0.3, 0.14, 0.28, 0.28], "QBTOP3": [0.3, 0.14, 0.28, 0.28], "VAL4": [0.3, 0.14, 0.28, 0.28]}, "rb_mate": "every arm: the adopted FAVHI (96's combo_rules, 97's FAVHI pairs)", "row_rules": {"HYGIENE": ["te1", "low1"], "LIVE": ["te1", "low1"], "LOW0": ["te1", "low0"], "POPPUNT": ["te1", "low1"], "QBTOP3": ["te1", "low1"], "VAL4": ["te1", "low1", "val4"]}, "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "settings": {"HYGIENE": {"cheap_min_own_pct": null, "low_max": 1, "min_salary": 49500, "no_qb_own_dst": true, "qb_top_games": null, "value_max": null}, "LIVE": {"cheap_min_own_pct": null, "low_max": 1, "min_salary": 49000, "no_qb_own_dst": false, "qb_top_games": null, "value_max": null}, "LOW0": {"cheap_min_own_pct": null, "low_max": 0, "min_salary": 49000, "no_qb_own_dst": false, "qb_top_games": null, "value_max": null}, "POPPUNT": {"cheap_min_own_pct": 5.0, "low_max": 1, "min_salary": 49000, "no_qb_own_dst": false, "qb_top_games": null, "value_max": null}, "QBTOP3": {"cheap_min_own_pct": null, "low_max": 1, "min_salary": 49000, "no_qb_own_dst": false, "qb_top_games": 3, "value_max": null}, "VAL4": {"cheap_min_own_pct": null, "low_max": 1, "min_salary": 49000, "no_qb_own_dst": false, "qb_top_games": null, "value_max": 4}}, "skill_sum": 800.0, "source": "blend_pct"}, {"HYGIENE": [9, 6], "LIVE": [9, 6], "LOW0": [9, 6], "POPPUNT": [9, 6], "QBTOP3": [9, 6], "VAL4": [9, 6]}, "5f4e1fb9977d349183adc3457782b131673a8bcf06bf3e850af2c149c52bfd4d", "37980da6506df0a799e97b5dae29e670228398cb405be01a3c93cc47f2c7e252", "9cde18bd221e52069b449044a37720996ffb0efafac88202d44f02a7dc898aa8", "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== LOW0 vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.00275  [-0.06284, +0.06788] (two-sided 0.95)  seasons 2023 -0.01482, 2024 +0.02032
+  GUARD 1 mean entry pct +0.01117  one-sided lower +0.00054  (must exceed -0.015)
+  GUARD 2 expected big seats 0.63108 vs 0.56899  ratio 1.109  (must be >= 0.80)
+  LOW0 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3580, 3581, 3582, 3583, 3584, 3585]: -0.00258  [-0.07685, +0.07002]  seasons 2023 -0.02171, 2024 +0.01654
+  set B [3586, 3587, 3588, 3589, 3590, 3591]: +0.00809  [-0.05587, +0.07275]  seasons 2023 -0.00794, 2024 +0.02411
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.00258 < 0  (set A -0.00258, set B +0.00809, the difference -0.01067; seats ratio 1.109)
+  EXPLORATORY the l02 field (pooled): +0.00056  [-0.06613, +0.06630]
+  CEILING (the pick statistic) mean best real lineup points per slate +1.133  [-1.646, +3.925]  seasons 2023 +1.692, 2024 +0.574; set A +1.029; set B +1.237
+  P(best >= 200) -0.00463  [-0.04398, +0.03241]; set A -0.00463; set B -0.00463
+
+== QBTOP3 vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.03569  [-0.09541, +0.02688] (two-sided 0.95)  seasons 2023 -0.08457, 2024 +0.01319
+  GUARD 1 mean entry pct -0.02791  one-sided lower -0.04233  (must exceed -0.015)
+  GUARD 2 expected big seats 0.51660 vs 0.56899  ratio 0.908  (must be >= 0.80)
+  QBTOP3 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3580, 3581, 3582, 3583, 3584, 3585]: -0.03758  [-0.09865, +0.03075]  seasons 2023 -0.08600, 2024 +0.01084
+  set B [3586, 3587, 3588, 3589, 3590, 3591]: -0.03380  [-0.10072, +0.03461]  seasons 2023 -0.08313, 2024 +0.01553
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.03758 < 0; set B -0.03380 < 0  (set A -0.03758, set B -0.03380, the difference -0.00378; seats ratio 0.908)
+  EXPLORATORY the l02 field (pooled): -0.03688  [-0.09945, +0.02868]
+  CEILING (the pick statistic) mean best real lineup points per slate -2.448  [-5.229, +0.332]  seasons 2023 -4.236, 2024 -0.659; set A -2.263; set B -2.632
+  P(best >= 200) -0.01389  [-0.05787, +0.03009]; set A -0.03241; set B +0.00463
+
+== POPPUNT vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.01032  [-0.02215, +0.04212] (two-sided 0.95)  seasons 2023 -0.00803, 2024 +0.02866
+  GUARD 1 mean entry pct +0.00395  one-sided lower -0.00171  (must exceed -0.015)
+  GUARD 2 expected big seats 0.59816 vs 0.56899  ratio 1.051  (must be >= 0.80)
+  POPPUNT dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3580, 3581, 3582, 3583, 3584, 3585]: +0.02276  [-0.02201, +0.06661]  seasons 2023 -0.00676, 2024 +0.05228
+  set B [3586, 3587, 3588, 3589, 3590, 3591]: -0.00213  [-0.03372, +0.03385]  seasons 2023 -0.00930, 2024 +0.00504
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set B -0.00213 < 0  (set A +0.02276, set B -0.00213, the difference +0.02489; seats ratio 1.051)
+  EXPLORATORY the l02 field (pooled): +0.00870  [-0.02368, +0.03983]
+  CEILING (the pick statistic) mean best real lineup points per slate -0.132  [-1.675, +1.513]  seasons 2023 +0.085, 2024 -0.348; set A +0.173; set B -0.436
+  P(best >= 200) +0.00694  [-0.01389, +0.03241]; set A +0.00000; set B +0.01389
+
+== HYGIENE vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.00621  [-0.01540, +0.00246] (two-sided 0.95)  seasons 2023 -0.01577, 2024 +0.00335
+  GUARD 1 mean entry pct -0.00016  one-sided lower -0.00165  (must exceed -0.015)
+  GUARD 2 expected big seats 0.56837 vs 0.56899  ratio 0.999  (must be >= 0.80)
+  HYGIENE dealt identical to LIVE: 0.535 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3580, 3581, 3582, 3583, 3584, 3585]: -0.00517  [-0.02636, +0.01263]  seasons 2023 -0.01940, 2024 +0.00907
+  set B [3586, 3587, 3588, 3589, 3590, 3591]: -0.00725  [-0.02003, +0.00627]  seasons 2023 -0.01214, 2024 -0.00237
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.00517 < 0; set B -0.00725 < 0  (set A -0.00517, set B -0.00725, the difference +0.00209; seats ratio 0.999)
+  EXPLORATORY the l02 field (pooled): -0.00538  [-0.01481, +0.00365]
+  CEILING (the pick statistic) mean best real lineup points per slate +0.179  [-0.434, +0.943]  seasons 2023 +0.347, 2024 +0.010; set A +0.270; set B +0.088
+  P(best >= 200) +0.01389  [+0.00000, +0.03009]; set A +0.00926; set B +0.01852
+
+== VAL4 vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.02946  [-0.08526, +0.02281] (two-sided 0.95)  seasons 2023 -0.00251, 2024 -0.05640
+  GUARD 1 mean entry pct -0.00032  one-sided lower -0.00778  (must exceed -0.015)
+  GUARD 2 expected big seats 0.52558 vs 0.56899  ratio 0.924  (must be >= 0.80)
+  VAL4 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3580, 3581, 3582, 3583, 3584, 3585]: -0.02550  [-0.07651, +0.02548]  seasons 2023 +0.00392, 2024 -0.05492
+  set B [3586, 3587, 3588, 3589, 3590, 3591]: -0.03341  [-0.10488, +0.03442]  seasons 2023 -0.00894, 2024 -0.05788
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.02550 < 0; set B -0.03341 < 0  (set A -0.02550, set B -0.03341, the difference +0.00791; seats ratio 0.924)
+  EXPLORATORY the l02 field (pooled): -0.03235  [-0.08797, +0.02045]
+  CEILING (the pick statistic) mean best real lineup points per slate -0.168  [-2.008, +1.721]  seasons 2023 +1.979, 2024 -2.314; set A -0.097; set B -0.238
+  P(best >= 200) +0.00694  [-0.02083, +0.03935]; set A +0.00463; set B +0.00926
+
+
+== HIS RULE on P(>= 1 big seat) per arm (better on both draws AND seats >= 0.80; information):
+  LOW0      PAPER ONLY: draw A -0.00258 is not > 0  |  guard 1 (mean entry pct, one-sided lower) +0.00054 (passes -0.015)  |  under no true effect about one time in four to one in three
+  QBTOP3    PAPER ONLY: draw A -0.03758 is not > 0; draw B -0.03380 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.04233 (FAILS -0.015)  |  under no true effect about one time in four to one in three
+  POPPUNT   PAPER ONLY: draw B -0.00213 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.00171 (passes -0.015)  |  under no true effect about one time in four to one in three
+  HYGIENE   PAPER ONLY: draw A -0.00517 is not > 0; draw B -0.00725 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.00165 (passes -0.015)  |  under no true effect about one time in four to one in three
+  VAL4      PAPER ONLY: draw A -0.02550 is not > 0; draw B -0.03341 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.00778 (passes -0.015)  |  under no true effect about one time in four to one in three
+
+== THE PICK (pre-stated): among the arms passing HIS RULE on P(>= 1 big seat) -- better on both draws AND the pooled seats ratio >= 0.80 (guard 1 printed, not gating) -- the largest pooled gain; none -> keep the live book
+  LOW0       P(>=1 big) pooled +0.00275 (A -0.00258, B +0.00809); seats 1.109; guard 1 lower +0.00054  ->  does not pass: P(>= 1 big seat) not better on both draws
+  QBTOP3     P(>=1 big) pooled -0.03569 (A -0.03758, B -0.03380); seats 0.908; guard 1 lower -0.04233  ->  does not pass: P(>= 1 big seat) not better on both draws
+  POPPUNT    P(>=1 big) pooled +0.01032 (A +0.02276, B -0.00213); seats 1.051; guard 1 lower -0.00171  ->  does not pass: P(>= 1 big seat) not better on both draws
+  HYGIENE    P(>=1 big) pooled -0.00621 (A -0.00517, B -0.00725); seats 0.999; guard 1 lower -0.00165  ->  does not pass: P(>= 1 big seat) not better on both draws
+  VAL4       P(>=1 big) pooled -0.02946 (A -0.02550, B -0.03341); seats 0.924; guard 1 lower -0.00778  ->  does not pass: P(>= 1 big seat) not better on both draws
+  PICK: none -- keep the live book
+
+  LIVE row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  LOW0 row-rule solves re-solved without the rules: 15 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  QBTOP3 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  POPPUNT row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  HYGIENE row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  VAL4 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  LIVE         v2: P(>=1 big) 0.38558  expected big seats 0.56899  P(>=2) 0.13384  entry pct 0.50216  |  l02: P(>=1 big) 0.41669  |  the best real lineup: mean 177.68  P(best >= 200) 0.1273
+               book: projection per row 124.56  salary 49968  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.18  predicted ownership per row 94.2%  distinct QBs 8.3  non-DST players 51.3  rows with 2+ TEs 0.0  low-owned per row 0.657  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  LOW0         v2: P(>=1 big) 0.38833  expected big seats 0.63108  P(>=2) 0.15987  entry pct 0.51333  |  l02: P(>=1 big) 0.41724  |  the best real lineup: mean 178.81  P(best >= 200) 0.1227
+               book: projection per row 124.11  salary 49970  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.08  predicted ownership per row 97.9%  distinct QBs 7.4  non-DST players 48.3  rows with 2+ TEs 0.0  low-owned per row 0.003  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  QBTOP3       v2: P(>=1 big) 0.34989  expected big seats 0.51660  P(>=2) 0.12540  entry pct 0.47425  |  l02: P(>=1 big) 0.37981  |  the best real lineup: mean 175.23  P(best >= 200) 0.1134
+               book: projection per row 123.42  salary 49968  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.3  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.23  predicted ownership per row 93.0%  distinct QBs 6.5  non-DST players 50.3  rows with 2+ TEs 0.0  low-owned per row 0.705  same-team receiver pair rows 1.7  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  POPPUNT      v2: P(>=1 big) 0.39590  expected big seats 0.59816  P(>=2) 0.14852  entry pct 0.50611  |  l02: P(>=1 big) 0.42538  |  the best real lineup: mean 177.55  P(best >= 200) 0.1343
+               book: projection per row 124.69  salary 49970  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.6  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.15  predicted ownership per row 95.7%  distinct QBs 8.5  non-DST players 50.2  rows with 2+ TEs 0.0  low-owned per row 0.550  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  HYGIENE      v2: P(>=1 big) 0.37937  expected big seats 0.56837  P(>=2) 0.13533  entry pct 0.50200  |  l02: P(>=1 big) 0.41130  |  the best real lineup: mean 177.86  P(best >= 200) 0.1412
+               book: projection per row 124.56  salary 49968  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.19  predicted ownership per row 94.3%  distinct QBs 8.3  non-DST players 51.3  rows with 2+ TEs 0.0  low-owned per row 0.658  same-team receiver pair rows 1.2  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  VAL4         v2: P(>=1 big) 0.35613  expected big seats 0.52558  P(>=2) 0.11631  entry pct 0.50184  |  l02: P(>=1 big) 0.38434  |  the best real lineup: mean 177.51  P(best >= 200) 0.1343
+               book: projection per row 124.40  salary 49975  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.1  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.20  predicted ownership per row 93.3%  distinct QBs 8.1  non-DST players 52.1  rows with 2+ TEs 0.0  low-owned per row 0.665  same-team receiver pair rows 1.1  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+```
+
+**Reading.**
+- **No arm passes his rule.**
+
+| Arm − LIVE | P(≥ 1 big seat) | Set A / B | Expected big seats | Guard 1 | Mean best | P(best ≥ 200) |
+|---|---|---|---|---|---|---|
+| LOW0 (no low-owned player) | +0.3 [−6.3, +6.8] | −0.3 / +0.8 | ×1.11 | passes (+0.0005) | +1.1 | −0.5 |
+| QBTOP3 (QB from the top-3 totals) | −3.6 [−9.5, +2.7] | −3.8 / −3.4 | ×0.91 | **fails** (−0.0423) | −2.4 | −1.4 |
+| POPPUNT (cheap block on popular punts) | +1.0 [−2.2, +4.2] | +2.3 / −0.2 | ×1.05 | passes (−0.0017) | −0.1 | +0.7 |
+| HYGIENE (no QB + own DST; $49,500) | −0.6 [−1.5, +0.2] | −0.5 / −0.7 | ×1.00 | passes (−0.0017) | +0.2 | +1.4 |
+| VAL4 (at most 4 top-value players) | −2.9 [−8.5, +2.3] | −2.6 / −3.3 | ×0.92 | passes (−0.0078) | −0.2 | +0.7 |
+
+- **PICK: none -- keep the live book.** Study 111 is not run (its prereg records NOT RUN, `8c574eb0`).
+- **The two mixed arms.** POPPUNT has the largest pooled gain (+1.0) but is slightly worse on draw B; LOW0 has the most
+  expected big seats (×1.11) and the highest mean best (+1.1) but is slightly worse on draw A, and it leans on its fallbacks
+  (138 FAVHI-floor re-solves). Both are inside the noise this harness shows between bank sets (the same TE rule moved +4.7 → −1.2 between studies 81 and 84).
+- **The two clear negatives.** Forcing every QB into the top-3 game totals costs big wins on both draws and slips the finishes
+  (guard 1 fails); capping top-value players at 4 costs on both draws (VAL4, ×0.92). HYGIENE changes little (identical books on
+  about half the slate-banks).
+- **Against the source.** Each idea pointed the same way in 4 of 4 of his real weeks' fields, after the fact, among about 33
+  features screened; in the harness none of them helps his book. The field screen describes what winners' lineups looked like,
+  not what a rule forcing that shape onto his book does.
+- **Paper:** by his words ("The same applies to VAL4 if study 110 reads it negative") VAL4 goes onto study 38 as a paper arm
+  (amendment 6z, MIXT_QA0_VAL4), so Week 5's real fields can arbitrate at no cost to the book.
+- **In plain words:** none of the five rules taken from the winners' lineups beat his book on both sets of simulated opponents.
+  Two (no low-owned players at all; the cheap block only on popular punts) were close but mixed; two (the QB from the top-3
+  games; at most 4 value plays) were clearly worse; the hygiene rule changed almost nothing.
