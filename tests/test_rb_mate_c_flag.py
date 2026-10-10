@@ -330,7 +330,7 @@ def test_the_cli_refuses_it_off_onecatch():
             ur.main(base + extra)
     src = (ROOT / "scripts" / "union_reselect.py").read_text()
     assert "!!! RB MATE NOT APPLIED" in src and '"ONECATCH is not applied"' in src
-    assert src.count("one_catcher=oc_on, rb_mate_c=rm_c)") == 2 and 'mix_meta["rb_mate_source"] = rm_meta' in src
+    assert src.count("one_catcher=oc_on, rb_mate_c=rm_c,") == 2 and 'mix_meta["rb_mate_source"] = rm_meta' in src
 
 
 def test_the_audit_reads_the_ruled_rows(tmp_path):
