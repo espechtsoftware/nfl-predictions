@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (22:42 CDT) — study 97 READ (game scripts): RBMATE4_FAVHI passes his rule; no QB + 2 version does (DOGHI worse); study 99 runs; the night's queue (98 → 99 → 100 → 101)
+
+- **Study 97 READ** (the reviewer; lab `8b9b3a9d`, READ_s97 `53c1614f`; confirmatory census `a303e71f` committed before the
+  read). **The laptop reproduced both byte for byte.**
+  - **RBMATE4_FAVHI** (the QB's own RB in the first 4 C rows, only for the expected winner, margin ≥ 3, of an upper-third-
+    total game) **passes his rule**:
+    - vs LIVE +0.009 [−0.031, +0.052] (A +0.005, B +0.013; seats 1.097);
+    - vs RBMATE4 +0.023 (A +0.042, B +0.004; seats 1.152).
+  - **Paper only:** RBMATE4 −0.014; FAV −0.002; NAKED +0.003 (A −0.003); OPPQB −0.007; QB2_SHOOT −0.007.
+  - **QB2_DOGHI is WORSE:** −0.050 [−0.094, −0.000], both draws negative, guard 1 fails.
+  - The §3 situation rule picks FAVHI, so **study 99** runs: 97's frozen code on a fresh draw of the same slates, banks
+    3198–3209 (re-pinned from 3148–3159 after the laptop's scan found 95's sims bases there).
+- **The 200+ rates in 97** (descriptive): P(best ≥ 200) is LIVE 0.118, FAVHI 0.127, RBMATE4 0.144, NAKED 0.137 (all arms
+  0.118–0.144); mean best 175.6–178.2. On the ceiling every arm is within noise.
+- **Production prep, all default off, only for what passed:**
+  - the outside reviewer builds `--mix-rb-mate-scope favhi` only (choices all / favhi; a refused scope turns the RB mate
+    off);
+  - the laptop's wiring is narrowed to it (production/scope-wiring-20261009 @ `2bd5bbff`; no QB2 scope anywhere; 204
+    passed);
+  - then the laptop's W4 check of FAVHI and the reviewer's 6w;
+  - the +10 ownership-cap branch is ready unmerged (production/own10-allow-20261009 @ `93cfe422`) in case study 100
+    picks OWN10.
+- **The night's queue:**
+  - 98 (the suggested mix vs LIVE, a fresh draw; smoke → census → the laptop's re-run → run);
+  - 99 (FAVHI confirmation, a fresh draw);
+  - 100 (the ceiling sweep: LIVE, QBCAP3, OVERLAP3, NOBLOCK, BBHEAVY A1 .37 / A2 .07 / B .42 / C .14, OWN10; endpoint the
+    mean best real lineup; pick rule committed before the run);
+  - 101 (a frozen go/no-go of 100's pick, a fresh draw; its design committed before 100's READ).
+  - Banks: 100 = 3210–3221, 101 = 3222–3233 (full-set clean; text scans running).
+
 ## 2026-10-09 (22:36 CDT) — laptop: how rare 200+ is (the real W1–4 fields) and the descriptive 200+ scan of every harness arm
 
 **The real fields he entered, W1–4** (aggregates from the money gate's private field cache; no usernames, no dollars):
