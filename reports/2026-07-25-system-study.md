@@ -10680,5 +10680,9 @@ secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier fi
 - **In plain words:** putting the quarterback's own running back into 4 of his QB-plus-one lineups leans positive on both sets
   of simulated opponents (same past slates), by about 2 points -- worth a Week-6 look, not yet evidence, and all of the gain came
   from the 2023 slates. Pairing a defense with its own running back adds nothing here and would cost more in real contests.
-- **His decision** (his rule printed, not applied): pending. The laptop took RBMATE4 to him on the evening of 10-09, since it
-  meets the same rule as ONECATCH: Week-5 paper or later. No production flag exists for it. DSTRB8 stays on paper.
+- **His decision** (in the laptop's session, HANDOFF `ad00da5c`; the laptop noted that no production code existed and that the
+  two rules together were untested): **"Try live W5 if built"** -- the option text: "New code tonight, plus a test of it together
+  with one receiver per team and the same checks as before. It goes live at Saturday's 10:28 arming only if all pass,
+  otherwise paper. It would be the fourth change this week." The test together is study 96 (ONECATCH vs ONECATCH +
+  RBMATE4 on the armed construction, his rule); then the production flag, the laptop's W4 check and study 38 amendment 6u.
+  DSTRB8 stays on paper.
