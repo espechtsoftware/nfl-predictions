@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:42 CDT) — OPERATOR: the laptop's L1 FLEX Allen -> Emanuel Wilson (Cleveland 5th vs RB); the private log's sha ee224e1a
+
+- **His question (verbatim):** "cleveland is listed at the 5th best against RB according to DK - any concern?" Our features: CLE allows
+  −7.1 RB fantasy points (adjusted), rushing EPA about average; 2023–25: RBs vs the hardest third 8.2% big games vs 11.4%. Also noted:
+  DK's rank and our adjusted measure disagree sharply in places (Jones vs NO: DK 32nd, ours −11.2). L1 re-solved with Allen banned and
+  L2 held fixed: FLEX Emanuel Wilson (SEA vs SF, DK 23rd, ours +7.6; FP market-adjusted 155.0 vs 155.5, our model 133.6 vs 135.2).
+  **His answer: "Swap to Emanuel Wilson (Recommended)".**
+- **The private log** `~/private/manual-lineups/w05.json` now sha256 **`ee224e1a301ee991f5baee88659072dbfde0f8e38b14ea6e825499255cae829c`**
+  (v4 `a33c100e…` kept; picker `pick_w05_alt4.py` `5c665ddf…`); L1 $49,900, active at the 13:54 pull; FLAGS none.
+
 ## 2026-10-10 (14:38 CDT) — OPERATOR: every per-player data point (DK's opponent rank first) into the weekly Neo4j graph; study list row 104
 
 - **His words (verbatim):** "I'm glad we're collecting that data.  Please make it part of what goes into neo4j each week - along hopefully all relevant data points we get per player from our data sources - so we can learn what data points matter over time."
