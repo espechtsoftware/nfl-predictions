@@ -12,6 +12,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (22:36 CDT) — laptop: how rare 200+ is (the real W1–4 fields) and the descriptive 200+ scan of every harness arm
+
+**The real fields he entered, W1–4** (aggregates from the money gate's private field cache; no usernames, no dollars):
+
+| Week | Field entries | Share ≥ 200 | Share ≥ 180 | Field best | p99.9 | Our best entry |
+|---|---|---|---|---|---|---|
+| W1 | 994,328 | 2.27% | 9.5% | 274.0 | 229.5 | 196.2 |
+| W2 | 311,664 | 0.10% | 1.0% | 235.5 | 200.3 | 156.2 |
+| W3 | 179,599 | 0.25% | 2.4% | 239.8 | 206.0 | 178.9 |
+| W4 | 175,081 | 0.18% | 1.3% | 234.2 | 205.4 | 182.6 |
+
+- In a normal week (W2–4), 200 is a top-0.1–0.25% score, roughly a contest-winning one.
+- 26 lineups at the field's own rate would reach 200 at least once with probability 3–6% (45% in a high-scoring week like
+  W1).
+- The harness's live book reaches it on 13% of 2023–24 slate-banks (best-lineup mean 177.5): 2–4 times the field's rate.
+- None of our 535 real W1–4 entries reached 200 (best 196.2).
+
+**The descriptive scan** of every harness study's arms (~/sNN-panel/run results, the real points of the first 26 rows;
+hypotheses only, no selection):
+- No arm moved P(best ≥ 200) by more than +0.082 over its own reference: BOOK87 in study 87 (but +0.022 in study 88 on other
+  banks); most moved by ±0.03 or less, within the bank-set noise.
+- Top of the list: s87 BOOK87 +0.082; s87 QBTOP87 +0.047; s56 QB2ALL +0.044; s75 WR_FLEX8 +0.038; s90 CAP35_OWN15 +0.035;
+  s82 LOWQB8 +0.035.
+- Full output: the laptop's scratchpad scan200.out, to go with the morning page.
+
+**Reading:** "over 200 fairly regularly" is a contest-winning score most weeks. The overnight work aims at raising the book's
+ceiling (the best lineup's points), with the expectation stated plainly on the morning page.
+
 ## 2026-10-09 (22:33 CDT) — OPERATOR, in the laptop's session: "keep trying different variations of it ... scores over 200 fairly regularly"
 
 **His words, verbatim:** "It seems you're making a lot of progress. You know, you have all night to, to do things. So if you're not seeing really good scores when you run your mix, keep trying different variations of it. You know, my hope is that we can get to a point where you're, you're seeing scores, you know, over 200 fairly regularly. So do what you can."
