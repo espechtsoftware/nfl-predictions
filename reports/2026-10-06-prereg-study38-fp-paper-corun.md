@@ -1650,6 +1650,49 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     `S38_PAPER_BOOM_FILE` merges, after the byte check.
   - **Order:** this amendment; the laptop's ack; the gate pin; the stop rule (all by 16:50, else Week 6's first paper arm).
 
+- **Amendment 6z8 (2026-10-10, before Week 5's lock; no Week-5 outcome exists): the paper arms follow the live salary-band cap.**
+  - **Why.** The operator's LIVE rule for Week 5 (relayed; the laptop's GO 18:16): at most ONE RB / WR / TE with DK salary in
+    [5300, 6000] per book row. Production: `--mix-max-band 1 --mix-band 5300:6000`, a member bound in the row-rule tier, only with
+    the applied row rules. Study 38's rule (6l / 6x): the paper arms follow every live construction setting, or the week is
+    invalid. Also live tonight and already followed without an amendment: the operator's W5 status file as `--dk-status` ("input";
+    the snapshot copies it; provenance by content; production's unavailable_ids builds every arm's pool).
+  - **What changes.**
+    - `--mix-max-band` (int, default 0; 0 or 1) and `--mix-band` ("LO:HI", default None) are classified **"checked"**; 1 needs
+      the live row rules and a valid band (parity otherwise).
+    - When the band cap is live and applied (with the row rules), the paper row rules gain **(sorted(band_ids), "<=", 1) after
+      te1 / low1**, production's row_bounds order. band_ids = the POOL's RB / WR / TE with LO ≤ DK salary ≤ HI (inclusive), after
+      the exclusions. An empty set is vacuous, as in production (no bound).
+    - Every rule-following arm carries it. The low-limit and row-rule arms (LOW5 / LOW8, TE1 / TE1_LOW1) build their own lists,
+      so it is appended to those; TODAY / NORR carry no rules.
+    - **The receipt must agree:** `band_cap_source` / `band_cap` (applied; band_lo / band_hi / max; the sorted id set).
+    - **MIXT_QA0_NOBAND** (exploratory): his live book without the band rule, the paired paper book, built only while it is live;
+      reference MIXT_QA0.
+  - **The smoke** (Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z8/`, script `run.sh` `19b19f919c75`, log
+    `c151b3de9f72`; lab `ece98fa5`; production = `s38-prod-pin` `cbd1c49e`; PYTHONHASHSEED=0; the 6z7 smoke's inputs):
+    - 64 tests pass (rc 0); union-argument mismatches none in both builds.
+    - **Without the band:** all 43 arms of the 6z7 smoke build identical; NOBAND missing ("the live book has no band cap").
+    - **With the band** (the same union arguments plus `--mix-max-band 1 --mix-band 5300:6000`; a dry run, before production's
+      band receipt existed): 18 band players in the pool; every rule-following arm built shows 0 rows with 2+ band players (QA0,
+      HOT1, LOW5, TE1, TOPCAP6, STAR2_8 among them), against 13 for the live book without it; TODAY / NORR 11 / 12, unruled; no
+      fallback row; **NOBAND equals the no-band build's MIXT_QA0, rows and ranks**; MIXT_QA0's FP per dealt lineup 140.57 → 140.12.
+    - **With production's real band receipt** (the laptop's committed band-cap code 9cf72591 on Week 4, `w4-Lcap/receipt.json`
+      `f6610744…`, 18 band ids; `live/run.sh` `3b736f7a8082`, log `3001e04a9968`): **every union check passes (no mismatch), the band receipt
+      agreeing with s38's recomputed set (applied, 5300:6000, max 1, the same 18 ids)**, and all 44 arms equal the dry-run band
+      build's, rows and ranks. `union_classification` on 9cf72591's argparse: no mismatch.
+    - **The laptop's reproduction** (18:25:25–18:31:24, at `ece98fa5`): books.json byte-identical (armedFH `feb2b674`, armedFH-band
+      `3b052b7b`).
+  - **Code:** lab `ece98fa5` (on 6z7's `ebd3b10f`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `7fd938779604bff05b4d7f30c7bbc8e0524755aeb2cc337b8e20563bc4b7323b`;
+    - `scripts/s38_build.py` `a260422c50a0a5b7f9789b71b9a43005e383df12425cabe84928bf5272f57f81` (unchanged);
+    - `scripts/s38_score.py` `10695ce13014779ac453f9dd1a0ef7be5d06fc639f875e783314c7d2df6efb95`;
+    - `scripts/s38_report.py` `20cb381283c2fccebee2488cc02b3619a4b9388f2ede2041abc8ea6942e46baf`;
+    - `tests/test_s38_paper_corun.py` `47b0ad2b8f8e19723d5b1773ccf30e809556f78e6445ee0815dac75497f06392` (64 tests).
+  - **The integrity gate** pins this module sha in place of 6z7's `d9589ae6…`; the production pin moves with FRIDAY_HEAD when the
+    band switch merges (union_reselect changes: the byte check confirms the diff is the band code only, and the gate's
+    `union_classification` passes on it).
+  - **Order:** this amendment; production's band switch reviewed; the live-mode check with its receipt; the laptop's ack; the
+    pins; all before the arm (about 20:45); otherwise the laptop arms late (ARM_LATE=1, the fallback he accepted).
+
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
 - **Study 37** (Addendum 142): the regulars' structure (about 11 QB stacks and a steep player curve, their own tier
