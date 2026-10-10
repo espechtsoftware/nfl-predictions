@@ -1,7 +1,9 @@
-# Preregistration: does DraftKings' opponent rank (OPRK) add anything to Fantasy Points' projection? Week 5, one week (DRAFT 2026-10-10)
+# Preregistration: does DraftKings' opponent rank (OPRK) add anything to Fantasy Points' projection? Week 5, one week (DRAFT 2026-10-10; FROZEN 2026-10-10)
 
-**Status: DRAFT 2026-10-10** by the laptop, before any Week-5 outcome of the main slate exists (Thursday's TB–DAL game is not on the main
-slate). The lab reviewer reviews and freezes it. **One week, descriptive, decides nothing.**
+**Status: FROZEN 2026-10-10 (15:06 CDT)** by the lab reviewer, before any Week-5 outcome of the main slate exists, after the
+laptop's DRAFT, the inputs-path check (the reader refuses before outcomes) and the synthetic-outcome run of the outcome path (§4).
+The reader `reports/2026-10-10-oprk/oprk_accuracy_reader.py` is frozen at sha256 `4782fcb87d67f460d988e0e777dd22d684d8574c9467ec975d15228a5a041ad4`
+(integration `d23b115b`). The text changed at the freeze in this status block only. **One week, descriptive, decides nothing.**
 
 ## 1. Why
 - **The operator, 10-10 afternoon (the laptop's session, verbatim):** "Can we do a quick study using the DK rankings that we have (which
