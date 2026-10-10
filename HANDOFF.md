@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (05:05 CDT) — FAVHI armed (e8a4d0a4 + the test fix b00c5e43 = FRIDAY_HEAD); his question on the arming time; the laptop's test-pipe slip
+
+- **Armed:** RB_MATE_C=4, RB_MATE_SCOPE=favhi (e8a4d0a4).
+  - **The laptop's slip:** e8a4d0a4 was pushed with one arm test failing. The test run was piped through `tail`, so `&&` saw
+    tail's exit status. Fixed by the test commit **b00c5e43** (16 modules: 212 passed, 3 skipped, rc 0).
+  - **FRIDAY_HEAD = b00c5e43** (eb423944): tests count as code for CODECHG. The union / host code is byte-identical to `5faf2f05`;
+    the reviewer moved s38-prod-pin to b00c5e43 after checking that.
+  - The scratch `--check` at eb423944: rc 0; "RB mate in C rows 4 (scope favhi)"; all 6 build units carry it.
+- **His question, verbatim:** "And is the 10:28 arming the latest that can happen?  If we need time for more adjustments id like to use it"
+- **The laptop's answer:**
+  - 10:28 is the latest that keeps the Saturday 10:30 D12800: the canary run with the armed settings (receipt check by 11:00, the
+    s38 integrity gate) and the fallback supply for Sunday's union.
+  - A re-arm Saturday afternoon or evening is possible (the Saturday supply already built; the rule settings act at Sunday's
+    union): clear the armed timers, then re-arm with ARM_LATE=1.
+  - The hard stop is Saturday night, before Sunday's 04:30 early units. No changes on Sunday morning.
+  - **The recommendation:** arm at 10:28 with what is decided, and re-arm Saturday afternoon only if a later study (106 / 107 / 109
+    / 108) passes and he wants it.
+
 ## 2026-10-10 (05:01 CDT) — OPERATOR, in the laptop's session: ADOPT the FAVHI RB rule for Week 5
 
 **His words, verbatim:**
