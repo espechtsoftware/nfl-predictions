@@ -135,8 +135,19 @@ game, or no feature row) is kept** and counted.
     them at once. RZ at 0.1 already touches 17.3;
   - the full path: the reader exited 0 (80 lines; 106 two-draw). Only the census, the exit codes and the line counts were
     read.
-- **The chosen thresholds:** RUSH 13, PASS 32, TGT 4.5; TD and RZ dropped (§3). **The re-smoke at them:** (filled in when done;
-  a gap the lab reviewer names after the study-110 run).
+- **The chosen thresholds:** RUSH 13, PASS 32, TGT 4.5; TD and RZ dropped (§3). **The re-smoke at them (DONE 10-10, 09:13:51–09:15:52 CDT, in
+  the gap the lab reviewer named after its study-38 6z smoke; bank 1406; 2024 W10, 2023 W11, 2023 W3; PYTHONHASHSEED=0; code
+  `e111a611`; `results_bank1406.jsonl` `7a0e78a4…`):**
+  - the unit tests 12 passed;
+  - every arm 26 book rows within the package's caps; row rules 78 of 78 ruled, none infeasible; RB-mate slots 12 of 12 and
+    ONECATCH 42 of 42, none dropped, every arm; spares 15 of 15; **LIVE identical to study 97's RBMATE4_FAVHI on 3 of 3**;
+  - **the arms' own checks at the chosen values pass:** the cheap block never empty (cheap players given the term: RUSH 86,
+    PASS 86, TGT 16 per slate-bank); ONECATCH none dropped; the RB-mate slots complete. The FAVHI pairs left: RUSH 5.0 (min 4),
+    PASS 14.0 (min 3), TGT 20.0 (min 16) — none at 0 on these slates;
+  - LIVE's book rows touched: RUSH 10.0, PASS 10.0, TGT 13.0 of 26; dealt identical to LIVE 0.000 for every arm;
+  - **the 3-slate scan prints RUSH 12 and TGT 4.0 as "differs":** the rule is defined on the 36-slate census (§3: 13 and 4.5);
+    on these 3 slates alone it would pick 12 and 4.0. No change: the binding census on the 36 slates confirms the choices;
+  - the full path: the reader exited 0 (54 lines; 70 two-draw). Only the census, the exit codes and the line counts were read.
 - **Code:** nfl2 `production/s112-usage-floors-20261010` @ `e111a611` (off study 106's frozen `afdfad8c`; the placeholders were
   `24a88fb1`; the chosen thresholds and the two dropped arms at `e111a611`):
   - `experiments/s112_usage_floors.py` `16bbe046…` (pins s106 `45a8d3dd…`)
