@@ -12,6 +12,39 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (07:35 CDT) — study 38 amendment 6y (MIXT_QA0_HOT1 on paper) ACKED; the snapshot change merged (FRIDAY_HEAD 7a20dd74); 110 acked; real-book bindings
+
+- **6y** (the reviewer; lab `10b30f18`; prereg review/s38-6n-20261009 @ da749a01, file sha 3c64491c7527) adds HOT1 on paper,
+  per his relay of the researcher.
+  - **The laptop's ack:** every sha matches (module bd25620d, s38_build e394c7bc, s38_score 85323cd4, s38_report 110d4346,
+    tests 133b9787); 56 tests passed; the re-smoke in its own worktree is BYTE-IDENTICAL (books.json armedFH `f628d154`,
+    armedFH-nohot `75bd15fa`).
+  - HOT1 on W4: 0 rows with 2+ hot vs QA0's 14.
+  - The gate pin moves to module bd25620d / prod 7a20dd74.
+- **The hot file:**
+  - The generator `reports/2026-10-10-paper-hot/paper_hot_flags.py` (`522b851b`; study 65's last_game() at 2.0×; production's
+    player_week_actuals, disclosed in 6y).
+  - The W4 smoke file `~/rehearsals/paper-hot/paper-hot-w04.csv` (`58aa89a4`): 265 players, 24 hot.
+  - **Sunday:** `~/private/paper-corun/hot/w05.csv` from the T-70 union frame, then `S38_PAPER_HOT_FILE` on the snapshot
+    (checklist `7417a2b3`).
+- **s38_snapshot.sh S38_PAPER_HOT_FILE** (`9a47b5ce`, reviewer APPROVED) merged `7a20dd74` = **FRIDAY_HEAD**.
+  - The arm-only commit `4f515f2b`: 96 tests passed (rc 0).
+  - The production checkout is at 4f515f2b.
+  - s38-prod-pin is at 7a20dd74.
+- **Study 110 FROZEN** (the reviewer, 07:13; prereg 9d04b3ca, sha 50a42e44; lab 00ec8dcf; LIVE / LOW0 / QBTOP3 / POPPUNT / HYGIENE
+  / VAL4, FAVHI in all).
+  - **The laptop's ack:** every sha matches; 15 tests; census re-run IDENTICAL.
+  - The run follows the 6y re-smoke.
+- **Real-book bindings on his W4 armed book** (outcome-blind; lineups each rule would change live): LOW0 4; QBTOP3 6; VAL4 17;
+  HYGIENE 1 (the $49,500 floor 0); HOT1 **14** (109's own flag; the laptop's earlier "5" used the research page's looser flag,
+  corrected to both reviewers); RUSH 13 carries 13; PASS 32 attempts 14; TGT 4.5 targets 21.
+- **R14 sweep (in progress):**
+  - Appended so far: dynasty 9, trading guide 17, game hub 140 (a version; 91 duplicates skipped), start-em-sit-em 315, advanced
+    matchups 93, OL / DL 27, coverage shells 25, injury tracker 31 (a version; 38 duplicates).
+  - Refused by rule (a), with no later published date: trade recommendations, streaming D/STs.
+  - Not in scope: three IDP versions and two Thursday TB–DAL pieces (void).
+  - The waiver wire is being re-extracted in two halves (the first helper hit its output limit).
+
 ## 2026-10-10 (07:16 CDT) — OPERATOR (relaying the researcher): HOT1 as a study-38 paper arm in Week 5; VAL4 too if study 110 reads it negative
 
 **His words, in the laptop's session:** "Here's what the researcher said after reviewing recent changes.  Since the harness and the real fields disagree on hot players, a HOT1 paper arm in study 38 would let Week 5's real results arbitrate at no cost to the book. The same applies to VAL4 if study 110 reads it negative."
