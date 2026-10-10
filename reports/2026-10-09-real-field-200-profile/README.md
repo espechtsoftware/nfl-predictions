@@ -33,3 +33,6 @@ rows. Script: `winners_shape.py` (beside this file; it reads ~/private, so it ru
 - Study 102's TAIL_STACK8 (the A1 rows as full game stacks, QB + ≥ 2 own + ≥ 2 opponents, in the top-total games) tests it
   on the harness.
 - Descriptive; outside the harness's 2023–24 slates; no selection is made on it.
+- **It conditions on the outcome** (the reviewer's caveat): 200+ lineups concentrate in the games that went off, so this is what a
+  200+ lineup looks like AFTER the fact. It does not show that BUILDING the shape raises P(200+) before the fact; that is what
+  TAIL_STACK8 tests. The older game-stack reads (studies 26 / 74, older construction) were NO DIFFERENCE.
