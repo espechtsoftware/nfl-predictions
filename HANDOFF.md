@@ -12,6 +12,42 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (19:06 CDT) — OPERATOR: RBMATE4 "Try live W5 if built"; the shape comparison "Lets try them tonight" (study 95)
+
+**1. RBMATE4 (study 94), in the laptop's session.**
+- The laptop's question after 94's READ (reproduced byte for byte; RBMATE4 +2.0, A +1.7, B +2.4, seats ×1.028; 2023 +4.4,
+  2024 −0.4) asked how to use it. It noted that, unlike ONECATCH:
+  - no production code exists;
+  - it was tested without ONECATCH, which is now armed, so the two together are untested.
+- **His answer: "Try live W5 if built".** The option text: "New code tonight, plus a test of it together with one receiver
+  per team and the same checks as before. It goes live at Saturday's 10:28 arming only if all pass, otherwise paper. It
+  would be the fourth change this week."
+- **The plan.** Every step must pass, or RBMATE4 goes to paper and the book arms as it is now.
+  1. **A harness co-run of the two together (study 96)**, on the live construction (package + te1 / low1 + ONECATCH).
+     Arms: ONECATCH (the armed book) vs ONECATCH + RBMATE4. Two draws, his rule (better on both draws, seats ≥ 0.80).
+     Banks after the laptop's scan.
+  2. **A production flag:** the QB's own RB on the first 4 C-cell book solves, in one solve with the row rules and
+     ONECATCH. Parity with lab s94's rb-pair floor, byte for byte; refusals like ONECATCH's; a receipt block.
+  3. **The laptop:** wiring (default off), the W4 real-book check (it binds 3 of the first 4 C rows by the outcome-blind
+     count), merge, FRIDAY_HEAD.
+  4. **Study 38 amendment 6u:** the paper arms follow it; the book without it on paper.
+  5. Armed only if 96 passes his rule and every check passes, before 10:28.
+
+**2. The shape comparison, in the outside reviewer's session (relayed verbatim).**
+- The outside reviewer reported the edge screens: the DVOA-style adjustment is already in our model; the coverage-scheme
+  matchup is null; the route-share reversion is null; the crowd beats our old projection but adds nothing against FP's in
+  W4. He recommended no Week-5 change and "go ahead with production's tests that take away one shape at a time".
+- **His answer: "Lets try them tonight".** The outside reviewer's reading, stated back to him: the shape comparison
+  (study-list row 85: each shape alone, and the mix without one shape at a time, against the live mix). It was queued
+  after 93 / 94 / 6s, and all three are done.
+- **STUDY 95:** lab production/s95-shapes-20261009 @ `2ca40a3f`; prereg review/s95-prereg-20261009 @ `834a7a0f`.
+  - Arms: LIVE; NO_A1 / NO_A2 / NO_B / NO_C; ONLY_A1 / ONLY_A2 / ONLY_B / ONLY_C. Every arm carries the live W5
+    construction including ONECATCH.
+  - Banks 3100–3111, seed 20261140. The laptop's full-set check is clean; the repo text scans are running.
+  - Information for W6. Eight comparisons, so about two false passes are expected.
+- **Machine order (proposed):** 95's census, freeze and run (about 90 min) while 96 and the flag are coded; then 96's run;
+  then the RBMATE4 W4 check and the 6u smoke.
+
 ## 2026-10-09 (18:47 CDT) — laptop: ONECATCH ARMED for W5 (every check passed); studies 94 READ reproduced; 6t acked
 
 His decision (HANDOFF `90e8470c`, "Live W5 if built in time") is carried out; every step passed.
