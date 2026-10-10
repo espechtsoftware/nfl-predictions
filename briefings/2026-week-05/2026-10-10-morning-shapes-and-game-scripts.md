@@ -6,6 +6,9 @@ something is successful, we'll discuss in the morning how we want to use it."
 
 ## The short version
 
+**One decision for you this morning:** whether to turn on the RB version below (the QB's own RB, only for the expected winner of
+a high-scoring game; one setting at arming). **Everything else: keep Week 5 as armed** — no other change held up overnight.
+
 - **Shape percentages (studies 95 and 98): keep today's A1 30% / A2 14% / B 28% / C 28%.** Your mix held up — removing A1, B
   or C was worse on both opponent sets. The rule fixed beforehand suggested a small shift (A1 39% / A2 12% / B 24% / C 24%), but
   on a fresh draw (study 98) it was no better on one of the two opponent sets (+0.6 overall, a coin flip), so it is not
@@ -23,8 +26,9 @@ something is successful, we'll discuss in the morning how we want to use it."
   best of them (overlap 3) did not hold on a fresh draw: **keep your live settings** (studies 100 / 101). Three new
   constructions for the ceiling (study 102): building **every** lineup on upside raised the 200+ rate (15.5% vs 12.3%) but cost
   big wins (×0.86, worse on both sets); the full game stack was worse on everything; the pick (only the 8 cheap-block lineups on
-  upside, +0.2) did not hold on a fresh draw (study 103). **Keep your live settings.** Building every lineup on upside raised
-  the 200+ rate on all four opponent sets (+2–3 slates in 100) and cut big wins on all four (12–14% fewer expected).
+  upside, +0.2) did not hold on a fresh draw (study 103). Building every lineup on upside repeated its trade in study 103: more
+  200+ lineups on all four opponent sets (+2–3 slates in 100), fewer big wins on all four (12–14% fewer expected). **Keep your
+  live settings.**
 - **Already armed for Week 5 (your decisions):** Fantasy Points' projections, the winners' shape mix, the cheap +2 block, the
   35% cap with the ownership limit (+ 15), at most one TE and one player under 3% per lineup, and one receiver per team in the
   QB + 1 lineups. (The cheap +2 block is entered at Saturday's arming, as designed: TERM_ROWS = 8.)
@@ -53,17 +57,17 @@ From your real Weeks 1–4 fields (the laptop's count, HANDOFF `3ac3bfd7`; aggre
 - **Where 200 sits:** in a normal week it is a top-0.1–0.25% score. Our best entry came within 4 points in Week 1 (196.2); none
   of our 535 entries has reached it yet.
 - **Where we start:** in the test model your live book's best lineup reaches 200 on about 11–13% of slates (studies 95–99;
-  already 2–4 times what 26 average field lineups would). **The goal is to push that number up.** So far no tested change has moved it more than about
-  3 in 100 (one reading +8, not repeated), so tonight's last studies aim at the ceiling directly.
+  already 2–4 times what 26 average field lineups would). **The goal is to push that number up.** Before tonight no tested change
+  had moved it more than about 3 in 100 (one reading +8, not repeated), so tonight's last studies aimed at the ceiling directly.
 - **What the 200+ lineups in your fields look like** (the laptop's count over every W1–4 entry, `76f42798`): **almost 1 in 5 has
   two or more players from the QB's opponent** — a full game stack, QB + 2 + 2 — against 1.9% of our entries. It describes
   lineups after the games were played (they cluster in the games that went off, mostly in Week 1), so it does not show that
-  building them helps; **study 102 tests exactly that, building them before the games.**
+  building them helps. **Study 102 tested exactly that, building them before the games: it did not help** (section 3c).
 - More lineups alone don't do it: building 41 rows instead of 26 lifts the chance that the best one reaches 200 only from 13.0%
   to 13.9% (the laptop's count). Which lineups are built matters.
-- **Tonight's two ceiling studies:** five variations of your existing settings (study 100) and three new ways of building for
-  the ceiling (study 102). Each pick is re-run on a fresh draw (studies 101 / 103), and **every suggestion shows its 200+ rate**
-  next to the big-win numbers.
+- **Tonight's two ceiling studies** (sections 3b and 3c): five variations of your existing settings (study 100) and three new
+  ways of building for the ceiling (study 102), each pick re-run on a fresh draw (studies 101 / 103). **Neither pick held.** The
+  one way found to get more 200+ lineups — building every lineup on upside — costs about 12–14% of expected big wins.
 
 ## 1. The shape percentages (study 95)
 
@@ -143,8 +147,8 @@ wins; it also beats the unconditioned RB version on both sets (+2.3). **No QB + 
 lineup's average was 175.6–178.2 across all versions — on the ceiling every version is within the noise.
 
 **On your real Week-4 book** (the laptop's check of the production switch, built tonight and left off): it applied to
-Buffalo, Houston and San Francisco (the expected winners of the high-scoring games), all 4 lineups got their RB, at 0.11 projected
-points per lineup.
+Buffalo, Houston and San Francisco (the expected winners of the high-scoring games), all 4 lineups got their RB, at a cost of 0.11
+projected points per lineup.
 
 **Re-run on a fresh draw of the same past slates (study 99, committed before study 97 was read): it HELD.** Both lines it had
 to pass, passed again:
@@ -169,8 +173,9 @@ shootout QB + 2; study 97 had every version above it): at about 12%, the 200+ ra
 **How much to trust it now:** across the two studies the expected-winner-of-a-high-scoring-game version is ahead of your book on
 all four opponent sets (+0.9 and +3.4) with 10–18% more expected big wins, and ahead of the plain RB version on all four as well.
 Each single interval still crosses zero, the same 36 past slates were used both times (a fresh draw of opponents, not new games),
-and the test model builds on its own projections, not Fantasy Points'. It is the strongest construction result of the night;
-whether to use it is your call.
+and the test model builds on its own projections, not Fantasy Points'. **Of the night's picks (studies 95–103) it is the only one
+that held on a fresh draw** (the suggested mix, overlap 3 and the cheap-block upside version did not); whether to use it is your
+call.
 
 **Notes for reading it (the lab reviewer's 36-slate check):**
 - **The "naked" version changed about 7–8 of your 26 lineups on average, and nothing at all on about half the slates** (your
@@ -223,7 +228,7 @@ of five flatters it). **QB cap 3's
 big-win pass did not repeat either** (−0.4: A +0.3, B −1.0). **Suggested: keep your live settings.**
 
 Nothing to arm from studies 100 / 101. Overlap 3 is planned for the Week-5 paper co-run (the lab reviewer's study 38 amendment,
-its smoke after study 102's run), so Sunday's real results will score it anyway, at no cost to your book.
+pending its tests), so Sunday's real results would score it anyway, at no cost to your book.
 
 **About the cheap +2 block (your Week-5 trial; information, not a test):** studies 100 and 101 also built your book without the
 block. Without it the test model gave ×1.05 (study 100) and ×1.14 (study 101) expected big wins, with big wins −1.0 / +3.5 and
@@ -254,8 +259,8 @@ pick on a fresh draw.
 - **The full game stack in the top-total games was worse on everything,** and its best-lineup loss is clear of zero
   (−1.7, −3.0 to −0.3). The 200+ lineups in your real fields look like that **after** the games; building them **before** the
   games did not help.
-- **The pick, only the cheap-block lineups on upside,** is a tiny gain (+0.2 points on the best lineup, flat on big wins), and
-  study 103 re-checks it on a fresh draw.
+- **The pick, only the cheap-block lineups on upside,** was a tiny gain (+0.2 points on the best lineup, flat on big wins),
+  re-checked by study 103 below.
 - **What earlier tests said** matches: building on upside lost in every earlier test (study 26: −2.7, about 18% fewer expected
   big wins); the full game stack read no difference before (studies 26 and 74).
 
@@ -293,5 +298,5 @@ fixed before study 102 was read).
   zone coverage and route-share bounce-back showed nothing; the crowd's ownership beat OUR old projections in Weeks 1–2 but adds
   nothing against Fantasy Points' (why switching to FP and the ownership limit pointed the right way).
 
-*Every number above is quoted from the studies' frozen readers; the documents behind them: the preregistrations and the study
-system's Addenda for studies 93–97.*
+*Every number above is quoted from the studies' frozen readers (each reproduced byte for byte by the laptop); the documents
+behind them: the preregistrations and the study system's Addenda for studies 93–103.*
