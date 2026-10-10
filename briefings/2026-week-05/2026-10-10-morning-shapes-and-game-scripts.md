@@ -18,7 +18,10 @@ something is successful, we'll discuss in the morning how we want to use it."
 2023–24, scored on their real results, against two separate random sets of opponents, "A" and "B"). **Your rule** for a change:
 better on both opponent sets, without losing more than 20% of expected big wins. **Under no real effect a change passes that
 rule about one time in three or four.** Tonight's two studies make 19 such comparisons (95: 8, 97: 11), all on the same 36
-slates as studies 89–96 — so about five to six passes are expected by chance alone.
+slates as studies 89–96 — so about five to six passes are expected by chance alone, so a pass is a candidate to try, not
+proof. **The test model builds lineups from its own simulated projections; your book uses Fantasy Points', so a gain there may
+not carry over** (studies 91 and 92 showed both directions). The laptop's Week-4 check shows what a change does to your real
+book.
 
 ## 1. The shape percentages (study 95)
 
@@ -69,16 +72,22 @@ with the higher pooled gain.
 
 **Suggested:** [ ]
 
-**Notes for reading it:** the "naked" version changed only about half your book (your book already holds many favored RBs
-away from their QB), so a null there says little; the trailing-side QB version restricts about 11 of the 12 QB + 2 lineups
-(the rest fall back when those few QBs reach their caps) and costs about 0.9 projected points per lineup.
+**Notes for reading it (the lab reviewer's 36-slate check):**
+- **The "naked" version changed about 7–8 of your 26 lineups on average, and nothing at all on about half the slates** (your
+  book already holds favored RBs away from their QB), so a null there says very little.
+- **The trailing-side QB version** moves 11.4 of the 12 QB + 2 lineups (from 3.2) to the trailing side of a high-scoring game, at
+  about **0.7 projected points per lineup**; the rest fall back when those few QBs reach their caps.
+- Lineups shared with your book: QB + 2 from high-scoring games 11.4 of 26 (identical on 8% of slates); the trailing-QB RB
+  version 4.7 (6%); the expected-winner RB versions 5.6 / 5.3 (never identical). Projection per lineup vs your book: expected
+  winner −0.05, expected winner of a high-scoring game −0.12, RB with the trailing QB −0.17, QB + 2 from high-scoring games
+  −0.11.
 
 ## 3. What it would take to use each
 
 - **A new shape mix:** one setting at arming (MIX_QUOTAS), built and tested; any share including 0% or 100%.
-- **An RB version:** the production code exists for the unconditioned one (off); a game-situation version is a small filter on
-  it plus the laptop's Week-4 check — about an hour this morning, before 10:28.
-- **A QB + 2 situation rule:** not built; about the same.
+- **A game-situation version (RB or QB + 2):** if one passes, its switch is built overnight and left OFF. Using it needs one
+  setting, the laptop's Week-4 check, and a paper-arm update from the lab reviewer (without it, the integrity check refuses the
+  new switch). A version that fails is not built.
 
 ## 4. The rest of last evening (for the record)
 
