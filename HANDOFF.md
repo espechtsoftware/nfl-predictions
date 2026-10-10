@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:51 CDT) — OPERATOR: his four hand lineups ENTERED ("ok I locked that in"); logged privately, sha 94209e54
+
+- **His words (verbatim):** "ok I locked that in.  Please log what we've entered". The Texans question before it ("texans haven't score
+  much this season so far") was answered with the numbers (Texans DST 4.8 a game W1–4; defenses vs TEN 6.5; both projections still ahead
+  of Washington's) and no change: L2 keeps the Texans.
+- **Entered** (a $4,444 qualifier outside the plan; the contest id from Monday's entries export): R1 and R2 (the research agent's, as
+  given at 14:03), L1 ($49,900) and L2 ($49,800, the Texans) (the laptop's finals). Logged under `entered` in
+  `~/private/manual-lineups/w05.json`, now sha256 **`94209e54c1f38df150b92322b885a9bdf0ac03294ed9495805f32ce0b5495739`** (v6 `2d162428…`
+  kept). The research pair is assumed entered as given; **Monday: verify all four against the entries export**, including any Sunday
+  swap from the ~11:00 / ~13:40 checks.
+- **Exposure across the four:** Jaylen Warren 4 of 4; Trey McBride and Tre' Harris 3; Meyers, Douglas and the Texans 2 each.
+- Rosters stay out of the repo until after Sunday's lock (then published with Monday's scoring).
+
 ## 2026-10-10 (14:49 CDT) — OPERATOR: the laptop's L2 defense Commanders -> Texans (the leftover $700); the private log's sha 2d162428
 
 - **His words (verbatim):** "we have money for any of the defenses - in L2, do you still prefer the commanders?"; then "I'm good with the

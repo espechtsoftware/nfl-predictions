@@ -314,7 +314,7 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
 - **His four hand-entered lineups: the pre-lock check** (the operator 10-10: "please add to your schedule to check for any concerns
   about those 4 lineups prior to lock. including re-check both stacks against the 10:30 inactives, the Henderson pivot if
   Stevenson sits, and the Arizona roof"; R1 / R2 the research agent's, L1 / L2 the laptop's; private log
-  `~/private/manual-lineups/w05.json` sha 2d162428, L1 and L2 revised 10-10). Read-only, seconds: `cd $HOME/projects/nfl-predictions &&
+  `~/private/manual-lineups/w05.json` sha 94209e54: the final L1 / L2 and the four as ENTERED). Read-only, seconds: `cd $HOME/projects/nfl-predictions &&
   .venv/bin/python ~/private/manual-lineups/check_w05.py` (the newest DK pull of group 154468; every player's status and
   kickoff; flags OUT / IR / D / Q; the Stevenson -> Henderson pivot for R1's RB2 Dobbins, same $5,000; the DET-ARI reminder).
   1. **~11:00 CT** (after the 10:47 T-70 pull and the hourly DK loop): run it; tell him in chat before the 12:00 lock what
@@ -352,7 +352,7 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
 
 ## Monday 10-12
 - **His four hand-entered lineups (R1 / R2 research, L1 / L2 laptop):** publish the rosters (after lock) from
-  `~/private/manual-lineups/w05.json` (check its sha 2d162428 first; v1–v5 kept as w05.v*.json); score each with DK's FPTS; its finish in his $4,444
+  `~/private/manual-lineups/w05.json` (check its sha 94209e54 first; v1–v6 kept as w05.v*.json; verify the four against the entries export); score each with DK's FPTS; its finish in his $4,444
   qualifier (from the entries export) and where it would place in the Millionaire; beside the book's 26 rows and study
   38's paper arms. Information only (four lineups).
 - **FIRST: the cheap +2 block, on vs off, for his Week-6 decision** (the operator 10-07: "Let's keep it on for week 5 and see how it compares for deciding what to do week 6"). From study 38's scoring on the real W5 results:
