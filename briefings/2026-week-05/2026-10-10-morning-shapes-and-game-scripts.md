@@ -42,6 +42,8 @@ From your real Weeks 1–4 fields (the laptop's count, HANDOFF `3ac3bfd7`; aggre
   196.2).
 - In the test model your live book's best lineup reaches 200 on about 13% of slates — already 2–4 times what 26 average field
   lineups would. No change tested so far moved that by more than about 3 points in 100 (one reading +8, not repeated).
+- More lineups don't raise the ceiling by themselves: building 41 rows instead of 26 lifts the chance that the best one reaches
+  200 only from 13.0% to 13.9% (the laptop's count) — which lineups are built matters, not how many.
 - So "200+ regularly" means winning a contest most weeks; tonight's work tries to raise the book's ceiling (its best lineup),
   and **every suggestion below shows its 200+ rate** next to the big-win numbers.
 
