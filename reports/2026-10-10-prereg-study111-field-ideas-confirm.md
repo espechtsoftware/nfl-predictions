@@ -1,7 +1,11 @@
 # Preregistration: study 111, the go / no-go for study 110's pick — the pick vs LIVE on a fresh draw of the same slates (DRAFT 2026-10-10, committed BEFORE study 110 is read)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer, committed and pushed **before study
-110's READ**. The lab reviewer freezes it after study 110's READ; the laptop acks. **Information for his decision.**
+**Status: NOT RUN (2026-10-10): its condition failed — study 110 (READ_s110.txt `763ae1fb`, lab `73efac12`) picked nothing. No
+arm was better than LIVE on P(≥ 1 big seat) on both draws: LOW0 +0.00275 (A −0.00258, B +0.00809; seats 1.109), QBTOP3
+−0.03569 (both worse; seats 0.908; guard 1 fails), POPPUNT +0.01032 (A +0.02276, B −0.00213; seats 1.051), HYGIENE −0.00621
+(both worse; seats 0.999), VAL4 −0.02946 (both worse; seats 0.924); "PICK: none -- keep the live book". Its banks stay unused.
+Recorded under the design fixed before study 110's READ.** Earlier status: DRAFT 2026-10-10 (the times are this file's
+commits) by the outside reviewer, committed and pushed **before study 110's READ**. The lab reviewer freezes it after study 110's READ; the laptop acks. **Information for his decision.**
 
 ## 1. Why
 - Study 110 (`reports/2026-10-10-prereg-study110-field-ideas.md`) picks at most ONE of five rules by his rule. Picking the largest
