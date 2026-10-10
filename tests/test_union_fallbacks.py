@@ -127,3 +127,13 @@ def test_a_house_fallback_drops_the_rb_mate_flag_and_its_value():
     script = f'source "{LIB}"; mix_to_house_args {args}; printf "%s|" "${{OUT_ARGS[@]}}"'
     r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=30)
     assert r.stdout == "--main|pmo_x50|--main-cap-share|0.5|--y|"
+
+
+def test_a_house_fallback_drops_the_a1_full_stack_flag():
+    """Study 102's full game stack (10-10): MIX-only and valueless, so the house fallback drops the bare flag with ONECATCH and
+    the row rules and keeps the next argument."""
+    args = ("--main mix --main-cap-share 0.35 --main-own-cap-delta 15 --main-own-cap-source s --main-own-cap-fallback-share 0.5 "
+            "--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3 --mix-one-catcher-all --mix-a1-full-stack --y")
+    script = f'source "{LIB}"; mix_to_house_args {args}; printf "%s|" "${{OUT_ARGS[@]}}"'
+    r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=30)
+    assert r.stdout == "--main|pmo_x50|--main-cap-share|0.5|--y|"

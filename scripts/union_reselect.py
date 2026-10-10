@@ -631,6 +631,9 @@ def rb_mate_scope_teams(scope: str, t70: pd.DataFrame, pool_ids: set[str]) -> tu
         return None, (f"no (QB, own RB) pair of the expected winners of the high-total games (FAVHI {sorted(teams)}; the high-total "
                       f"cut {sets['high_cut']}) in the pool")
     return teams, None
+# study 102's TAIL_STACK8 (nfl2 experiments/s102_ceiling_build.py tail_rules @ 4bdfafd4): the A1 cell's book solves as a FULL game
+# stack -- bring_back_min 2, MAX_PER_GAME 5 for that solve, the QB's game among the pool's top-4 pre-lock game totals
+FULL_STACK_CELL, FULL_STACK_GAMES, FULL_STACK_BRING_BACK, FULL_STACK_MAX_PER_GAME = "A1", 4, 2, 5
 
 
 def one_catcher_line(block: dict | None) -> str:
@@ -646,6 +649,27 @@ def rb_mate_line(block: dict | None) -> str:
     b = block or {}
     return (f"RB MATE: the QB's own RB on the first {b.get('rows_cap')} C-cell book rows ({b.get('pairs')} pairs); slots "
             f"{len(b.get('slots') or [])}, ruled {len(b.get('ruled') or [])}, re-solved without it {len(b.get('resolved_without') or [])}")
+
+
+def full_stack_games(t70: pd.DataFrame, pool_ids: set[str], n: int) -> list[str]:
+    """Study 102's top games: study 73's game_order (nfl2 experiments/s73_topg_qb1.py, the same rule, test-pinned) on the
+    buildable pool -- the game ids by the median pre-lock game_total, highest first (ties: game id), over the games with a QB
+    in the pool; the first n."""
+    fr_pool = t70[t70.id.astype(str).isin({str(i) for i in pool_ids})]
+    q = fr_pool[fr_pool.pos.astype(str) == "QB"]
+    g = (fr_pool[fr_pool.game_id.astype(str).isin(set(q.game_id.astype(str)))]
+         .assign(_t=lambda d: pd.to_numeric(d.game_total, errors="coerce"), _g=lambda d: d.game_id.astype(str))
+         .groupby("_g")._t.median().reset_index().sort_values(["_t", "_g"], ascending=[False, True]))
+    return list(g._g)[:int(n)]
+
+
+def full_stack_line(block: dict | None) -> str:
+    """Study 102's one printed line."""
+    b = block or {}
+    return (f"A1 FULL STACK: the A1 book rows as QB + 2 + {b.get('bring_back_min')} opponents, up to {b.get('max_per_game')} from "
+            f"one game, in the top games {b.get('games')} ({b.get('banned_qbs')} QBs outside them banned on those solves); ruled "
+            f"{len(b.get('ruled') or [])}, re-solved without it {len(b.get('resolved_without') or [])}; A1 book rows "
+            f"{b.get('a1_rows_book')}, full stacks {b.get('full_rows_book')}")
 
 
 def row_rule_sets(source: Path, t70: pd.DataFrame, exclude: set[str], low_pct: float) -> tuple[set[str], set[str], dict]:
@@ -700,7 +724,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
              row_bounds: list | None = None,
              one_catcher: bool = False,
              rb_mate_c: int = 0,
-             rb_mate_qb_teams: set[str] | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             rb_mate_qb_teams: set[str] | None = None,
+             a1_full_stack: bool = False) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -764,7 +789,15 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     weight 1, floor 1, in ONE call with row_bounds and the one-catcher bounds; infeasible -> the same solve without the floor
     (recorded), then ONECATCH's own tiers (nfl2 experiments/s96_onecatch_rbmate.py combo_rules @ 3cf3e8eb). Needs one_catcher.
     rb_mate_qb_teams (study 97's RBMATE4_FAVHI scope; default None = every pair): the floor's pairs only for QBs of these teams
-    (nfl2 experiments/s97_game_script.py rm_pairs_for @ af07583e); the caller passes rb_mate_scope_teams' FAVHI set."""
+    (nfl2 experiments/s97_game_script.py rm_pairs_for @ af07583e); the caller passes rb_mate_scope_teams' FAVHI set.
+    a1_full_stack (study 102's TAIL_STACK8; the operator 10-09 "It sounds like you're giving up on the high scores. That's not
+    what I want."; default False = off, byte for byte today's book): every A1 solve while j < k (the live and the term block;
+    spares never) is first tried as a FULL game stack -- the A1 rules with bring_back_min 2, MAX_PER_GAME 5 for that solve, and
+    the QBs outside the pool's top-4 pre-lock games (full_stack_games) banned -- in ONE call with the solve's other rules;
+    infeasible -> the same solve as before, recorded (cell, j). It sits INSIDE every row-rule tier, so a tier that cannot be
+    built drops the full stack first: [rules + full] -> [rules] -> [full] -> [none] (the lab's tail_rules entered before 93's
+    lead_rules: nfl2 experiments/s102_ceiling_build.py @ 4bdfafd4). Needs the MIX portfolio, fill rr, no cover, no
+    half-and-half, no study-71 floor and the frame's game_total."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
@@ -881,6 +914,19 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             team_of = {str(p["id"]): str(p["team"]) for p in pool}
             rm_pairs = {(q, r): w for (q, r), w in rm_pairs.items() if team_of.get(q) in rb_mate_qb_teams}
 
+    # study 102's TAIL_STACK8 (default off: every solve below byte for byte as before): an A1 book solve first tries the full
+    # game stack (bring_back_min 2, MAX_PER_GAME 5, the QBs outside the top-4 games banned), then the solve as before.
+    fs_state: dict = {"ruled": [], "plain": [], "rows": [], "pending": None}
+    fs_games: list[str] = []
+    fs_bans: frozenset = frozenset()
+    if a1_full_stack:
+        if portfolio != "mix" or fill != "rr" or cover_games or rs_rows or bb_cells or "game_total" not in t70.columns:
+            raise ValueError(f"a1_full_stack needs the MIX portfolio, fill rr, no cover, no half-and-half, no study-71 floor and "
+                             f"the frame's game_total (got portfolio {portfolio}, fill {fill}, cover {cover_games}, rs {rs_rows}, "
+                             f"top-WR cells {list(bb_cells)}, game_total {'game_total' in t70.columns})")
+        fs_games = full_stack_games(t70, {p["id"] for p in pool}, FULL_STACK_GAMES)
+        fs_bans = frozenset(p["id"] for p in pool if p["pos"] == "QB" and str(p["game_id"]) not in set(fs_games))
+
     def _peek(name: str, extra_bans: frozenset = frozenset(), use_term: bool = False):
         """Study 91's row rules around _solve (absent when row_bounds is None): on a book solve (j < k) the bounds ride as
         member_bounds, one call; infeasible -> the same solve without them, recorded. Called inside peek's ownership cap."""
@@ -929,6 +975,14 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             kw["member_bounds"] = member_bounds
         if floor:                                              # study 94's RBMATE floor (absent when off; never with study 71)
             kw.update(interaction_floor_weights=floor, interaction_floor=1.0)
+        if a1_full_stack and name == FULL_STACK_CELL and len(prev) < k:   # study 102's full game stack first (absent when off)
+            fkw = dict(kw, stack=StackRules(**dict(rules, bring_back_min=FULL_STACK_BRING_BACK)),
+                       env=dict(env, MAX_PER_GAME=str(FULL_STACK_MAX_PER_GAME)), bans=(set(bans) | fs_bans) or None)
+            lu = optimize(use_pool, **fkw)
+            if lu is not None:
+                fs_state["ruled"].append((name, len(prev))); fs_state["pending"] = name
+                return [str(p["id"]) for p in lu.players], float(sum(p.get(use_obj, p["proj"]) for p in lu.players)), None
+            fs_state["plain"].append((name, len(prev)))          # infeasible: the solve as before
         fb = None
         if name in bb_cells and floor_open():
             lu = optimize(use_pool, interaction_floor_weights=bb_pairs, interaction_floor=1.0, **kw) if bb_pairs else None
@@ -953,6 +1007,11 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             rm_state["rows"].append({"cell": rm_state["pending"], "commit_index": len(prev) - 1, "row": row,
                                      "row_sha256": hashlib.sha256(",".join(row).encode()).hexdigest()})
             rm_state["pending"] = None
+        if fs_state["pending"] is not None:                    # study 102's record (nothing when off): the audit holds these
+            row = sorted(str(i) for i in ids)                  # rows, by identity, to the full stack's per-game limit
+            fs_state["rows"].append({"cell": fs_state["pending"], "commit_index": len(prev) - 1, "row": row,
+                                     "row_sha256": hashlib.sha256(",".join(row).encode()).hexdigest()})
+            fs_state["pending"] = None
         if oc_state["pending"] is not None:                    # study 93's record (nothing when off)
             row = sorted(str(i) for i in ids)
             oc_state["rows"].append({"cell": oc_state["pending"], "commit_index": len(prev) - 1, "row": row,
@@ -1217,6 +1276,24 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                            "qb_teams": None if rb_mate_qb_teams is None else sorted(rb_mate_qb_teams),
                            "slots": [list(x) for x in rm_state["used"]], "ruled": [list(x) for x in rm_state["ruled"]],
                            "resolved_without": [list(x) for x in rm_state["plain"]], "ruled_rows": rm_state["rows"]}
+    if a1_full_stack:                                          # study 102's receipt block (absent when off)
+        if fs_state["pending"] is not None or len(fs_state["rows"]) != len(fs_state["ruled"]):
+            raise ValueError(f"A1 FULL STACK RECORD BROKEN: {len(fs_state['ruled'])} ruled solves, {len(fs_state['rows'])} committed, "
+                             f"pending {fs_state['pending']}")
+        fs_pos = {p["id"]: p["pos"] for p in pool}; fs_team = {p["id"]: str(p["team"]) for p in pool}
+        fs_game = {p["id"]: str(p["game_id"]) for p in pool}
+
+        def full_row(r) -> bool:
+            q = next((i for i in r if fs_pos.get(i) == "QB"), None)
+            return q is not None and fs_game[q] in set(fs_games) and sum(
+                1 for i in r if fs_pos.get(i) in ("RB", "WR", "TE") and fs_game[i] == fs_game[q] and fs_team[i] != fs_team[q]
+            ) >= FULL_STACK_BRING_BACK
+        meta["a1_full_stack"] = {"cell": FULL_STACK_CELL, "games": list(fs_games), "banned_qbs": len(fs_bans),
+                                 "bring_back_min": FULL_STACK_BRING_BACK, "max_per_game": FULL_STACK_MAX_PER_GAME,
+                                 "ruled": [list(x) for x in fs_state["ruled"]], "resolved_without": [list(x) for x in fs_state["plain"]],
+                                 "ruled_rows": fs_state["rows"],
+                                 "a1_rows_book": sum(1 for cl in cell_of if cl == FULL_STACK_CELL),
+                                 "full_rows_book": sum(1 for r, cl in zip(book, cell_of) if cl == FULL_STACK_CELL and full_row(r))}
     if own_cap:                                                # study 89's receipt block (absent when off)
         meta["own_cap"] = {"players": len(own_cap), "ruled_solves": len(own_state["ruled"]),
                            "resolved_without": [list(x) for x in own_state["plain"]],
@@ -1493,6 +1570,12 @@ def main(argv: list[str] | None = None) -> int:
                     help="study 97 (default all = every (QB, own RB) pair, today's --mix-rb-mate-c): favhi = only the QBs of the "
                          "expected winners (margin = 2 x implied - total >= 3) of the slate's high-total games (>= its 2/3 "
                          "quantile); needs --mix-rb-mate-c 4; a refused scope (no lines, no such pair) turns the RB mate OFF, LOUDLY")
+    ap.add_argument("--mix-a1-full-stack", action="store_true",
+                    help="study 102's TAIL_STACK8 (default off): every A1 BOOK solve, the live and the term block alike, is first "
+                         "tried as a FULL game stack -- QB + 2 + >= 2 opponents, up to 5 from one game, the QB's game among the "
+                         "pool's top-4 pre-lock totals -- in one solve with the row rules; infeasible -> the solve as before, "
+                         "recorded. On his armed version only (needs --mix-one-catcher-all and --max-per-game 4); LOUDLY off "
+                         "whenever ONECATCH is not applied or the frame has no game_total")
     ap.add_argument("--mix-one-catcher-all", action="store_true",
                     help="study 93's ONECATCH (default off): every B / C (QB + 1) BOOK solve, the live and the term block alike, "
                          "holds at most ONE WR / TE of every team, in one solve with the row rules; infeasible -> re-solved with "
@@ -1601,6 +1684,10 @@ def main(argv: list[str] | None = None) -> int:
                          "--mix-rs-rows / --mix-bring-back-top-wr / --winner-select")
     if a.mix_rb_mate_scope != "all" and a.mix_rb_mate_c != 4:
         raise SystemExit(f"--mix-rb-mate-scope {a.mix_rb_mate_scope} needs --mix-rb-mate-c 4 (study 97 read the scope on the RB mate)")
+    if a.mix_a1_full_stack and (not a.mix_one_catcher_all or a.max_per_game != 4):
+        raise SystemExit("--mix-a1-full-stack is defined on his armed version only (study 102): with --mix-one-catcher-all (and so "
+                         "--main mix --mix-portfolio mix --mix-fill rr, the row rules, no cover / half-and-half / top-WR floor) and "
+                         "--max-per-game 4 (the full stack's solves allow 5)")
     if a.mix_rb_mate_c not in (0, 4) or (a.mix_rb_mate_c and not a.mix_one_catcher_all):
         raise SystemExit("--mix-rb-mate-c takes 0 or 4 (study 96's tested value) and needs --mix-one-catcher-all (it was read only on "
                          "top of ONECATCH)")
@@ -1821,6 +1908,14 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"\n!!! RB MATE SCOPE NOT APPLIED: {why} -- the book is built without the RB mate\n", flush=True)
             else:
                 rm_meta = {"applied": True, "scope": a.mix_rb_mate_scope, "qb_teams": sorted(rm_teams)}
+        fs_on, fs_meta = False, None
+        if a.mix_a1_full_stack:                              # study 102: only with the applied ONECATCH and game totals, else LOUDLY off
+            why = ("ONECATCH is not applied" if not oc_on else
+                   "the T-70 frame has no game_total (the top games)" if "game_total" not in fr.columns else None)
+            fs_on = why is None
+            fs_meta = {"applied": True} if fs_on else {"applied": False, "not_applied": why}
+            if not fs_on:
+                print(f"\n!!! A1 FULL STACK NOT APPLIED: {why} -- the book is built without it\n", flush=True)
         dcap = max(1, int(a.main_dst_cap * a.entries)) if a.main_dst_cap else None
         qcap = a.main_qb_cap_rows
         bonus, own_meta = own_bonus(a.main_own_source, fr, excl, a.main_own_tilt, a.main_own_min_coverage) if a.main_own_tilt else ({}, {})
@@ -1852,7 +1947,8 @@ def main(argv: list[str] | None = None) -> int:
                                                                        cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
                                                                        bring_back_top_wr_rows=bb_rows, own_cap=own_cap,
                                                                        row_bounds=row_bounds, one_catcher=oc_on, rb_mate_c=rm_c,
-                                                                       rb_mate_qb_teams=rm_teams)
+                                                                       rb_mate_qb_teams=rm_teams,
+                                                                       a1_full_stack=fs_on)
             if own_cap_meta is not None:
                 mix_meta["own_cap_source"] = own_cap_meta
             if row_meta is not None:
@@ -1865,6 +1961,10 @@ def main(argv: list[str] | None = None) -> int:
                 mix_meta["rb_mate_source"] = rm_meta
             if rm_c:
                 print(rb_mate_line(mix_meta.get("rb_mate")), flush=True)
+            if fs_meta is not None:
+                mix_meta["a1_full_stack_source"] = fs_meta
+            if fs_on:
+                print(full_stack_line(mix_meta.get("a1_full_stack")), flush=True)
             if bb_cells:
                 print(bring_back_top_wr_line(mix_meta.get("bring_back_top_wr")), flush=True)
             if a.term_block_rows:
@@ -1909,12 +2009,15 @@ def main(argv: list[str] | None = None) -> int:
                                                                       cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
                                                                       bring_back_top_wr_rows=bb_rows, own_cap=own_cap,
                                                                       row_bounds=row_bounds, one_catcher=oc_on, rb_mate_c=rm_c,
-                                                                       rb_mate_qb_teams=rm_teams)
+                                                                       rb_mate_qb_teams=rm_teams,
+                                                                       a1_full_stack=fs_on)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
                 if oc_on:
                     print("(the ownership-term book) " + one_catcher_line(own_mix.get("one_catcher")), flush=True)
                 if rm_c:
                     print("(the ownership-term book) " + rb_mate_line(own_mix.get("rb_mate")), flush=True)
+                if fs_on:
+                    print("(the ownership-term book) " + full_stack_line(own_mix.get("a1_full_stack")), flush=True)
                 if bb_cells:
                     print("(the ownership-term book) " + bring_back_top_wr_line(own_mix.get("bring_back_top_wr")), flush=True)
             else:

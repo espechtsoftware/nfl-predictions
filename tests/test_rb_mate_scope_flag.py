@@ -178,7 +178,7 @@ def test_the_cli_and_the_refusal_text():
         ur.main(base + own + armed + ["--mix-rb-mate-c", "4", "--mix-rb-mate-scope", "fav"])
     src = (ROOT / "scripts" / "union_reselect.py").read_text()
     assert "!!! RB MATE SCOPE NOT APPLIED: {why} -- the book is built without the RB mate" in src
-    assert src.count("rb_mate_qb_teams=rm_teams)") == 2 and 'rm_c, rm_teams = 0, None' in src
+    assert src.count("rb_mate_qb_teams=rm_teams,") == 2 and 'rm_c, rm_teams = 0, None' in src
 
 
 def test_a_house_fallback_drops_the_scope_and_its_value():

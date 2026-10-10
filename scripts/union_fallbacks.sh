@@ -29,6 +29,7 @@ mix_to_house_args() {
       --mix-one-catcher-all) ;;                                       # study 93's ONECATCH (10-09): MIX-only, no value
       --mix-rb-mate-c) skip=1 ;;                                      # study 96's RB mate (10-09): MIX-only, with its value
       --mix-rb-mate-scope) skip=1 ;;                                  # study 97's RB-mate scope (10-09): MIX-only, with its value
+      --mix-a1-full-stack) ;;                                         # study 102's full game stack (10-10): MIX-only, no value
       --main-own-cap-fallback-share) take_fb=1; own_cap=1 ;;
       --priority-order) ;;
       *) OUT_ARGS+=("$x") ;;

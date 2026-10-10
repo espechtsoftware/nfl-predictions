@@ -37,6 +37,10 @@ The checks (each named in the output):
                              holding at most ONE WR / TE of every team; off (or declared and not applied) -> nothing to check
   rb_mate                    --mix-rb-mate-c (study 96): every ruled row named by the receipt (by identity) is a main row holding
                              its QB and an RB of the QB's team; off (or declared and not applied) -> nothing to check
+  a1_full_stack              --mix-a1-full-stack (study 102): every ruled row named by the receipt (by identity) is a main A1 row
+                             holding its QB + >= 2 own WR / TE + >= 2 opponent RB / WR / TE, the QB's game among the declared top
+                             games, at most the declared per-game limit (5) from one game; ONLY these rows are held to that
+                             limit in max_per_game (every other candidate keeps the build's cap); off -> nothing to check
 """
 from __future__ import annotations
 
@@ -161,6 +165,13 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
     # (source mix / mix_control) without a known cell tag FAILS. Every other row keeps the house check below, unchanged.
     mix_rows_seen = 0
     field_rows = 0
+    # study 102's --mix-a1-full-stack: the receipt's ruled rows (by identity, the plain and the ownership-term book alike) are
+    # held to the full stack's declared per-game limit; every other candidate keeps the build's cap.
+    _fsx = (((receipt.get("config") or {}).get("union") or {}).get("mix") or {}).get("mix") or {}
+    fs_blocks = [b for b in (_fsx.get("a1_full_stack"), (_fsx.get("with_term") or {}).get("a1_full_stack")) if b]
+    fs_rows_all = {frozenset(str(i) for i in f.get("row") or []) for b in fs_blocks for f in (b.get("ruled_rows") or [])}
+    fs_cap = max([int(b.get("max_per_game") or 0) for b in fs_blocks] or [0])
+    fs_rows_seen = 0
     from nfl_dfs.inference.mix_shapes import bring_back_top_wr_rule, rule_applies      # study 71 (off: {}, (), set(), None)
     bb_top, bb_cells, bb_exempt, bb_required = bring_back_top_wr_rule(receipt)
     bb_top = {t: i for t, i in bb_top.items() if not ((i in proj and proj[i] < 1.0) or status.get(i, "") in OUT_STATUSES)}
@@ -169,6 +180,8 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
         is_field = src == "field" and bool(fmeta)
         field_rows += is_field
         row_cap = fmeta.get("max_game", cap) if is_field else cap
+        if not is_field and cap is not None and fs_rows_all and frozenset(ps) in fs_rows_all:
+            row_cap = max(int(cap), fs_cap); fs_rows_seen += 1
         house = (fmeta.get("house_rules_applied", True) is not False) if is_field else True
         row_min_salary = min_salary if house else 48_500
         counts: dict[str, int] = {}
@@ -210,6 +223,8 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
             bad_salary += 1
     fnote = (f"; {field_rows} field-sleeve rows held to their declared limit {fmeta.get('max_game')} per game"
              f"{'' if fmeta.get('house_rules_applied', True) is not False else ' without the house stack'}") if field_rows else ""
+    if fs_rows_seen:
+        fnote += f"; {fs_rows_seen} A1 full-stack rows (by identity) held to their declared limit {fs_cap} per game"
     record("max_per_game", (cap is None) or over_cap == 0,
            f"cap {cap}: {over_cap} candidates over it; max players from one game seen {max_seen}{fnote}",
            cap=cap, over_cap=over_cap, max_seen=max_seen, field_rows=int(field_rows))
@@ -451,6 +466,38 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
         detail = "--mix-rb-mate-c off"
     record("rb_mate", (rm_in_main == rm_want == len(rm_rows) and not rm_bad) if rm else True, detail,
            ruled=rm_want, resolved_without=len((rm or {}).get("resolved_without") or []), in_main=rm_in_main, without_own_rb=len(rm_bad))
+
+    # ---- a1_full_stack (study 102's --mix-a1-full-stack): every ruled row named by the receipt (ruled_rows, by identity) is a
+    # main row holding its QB + >= 2 own WR / TE + >= 2 opponent RB / WR / TE, the QB's game among the declared top games, at
+    # most the declared per-game limit from one game; nothing when off or declared and not applied (the host alerts).
+    fs = (_mx.get("with_term") or {}).get("a1_full_stack") or _mx.get("a1_full_stack")
+    fs_src = _mx.get("a1_full_stack_source") or {}
+    fs_rows = [frozenset(str(i) for i in f.get("row") or []) for f in ((fs or {}).get("ruled_rows") or [])]
+    fs_in_main = sum(1 for r in fs_rows if r in main_sets)
+    fs_games = {str(g) for g in ((fs or {}).get("games") or [])}
+
+    def full_stack(r) -> bool:
+        qbs = [i for i in r if pos.get(i) == "QB"]
+        if len(qbs) != 1:
+            return False
+        q = qbs[0]
+        mates = sum(1 for i in r if pos.get(i) in ("WR", "TE") and team.get(i) == team.get(q))
+        opps = sum(1 for i in r if pos.get(i) in ("RB", "WR", "TE") and team.get(i) == opp.get(q))
+        most = max(Counter(game.get(i, "?") for i in r).values(), default=0)
+        return (mates >= 2 and opps >= int((fs or {}).get("bring_back_min") or 2) and game.get(q) in fs_games
+                and most <= int((fs or {}).get("max_per_game") or 5))
+    fs_bad = [sorted(r) for r in fs_rows if not full_stack(r)]
+    fs_want = len((fs or {}).get("ruled") or [])
+    if fs:
+        detail = (f"--mix-a1-full-stack: games {sorted(fs_games)}, ruled {fs_want}, re-solved without it "
+                  f"{len(fs.get('resolved_without') or [])}; {fs_in_main} of {len(fs_rows)} ruled rows in the main book; {len(fs_bad)} "
+                  f"not a full stack in a top game within {fs.get('max_per_game')} per game" + (f" (e.g. {fs_bad[0][:4]})" if fs_bad else ""))
+    elif fs_src.get("applied") is False:
+        detail = f"--mix-a1-full-stack declared and NOT APPLIED ({fs_src.get('not_applied')}): nothing to check"
+    else:
+        detail = "--mix-a1-full-stack off"
+    record("a1_full_stack", (fs_in_main == fs_want == len(fs_rows) and not fs_bad) if fs else True, detail,
+           ruled=fs_want, resolved_without=len((fs or {}).get("resolved_without") or []), in_main=fs_in_main, not_full=len(fs_bad))
 
     failed = [c["check"] for c in checks if not c["ok"]]
     return {"run": str(run), "layout": layout, "checks": checks, "failed": failed, "ok": not failed}
