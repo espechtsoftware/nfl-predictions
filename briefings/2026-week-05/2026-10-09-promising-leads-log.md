@@ -204,7 +204,8 @@ reviewer and updated as each study is read.
   The stricter **2.0** read **−1.4**, worse on both sets. Both cost far less than the carries floor (−4.6), as the pass-catcher
   reasoning expected.
 - **Caution:** the idea came from these same past slates' real scores, so even a pass would have been "consistent", not proof.
-- **On your real book:** it would change about 5 of 26 lineups (the harness's dose); production's switch exists, default off.
+- **Its size:** in the test model it changed about 5 of 26 lineups; its effect on your real book has not been checked. The
+  laptop has built a production switch, default off (not yet merged).
 - **Next, if ever:** a paper version on a live week's real results is the fair test.
 
 ## Tested and not promising (closed unless you say otherwise)
