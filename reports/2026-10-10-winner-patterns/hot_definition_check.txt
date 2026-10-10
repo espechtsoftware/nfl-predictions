@@ -1,0 +1,20 @@
+W2: frame 418; hot players MINE 28 LAB 26; both 18; mine-only 10; lab-only 8
+W3: frame 439; hot players MINE 23 LAB 20; both 15; mine-only 8; lab-only 5
+W4: frame 316; hot players MINE 15 LAB 24; both 12; mine-only 3; lab-only 12
+
+=== group means per lineup (field / top 1% / top 0.1%) ===
+W2    field: n 172,330  hot MINE 1.57 (share>=1 0.786)  hot LAB 1.80 (share>=1 0.860)
+W2   top 1%: n   1,729  hot MINE 0.78 (share>=1 0.548)  hot LAB 1.08 (share>=1 0.681)
+W2 top 0.1%: n     172  hot MINE 0.65 (share>=1 0.459)  hot LAB 0.98 (share>=1 0.651)
+W3    field: n 161,502  hot MINE 1.40 (share>=1 0.792)  hot LAB 1.24 (share>=1 0.746)
+W3   top 1%: n   1,620  hot MINE 0.79 (share>=1 0.577)  hot LAB 0.77 (share>=1 0.565)
+W3 top 0.1%: n     161  hot MINE 0.85 (share>=1 0.621)  hot LAB 0.82 (share>=1 0.615)
+W4    field: n 160,039  hot MINE 0.87 (share>=1 0.615)  hot LAB 1.59 (share>=1 0.843)
+W4   top 1%: n   1,613  hot MINE 0.40 (share>=1 0.347)  hot LAB 0.81 (share>=1 0.619)
+W4 top 0.1%: n     161  hot MINE 0.30 (share>=1 0.267)  hot LAB 0.60 (share>=1 0.497)
+
+=== within-user MH odds, users with 20+ entries: '1+ hot vs 0' ===
+W2: MINE top1/top4/top10 (np.float64(0.46), np.float64(0.47), np.float64(0.51)) | LAB (np.float64(0.51), np.float64(0.51), np.float64(0.56))  (n 56,103)
+W3: MINE top1/top4/top10 (np.float64(0.57), np.float64(0.58), np.float64(0.63)) | LAB (np.float64(0.7), np.float64(0.72), np.float64(0.77))  (n 55,169)
+W4: MINE top1/top4/top10 (np.float64(0.33), np.float64(0.38), np.float64(0.46)) | LAB (np.float64(0.33), np.float64(0.37), np.float64(0.45))  (n 56,467)
+done

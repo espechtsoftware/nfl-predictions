@@ -54,6 +54,26 @@
   10:40 / 10:46 FP projections, 10:50 T-70.
 - 09:15 FP ownership.
 - After the T-70 union: the DvP / factor / hot files, then the s38 snapshot before 12:00 (checklist `7417a2b3`).
+## 2026-10-10 (07:40 CDT) — outside model: a second screen of the W1–4 fields (ownership fixed; hot by position; the regulars' satellite dealing) and the additional suggestions (docs only; nothing armed)
+
+- **His request:** "do a little more research and see if there are additional suggestions". **The page:**
+  `briefings/2026-week-05/2026-10-10-additional-suggestions.md` (+ index row); the screen's script and tables in
+  `reports/2026-10-10-winner-patterns/` (`winner_patterns2.*`, `hot_definition_check.*`). Branch `review/additional-suggestions-20261010`,
+  docs only, off origin's head. FRIDAY_HEAD untouched.
+- **New testable rule:** the recency rule on WR / TE only (HOT_WRTE1 / FADE2_WRTE). In the fields a hot WR or TE cut the odds of a
+  top-1% finish to 0.37 / 0.70 / 0.40 (W2–4; his contests 0.38) while hot RBs and QBs were mixed; study 109 faded every position.
+  The Sunday book (W4, 109's flag) holds 1.08 hot WR/TE per lineup (22 of 26 lineups; 6 with two). A 109 follow-up with a position
+  mask + a paper arm beside 6y's HOT1.
+- **Already right, no change:** low-owned players. The top 1% carry fewer under-5%-owned players than the field in every week
+  (3+ such players: odds 0.28–0.48 every week; his contests' top 3 0.95 vs field 1.61); the Sunday book 0.69 per lineup under FP
+  ownership (one lineup with 3+). Our W1–3 entered books were at 2.2–4.0.
+- **Information:** chalk flips by week (top 1% chalkier than the field in W1–3, far less in W4) → no chalk floor, support for
+  row 93; duplication is not our problem (ours 3.3% / 0% copied vs the field 8.5% / 2.1%); the regulars' satellite lineups sit
+  at the median of their own book by projection and are their most unique (8,170 lineups, 172 users) → the head layout's premise
+  is not theirs (the harness says the deal does not matter); the QB-rank cap withdrawn (no clean rule by band); the hot flag's
+  definition does not explain 109's read (the W2–4 pattern holds under 109's exact flag: 0.51 / 0.70 / 0.33).
+- **Low priority:** per-row randomization (JIT10 / JIT15) — never run on the MIX book; the Gumbel generator read null (Add. 90).
+- Merge: `git merge --no-ff review/additional-suggestions-20261010` (docs + the reports folder).
 
 ## 2026-10-10 (07:35 CDT) — study 38 amendment 6y (MIXT_QA0_HOT1 on paper) ACKED; the snapshot change merged (FRIDAY_HEAD 7a20dd74); 110 acked; real-book bindings
 
