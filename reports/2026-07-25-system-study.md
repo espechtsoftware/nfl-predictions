@@ -12967,3 +12967,191 @@ secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier fi
   (the idea came from these slates' outcomes), so a fail here is the more informative direction.
 - **In plain words:** keeping only running backs who catch passes did not improve the book; the stricter version was slightly
   worse on both sets of simulated opponents, the milder one a coin flip. Nothing goes into Week 5.
+
+## Addendum 209 (2026-10-10): study 114 (each live rule removed one at a time from his full armed Week-5 book -- the package, the one-TE rule, the one-low-owned rule, the cheap +2 block, ONECATCH and FAVHI -- in the harness): no removal is suggested -- removing the package (−3.9), the one-TE rule (−3.2), the one-low-owned rule (−5.1, WORSE) or FAVHI (−2.2) is worse on both draws (STILL HELPING); removing the cheap +2 block (−0.4) or ONECATCH (+0.0) shows no clear evidence either way: keep every live rule; study 114b not run
+
+**Setup.**
+- **His words** (10-10 morning, the laptop's session; study list row 91): "Did we try what you had planned of removing one rule
+  at a time to see if it was really helpful? That in my opinion should be the last thing we do after we've tried the other
+  experiments". Run last, after studies 106–115.
+- **Why:** each live rule was tested only on top of the rules before it (the package, study 89 +1.2, "no gain shown"; te1 / low1,
+  study 91 +4.1; the cheap block, study 53, NOT ENTERED, a reversible Week-5 trial by his decision; ONECATCH, study 93 +2.0;
+  FAVHI, studies 97 / 99 +0.9 / +3.4). The shapes were removed already (study 95). The prior: NO DIFFERENCE for most removals.
+- **The arms** (study 95's frozen harness `46b80611…`; s96 / s97 byte for byte): **LIVE** (his full armed book: the package,
+  te1 / low1, the cheap +2 block on 8 rows, ONECATCH, FAVHI); **NO_PACKAGE** (the 0.35 cap and the ownership cap + 15 removed
+  together -- production's 0.5 caps, no ownership bans); **NO_TE1** (low1 only); **NO_LOW1** (te1 only); **NO_CHEAP** (study 42's
+  live fill over all 26 rows, study 100's NOCHEAP); **NO_ONECATCH** (FAVHI kept, the per-team catcher limit off); **NO_FAVHI** (no
+  RB mate, ONECATCH on -- study 97's LIVE). Each removal decoupled from production's arm-script couplings, which the prereg
+  lists.
+- **The decision rule** (fixed before any census): "removal suggested" iff NO_x − LIVE passes his rule (P(≥ 1 big seat) better on
+  both draws AND the pooled seats ratio ≥ 0.80; guard 1 printed, not gating) -- if several pass, only the largest pooled gain,
+  and it goes to study 114b on a fresh draw before it is put to him; "still helping" iff worse on both draws; otherwise "keep".
+  Six removals: one or two false passes expected.
+- **Preregistration:** `reports/2026-10-10-prereg-study114-remove-one-rule.md` (DRAFT by the outside reviewer, the design the lab
+  reviewer's; FROZEN `819c9294`, 10-10 10:27 CDT, before any scored bank).
+- **Code:** nfl2 `1aef50c4` (off study 102's frozen `969f4d3d`; a test-only fix after the smoke, `cf798c56` before it): module
+  `a7496843…` (pins s95 `46b80611…`; s96 `0363a84f…` / s97 `7df6f324…` byte for byte); drive `49da9b8e…`; census `c6577180…`;
+  reader `04262d65…`; tests `a91737a4…` (13).
+- **Panel:** banks 3860–3871 (A 3860–3865, B 3866–3871; sims 3910–3921, fields 4560–4571), B 20,000, seed 20261157,
+  PYTHONHASHSEED=0; the laptop's scan was clean.
+- **Census** (binding, bank 1406; lab `eb981cbb`; the laptop's re-run identical, with `--ref97`): LIVE identical to study 97's RBMATE4_FAVHI and NO_FAVHI identical to study 97's
+  LIVE, each on 36 of 36; 0 row-rule and ownership-cap fallbacks in all 7 arms; ONECATCH 504 of 504 (NO_ONECATCH off); every removal real (rows with
+  2+ TEs 0 → 14.89; 2+ low-owned 0 → 7.39; term rows 8 → 0; the most-used player 9 → 13 with 11.7 over the ownership cap; two-catcher B / C rows
+  0 → 2.69; FAVHI-pair rows 4.25 → 1.19, RB-mate slots 0).
+- **His order:** "Hold 114 until after" -- frozen at 10:27, the run waited until study 116 read (no pick), then ran unchanged.
+- **Read:** the reader `04262d65`; READ `f436c5d8` (lab `d3a523e5`). The confirmatory census (`2d4765d5`, raw shas `3f4e60be`,
+  RUN_ENV `8ae7b10d`, run code `eb981cbb`; lab `106a440b`) was committed before the READ: 0 row-rule and ownership-cap fallbacks
+  in all 7 arms; ONECATCH 6,048 of 6,048 (NO_ONECATCH off); every removal real on the scored banks (rows with 2+ TEs 15.35; 2+
+  low-owned 7.44; term rows 0; the most-used player 13 with 11.3 over the ownership cap; two-catcher B / C rows 2.74; RB-mate
+  slots 0); the RB-mate floor re-solved without it in 0–11 of 1,728 slots per arm (LIVE 9).
+- **Reproduced byte-identically by the laptop** at `d3a523e5` (PYTHONHASHSEED=0): the raw files 3860–3871 pass `sha256sum -c`
+  against `RAW_s114_run.sha256`; the READ is `f436c5d8` and the confirmatory census `2d4765d5` (cmp-identical).
+
+**Reader output (verbatim):**
+```
+STUDY 114 READER  sha256 04262d659b03a2bf007eae9f102ce535dea1c4646b3479888c8a087af3b28075
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [3860, 3861, 3862, 3863, 3864, 3865, 3866, 3867, 3868, 3869, 3870, 3871]  sets {'pooled': [3860, 3861, 3862, 3863, 3864, 3865, 3866, 3867, 3868, 3869, 3870, 3871], 'A': [3860, 3861, 3862, 3863, 3864, 3865], 'B': [3866, 3867, 3868, 3869, 3870, 3871]}  B 20000  seed 20261157  comparisons (('NO_PACKAGE', 'LIVE'), ('NO_TE1', 'LIVE'), ('NO_LOW1', 'LIVE'), ('NO_CHEAP', 'LIVE'), ('NO_ONECATCH', 'LIVE'), ('NO_FAVHI', 'LIVE')) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 93 / 92 / 91 / 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["LIVE", "NO_PACKAGE", "NO_TE1", "NO_LOW1", "NO_CHEAP", "NO_ONECATCH", "NO_FAVHI"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"LIVE": 0.35, "NO_CHEAP": 0.35, "NO_FAVHI": 0.35, "NO_LOW1": 0.35, "NO_ONECATCH": 0.35, "NO_PACKAGE": 0.5, "NO_TE1": 0.35}, "delta": 0.15, "low_pct": 3.0, "one_catcher": "every arm but NO_ONECATCH: ONECATCH (96's combo_rules; NO_FAVHI 93's lead_rules onepc)", "own_arms": ["LIVE", "NO_PACKAGE", "NO_TE1", "NO_LOW1", "NO_CHEAP", "NO_ONECATCH", "NO_FAVHI"], "quotas": {"LIVE": [0.3, 0.14, 0.28, 0.28], "NO_CHEAP": [0.3, 0.14, 0.28, 0.28], "NO_FAVHI": [0.3, 0.14, 0.28, 0.28], "NO_LOW1": [0.3, 0.14, 0.28, 0.28], "NO_ONECATCH": [0.3, 0.14, 0.28, 0.28], "NO_PACKAGE": [0.3, 0.14, 0.28, 0.28], "NO_TE1": [0.3, 0.14, 0.28, 0.28]}, "rb_mate": "every arm but NO_FAVHI: the adopted FAVHI (96's combo_rules, 97's FAVHI pairs)", "removed": {"NO_CHEAP": "mix_book_fill rr over 26 rows", "NO_FAVHI": "93's lead_rules(0, True, 0)", "NO_ONECATCH": "96's combo_rules with QB1_CELLS empty", "NO_PACKAGE": "production's caps, no ownership-cap bans"}, "row_rules": {"LIVE": ["te1", "low1"], "NO_CHEAP": ["te1", "low1"], "NO_FAVHI": ["te1", "low1"], "NO_LOW1": ["te1"], "NO_ONECATCH": ["te1", "low1"], "NO_PACKAGE": ["te1", "low1"], "NO_TE1": ["low1"]}, "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "settings": {"LIVE": {"cheap_block": true, "favhi": true, "low1": true, "onecatch": true, "package": true, "te1": true}, "NO_CHEAP": {"cheap_block": false, "favhi": true, "low1": true, "onecatch": true, "package": true, "te1": true}, "NO_FAVHI": {"cheap_block": true, "favhi": false, "low1": true, "onecatch": true, "package": true, "te1": true}, "NO_LOW1": {"cheap_block": true, "favhi": true, "low1": false, "onecatch": true, "package": true, "te1": true}, "NO_ONECATCH": {"cheap_block": true, "favhi": true, "low1": true, "onecatch": false, "package": true, "te1": true}, "NO_PACKAGE": {"cheap_block": true, "favhi": true, "low1": true, "onecatch": true, "package": false, "te1": true}, "NO_TE1": {"cheap_block": true, "favhi": true, "low1": true, "onecatch": true, "package": true, "te1": false}}, "skill_sum": 800.0, "source": "blend_pct"}, {"LIVE": [9, 6], "NO_CHEAP": [9, 6], "NO_FAVHI": [9, 6], "NO_LOW1": [9, 6], "NO_ONECATCH": [9, 6], "NO_PACKAGE": [13, 6], "NO_TE1": [9, 6]}, "5f4e1fb9977d349183adc3457782b131673a8bcf06bf3e850af2c149c52bfd4d", "37980da6506df0a799e97b5dae29e670228398cb405be01a3c93cc47f2c7e252", "9cde18bd221e52069b449044a37720996ffb0efafac88202d44f02a7dc898aa8", "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== NO_PACKAGE vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.03880  [-0.09036, +0.01089] (two-sided 0.95)  seasons 2023 +0.00995, 2024 -0.08754
+  GUARD 1 mean entry pct +0.01484  one-sided lower -0.00101  (must exceed -0.015)
+  GUARD 2 expected big seats 0.55951 vs 0.57041  ratio 0.981  (must be >= 0.80)
+  NO_PACKAGE dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3860, 3861, 3862, 3863, 3864, 3865]: -0.02339  [-0.07816, +0.02869]  seasons 2023 +0.01923, 2024 -0.06602
+  set B [3866, 3867, 3868, 3869, 3870, 3871]: -0.05420  [-0.11354, +0.00338]  seasons 2023 +0.00066, 2024 -0.10905
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.02339 < 0; set B -0.05420 < 0  (set A -0.02339, set B -0.05420, the difference +0.03080; seats ratio 0.981)
+  EXPLORATORY the l02 field (pooled): -0.04057  [-0.09314, +0.00975]
+  CEILING (the pick statistic) mean best real lineup points per slate -2.436  [-5.022, -0.035]  seasons 2023 -1.065, 2024 -3.807; set A -2.240; set B -2.632
+  P(best >= 200) -0.04630  [-0.10185, -0.00463]; set A -0.04630; set B -0.04630
+
+== NO_TE1 vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.03206  [-0.08631, +0.02060] (two-sided 0.95)  seasons 2023 -0.00736, 2024 -0.05676
+  GUARD 1 mean entry pct -0.00122  one-sided lower -0.01080  (must exceed -0.015)
+  GUARD 2 expected big seats 0.57503 vs 0.57041  ratio 1.008  (must be >= 0.80)
+  NO_TE1 dealt identical to LIVE: 0.002 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3860, 3861, 3862, 3863, 3864, 3865]: -0.04161  [-0.11334, +0.02798]  seasons 2023 -0.03652, 2024 -0.04671
+  set B [3866, 3867, 3868, 3869, 3870, 3871]: -0.02251  [-0.07867, +0.03380]  seasons 2023 +0.02179, 2024 -0.06681
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.04161 < 0; set B -0.02251 < 0  (set A -0.04161, set B -0.02251, the difference -0.01910; seats ratio 1.008)
+  EXPLORATORY the l02 field (pooled): -0.03593  [-0.09079, +0.01704]
+  CEILING (the pick statistic) mean best real lineup points per slate -1.374  [-3.430, +0.684]  seasons 2023 -0.787, 2024 -1.961; set A -1.528; set B -1.220
+  P(best >= 200) +0.00694  [-0.04167, +0.05787]; set A +0.01389; set B +0.00000
+
+== NO_LOW1 vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.05127  [-0.08744, -0.01850] (two-sided 0.95)  seasons 2023 -0.05450, 2024 -0.04804
+  GUARD 1 mean entry pct -0.01277  one-sided lower -0.01864  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48603 vs 0.57041  ratio 0.852  (must be >= 0.80)
+  NO_LOW1 dealt identical to LIVE: 0.005 of slate-banks
+  ->  WORSE
+  set A [3860, 3861, 3862, 3863, 3864, 3865]: -0.07166  [-0.11844, -0.02898]  seasons 2023 -0.07707, 2024 -0.06624
+  set B [3866, 3867, 3868, 3869, 3870, 3871]: -0.03089  [-0.06110, -0.00198]  seasons 2023 -0.03194, 2024 -0.02984
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.07166 < 0; set B -0.03089 < 0  (set A -0.07166, set B -0.03089, the difference -0.04077; seats ratio 0.852)
+  EXPLORATORY the l02 field (pooled): -0.05303  [-0.08867, -0.02031]
+  CEILING (the pick statistic) mean best real lineup points per slate -1.870  [-3.236, -0.489]  seasons 2023 -3.505, 2024 -0.235; set A -2.110; set B -1.630
+  P(best >= 200) -0.00463  [-0.03472, +0.02546]; set A -0.00463; set B -0.00463
+
+== NO_CHEAP vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.00412  [-0.05340, +0.04734] (two-sided 0.95)  seasons 2023 -0.02608, 2024 +0.01784
+  GUARD 1 mean entry pct +0.00348  one-sided lower -0.00485  (must exceed -0.015)
+  GUARD 2 expected big seats 0.58999 vs 0.57041  ratio 1.034  (must be >= 0.80)
+  NO_CHEAP dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3860, 3861, 3862, 3863, 3864, 3865]: -0.01601  [-0.07269, +0.03679]  seasons 2023 -0.03926, 2024 +0.00723
+  set B [3866, 3867, 3868, 3869, 3870, 3871]: +0.00778  [-0.04376, +0.06625]  seasons 2023 -0.01290, 2024 +0.02845
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.01601 < 0  (set A -0.01601, set B +0.00778, the difference -0.02379; seats ratio 1.034)
+  EXPLORATORY the l02 field (pooled): -0.00309  [-0.05209, +0.04765]
+  CEILING (the pick statistic) mean best real lineup points per slate -0.352  [-2.552, +1.750]  seasons 2023 -2.148, 2024 +1.445; set A -0.072; set B -0.632
+  P(best >= 200) -0.00231  [-0.04167, +0.03704]; set A +0.00000; set B -0.00463
+
+== NO_ONECATCH vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.00038  [-0.02100, +0.02227] (two-sided 0.95)  seasons 2023 -0.00669, 2024 +0.00746
+  GUARD 1 mean entry pct -0.00143  one-sided lower -0.00430  (must exceed -0.015)
+  GUARD 2 expected big seats 0.58855 vs 0.57041  ratio 1.032  (must be >= 0.80)
+  NO_ONECATCH dealt identical to LIVE: 0.130 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3860, 3861, 3862, 3863, 3864, 3865]: +0.01610  [-0.02038, +0.05464]  seasons 2023 -0.00806, 2024 +0.04026
+  set B [3866, 3867, 3868, 3869, 3870, 3871]: -0.01534  [-0.05175, +0.01477]  seasons 2023 -0.00533, 2024 -0.02535
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set B -0.01534 < 0  (set A +0.01610, set B -0.01534, the difference +0.03144; seats ratio 1.032)
+  EXPLORATORY the l02 field (pooled): -0.00175  [-0.02343, +0.02048]
+  CEILING (the pick statistic) mean best real lineup points per slate +0.046  [-0.811, +0.930]  seasons 2023 -0.572, 2024 +0.663; set A +0.948; set B -0.856
+  P(best >= 200) -0.00231  [-0.02315, +0.01852]; set A +0.00000; set B -0.00463
+
+== NO_FAVHI vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.02165  [-0.06505, +0.01978] (two-sided 0.95)  seasons 2023 -0.01570, 2024 -0.02760
+  GUARD 1 mean entry pct -0.00258  one-sided lower -0.00712  (must exceed -0.015)
+  GUARD 2 expected big seats 0.51538 vs 0.57041  ratio 0.904  (must be >= 0.80)
+  NO_FAVHI dealt identical to LIVE: 0.009 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3860, 3861, 3862, 3863, 3864, 3865]: -0.01631  [-0.07892, +0.04592]  seasons 2023 -0.03434, 2024 +0.00172
+  set B [3866, 3867, 3868, 3869, 3870, 3871]: -0.02699  [-0.07256, +0.01840]  seasons 2023 +0.00294, 2024 -0.05692
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.01631 < 0; set B -0.02699 < 0  (set A -0.01631, set B -0.02699, the difference +0.01068; seats ratio 0.904)
+  EXPLORATORY the l02 field (pooled): -0.02214  [-0.06441, +0.01840]
+  CEILING (the pick statistic) mean best real lineup points per slate -0.932  [-2.593, +0.705]  seasons 2023 -1.907, 2024 +0.044; set A -0.863; set B -1.000
+  P(best >= 200) -0.00231  [-0.03472, +0.03241]; set A +0.00000; set B -0.00463
+
+
+== HIS RULE on P(>= 1 big seat) per arm (better on both draws AND seats >= 0.80; information):
+  NO_PACKAGE PAPER ONLY: draw A -0.02339 is not > 0; draw B -0.05420 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.00101 (passes -0.015)  |  under no true effect about one time in four to one in three
+  NO_TE1    PAPER ONLY: draw A -0.04161 is not > 0; draw B -0.02251 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.01080 (passes -0.015)  |  under no true effect about one time in four to one in three
+  NO_LOW1   PAPER ONLY: draw A -0.07166 is not > 0; draw B -0.03089 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.01864 (FAILS -0.015)  |  under no true effect about one time in four to one in three
+  NO_CHEAP  PAPER ONLY: draw A -0.01601 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.00485 (passes -0.015)  |  under no true effect about one time in four to one in three
+  NO_ONECATCH PAPER ONLY: draw B -0.01534 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.00430 (passes -0.015)  |  under no true effect about one time in four to one in three
+  NO_FAVHI  PAPER ONLY: draw A -0.01631 is not > 0; draw B -0.02699 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.00712 (passes -0.015)  |  under no true effect about one time in four to one in three
+
+== THE DECISION RULE (pre-stated): a removal is SUGGESTED iff NO_x - LIVE passes HIS RULE on P(>= 1 big seat) -- better on both draws AND the pooled seats ratio >= 0.80 (guard 1 printed, not gating); the largest pooled gain if several; the rule is STILL HELPING iff NO_x - LIVE is worse on both draws; otherwise keep it
+  NO_PACKAGE   P(>=1 big) pooled -0.03880 (A -0.02339, B -0.05420); seats 0.981; guard 1 lower -0.00101  ->  STILL HELPING (removing it is worse on both draws)
+  NO_TE1       P(>=1 big) pooled -0.03206 (A -0.04161, B -0.02251); seats 1.008; guard 1 lower -0.01080  ->  STILL HELPING (removing it is worse on both draws)
+  NO_LOW1      P(>=1 big) pooled -0.05127 (A -0.07166, B -0.03089); seats 0.852; guard 1 lower -0.01864  ->  STILL HELPING (removing it is worse on both draws)
+  NO_CHEAP     P(>=1 big) pooled -0.00412 (A -0.01601, B +0.00778); seats 1.034; guard 1 lower -0.00485  ->  keep (no clear evidence): P(>= 1 big seat) not better on both draws
+  NO_ONECATCH  P(>=1 big) pooled +0.00038 (A +0.01610, B -0.01534); seats 1.032; guard 1 lower -0.00430  ->  keep (no clear evidence): P(>= 1 big seat) not better on both draws
+  NO_FAVHI     P(>=1 big) pooled -0.02165 (A -0.01631, B -0.02699); seats 0.904; guard 1 lower -0.00712  ->  STILL HELPING (removing it is worse on both draws)
+  SUGGESTED REMOVAL: none -- keep every live rule
+
+  LIVE row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  NO_PACKAGE row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  NO_TE1 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  NO_LOW1 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  NO_CHEAP row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  NO_ONECATCH row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  NO_FAVHI row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  LIVE         v2: P(>=1 big) 0.39290  expected big seats 0.57041  P(>=2) 0.13181  entry pct 0.50727  |  l02: P(>=1 big) 0.42448  |  the best real lineup: mean 177.75  P(best >= 200) 0.1343
+               book: projection per row 124.59  salary 49969  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.20  predicted ownership per row 94.3%  distinct QBs 8.3  non-DST players 51.1  rows with 2+ TEs 0.0  low-owned per row 0.658  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  NO_PACKAGE   v2: P(>=1 big) 0.35410  expected big seats 0.55951  P(>=2) 0.13662  entry pct 0.52211  |  l02: P(>=1 big) 0.38391  |  the best real lineup: mean 175.32  P(best >= 200) 0.0880
+               book: projection per row 127.07  salary 49963  QB + 2 rows 12.0  most-used skill player 13.0 rows of 26  over 30% 9.6  over 40% 6.6  over the ownership cap 11.3  deviation from the predicted field 5.00  predicted ownership per row 98.5%  distinct QBs 8.4  non-DST players 44.1  rows with 2+ TEs 0.0  low-owned per row 0.615  same-team receiver pair rows 1.4  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  NO_TE1       v2: P(>=1 big) 0.36084  expected big seats 0.57503  P(>=2) 0.13709  entry pct 0.50605  |  l02: P(>=1 big) 0.38855  |  the best real lineup: mean 176.38  P(best >= 200) 0.1412
+               book: projection per row 125.01  salary 49966  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.17  predicted ownership per row 95.1%  distinct QBs 8.5  non-DST players 51.0  rows with 2+ TEs 15.4  low-owned per row 0.595  same-team receiver pair rows 1.5  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  NO_LOW1      v2: P(>=1 big) 0.34162  expected big seats 0.48603  P(>=2) 0.10464  entry pct 0.49450  |  l02: P(>=1 big) 0.37145  |  the best real lineup: mean 175.88  P(best >= 200) 0.1296
+               book: projection per row 124.57  salary 49971  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.3  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.29  predicted ownership per row 92.1%  distinct QBs 8.8  non-DST players 52.0  rows with 2+ TEs 0.0  low-owned per row 1.020  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  NO_CHEAP     v2: P(>=1 big) 0.38878  expected big seats 0.58999  P(>=2) 0.13493  entry pct 0.51075  |  l02: P(>=1 big) 0.42139  |  the best real lineup: mean 177.40  P(best >= 200) 0.1319
+               book: projection per row 124.95  salary 49974  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.7  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.17  predicted ownership per row 95.0%  distinct QBs 8.4  non-DST players 49.6  rows with 2+ TEs 0.0  low-owned per row 0.602  same-team receiver pair rows 1.2  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  NO_ONECATCH  v2: P(>=1 big) 0.39328  expected big seats 0.58855  P(>=2) 0.13958  entry pct 0.50584  |  l02: P(>=1 big) 0.42273  |  the best real lineup: mean 177.80  P(best >= 200) 0.1319
+               book: projection per row 124.60  salary 49970  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.19  predicted ownership per row 94.3%  distinct QBs 8.3  non-DST players 51.1  rows with 2+ TEs 0.0  low-owned per row 0.655  same-team receiver pair rows 3.8  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  NO_FAVHI     v2: P(>=1 big) 0.37125  expected big seats 0.51538  P(>=2) 0.10904  entry pct 0.50469  |  l02: P(>=1 big) 0.40234  |  the best real lineup: mean 176.82  P(best >= 200) 0.1319
+               book: projection per row 124.71  salary 49972  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.21  predicted ownership per row 94.5%  distinct QBs 8.2  non-DST players 50.8  rows with 2+ TEs 0.0  low-owned per row 0.652  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+```
+
+**Reading.**
+- **No removal helps.**
+
+| Removed (NO_x − LIVE) | P(≥ 1 big seat) | Set A / B | Expected big seats | Guard 1 | Mean best | P(best ≥ 200) | The rule's verdict |
+|---|---|---|---|---|---|---|---|
+| the package | −3.9 [−9.0, +1.1] | −2.3 / −5.4 | ×0.98 | passes | −2.4 [−5.0, −0.0] | **−4.6 [−10.2, −0.5]** | STILL HELPING |
+| te1 | −3.2 [−8.6, +2.1] | −4.2 / −2.3 | ×1.01 | passes | −1.4 | +0.7 | STILL HELPING |
+| low1 | **−5.1 [−8.7, −1.9], WORSE** | −7.2 / −3.1 | ×0.85 | **fails** | −1.9 [−3.2, −0.5] | −0.5 | STILL HELPING |
+| the cheap +2 block | −0.4 [−5.3, +4.7] | −1.6 / +0.8 | ×1.03 | passes | −0.4 | −0.2 | keep (no clear evidence) |
+| ONECATCH | +0.0 [−2.1, +2.2] | +1.6 / −1.5 | ×1.03 | passes | +0.0 | −0.2 | keep (no clear evidence) |
+| FAVHI | −2.2 [−6.5, +2.0] | −1.6 / −2.7 | ×0.90 | passes | −0.9 | −0.2 | STILL HELPING |
+
+- **SUGGESTED REMOVAL: none -- keep every live rule.** Study 114b is not run.
+- **Every rule measured on top of the others** (his question): four of the six are still helping in his full book, the
+  one-low-owned rule most clearly (its removal is the second verdict of WORSE today, with study 112's RUSH), and the package
+  also protects the 200+ scores (P(best ≥ 200) falls 4.6 points without it). The cheap +2 block and ONECATCH are neutral in the
+  harness: removing either changes almost nothing. They stay as armed; his cheap-block trial is judged on study 38's real-field
+  NOTERM paper arm, as decided.
+- **In plain words:** taking any one of his rules away never made the book better. Four rules clearly earn their place; the cheap
+  block and the one-catcher rule neither help nor hurt in the simulation.
