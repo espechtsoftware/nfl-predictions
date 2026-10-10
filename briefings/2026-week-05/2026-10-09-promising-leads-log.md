@@ -265,6 +265,13 @@ reviewer and updated as each study is read.
   own defense plus at least $49,500 of salary **−0.6** (the floor did change lineups on some past slates, where the book's
   lowest lineup was $49,300; on your real Week-4 book the rule moves 1 lineup).
 
+- **Usage floors (study 112, your request):** at least 13 carries a game for RBs **−4.6** (−5.2 / −4.0; an interval clear of zero,
+  the clearest negative of the day; 11% fewer expected big wins), 32 pass attempts for QBs **−2.7** (11% fewer), 4.5 targets for
+  WRs / TEs **−2.8** (7% fewer); each worse on both random opponent sets, the average finish lower, the 200+ rate lower. Touchdown
+  and red-zone floors could not be dosed (a zero average removes every player without a recent touchdown at once) and were
+  dropped before the run. With the projection floor (106), the same lesson: removing low-volume players removes the cheap ones
+  the big wins draw on.
+
 - **Your 10-09 evening question — correlations that could give an edge (three quick screens on your real Weeks 1–4; the plan
   was written down before any result was read):**
   - *Defense strength normalized like DVOA:* already in our model (each defense's points allowed to a position, adjusted for
@@ -280,9 +287,6 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 112 (your usage floors):** at least 13 carries a game (RBs), 32 pass attempts (QBs), 4.5 targets (WRs / TEs), each
-  set to change about 8–15 of your 26 lineups. Touchdown and red-zone floors were dropped before the run: no level changes
-  fewer than about 16–22 lineups (a zero average removes every player without a recent touchdown at once).
 - **Last, by your order (study 114):** removing one live rule at a time from your armed book.
 
 *Updated as each study is read.*
