@@ -14,7 +14,8 @@
 - **Code: study 114's frozen module, census, driver and reader, byte for byte** (nfl2 `production/s114-remove-one-20261010`;
   the shas as frozen in study 114); new banks. The reader prints all of study 114's lines; **ONLY the suggested removal's line
   vs LIVE decides.**
-- **Banks:** the laptop's reservation, with its full-set check and text scan, recorded here before the freeze.
+- **Banks (the laptop's reservation; the full-set check of 677 used or reserved banks: CLEAN; the text scans: to follow):**
+  **3884–3895** (set A 3884–3889, set B 3890–3895; sims bases 3934–3945, fields 4584–4595).
 - **The reader's seed** is study 114's (20261157): the same bootstrap resamples, so the intervals are correlated with 114's. The
   pass rule below uses point estimates only (the frozen reader's own seed is kept, as in studies 99, 101, 103, 107, 109b, 111 and
   113).

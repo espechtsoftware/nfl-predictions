@@ -5,7 +5,8 @@
 reproduces. **A suggested removal goes to study 114b** (the fresh-draw check), whose preregistration is committed before this
 study's READ.
 - **Banks and seed (the laptop's reservation):** **3860–3871** (set A 3860–3865, set B 3866–3871; sims bases 3910–3921, fields
-  4560–4571); the reader's bootstrap seed **20261157**. The full-set check and the text scan are recorded here before the freeze.
+  4560–4571); the reader's bootstrap seed **20261157**. The laptop's full-set check (677 used or reserved banks, every {b, b+50,
+  b+700}): CLEAN; the text scans of both repositories: to follow.
 
 ## 1. Why
 - **The operator, 10-10 morning, in the laptop's session (verbatim; study list row 91):** "Did we try what you had planned of
