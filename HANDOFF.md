@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (11:30 CDT) — study 116 READ: no pick (REC 2.0 −1.4 worse on both draws, REC_LOW 1.5 +0.3 mixed), so 116b / 116c not run and nothing changes in W5 (his rule); reproduced byte for byte; 114's scored run next
+
+- **Study 116** (the reviewer; lab `78c67c61`; run 10:54:02–11:28:57; confirmatory census `27e4833d` committed before the read).
+  **The laptop reproduced both byte for byte** (to 11:30:05): READ_s116 `cbb4e8e1` (reader 29acee51); census `27e4833d`.
+  - **REC (< 2.0):** −1.4 [−4.9, +2.5], A −1.2 / B −1.6 (worse on both); seats ×0.99; guard 1 fails; mean best −0.2.
+  - **REC_LOW (< 1.5):** +0.3 [−2.6, +3.6], A +1.4 / B −0.7 (mixed); seats ×1.05; guard 1 passes; mean best +0.2.
+  - No pick. By his rule ("116 and re-check pass"), nothing goes into W5; **116b and 116c are NOT RUN** (banks 4108–4119 and
+    4328–4339 stay unused). A receptions floor costs far less than the carries floor (−1.4 vs −4.6), as the pass-catcher
+    argument expected, but did not beat his book; and the idea came from these slates, so this was the favourable case.
+- **The switch** production/rb-rec-floor-20261010 @ `5e2b1a6a` (default off; the reviewer's static review sound, note 2 fixed;
+  its test module not re-run after that last edit) stays UNMERGED; the W4 check is not run. `~/private/paper-corun/rbrec/w05.csv`
+  (79c0507a) is unused.
+- **Study 114** (rule removal; frozen 819c9294, acked) runs now, unchanged: his "Hold 114 until after" is met.
+- **Next:** 114 READ (about 12:25) and its reproduction; 15:30 refresh; 16:45 FP ownership; the 17:55 arm.
+
 ## 2026-10-10 (10:54 CDT) — OPERATOR: a new study 116 (RB receptions floor), live this week only if 116 and 116b pass; "Hold 114 until after"; his backup-RB question -> 116c; 114 acked (frozen, unrun); 116 FROZEN and running; the switch built (default off)
 
 - **His words (the laptop's session, verbatim):**

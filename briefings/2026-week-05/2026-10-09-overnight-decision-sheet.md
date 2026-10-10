@@ -54,10 +54,12 @@ change that makes the time a setting was reviewed and merged; the arm script is 
    worse on both sets of opponents (13 carries for RBs clearly worse, about 5 fewer slates in 100 with a big win; 32 pass
    attempts and 4.5 targets about 3 fewer). Touchdowns and red-zone targets could not be set without removing most
    players. Not used; the re-check (113) is not run.**
-5b. **Added at your word: a minimum of receptions for running backs (study 116).** It goes into your entries this week only
+5b. ~~Added at your word: a minimum of receptions for running backs (study 116).~~ **READ: it did not beat your book
+   (at 2 catches a game slightly worse on both sets of opponents; at 1.5 one set better, one worse). Much less harmful
+   than the carries floor, but not used; the re-check and the backup version are not run.** It goes into your entries this week only
    if it beats your book on both sets of opponents AND holds on a fresh set (116b). If it passes, a version that keeps the
    backup when the team's pass-catching back is out is tested beside the re-check (116c, your question).
-6. **Last, as you asked (held until 116 reads, your word):** each live rule removed one at a time.
+6. **Last, as you asked (running now, after 116 read):** each live rule removed one at a time.
 
 **Data collection today:** the DraftKings salary loop was found down since Friday 04:07 and restarted at 05:37 (logged);
 Friday's two FP ownership captures are in; today's captures run in the morning and at the 18:00 arm.
