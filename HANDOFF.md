@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:34 CDT) — OPERATOR: DK's opponent ranks -- the laptop's L2 revised again (Tucker bring-back, McBride TE); study 8's OPRK capture restated, today's missed snapshot taken, a BigQuery capture added, O-66
+
+- **His words (verbatim):** "DK shows NE as 7th vs WR.  Please evaluate if you still think that's a good pick.  Also, are we considering draft
+  kings rankings at all?  If not, do we have historical data on that?  Let's be sure to be collecting it if it is available".
+- **The rank:** DK's draftables carry it as draftStatAttributes id −2 (value "7th", sortValue 7, quality; 1 = the toughest defense, 32 = the
+  easiest). On his four hand lineups: R1 mean 21.2, R2 14.5, L1 18.0, L2 17.4; Bowers (L2's LV TE) faced NE at 1st. By the 2023–25
+  out-of-sample matchup check (`reports/2026-10-07-why-we-missed-the-winners-players.md` §3.0) the effect is real but small (odds 1.07 per sd),
+  TE the clearest (hardest third 5.9% big games vs ~10%). L2 re-solved with Gibbs and Bowers banned against the revised L1 (FP
+  market-adjusted 151.1 vs 153.8); **his answer: "Swap: Tucker + McBride (Recommended)"**. The private log now sha256
+  **`a33c100ef8bc47e30da5fb8750d451868b5bf408f8d5eb0554a4f163f167775d`** (v3 `02fdd585…` kept; picker `pick_w05_alt3.py` `c634ecce…`); FLAGS none.
+- **The laptop's slip:** it first answered that OPRK was never stored, before reading the records. It IS study 8 (his 10-04 request:
+  capture pre-lock weekly, then measure OPRK vs realized / vs our residual); raw JSON captures exist (`~/private/dk-draftables/2026-w05/`,
+  10-06 and 10-08); DK rewrites past weeks after the games, so there is no earlier history; an earlier one-slate check found its
+  correlation with our residual −0.05 to −0.14. **Today's ~10:45 snapshot (checklist) was missed;** taken at 14:34 (1,079 draftables, all
+  with OPRK).
+- **Added:** `reports/2026-10-10-dk-oprk/capture_dk_attributes.py` (read-only, the public draftables endpoint; nothing on the money path)
+  -> BigQuery `nfl_raw.dk_draftable_attributes` (one row per player and attribute: rank, quality, DK ppg, news status); first run 19:31Z,
+  groups 154468 + 154470, 2,544 rows (1,272 ranks). **O-66** registers the manual-capture risk (automate before W6's Saturday). README
+  Known gaps: no OPRK history before W5. Study list row 8 updated.
+- **Sunday ~10:45 CT:** the raw JSON (the checklist's curl) AND `capture_dk_attributes.py --group 154468 --group 154470`.
+
 ## 2026-10-10 (14:27 CDT) — OPERATOR: the laptop's L1 revised (no Cincinnati WR) after his Miami-vs-WR question; the private log's new sha 02fdd585
 
 - **His question (verbatim):** "do you have any concerns that DK lists miami 3rd vs WR?" Our features agree in kind (Miami: the worst EPA

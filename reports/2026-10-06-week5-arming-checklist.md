@@ -17,7 +17,7 @@ chat. Private paths stay private (no dollars, no entries here).
 | Wed 10-07 (audit) | **P3** paper toggles: DONE 10-07 as `scripts/p3_arms.sh` + `scripts/p3_score.py` (the frozen P3 prereg f129bc0b; W4 smoke accepted); P1's reader `scripts/p1_record.py` (the frozen P1 prereg + amendment 1) -- both read Mon 10-12 | study list l.112 |
 | Wed 10-07 (audit) | **Paper shadow B** recipe (`DROP_FEATURES=qb_cpoe_l6,neutral_pass_rate_l6` on the serve path, as the 10-03 A/B): written down and dry-run, so Sunday builds it and Monday scores it beside ours and FP | OPEN-DEFECTS O-22; HANDOFF 10-06 07:13 |
 | Wed 10-07 (audit) | Dashboard: merge the deployed-but-unmerged code into integration (`production/milly-graph-users-20261006` carries `bcd7fc22` / `3e2f76a2` / `f9c67f83`; live revision 00079-5lp runs it) and the `cash_rate` label ("≥ Millionaire cash line"; the reviewer wanted it before Week 5) | HANDOFF 10-05 10:16; Monday reads §8 |
-| Sat 10-10 and Sun 10-11, ~10:45 CT (audit) | **OPRK history starts now** (item 8): save the DraftKings draftables JSON for group 154468 pre-lock, `curl -s https://api.draftkings.com/draftgroups/v1/draftgroups/154468/draftables > ~/private/dk-draftables/2026-w05/$(date -u +%Y%m%dT%H%M%SZ).json` (never tracked; no ingest change) | study list item 8 |
+| Sat 10-10 and Sun 10-11, ~10:45 CT (audit) | **OPRK history starts now** (item 8): save the DraftKings draftables JSON for group 154468 pre-lock, `curl -s https://api.draftkings.com/draftgroups/v1/draftgroups/154468/draftables > ~/private/dk-draftables/2026-w05/$(date -u +%Y%m%dT%H%M%SZ).json` (never tracked; no ingest change) AND (from 10-10) `.venv/bin/python reports/2026-10-10-dk-oprk/capture_dk_attributes.py --group 154468 --group 154470` (BigQuery nfl_raw.dk_draftable_attributes; O-66: Sat 10-10's was missed, taken 14:34) | study list item 8 |
 
 ## The operator's decisions (decision sheet `briefings/2026-week-05/2026-10-05-week5-decision-sheet.md`)
 **DECIDED 2026-10-06 (his formal yes):** "yes to the winners' mix with the tilt and the quarterback cap" = MIXT + the
@@ -314,7 +314,7 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
 - **His four hand-entered lineups: the pre-lock check** (the operator 10-10: "please add to your schedule to check for any concerns
   about those 4 lineups prior to lock. including re-check both stacks against the 10:30 inactives, the Henderson pivot if
   Stevenson sits, and the Arizona roof"; R1 / R2 the research agent's, L1 / L2 the laptop's; private log
-  `~/private/manual-lineups/w05.json` sha 02fdd585, L2 and L1 revised 10-10). Read-only, seconds: `cd $HOME/projects/nfl-predictions &&
+  `~/private/manual-lineups/w05.json` sha a33c100e, L1 and L2 revised 10-10). Read-only, seconds: `cd $HOME/projects/nfl-predictions &&
   .venv/bin/python ~/private/manual-lineups/check_w05.py` (the newest DK pull of group 154468; every player's status and
   kickoff; flags OUT / IR / D / Q; the Stevenson -> Henderson pivot for R1's RB2 Dobbins, same $5,000; the DET-ARI reminder).
   1. **~11:00 CT** (after the 10:47 T-70 pull and the hourly DK loop): run it; tell him in chat before the 12:00 lock what
@@ -352,7 +352,7 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
 
 ## Monday 10-12
 - **His four hand-entered lineups (R1 / R2 research, L1 / L2 laptop):** publish the rosters (after lock) from
-  `~/private/manual-lineups/w05.json` (check its sha 02fdd585 first; v1 3e012b80 and v2 519c8271 kept); score each with DK's FPTS; its finish in his $4,444
+  `~/private/manual-lineups/w05.json` (check its sha a33c100e first; v1 3e012b80, v2 519c8271, v3 02fdd585 kept); score each with DK's FPTS; its finish in his $4,444
   qualifier (from the entries export) and where it would place in the Millionaire; beside the book's 26 rows and study
   38's paper arms. Information only (four lineups).
 - **FIRST: the cheap +2 block, on vs off, for his Week-6 decision** (the operator 10-07: "Let's keep it on for week 5 and see how it compares for deciding what to do week 6"). From study 38's scoring on the real W5 results:
