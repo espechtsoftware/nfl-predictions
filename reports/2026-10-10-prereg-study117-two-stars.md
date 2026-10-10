@@ -56,7 +56,11 @@ book** (the package, te1 / low1, the cheap +2 block on 8 rows, ONECATCH and the 
 - **The harness's 2023–24 slates may carry more stars than his 2026 slates** (four a week in Weeks 4–5); the census prints
   the harness's star pool, and a pass on a richer pool may not carry over. STAR2 cannot hold on a four-star slate under the
   0.35 cap (36 slots < 52); STAR2_8 fits (16 slots).
-- **On his real Week-4 book:** 21 of 26 lineups hold fewer than two stars (the laptop's count, 10-10).
+- **On his real Week-4 book:** 21 of 26 lineups hold fewer than two stars (the laptop's count, 10-10). The lab reviewer's
+  Week-4 smoke of study 38 amendment 6z5 (the same rule on paper, the same vehicle) on his armed book: QA0 holds 5 rows with
+  2+ stars, all in the term block; **STAR2 held on 14 of 26 book solves and fell back on 12** (the four-star pool), so it would
+  fail §3's 5% rule on a slate like Week 4's; **STAR2_8 held on 8 of 8, no fallback, changing 3 term rows.** The harness and the
+  paper arms measure the same rule (6z5, `0ee35848`).
 - **The census, per arm (outcome-blind, bank 1406):** the stars and the feasibility rule (§3); ONECATCH; the RB mate's slots;
   rows shared with LIVE and dealt identity; LIVE == study 97's RBMATE4_FAVHI (`--ref97`). Per-slate fields stay outside the
   blocks the reader compares.
