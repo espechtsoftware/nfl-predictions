@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (06:14 CDT) — study 106 READ: his floor of 8 is WORSE on both draws, so the pick is none; 107 and 108 not run (reproduced byte for byte)
+
+- **Study 106** (the reviewer; lab `960c320c`; confirmatory census `7e20e971` committed before the read; 432 / 432 rows).
+  **The laptop reproduced both byte for byte:** READ_s106 `0a75e37c` (reader 37b6e471); census `0f48eacc` (b37bfb73); RAW
+  sha256sum -c OK.
+- **MINPROJ8 − LIVE (FAVHI in both):**
+  - P(≥ 1 big seat) −2.7 [−7.7, +2.0], worse on both draws (A −2.65, B −2.72);
+  - expected big seats ×0.88; guard 1 FAILS;
+  - mean best lineup −1.5; P(best ≥ 200) −1.6.
+  - **PICK: none, keep the live book.**
+- **The binding** (the census): the harness's floor 8 removes about half the skill pool and touches 11.7 of 26 LIVE rows. On
+  his real book an FP floor of 8 touches 3 of 26: a smaller version of the same change.
+- **So** 107 (the fresh-draw check) and 108 (per-position floors, his "if it's successful") are not run. Study-list row 89 is
+  updated.
+- **For him, in plain words:** dropping the low-projected players cost big wins on both sets of opponents. It agrees with the
+  punt-winner evidence (cheap booming players win big contests).
+- **Next on the machine:** the 109 re-smoke (+ HOT1), then 109's freeze / ack / run, then the 110 smoke.
+
 ## 2026-10-10 (06:05 CDT) — OPERATOR: 77 / 79 / 81 adoptable? (the laptop: 79 already live as ONECATCH; 77 and 81 no); "Don't wait on me" (he sleeps)
 
 **His words, in the laptop's session:**
