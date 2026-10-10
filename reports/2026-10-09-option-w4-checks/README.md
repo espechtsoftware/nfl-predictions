@@ -291,3 +291,24 @@ morning".
   QB–own-RB pairs). Slots C 2 / 6 / 10 / 14 were all ruled, 0 re-solved. ONECATCH stays 14 / 14.
 - **Status:** off (RB_MATE_C=0) until his morning decision, after study 99's confirmation on a fresh draw.
 
+## Addendum (10-10 01:55 run, written 01:59): OVERLAP3 on the armed version (study 100's pick; study 101 rechecking)
+
+- **The run:** FRIDAY_HEAD `5faf2f05` with `--mean-max-shared 3` (today 4); the runner `flag_w4_check_armed2.sh`.
+  - Gates: OFF == `a4ab2839`, ARMED + ONECATCH == `293d9465`.
+  - Verbatim: `OUTPUT-overlap3-armed.txt`.
+
+| | ARMED (+ ONECATCH, overlap 4) | Overlap 3 |
+|---|---|---|
+| Rows changed | | 25 of 26 |
+| Distinct players | 52 | 60 |
+| FP projection per row | 139.94 | 139.92 (−0.02) |
+| Flex WR / TE / RB | 8 / 0 / 18 | 9 / 0 / 17 |
+| Cells A1 / A2 / B / C | 8 / 4 / 7 / 7 | 8 / 4 / 7 / 7 |
+
+- **Reading:**
+  - The tighter overlap rebuilds almost the whole book (25 of 26 rows) at almost no projected cost, with 8 more distinct
+    players.
+  - ONECATCH and the row rules still apply on every solve.
+- **To arm:** MAX_SHARED=3 in the arm (check_week_runtime accepts 3–8), plus the reviewer's study 38 6x (the paper arms are
+  defined at overlap 4–7). Only on his decision after study 101.
+
