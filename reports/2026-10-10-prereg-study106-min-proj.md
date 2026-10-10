@@ -37,7 +37,11 @@ listed edits, a test asserts it); every arm his live Week-5 construction (the pa
 `lead_rules`, 89's `own_caps`; QB cap 5, overlap 4, the cheap +2 block on 8 rows, the ownership cap + 15, A1 .30 / A2 .14 / B .28
 / C .28), **one change: the projection floor:**
 - **LIVE** — floor 1.0 (the harness's MIN_PROJ = production's `--min-proj` 1.0).
-- **MINPROJ8 / MINPROJ10 / MINPROJ12** — floors 8 / 10 / 12.
+- **MINPROJ8 / MINPROJ10** — floors 8 (his number) and 10 (a stronger dose).
+- **Pre-freeze change 2 (2026-10-10, before any scored bank): a floor of 12 is not an arm.** The laptop's Week-4 check on
+  FRIDAY_HEAD `b00c5e43` found that **production refuses that book** with the cheap block on: a floor of 12 removes every
+  cheap-block player ("term_rows 8 needs … a term_bonus"), where the harness's `block_term` would build it silently without
+  the block — a book production cannot build. The census now flags any arm whose cheap block is empty or unapplied on a slate.
 - **The floor's mechanics, as production applies `--min-proj`:** every skill player (QB, RB, WR, TE; DSTs exempt) whose simulated
   mean is below the floor leaves the pool **before** the ownership caps, the row-rule sets (TEs, low-owned) and the cheap block's
   term are computed. Production's `excl` feeds the pool, `own_cap_rows`, `row_rule_sets` and the term block's coverage
@@ -53,15 +57,21 @@ listed edits, a test asserts it); every arm his live Week-5 construction (the pa
   - the mean best real lineup points and P(best ≥ 200), printed (information).
 - **THE PICK (pre-stated; a tested function `floor_pick`):** among the arms passing **his rule** (guard 1 printed, not gating),
   the **largest pooled gain** in P(≥ 1 big seat). None → **"keep the live book"**. A pick goes to study 107.
-- **MULTIPLICITY, plainly:** three floors on the same 36 slates as studies 89–105; about one passes by chance.
+- **MULTIPLICITY, plainly:** two floors on the same 36 slates as studies 89–105; about one passes by chance in two studies.
 
 ## 4. What the harness can and cannot say — honest limits
-- **The floor here is on the harness's simulated mean; his book builds on Fantasy Points' projections.**
-- **Production's `--min-proj` filters on `fr.mean_projection`, OUR model's projection (the laptop's finding).** A live "FP
-  projection ≥ X" floor needs a small production change (filter on the projection source the book uses). `LIVE_MIN_PROJ` also
-  cuts the supply builds' candidates.
-- **So this study is information for Week 6** unless a floor passes clearly, study 107 holds it, and that production change is
-  built and checked.
+- **A live floor is one existing setting** (`LIVE_MIN_PROJ` = X) **and floors Fantasy Points' projection**, which is exactly his
+  question. With `UNION_PROJ_SOURCE=fp`, production's `apply_proj_source` replaces the frame's projection with FP's before the
+  floor is applied (`union_reselect` l. 1673, then the floor at l. 1683 / 1765). The laptop's Week-4 check (his armed book with
+  FAVHI): an FP floor of 8 changes 3 of 26 lineups; 10 changes 23, with sub-$4,000 skill slots 35 → 9; every book slot clears its
+  floor by FP. **Correction (2026-10-10, before the freeze):** an earlier draft of this section said production floors our
+  model's projection and that an FP floor needs a production change; both were wrong.
+- **The harness floors its own simulated mean** (it has no FP history), so a passing harness floor transfers to the FP floor at
+  the same number only approximately: the two remove different players. The census's pool removed per arm shows the
+  harness's binding beside the Week-4 numbers. The thresholds stay at his 8 and a stronger 10, not matched by pool share.
+- **A side effect to disclose for any production switch:** the host also passes `LIVE_MIN_PROJ` to the lab's candidate
+  generation (`MINPROJ_ARGS`) for the supply builds.
+- **Still standing:** production refuses a floor of 12 with the cheap block on (§2).
 - **The census per arm:**
   - the pool and its skill players;
   - the players each floor drops by position;
@@ -76,10 +86,10 @@ listed edits, a test asserts it); every arm his live Week-5 construction (the pa
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke (the unit tests, the mechanics smoke 2023 W3 / 2023 W11 /
   2024 W10, the census, the full path: reader exit and line count only).
 - **The smoke:** (a machine gap the lab reviewer names; filled in when it ends).
-- **Code:** nfl2 `production/s106-min-proj-20261010` @ `fabf216e` (off study 102's frozen `969f4d3d`; s96 / s97 byte for byte,
+- **Code:** nfl2 `production/s106-min-proj-20261010` @ `3dfe4c95` (off study 102's frozen `969f4d3d`; s96 / s97 byte for byte,
   `0363a84f…` / `7df6f324…`):
-  - `experiments/s106_min_proj.py` `2e49c97c…` (pins s95 `46b80611…`, s97 `7df6f324…`)
+  - `experiments/s106_min_proj.py` `02fae29e…` (pins s95 `46b80611…`, s97 `7df6f324…`)
   - `scripts/s106_drive.py` `8d5b58e5…`
-  - `scripts/s106_census.py` `ce91be02…`
-  - **`scripts/s106_report.py` (the reader) `fb32ae7a…`** (seed 20261149)
-  - `tests/test_s106_min_proj.py` `05f28a49…` (9)
+  - `scripts/s106_census.py` `1258f948…`
+  - **`scripts/s106_report.py` (the reader) `9d3b4dbb…`** (seed 20261149)
+  - `tests/test_s106_min_proj.py` `9aa83d42…` (9)
