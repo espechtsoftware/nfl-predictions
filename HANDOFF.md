@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (05:54 CDT) — O-65's loop fix merged (`c08dadcd`; FRIDAY_HEAD; the unit restarted on it); study 106 running
+
+- **The root cause** (the laptop; the reviewer APPROVED `3d8f29ea`): `run_pull` ended with an unconditional `set -e`. That
+  re-armed errexit inside `run_pair`, so the first failed pull's `return 1` exited the loop. It matches Friday's journal
+  ("ingest-dk exit=1" → "Main process exited"; no "pair failed" line; ingest-contests never ran).
+- **The fix:** `run_pull` restores the caller's errexit; `run_pair` records each failure with `|| status=$?`.
+  - Mutation check: with a stub CLI that fails once, the OLD script exits rc 1 after one call; the NEW one keeps looping
+    (10 calls in 5 s; "pair failed" then "pair succeeded").
+  - tests/test_host_dk_ingest_service.py: 8 passed.
+- **Merged `c08dadcd`.** union / host / timers / src are IDENTICAL to d2b2b326 (the W4 gates stand).
+- **The arm-only commit `f00862f3`:** FRIDAY_HEAD = c08dadcd. Every test that reads the arm script + the DK-loop module: 81
+  passed (rc 0).
+- **The production checkout** fast-forwarded to f00862f3, clean. `systemctl --user restart nfl-host-dk-ingest` at 05:54:
+  active, pulling.
+- **O-65 is partly fixed:** the staleness alert (newest pull older than 2 h) is still open.
+- **Next:** the reviewer moves s38-prod-pin to c08dadcd. Study 106's READ is about 06:20, then the laptop's reproduction.
+
 ## 2026-10-10 (05:48 CDT) — OPERATOR: HOT1 into study 109 and VAL4 into study 110, today (study-list row 95)
 
 - **The laptop's question:** "The page suggests new tests. Two can join today's studies before they freeze: HOT1 (at most one 'hot' player per lineup) in the recency study 109, and VAL4 (at most 4 top-value players per lineup) in the selection-ideas study 110. Add them?"
