@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:10 CDT) — study 38 6z5 (STAR2 / STAR2_8 on paper) acked; the canary gate = lab 0ee35848 vs prod 83d68f63
+
+- **6z5** (lab `0ee35848`: module cc067ca3, build 45d3b7cb, score e1861919, report 439028b3, tests 345854f2 (61); prereg
+  review/s38-6n-20261009 @ `5634d0c2`): his "Paper this week, test for W6". **The laptop's smoke reproduction** (14:07:17–14:10:09)
+  byte-identical (armedFH f2b07cf4); 39 of 39 earlier arms identical; star_set byte-identical to study 92's (76af6e8c). On W4: STAR2
+  14 of 26 rows with 2+ stars (12 solves fell back: a 4-star pool), STAR2_8 8 of 8 term rows (18 rows shared with QA0). Information
+  only (not in 7b). A cosmetic print in the smoke's run.sh only (`stars` vs the manifest's `pool_stars`).
+- **The 18:00 canary gate:** lab s38-6u at 0ee35848 (after the reviewer moves it) against prod s38-prod-pin 83d68f63 (= FRIDAY_HEAD).
+  The canary snapshot needs S38_PAPER_HOT_FILE (hot-canary/w05.csv from the canary frame); TDBLOCK8 is missing in the canary
+  unless a Saturday-as-of TD file is made (exercise only; Sunday's 05:00 file is the real one).
+
 ## 2026-10-10 (14:05 CDT) — OPERATOR: two hand-entered lineups (another agent's picks) are his own test; "we can consider ourselves ready"
 
 - **His words (the laptop's session, verbatim):** "The two lineups I asked the other agent to create, I'm just going to enter those
