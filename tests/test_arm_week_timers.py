@@ -444,7 +444,7 @@ def test_his_rbmate_rides_into_the_units_only_on_top_of_onecatch():
     host = (root / "sunday_build_host.sh").read_text()
     assert "UNION_ARGS+=(--mix-one-catcher-all); ONE_CATCHER_ON=1" in host
     assert ('if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_RB_MATE_C:-0}" != "0" ]]; then\n'
-            '    if (( ONE_CATCHER_ON )) && [[ "${UNION_MIX_RB_MATE_C}" == "4" && "$RB_SCOPE" =~ ^(all|fav|favhi|naked|oppqb)$ ]]; then\n'
+            '    if (( ONE_CATCHER_ON )) && [[ "${UNION_MIX_RB_MATE_C}" == "4" && "$RB_SCOPE" =~ ^(all|favhi)$ ]]; then\n'
             '      UNION_ARGS+=(--mix-rb-mate-c 4); RB_MATE_ON=1') in host
     assert 'rb_mate_alert "ONECATCH is not on for this run' in host
     assert "grep -q 'RB MATE NOT APPLIED' \"$OUT/union-$RUN_TAG.txt\"" in host
@@ -457,30 +457,23 @@ def test_his_rbmate_rides_into_the_units_only_on_top_of_onecatch():
     assert '[[ "$RB_MATE_C" == 0 || ( "$RB_MATE_C" == 4 && "$ONE_CATCHER_ALL" == 1 ) ]]' in arm
 
 
-
-def test_study97s_scopes_ride_only_on_their_base_and_a_refused_rb_scope_never_widens_to_all():
-    """Study 97's game-script scopes (his 10-09 evening request): UNION_MIX_RB_MATE_SCOPE and UNION_MIX_QB2_SCOPE reach the
-    units; the host passes --mix-rb-mate-scope only TOGETHER with --mix-rb-mate-c 4 (a scope that cannot be passed turns the
-    RB mate off, never the unscoped version study 96 read PAPER ONLY) and --mix-qb2-scope only on ONECATCH; the union's
-    SCOPE NOT APPLIED lines raise ALERTs; the arm defaults to all / off with pair stops."""
+def test_study97s_favhi_scope_rides_only_with_the_rb_mate_and_a_refused_scope_never_widens_to_all():
+    """Study 97's one passing scope (RBMATE4_FAVHI; his 10-09 evening request): UNION_MIX_RB_MATE_SCOPE reaches the units; the
+    host passes --mix-rb-mate-scope favhi only TOGETHER with --mix-rb-mate-c 4 (a scope that cannot be passed turns the RB mate
+    off, never the unscoped version study 96 read PAPER ONLY); the union's RB MATE SCOPE NOT APPLIED line raises the ALERT; no
+    QB + 2 scope is wired (none passed 97); the arm defaults to all with a pair stop."""
     from pathlib import Path
-    r = _run(UNION_MIX_RB_MATE_SCOPE="fav", UNION_MIX_QB2_SCOPE="doghi")
-    line = _unit_line(r.stdout, "nfl-week4-t70-build")
-    assert "UNION_MIX_RB_MATE_SCOPE=fav" in line and "UNION_MIX_QB2_SCOPE=doghi" in line
+    r = _run(UNION_MIX_RB_MATE_SCOPE="favhi")
+    assert "UNION_MIX_RB_MATE_SCOPE=favhi" in _unit_line(r.stdout, "nfl-week4-t70-build")
     root = Path(__file__).resolve().parents[1] / "scripts"
     host = (root / "sunday_build_host.sh").read_text()
+    assert '[[ "${UNION_MIX_RB_MATE_C}" == "4" && "$RB_SCOPE" =~ ^(all|favhi)$ ]]' in host
     assert '[[ "$RB_SCOPE" != all ]] && UNION_ARGS+=(--mix-rb-mate-scope "$RB_SCOPE")' in host
     assert host.index("UNION_ARGS+=(--mix-rb-mate-c 4); RB_MATE_ON=1") < host.index('UNION_ARGS+=(--mix-rb-mate-scope "$RB_SCOPE")')
     assert 'rb_mate_alert "UNION_MIX_RB_MATE_SCOPE=$RB_SCOPE without UNION_MIX_RB_MATE_C=4"' in host
     assert "grep -q 'RB MATE SCOPE NOT APPLIED' \"$OUT/union-$RUN_TAG.txt\"" in host
-    assert ('if (( ONE_CATCHER_ON )) && [[ "$QB2_SCOPE_V" =~ ^(high|doghi)$ ]]; then\n      UNION_ARGS+=(--mix-qb2-scope "$QB2_SCOPE_V")') in host
-    assert "grep -q 'QB2 SCOPE NOT APPLIED' \"$OUT/union-$RUN_TAG.txt\"" in host
-    assert '"$UNION_DIR/qb2_scope_not_applied.txt"' in host
-    assert host.index("ONE_CATCHER_ON=1") < host.index('UNION_ARGS+=(--mix-qb2-scope "$QB2_SCOPE_V")') < host.index('UNION_RC=0; run_union "${UNION_ARGS[@]}"')
+    assert "qb2" not in host.lower()                                                      # no QB + 2 scope is built
     arm = (root / "arm_week5_saturday.sh").read_text()
-    assert "\nRB_MATE_SCOPE=all " in arm and "\nQB2_SCOPE=off " in arm
-    assert "UNION_MIX_RB_MATE_SCOPE=$RB_MATE_SCOPE UNION_MIX_QB2_SCOPE=$QB2_SCOPE" in arm
-    assert '[[ "$RB_MATE_SCOPE" == all || ( "$RB_MATE_SCOPE" =~ ^(fav|favhi|naked|oppqb)$ && "$RB_MATE_C" == 4 ) ]]' in arm
-    assert '[[ "$QB2_SCOPE" == off || ( "$QB2_SCOPE" =~ ^(high|doghi)$ && "$ONE_CATCHER_ALL" == 1 ) ]]' in arm
-    assert '[[ "$QB2_SCOPE" == off || "$RB_MATE_C" == 0 ]] || stop' in arm                       # untested together
-    assert host.index("if (( RB_MATE_ON )); then") < host.index('UNION_ARGS+=(--mix-qb2-scope "$QB2_SCOPE_V")')
+    assert "\nRB_MATE_SCOPE=all " in arm and "QB2_SCOPE" not in arm
+    assert "UNION_MIX_RB_MATE_SCOPE=$RB_MATE_SCOPE \\" in arm
+    assert '[[ "$RB_MATE_SCOPE" == all || ( "$RB_MATE_SCOPE" == favhi && "$RB_MATE_C" == 4 ) ]]' in arm
