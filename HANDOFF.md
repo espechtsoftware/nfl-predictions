@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (06:05 CDT) — OPERATOR: 77 / 79 / 81 adoptable? (the laptop: 79 already live as ONECATCH; 77 and 81 no); "Don't wait on me" (he sleeps)
+
+**His words, in the laptop's session:**
+1. "77, 79 and 81 all looked promising.  Do you think any could be adopted?"
+2. "Im going back to sleep for a bit.  Don’t wait on me"
+
+**The laptop's answer to 1** (from the records):
+- **79:** its 8-row form was a no-op on his W4 book. The binding all-B / C form IS live: ONECATCH (study 93, +2.0, better on
+  both draws; his "Live W5 if built in time").
+- **77** (QB alone, +1.8 first read): failed three re-reads (83's COMBO −1.9; 84's TE_C0 −2.0; on the armed book, 93's
+  QBALONE3 −0.2). Not adoptable.
+- **81** (no $5k+ TE; NOTE5K_ALL +4.7, one of about 35 side comparisons): re-read on fresh banks in 84, TE_ONLY −1.2. On his
+  real W4 book it changes 24 of 26 rows at −0.76 FP per row. Not adoptable. The milder one-TE limit (te1, study 91) is live;
+  row 91's rule-removal study tests dropping it, and the research page's second-TE signal is the evidence on the other side.
+
+**2:** no prompts while he sleeps. The queue continues as recorded:
+- 106 → 107 → 109 (+ HOT1) → 108 → 110 (+ VAL4) → 111 → 112 → row 91 last;
+- the 09:30 props guard and the 09:47 refresh;
+- the FP captures;
+- the R14 sweep;
+- the production switches for any arm that passes, as default-off one-setting options;
+- his decisions wait for him, well before the 18:00 arm.
+
 ## 2026-10-10 (05:54 CDT) — O-65's loop fix merged (`c08dadcd`; FRIDAY_HEAD; the unit restarted on it); study 106 running
 
 - **The root cause** (the laptop; the reviewer APPROVED `3d8f29ea`): `run_pull` ended with an unconditional `set -e`. That
