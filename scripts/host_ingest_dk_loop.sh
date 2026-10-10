@@ -66,21 +66,22 @@ run_pull() {
   local label=$1; shift
   local extra=()
   [[ "$label" == "ingest-contests" ]] && extra=(INGEST_CONTESTS_ENABLED=1)
-  local started status
+  local started status errexit=0
   started=$(date -u +%FT%TZ)
   echo "$started starting $label (project=$GCP_PROJECT)"
-  set +e
+  [[ $- == *e* ]] && errexit=1   # O-65 (2026-10-10): restore the CALLER's errexit, never force it on -- an unconditional
+  set +e                          # `set -e` here made run_pair's failed pull kill the loop (Fri 10-09 04:07, down 25.5 h)
   (cd "$PROD" && env GCP_PROJECT="$GCP_PROJECT" PYTHONPATH="$PYTHONPATH" "${extra[@]}" "${CLI_CMD[@]}" "$@")
   status=$?
-  set -e
+  ((errexit)) && set -e
   echo "$(date -u +%FT%TZ) $label exit=$status"
   return "$status"
 }
 
 run_pair() {
-  local dk_status contests_status
-  run_pull ingest-dk ingest-dk; dk_status=$?
-  run_pull ingest-contests ingest-contests; contests_status=$?
+  local dk_status=0 contests_status=0
+  run_pull ingest-dk ingest-dk || dk_status=$?                 # O-65: a failed pull is recorded, never fatal to the loop
+  run_pull ingest-contests ingest-contests || contests_status=$?
   if ((dk_status != 0 || contests_status != 0)); then
     echo "$(date -u +%FT%TZ) host DK ingest pair failed: ingest-dk=$dk_status ingest-contests=$contests_status" >&2
     return 1
