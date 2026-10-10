@@ -1767,6 +1767,8 @@ def main(argv: list[str] | None = None) -> int:
         except SystemExit as exc:
             rb_rec_low, rb_rec_meta = set(), {"applied": False, "not_applied": str(exc), "threshold": a.mix_min_rb_rec,
                                               "path": str(a.mix_rb_rec_source)}
+            if a.mix_rb_rec_source is not None and Path(a.mix_rb_rec_source).is_file():   # the reviewer's note 2: by content
+                rb_rec_meta["sha256"] = sha256_file(Path(a.mix_rb_rec_source))
             print(f"\n!!! RB REC FLOOR NOT APPLIED: {exc} -- the book is built without it\n", flush=True)
 
     # the pool: T-70 rows (the same T-70 rules applied defensively: a clean T-70 build drops nothing here), Saturday
