@@ -541,13 +541,20 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   # His 10-09 decision (study 94's RBMATE4, "Try live W5 if built"; HANDOFF ad00da5c): the QB's own RB in the first 4 C-cell
   # (QB + 1) book rows, ONLY on top of ONECATCH (study 96 read the two together). Off = unset or 0. ONECATCH not on = no RB
   # mate, LOUDLY.
+  # Study 97's game-script scope (default all = unscoped; favhi = the QB's own RB only for the expected winner of a high-total
+  # game, the one scope 97 passed): the RB mate and its scope go in TOGETHER or not at all -- a scope that cannot be passed
+  # must never widen to "all" (study 96 read the unscoped RBMATE4 PAPER ONLY).
+  RB_MATE_ON=0; RB_SCOPE="${UNION_MIX_RB_MATE_SCOPE:-all}"
   if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_RB_MATE_C:-0}" != "0" ]]; then
-    if (( ONE_CATCHER_ON )) && [[ "${UNION_MIX_RB_MATE_C}" == "4" ]]; then
-      UNION_ARGS+=(--mix-rb-mate-c 4)
-      echo "RB MATE for $RUN_TAG: ON (the QB's own RB in the first 4 QB + 1 C-cell book rows; with ONECATCH and the row rules)"
+    if (( ONE_CATCHER_ON )) && [[ "${UNION_MIX_RB_MATE_C}" == "4" && "$RB_SCOPE" =~ ^(all|favhi)$ ]]; then
+      UNION_ARGS+=(--mix-rb-mate-c 4); RB_MATE_ON=1
+      [[ "$RB_SCOPE" != all ]] && UNION_ARGS+=(--mix-rb-mate-scope "$RB_SCOPE")
+      echo "RB MATE for $RUN_TAG: ON, scope $RB_SCOPE (study 94 / 97's pairs in the first 4 QB + 1 book rows; with ONECATCH and the row rules)"
     else
-      rb_mate_alert "ONECATCH is not on for this run, or UNION_MIX_RB_MATE_C=${UNION_MIX_RB_MATE_C} is not 4"
+      rb_mate_alert "ONECATCH is not on for this run, or UNION_MIX_RB_MATE_C=${UNION_MIX_RB_MATE_C} is not 4, or the scope '$RB_SCOPE' is unknown"
     fi
+  elif [[ "${UNION_MAIN:-mean}" == "mix" && "$RB_SCOPE" != all ]]; then
+    rb_mate_alert "UNION_MIX_RB_MATE_SCOPE=$RB_SCOPE without UNION_MIX_RB_MATE_C=4"
   fi
   # Study 48b's winner-likeness order (operator 10-07: "Test tonight, aim for Week 5"; default off): FP's projected
   # ownership (the term's FP export when there is one, else this run's own capture + export) and the players' prior-game
@@ -661,6 +668,9 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   fi
   if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_RB_MATE_C:-0}" != "0" && "$UNION_MAIN_EFFECTIVE" != "mix" ]]; then
     rb_mate_alert "the MIX main was refused; the house fallback ($UNION_MAIN_EFFECTIVE) has no RB-mate rule"
+  fi
+  if (( RB_MATE_ON )) && grep -q 'RB MATE SCOPE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
+    rb_mate_alert "the union refused the scope (the RB mate is off): $(grep -h 'RB MATE SCOPE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
   if (( OWN_CAP_ON )) && grep -q 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     own_cap_alert "the union refused it: $(grep -h 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
