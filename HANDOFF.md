@@ -12,6 +12,43 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (20:12 CDT) — OPERATOR: the favored RB naked or with the trailing QB, "Do as you suggest" (study 97 arms); study 96 READ PAPER ONLY (reproduced); the W4 RBMATE4 check and the shape builds
+
+**His words, in the outside reviewer's session at about 20:15 CDT, relayed verbatim:**
+- "Im open to the RB being naked if the qb underperforms when favored.  Ill trust your opinion on that"
+- then "Or the qb from the trailing team etc"
+- then "Do as you suggest"
+
+**The outside reviewer's answer to him.**
+- A favored QB does NOT underperform. In the research (2018–22 + 2025, outside the harness's 2023–24), a 7+ favorite's QB
+  averages 21.1 DK against 14.4 for a 7+ underdog's, and reaches 25+ in 31.7% of games against 11.2%.
+- He barely moves with his own RB (correlation ≈ 0).
+- So whether the favored RB should sit with his QB, without him, or with the trailing team's QB is tested side by side
+  tonight, in study 97:
+  - **FAVRB_NAKED4:** an expected winner's RB WITHOUT his QB, on the 4 C slots;
+  - **FAVRB_OPPQB4:** an expected winner's RB WITH the trailing team's QB, on the first 4 B slots, the RB as the row's
+    bring-back.
+- 8 arms, 11 comparisons. Lab @ `af07583e`; prereg review/s97-prereg-20261009 @ `303851bc`. The banks are unchanged (the
+  laptop's scan stands).
+- In production these would be pair-set filters on --mix-rb-mate-c, built only on his word.
+
+**Study 96 READ: PAPER ONLY by his rule.**
+- ONECATCH + RBMATE4 − ONECATCH: −0.00455 (A −0.00697, B −0.00213; seats 0.966).
+- The laptop reproduced it byte for byte: READ_s96 `9d479980`, census `0c390753`.
+- RB_MATE_C stays 0. Study 38 6u's paper arm carries it in Week 5.
+
+**The laptop's W4 checks**, outcome-blind on his W4 FP book:
+- **RBMATE4 on the armed version** (merge check `5c66f156`):
+  - gates OFF == `a4ab2839`, ARMED + ONECATCH == `293d9465`;
+  - ON: 4 of 4 C slots ruled, 0 re-solved; QB + own-RB rows 4 → 6; 20 of 26 rows change; FP −0.07 per row;
+  - ~/rehearsals/flagcheck-rbmateC4-20261010T010937Z; the receipt goes to the reviewer for 6u.
+- **Study 95's shape arms built on the armed version** (the zero-quota parser `21fa9d29`; ~/rehearsals/quotacheck-20261010T011001Z):
+  - gates ARMED and the spelled-out LIVE quotas == `293d9465`;
+  - NO_A1 0/6/10/10, NO_A2 9/0/9/8, NO_B 10/6/0/10, NO_C 10/6/10/0 (A1 / A2 / B / C rows); each ONLY_x 26;
+  - the reviewer's known answers matched;
+  - every arm can be armed by MIX_QUOTAS once the parser merges (the reviewer approved it; their s38 6v follows a zero
+    cell).
+
 ## 2026-10-09 (19:55 CDT) — OPERATOR: the night's working rules (no prompts overnight; shape percentages and RBMATE4's use decided in the morning; game-script versions to test)
 
 **His words, in the outside reviewer's session at about 19:45 CDT, relayed verbatim:**
