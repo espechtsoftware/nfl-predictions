@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (13:45 CDT) — outside model: the qualifiers' history and persistence, where the 30-point games come from, and this week's matchup read (docs only)
+
+- **His questions (this session):** "in the qualifiers like 4444 and 555 - how much historic data do we have? Do the same people - with limited
+  numbers of entries - win consistently?"; "Please do further analysis on ways we can improve scores this week"; "Also look at how this weeks
+  matchups suggest certain plays". **The page:** `briefings/2026-week-05/2026-10-10-qualifiers-booms-and-matchups.md` (+ index row), on
+  `review/additional-suggestions-20261010`.
+- **Qualifiers:** only 2026 W2–4: 12 limited-entry contests (4444 ×4 at 380–402 entries / 12 per user; 555 ×3 and 333 ×2 at 68–79 / 2 per user;
+  3 small FFWC sats), 2,229 entries, 517 users; plus the two 5,000-entry 150-max FFWC qualifiers (W1, W3). **Persistence = chance:** a user with a
+  top-10% entry in one week had 11.3% top-10% entries later vs 10.1% for the rest (chance benchmark 10.2%, 7.5–13.2%); rank correlation of mean
+  finish across weeks 0.04; 37 top-3 finishes by 29 users, one user top 3 in two weeks; the top-3 finishers' other 307 entries at the field
+  average. Regulars: 49% of entries, 21% of top-3s. (The pooled "repeaters at 2x" read is volume: 150-entry users.)
+- **Booms (W1–4, 661 skill player-weeks projected 5+, 28 games of 30+):** by tier 0 / 1.8% / 11.0% / 38.5% (<4k / 4–6k / 6–8k / 8k+); TE 1 of
+  105; projection rank top 3 16.7% vs 16+ 1.4%; **the top-total game 1 of 52 (1.9%), ranks 2–3 8 of 109 (7.3%)**; owned 20%+ 14.3% vs under 5%
+  1.8%. The Sunday book's skill slots: 17% under $4k, 46% at $6–8k, 10% at $8k+ → 0.74 expected 30+ games per lineup at tier rates; three are needed.
+- **Matchups (the four signals that beat the market: implied total, underdog, wind, top CB out):** DET 30.0 implied / ARI 24.5 (54.5), the field at
+  23% of all FP ownership on those two teams, heaviest on the DET RB while ARI's defense is the slate's worst vs the pass (0.44 EPA/dropback) and
+  good vs the run (−0.17); CIN 25.3 implied (−7) vs MIA's 0.52 EPA/dropback with CIN receivers under 8% owned = the clearest environment + low
+  ownership spot; DEN's top CB out → LAC receivers (the only CB flag); FAVHI's three pairs (DET, NE, SEA) all meet good run defenses (−0.17 / −0.18 /
+  −0.28) — information for Monday; FP's projections run 3.5–3.6 points per implied point for the two highest-implied teams vs 4.1–4.5 for low ones
+  (flat against the market's team totals, the one strict-bar signal; study 64's S1 is the frozen fix, W8 at the earliest). No picks: the book takes
+  players by FP projection per dollar under the rules; the only lever that moves rows between games today is the QB cap.
+- Merge: `git merge --no-ff review/additional-suggestions-20261010`.
+
 ## 2026-10-10 (13:28 CDT) — OPERATOR (to the outside model): "I want to score this week" — the live options for today's arm, ranked (docs only; his decisions pending)
 
 - **His words, verbatim, after the afternoon page's paper-arm recommendations:** "I want to score this week".
