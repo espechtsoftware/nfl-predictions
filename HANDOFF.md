@@ -23,7 +23,7 @@
   | LOW0 | +0.3 | −0.3 / +0.8 | ×1.11 | mixed |
   | QBTOP3 | −3.6 | −3.8 / −3.4 | ×0.91 | guard 1 FAILS |
   | POPPUNT | +1.0 | +2.3 / −0.2 | ×1.05 | mixed |
-  | HYGIENE | −0.6 | −0.5 / −0.7 | ×1.00 | the QB–DST ban alone (the $49,500 floor never binds) |
+  | HYGIENE | −0.6 | −0.5 / −0.7 | ×1.00 | CORRECTED: the $49,500 floor DID bind on the scored banks (CENSUS_s110_confirm: LIVE's lowest book lineup $49,300; 11 of 11,232 solves re-solved plain; dealt identical to LIVE on 0.535 of slate-banks); it never bound only on bank 1406 |
   | VAL4 | −2.9 | −2.6 / −3.3 | ×0.92 | worse on both |
 
 - **PICK: none.** 111 is not run.
