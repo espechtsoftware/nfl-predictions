@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:38 CDT) — OPERATOR: every per-player data point (DK's opponent rank first) into the weekly Neo4j graph; study list row 104
+
+- **His words (verbatim):** "I'm glad we're collecting that data.  Please make it part of what goes into neo4j each week - along hopefully all relevant data points we get per player from our data sources - so we can learn what data points matter over time."
+- **Plan (row 104):** extend `src/nfl_dfs/dashboard/milly_graph_facts.py` (what `neo4j_weekly_refresh.sh --with-facts` loads) with DK's
+  opponent rank / ppg / news (the latest pre-lock capture), the point-in-time columns of `nfl_features.player_week_inference`, our
+  projections, and the other per-player sources; plus a standing graph_weekly "which data points track points / 30-point games"
+  query. Built on a branch with tests and review; **merged after Sunday's builds** (no code change before tonight's arm); first load in
+  Monday 10-12's refresh, W1–4 backfilled where data exists.
+
 ## 2026-10-10 (14:34 CDT) — OPERATOR: DK's opponent ranks -- the laptop's L2 revised again (Tucker bring-back, McBride TE); study 8's OPRK capture restated, today's missed snapshot taken, a BigQuery capture added, O-66
 
 - **His words (verbatim):** "DK shows NE as 7th vs WR.  Please evaluate if you still think that's a good pick.  Also, are we considering draft
