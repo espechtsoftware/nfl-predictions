@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (05:01 CDT) — OPERATOR, in the laptop's session: ADOPT the FAVHI RB rule for Week 5
+
+**His words, verbatim:**
+> Yes, it seems the RB one should be adopted.  Is that the only one that was successful?  That’s disappointing if that’s the case.
+> And why doesnt “whole book built for high scores” show the high scores?
+
+**The decision:** "Yes, it seems the RB one should be adopted." This is the FAVHI RB mate (studies 97 + 99: the QB's own RB in the
+first 4 QB + 1 lineups, only for the expected winner of a high-scoring game), merged off at FRIDAY_HEAD `5faf2f05`.
+- **The laptop arms it:** an arm-only commit setting RB_MATE_C=4 and RB_MATE_SCOPE=favhi (W4 check `b6680c2c`: BUF / HOU /
+  SF, 4 / 4 lineups, a cost of 0.11 FP per row).
+- Then the scratch `--check`. Study 38 6w's paper arms follow it (QA0 = the live book with FAVHI; NORBMATE paired, the book
+  without it).
+- **Saturday's canary receipt** must show rb_mate_source applied with scope favhi.
+
 ## 2026-10-10 (04:51 CDT) — OPERATOR, in the laptop's session: a recency fade (−2 in the projection when the last game was twice the average)
 
 **His words, verbatim:** "I believe the pros fade players with a big previous week.  Perhaps try something like a 2 point reduction in the projection when the players last game was twice the average or something similar"

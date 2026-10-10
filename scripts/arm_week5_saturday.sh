@@ -39,14 +39,12 @@ ONE_CATCHER_ALL=1                   # LIVE (his 10-09 decision, HANDOFF 90e8470c
                                     # the flag c391fbd0 + the wiring f483644c reviewed, the W4 check f9ec0239, study 38 6t acked):
                                     # 1 = study 93's ONECATCH, at most one WR / TE per team on every QB + 1 (B / C) book row, ONLY
                                     # with ROW_RULES=te1_low1 and the package; 0 = off
-RB_MATE_C=0                         # his 10-09 decision (HANDOFF ad00da5c, "Try live W5 if built"): 4 = study 94's RBMATE4, the QB's
-                                    # own RB in the first 4 QB + 1 (C) book rows, ONLY with ONE_CATCHER_ALL=1 (study 96 read the
-                                    # two together); set to 4 only if 96 passes his rule and the flag, the wiring, the W4 check and
-                                    # 6u pass; 0 = off
-RB_MATE_SCOPE=all                   # study 97's game-script scope of the RB mate (his 10-09 evening request, HANDOFF 543f2695 /
-                                    # 63a821d4): all = study 94's pairs (read PAPER ONLY with ONECATCH, study 96); favhi = only the
-                                    # expected winner of a high-total game (97's one passing scope; study 99 confirms), only with
-                                    # RB_MATE_C=4 and HIS decision
+RB_MATE_C=4                         # LIVE (his 10-10 decision in the laptop's session: "Yes, it seems the RB one should be adopted"):
+                                    # the QB's own RB in the first 4 QB + 1 (C) book rows, ONLY with ONE_CATCHER_ALL=1 and the scope
+                                    # below; 0 = off
+RB_MATE_SCOPE=favhi                 # LIVE with RB_MATE_C=4: favhi = only the expected winner of a high-total game (studies 97 + 99,
+                                    # passed his rule twice; W4 check b6680c2c: BUF / HOU / SF, 4 / 4 rows); all = study 94's pairs
+                                    # (PAPER ONLY, study 96) -- never armed
 MIX_FILL=rr                         # the MIX fill order (study 42; his 10-06 evening yes, "Use round-robin"): the cells in
                                     # turn, a row per shape for the top QBs (the outside reviewer's arm; NO DIFFERENCE on
                                     # P(>=1 big), +9% expected seats). group = the earlier book; value is NOT to be armed
