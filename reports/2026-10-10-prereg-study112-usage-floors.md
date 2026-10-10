@@ -100,6 +100,11 @@ game, or no feature row) is kept** and counted.
   Week 5 of 2026, production's window is the same (Weeks 1–4).
 - **The harness builds on its own simulated means;** his book uses Fantasy Points' projections. A floor removes the same players
   in both (the usage data is shared), but which lineups result differs.
+- **On his real Week-4 book the floors bite harder than in the harness** (the laptop's outcome-blind check, 10-10: the armed
+  book with FAVHI, `c605cab6`; the W4 frame's point-in-time `carries_l4` / `targets_l4`; QB attempts the within-season mean of up
+  to 4 games before W4; no value kept): **RUSH 13 touches 13 of 26 lineups** (3 book RBs removed), **PASS 32 touches 14** (4
+  QBs), **TGT 4.5 touches 21** (7 WRs / TEs). The harness levels were set to touch 8–15 of LIVE's rows on 2023–24; live, each
+  would change half or more of his book, TGT the most. A passing floor's live effect is larger than its harness dose.
 - **Production has no such flag.** A pass needs:
   - a pool filter on these columns joined to the T-70 frame (the `--min-proj` pattern: `excl` into the pool, caps, rule sets and
     the term block);
