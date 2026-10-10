@@ -79,6 +79,10 @@ sets, the cheap block's term and the FAVHI pairs (112's `usage_pool` = 106's `ar
 ## 5. Honest limits and the census
 - **The harness builds on its own simulated means;** his book uses Fantasy Points' projections. The floor removes the same
   players in both (the usage data is shared), but which lineups result differs.
+- **A harness property that holds in every arm (checked 10-10 on all 36 slates, from the data, not from the snapshot's build
+  code, which is not in either repository):** players ruled **Out** on the pre-lock injury report are **not in the k1 pools**
+  (0 of 19,574 pool rows carry 'Out', while `player_week_training` lists 599 'Out' players for those weeks); Questionable (685)
+  and Doubtful (94) players are in them. So no arm can roster an Out player.
 - **The census, per arm (outcome-blind, bank 1406):** the pool; the RBs dropped, **by salary band (under $5,000; $5,000–6,900;
   $7,000+) with their mean prior targets per game**; the cheap players left and given the term; the TE / low-owned pools;
   LIVE's rows touched; the FAVHI pairs per slate (mean and minimum) and the RB-mate floor's fallbacks; the spares built; the
