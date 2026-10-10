@@ -151,7 +151,7 @@ K=$(PYTHONPATH=src $PY -m nfl_dfs.inference.enter_layout rows-needed $W/contests
 NEO_PID=$HOME/.local/share/neo4j-milly/run/neo4j.pid
 if [[ -s $NEO_PID ]] && ps -p "$(cat "$NEO_PID")" >/dev/null 2>&1; then stop "the local Neo4j is running (pid $(cat "$NEO_PID")): neo4j-milly stop, then re-run"; fi
 [[ -z "$(ss -ltnH '( sport = :7474 or sport = :7687 )' 2>/dev/null)" ]] || stop "a process listens on 7474/7687 (the local Neo4j?): stop it, then re-run"
-say "step 0 OK: checkout $(git rev-parse --short HEAD) clean; Rev6 installed; class model ${CLASS_SHA:0:8}; K $K; shape $SHAPE; Neo4j not running"
+say "step 0 OK: checkout $(git rev-parse --short HEAD) clean; Rev7 installed; class model ${CLASS_SHA:0:8}; K $K; shape $SHAPE; Neo4j not running"
 if [[ "$CHECK" != --check ]]; then
   # 1-4. Saturday inputs (no LineStar step: retired 10-06)
   PYTHONPATH=src $PY scripts/ownership_sets.py sets --week 5 --group 154468 --out $W/ownership_sets.csv 2>&1 | tail -1 || stop "ownership_sets.py sets failed"
