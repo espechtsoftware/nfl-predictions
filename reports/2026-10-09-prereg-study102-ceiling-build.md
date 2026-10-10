@@ -1,15 +1,16 @@
-# Preregistration: study 102, ceiling construction — three ways of building his live book for a higher best lineup, read on the book's best real lineup, in the harness (DRAFT 2026-10-09)
+# Preregistration: study 102, ceiling construction — three ways of building his live book for a higher best lineup, read on the book's best real lineup, in the harness (DRAFT 2026-10-09; FROZEN 2026-10-10)
 
-**Status: DRAFT 2026-10-09** (the times are this file's commits) by the outside reviewer. **Version (b): the outside reviewer's
-mechanics** (the lab reviewer, 10-09: "Build WHICHEVER version you have already started ... Just state in the prereg which one
-it is"): p85 + the cheap term; the top-4 games; MAX_PER_GAME 5 on the A1 full-stack solves only (approved by the lab reviewer).
-The code is done (12 tests); the tests and the smoke wait for a machine gap. The lab reviewer reviews, runs the binding census and
-FREEZES; the laptop acks. **Information for his morning decision; a pick goes to study 103, whose preregistration is committed
-before this study's READ.**
-- **Banks and seed (the laptop's full-set check: clean against every used bank, studies 100 / 101 included):** **3384–3395**
-  (set A 3384–3389, set B 3390–3395; sims bases 3434–3445, fields 4084–4095); the reader's bootstrap seed 20261146.
-  **The laptop's text scan: CLEAN** (every context hit is this study's own files, shas, an l03 timing, or the 09-19 evidence
-  files' "inactive" counts under letter-labelled banks).
+**Status: FROZEN 2026-10-10 (01:55 CDT)** by the reviewer, after the outside reviewer's DRAFT, the smoke and the binding census,
+before any scored bank. The text changed at the freeze in this status block and §5 (the binding census) only. The laptop acks.
+**Information for his morning decision; a pick goes to study 103, and on a hold to study 104 (both preregistrations committed before this READ).**
+- **Version (b): the outside reviewer's mechanics** (the lab reviewer, 10-09: "Build WHICHEVER version you have already started
+  ... Just state in the prereg which one it is"): p85 + the cheap term; the top-4 games; MAX_PER_GAME 5 on the A1 full-stack
+  solves only (approved by the lab reviewer). Kept from the DRAFT's status block, which the freeze replaces.
+- **Banks 3384–3395** (set A 3384–3389, set B 3390–3395; sims bases 3434–3445, fields 4084–4095), **seed 20261146**. The laptop's scan was clean: the full set against every used bank's {b, b + 50, b + 700} (studies 90–101 included), no season
+  years, no results file; the text scans found only this study's and study 103's own preregs and tests, shas, timings, and
+  letter-labelled "bank" fields with inactive-player counts in 09-19 review evidence (incidental).
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run (O-63), recorded in `RUN_ENV_s102.txt` committed with
+  the confirmatory census.
 
 ## 1. Why
 - **The operator, 10-09 evening, in the laptop's session (HANDOFF `f68ebf50`, verbatim):** "...if you're not seeing really good
@@ -97,6 +98,13 @@ B .28 / C .28), **one setting changed** (a test asserts exactly one):
     rows (it excludes only `pred_pool` / `pairs`). It moved to a top-level `m["ceiling"]` (`969f4d3d`); no build change (the
     census numbers identical). Class swept: only `pred_pool` remains per-slate inside `m["own"]`. Study 103 runs this code;
     study 104's code will keep every per-slate field out of the compared blocks.
+- **The binding census** (the reviewer's; outcome-blind; bank 1406; 36 slate-banks of 2023–24; code `969f4d3d` clean;
+  PYTHONHASHSEED=0; 12 tests pass; lab `7b65f1c8`: `CENSUS_s102_binding.txt` `85f9bb71…`, `census_mechanics_bank1406.jsonl`
+  `cdf069ce…`): **0 row-rule and ownership-cap fallbacks in all 4 arms** (936 of 936); **ONECATCH 504 of 504 in every arm**; p85 −
+  mean 5.68 points per skill player (min 5.41, max 5.96); **TAIL_STACK8's A1 rows are full game stacks in the top-4 games on every
+  solve** (288 of 288 ruled, 0 re-solved plain; 8.00 book rows with 5 from one game, LIVE 0.00); CEIL_ALL's flex RB rows 3.1 vs
+  LIVE 10.8; rows shared with LIVE CEIL_BLOCK8 18.2, CEIL_ALL 0.7, TAIL_STACK8 1.7 of 26, **none dealt identical**; projection per
+  row vs LIVE +0.02 / −0.24 / −0.31; build 65 s per slate-bank.
 - **Code:** nfl2 `production/s102-ceiling-build-20261009` @ `969f4d3d` (branched from study 100's `635b64eb`):
   `experiments/s102_ceiling_build.py` `ca7f4399…` (pins s95 `46b80611…`); `scripts/s102_drive.py` `7ac2fefc…`;
   `scripts/s102_census.py` `4dcab0b5…`; **`scripts/s102_report.py` (the reader) `581dabd9…`** (seed 20261146);
