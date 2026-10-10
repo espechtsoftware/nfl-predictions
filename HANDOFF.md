@@ -12,6 +12,33 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (08:05 CDT) — OPERATOR: the dealing review read (merged, one correction); the FFWC qualifier's pin moves to row 2 (plan Rev7 installed; PLAN_SHA 6ce16979)
+
+- **His request:** "Review" the outside model's `briefings/2026-week-05/2026-10-10-dealing-review.md` (b538ad7b).
+  - **The laptop reproduced** the W4 rows (row 1: 147.7 FP / ownership sum 181 / 107.3 realized; rank 22 best at 177.9), the
+    correlations (rank vs realized +0.08, projection vs realized −0.09), the segment means (118.8 / 126.8 / 123.1) and the
+    head layout's entries per row [4, 3, 3, 3, 2 × 18, 1 × 4].
+  - **Corrected at the merge:** row 1 was the SIXTH worst, not the fourth (merge `b1acee31`).
+- **The laptop's question:** "Move the FFWC qualifier's pin off row 1 (the chalkiest lineup, most likely to be copied) to a less-owned lineup for this week?"
+- **His answer: "Move it to row 2 (Recommended)".** The option text: one pin change; the qualifier gets row 2, a cheap-block lineup (ownership sum
+  about 96 on W4 vs 181); lineup order does not change the chance of a big win (studies 24 / 32 / 42 / 48b / 52 / 59), so
+  the expected cost is about zero; it removes the copy risk from that seat.
+- **Done:**
+  - `~/week5-sunday/contests.json` is now **Rev7** (sha `6ce16979…`): contest 196421726's ranks [1] → [2], the ONLY change.
+    It round-trips byte for byte otherwise.
+  - Rev6 is kept as `contests.json.rev6-5f8352ee`, Rev7 also as `contests.json.rev7-6ce16979`. Private, never committed.
+- **The relayout check** (`enter_layout.assign_ranks`, head):
+  - rows_needed 26 for both;
+  - only that contest moves;
+  - entries per row Rev6 [4, 3, 3, 3, …] → Rev7 [3, 4, 3, 3, …];
+  - 53 entries.
+- **The arm:** PLAN_SHA = Rev7 (`8fa7c546`; step-0 label `5197a0f3`). Tests reading the arm: 73 passed (rc 0). The scratch
+  --check: rc 0, 13 units, K 26. The production checkout is at 5197a0f3.
+- **Its other suggestions** (no build change):
+  - no more sort rules;
+  - a standing Monday line, realized points by book rank and ownership-sum band (the laptop adds it to Monday's report);
+  - Week 6: the deal by the ownership-sum band, which predicts copies better than the product (study-list row 50).
+
 ## 2026-10-10 (07:45 CDT) — OPERATOR: "Read" the outside model's second page (merged with one correction); the WR / TE recency test "today for this week" (study 115, row 96)
 
 - **His request:** "Read" `briefings/2026-week-05/2026-10-10-additional-suggestions.md` (review/additional-suggestions-20261010
