@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (10:54 CDT) — OPERATOR: a new study 116 (RB receptions floor), live this week only if 116 and 116b pass; "Hold 114 until after"; his backup-RB question -> 116c; 114 acked (frozen, unrun); 116 FROZEN and running; the switch built (default off)
+
+- **His words (the laptop's session, verbatim):**
+  - "Let's try another experiment where we have a minimum number of receptions for a running back."
+  - On the order (AskUserQuestion; the laptop recommended running 114 now): **"Hold 114 until after"**.
+  - On a study-38 paper arm (the in-sample caveat stated in plain words): **"Please try it now and only of successful include
+    it this week"**; asked what "successful" means: **"116 and re-check pass (Recommended)"**. So the floor goes into his
+    real W5 entries only if 116 picks and 116b holds; no paper arm.
+  - "Do we also need to consider that if an, another running back is out, like the lead running back that gets receptions,
+    that those receptions would go to the backup?" -> study 116c (study list row 98), run only if 116 picks.
+- **Study 114** (rule removal) FROZEN 10:27 (819c9294). The laptop's ack: census re-run IDENTICAL (10:27:55–10:32:06), 13
+  tests. It stays frozen and unrun until 116 (and 116b) read. If 116 is adopted, 114 needs an amendment with a new LIVE.
+- **Study 116** (row 97): REC (< 2.0) / REC_LOW (< 1.5) on 112's harness; FROZEN 10:50 (dc1d0722); the laptop's census
+  IDENTICAL (10:51:11–10:53:42), 12 tests; banks 4008–4019 (full-set and text scans CLEAN); scored run from 10:54:02, ETA
+  about 11:30. 116b = 4108–4119 (study 104's never-drawn field seeds; 104 was not run; disclosed). 116c = 4328–4339.
+- **Receptions data:** player_week_actuals.receptions = nflverse weekly on every RB-week (2025 1,575 / 2026 370) and the
+  same (gsis_id, week) stat-line set (2025 18,522, 2026 4,512; the raw table's extra rows have no player id).
+- **The switch** (production/rb-rec-floor-20261010 @ `256b6cf4`, default off, NOT merged): `--mix-min-rb-rec` 1.5 / 2.0 +
+  `--mix-rb-rec-source`; the file `~/private/paper-corun/rbrec/w05.csv` from
+  `reports/2026-10-10-rb-receptions/rb_rec_file.py`; RB_REC_MIN / RB_REC_FILE / RB_REC_SHA in the arm; S38_RB_REC_FILE in the
+  snapshot. 18 tests pass. Still to do if 116 picks: the W4 gates + ON check (after the run), the full test sweep, the
+  reviewer's static review, s38 7b (paper arms follow the floor; about 60–90 min), the merge by about 15:30.
+- **Next:** 116 READ (about 11:30) -> 116b + 116c if it picks; else 114 runs. 15:30 refresh; 16:45 FP ownership; 17:55 arm.
+
 ## 2026-10-10 (10:20 CDT) — study 112 READ: every usage floor worse on both draws, no pick, 113 not run (reproduced byte for byte); s38 6z + 6z2 acked, the canary gate at 0b3aa516; study 114's smoke next
 
 - **Study 112** (the reviewer; lab `a4fd70e9`; confirmatory census `023c1d0f` committed before the read). **The laptop reproduced
