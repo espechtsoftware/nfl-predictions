@@ -1,0 +1,306 @@
+W1: frame 367; ownership rows 665, frame names matched 362; hot players 0; priority contests 1
+  milly: 823,092 lineups; ours 57; mean own_sum 112.4
+  priority: 4,993 lineups; ours 3; mean own_sum 121.0
+W2: frame 418; ownership rows 412, frame names matched 341; hot players 26; priority contests 2
+  milly: 172,330 lineups; ours 1; mean own_sum 117.3
+  priority: 126 lineups; ours 4; mean own_sum 130.6
+W3: frame 439; ownership rows 415, frame names matched 358; hot players 20; priority contests 7
+  milly: 161,502 lineups; ours 1; mean own_sum 116.3
+  priority: 6,511 lineups; ours 13; mean own_sum 115.7
+W4: frame 316; ownership rows 380, frame names matched 292; hot players 24; priority contests 4
+  milly: 160,039 lineups; ours 2; mean own_sum 110.3
+  priority: 589 lineups; ours 7; mean own_sum 120.7
+
+=== MILLIONAIRE by week: field / top 1% / top 0.1% / OURS (ownership realized, SUM over roster rows) ===
+-- W1
+group              field    top 1%  top 0.1%      OURS
+n             823092.000  8308.000   839.000    57.000
+proj             122.561   125.345   125.786   124.569
+points           142.256   218.264   236.672   147.361
+own_sum          112.364   123.693   125.235   101.744
+max_own           31.829    37.475    39.014    26.796
+n_chalk20          1.469     1.673     1.738     0.860
+n_chalk15          2.519     2.482     2.408     2.386
+n_sub5             1.865     1.200     1.131     2.246
+n_sub3             1.008     0.451     0.317     1.228
+log_own_prod     -22.005   -20.526   -20.362   -22.636
+exp_copies         0.005     0.007     0.005     0.003
+dup                0.102     0.149     0.126     0.035
+copies             2.085     1.469     1.260     1.123
+n_hot              0.000     0.000     0.000     0.000
+hot_qb             0.000     0.000     0.000     0.000
+hot_rb             0.000     0.000     0.000     0.000
+hot_wr             0.000     0.000     0.000     0.000
+hot_te             0.000     0.000     0.000     0.000
+hot_chalk          0.000     0.000     0.000     0.000
+hot_quiet          0.000     0.000     0.000     0.000
+n_topval           3.158     4.316     4.430     3.123
+qb_prank           8.656     9.566    10.206    10.211
+qb_own             6.479     6.022     5.812     5.490
+n_star             0.429     0.746     0.818     0.246
+n_cheap            0.863     1.027     0.933     0.877
+sal_sd          1313.052  1385.967  1379.437  1219.527
+-- W2
+group              field    top 1%  top 0.1%      OURS
+n             172330.000  1729.000   172.000     1.000
+proj             123.675   124.711   124.095   139.203
+points           115.591   188.966   207.016   126.620
+own_sum          117.325   126.233   122.905   136.830
+max_own           36.476    32.488    29.855    47.240
+n_chalk20          1.517     2.220     2.233     2.000
+n_chalk15          2.565     3.468     3.407     4.000
+n_sub5             1.932     1.377     1.366     3.000
+n_sub3             0.957     0.593     0.512     2.000
+log_own_prod     -21.975   -20.463   -20.448   -21.495
+exp_copies         0.001     0.002     0.001     0.000
+dup                0.057     0.094     0.023     0.000
+copies             1.716     1.452     1.023     1.000
+n_hot              1.802     1.079     0.977     2.000
+hot_qb             0.068     0.142     0.180     0.000
+hot_rb             0.751     0.559     0.512     1.000
+hot_wr             0.884     0.363     0.279     1.000
+hot_te             0.099     0.016     0.006     0.000
+hot_chalk          1.294     0.692     0.558     2.000
+hot_quiet          0.508     0.387     0.419     0.000
+n_topval           2.645     2.848     2.733     7.000
+qb_prank           8.838     7.405     7.163    12.000
+qb_own             7.269     8.864     9.433     2.060
+n_star             0.803     1.116     1.203     1.000
+n_cheap            0.943     1.348     1.378     2.000
+sal_sd          1366.655  1560.966  1591.163  1910.456
+-- W3
+group              field    top 1%  top 0.1%      OURS
+n             161502.000  1620.000   161.000     1.000
+proj             122.639   125.344   124.802   132.787
+points           128.483   196.035   210.972   127.580
+own_sum          116.277   132.889   129.954   128.080
+max_own           32.894    33.999    32.954    44.320
+n_chalk20          1.531     2.559     2.553     2.000
+n_chalk15          2.861     3.637     3.516     4.000
+n_sub5             1.749     1.191     1.112     4.000
+n_sub3             0.981     0.662     0.522     2.000
+log_own_prod     -21.868   -20.435   -20.602   -22.309
+exp_copies         0.002     0.002     0.001     0.000
+dup                0.059     0.129     0.099     0.000
+copies             1.276     1.288     1.211     1.000
+n_hot              1.243     0.767     0.820     0.000
+hot_qb             0.002     0.000     0.000     0.000
+hot_rb             0.016     0.010     0.000     0.000
+hot_wr             0.649     0.560     0.652     0.000
+hot_te             0.576     0.198     0.168     0.000
+hot_chalk          1.003     0.694     0.752     0.000
+hot_quiet          0.240     0.073     0.068     0.000
+n_topval           3.032     3.456     3.180     5.000
+qb_prank           9.812    13.804    14.857     8.000
+qb_own             6.930     7.296     7.254     2.790
+n_star             0.696     1.306     1.516     1.000
+n_cheap            0.707     1.192     1.391     2.000
+sal_sd          1440.361  1685.148  1764.809  1889.734
+-- W4
+group              field    top 1%  top 0.1%      OURS
+n             160039.000  1613.000   161.000     2.000
+proj             123.460   122.041   121.401   133.086
+points           118.647   192.869   212.651   139.780
+own_sum          110.314   100.271    97.502   137.665
+max_own           25.544    23.000    21.873    27.975
+n_chalk20          1.727     0.884     0.671     2.500
+n_chalk15          3.217     2.213     1.994     5.000
+n_sub5             1.549     1.132     0.944     1.500
+n_sub3             0.876     0.724     0.671     1.000
+log_own_prod     -21.671   -21.900   -21.874   -19.043
+exp_copies         0.001     0.000     0.000     0.007
+dup                0.054     0.038     0.025     0.000
+copies             1.295     1.042     1.025     1.000
+n_hot              1.595     0.815     0.596     1.500
+hot_qb             0.095     0.015     0.000     0.000
+hot_rb             0.415     0.223     0.174     0.500
+hot_wr             0.811     0.384     0.267     1.000
+hot_te             0.273     0.193     0.155     0.000
+hot_chalk          1.150     0.617     0.404     1.500
+hot_quiet          0.444     0.197     0.193     0.000
+n_topval           3.450     2.895     2.596     5.500
+qb_prank           9.257     9.524     9.217     3.000
+qb_own             6.678     5.493     5.513     8.905
+n_star             0.706     0.337     0.255     1.500
+n_cheap            0.779     1.069     1.137     1.500
+sal_sd          1378.632  1440.214  1450.052  1684.562
+
+=== PRIORITY CONTESTS pooled and by week: field / top 2% / top 3 / OURS ===
+group             field    top 2%     top 3      OURS
+n             12219.000   239.000    43.000    27.000
+proj            124.489   125.900   126.303   129.788
+points          139.638   203.854   192.881   120.899
+own_sum         118.242   126.309   129.576   116.761
+max_own          32.466    34.846    33.268    29.503
+n_chalk20         1.709     2.113     2.279     1.444
+n_chalk15         2.880     2.992     3.419     3.296
+n_sub5            1.607     1.105     0.953     1.815
+n_sub3            0.845     0.515     0.535     0.889
+log_own_prod    -21.354   -20.489   -20.000   -21.149
+exp_copies        0.000     0.000     0.000     0.000
+dup               0.021     0.025     0.047     0.000
+copies            2.290     1.025     1.047     1.000
+n_hot             0.629     0.360     0.628     1.222
+hot_qb            0.005     0.000     0.023     0.037
+hot_rb            0.033     0.021     0.186     0.259
+hot_wr            0.309     0.222     0.279     0.593
+hot_te            0.282     0.117     0.140     0.333
+hot_chalk         0.526     0.331     0.465     0.889
+hot_quiet         0.103     0.029     0.163     0.333
+n_topval          3.494     3.929     3.674     4.963
+qb_prank          9.551    11.745    11.419     6.222
+qb_own            6.273     6.582     6.947     7.633
+n_star            0.654     1.013     0.860     0.444
+n_cheap           0.893     1.201     1.326     0.815
+sal_sd         1447.941  1560.684  1600.768  1347.174
+-- W1
+group          field   top 2%    top 3     OURS
+n           4993.000   99.000    3.000    3.000
+own_sum      120.984  124.255  143.107   78.317
+n_chalk20      1.719    1.717    2.000    0.333
+n_sub5         1.486    1.202    0.333    2.667
+exp_copies     0.000    0.000    0.000    0.000
+dup            0.033    0.000    0.000    0.000
+n_hot          0.000    0.000    0.000    0.000
+hot_chalk      0.000    0.000    0.000    0.000
+hot_quiet      0.000    0.000    0.000    0.000
+qb_own         6.190    5.791    8.880    6.227
+proj         124.629  125.899  129.407  120.531
+points       147.252  215.494  245.167  142.300
+-- W2
+group         field   top 2%    top 3     OURS
+n           126.000    2.000    6.000    4.000
+own_sum     130.640  133.745  137.002   92.918
+n_chalk20     1.881    2.500    2.667    0.500
+n_sub5        1.317    0.500    1.167    2.250
+exp_copies    0.000    0.000    0.000    0.000
+dup           0.048    0.000    0.000    0.000
+n_hot         1.627    0.000    0.833    3.000
+hot_chalk     1.286    0.000    0.500    1.750
+hot_quiet     0.341    0.000    0.333    1.250
+qb_own        7.513   10.905    7.598    6.750
+proj        126.541  126.924  125.801  129.219
+points      123.287  182.950  175.273   98.050
+-- W3
+group          field   top 2%    top 3     OURS
+n           6511.000  128.000   21.000   13.000
+own_sum      115.674  128.459  137.935  119.547
+n_chalk20      1.670    2.453    2.762    1.538
+n_sub5         1.731    1.102    0.952    2.231
+exp_copies     0.000    0.000    0.000    0.000
+dup            0.012    0.047    0.000    0.000
+n_hot          0.998    0.609    0.286    0.923
+hot_chalk      0.846    0.562    0.286    0.692
+hot_quiet      0.153    0.047    0.000    0.231
+qb_own         6.249    7.190    7.404    6.667
+proj         124.212  125.870  127.440  129.507
+points       135.744  196.284  198.072  125.446
+-- W4
+group         field   top 2%    top 3     OURS
+n           589.000   10.000   13.000    7.000
+own_sum     120.725  117.635  109.522  141.689
+n_chalk20     2.024    1.600    1.385    2.286
+n_sub5        1.321    0.300    1.000    0.429
+exp_copies    0.000    0.000    0.000    0.000
+dup           0.010    0.000    0.154    0.000
+n_hot         1.666    0.800    1.231    1.286
+hot_chalk     1.290    0.700    0.846    1.143
+hot_quiet     0.375    0.100    0.385    0.143
+qb_own        6.978    5.760    5.461   10.536
+proj        125.907  126.095  123.983  134.602
+points      121.649  189.704  180.555  116.337
+
+=== MILLIONAIRE within user-week (20+ entries) ===
+                   feature (vs reference)  top 1%  top 4%  top 10%      top 1% by week  exposed share
+          2+ chalk (>= 20% owned) vs <= 1    1.32    1.25     1.20 1.37/2.85/5.65/0.15          0.503
+                   0 chalk (>= 20%) vs 1+    0.70    0.71     0.77 0.56/0.20/0.04/4.42          0.157
+                  3+ sub-5% skill vs <= 1    0.40    0.49     0.55 0.40/0.45/0.48/0.28          0.352
+                     2+ sub-3% skill vs 0    0.29    0.37     0.46 0.20/0.37/0.68/0.61          0.382
+                            0 sub-3% vs 1    1.85    1.59     1.43 2.38/1.35/1.09/0.97          0.530
+ownership sum above own median (chalkier)    1.30    1.30     1.29 1.53/0.95/2.09/0.43          0.494
+            ownership sum >= 130 vs < 100    1.98    1.77     1.64 2.56/1.40/3.74/0.16          0.499
+            expected copies >= 1 vs < 0.2     NaN     NaN      NaN     nan/nan/nan/nan          0.000
+           an exact copy exists vs unique    1.43    1.46     1.42 1.52/1.11/1.44/0.73          0.086
+                  QB owned >= 15% vs < 5%    0.54    0.46     0.54    nan/nan/nan/0.54          0.040
+                           1+ hot RB vs 0    0.58    0.62     0.68  nan/0.73/2.74/0.38          0.101
+                        1+ hot WR/TE vs 0    0.47    0.51     0.56  nan/0.37/0.70/0.40          0.196
+                           1+ hot QB vs 0    1.27    1.11     0.98   nan/2.47/nan/0.08          0.015
+  1+ hot & chalky (>= 10% owned) vs 0 hot    0.48    0.51     0.57  nan/0.44/0.72/0.32          0.219
+    1+ hot & quiet (< 10% owned) vs 0 hot    0.66    0.67     0.77  nan/1.09/0.49/0.37          0.030
+                   QB rank 9+ vs rank 1-3    1.91    1.77     1.65 3.35/0.36/1.62/1.00          0.673
+                  QB rank 4-8 vs rank 1-3    0.73    0.86     1.00 0.89/0.37/0.45/1.32          0.629
+
+=== PRIORITY by contest ===
+                   feature (vs reference)  top 2%  top 5%  top 10%      top 2% by week  exposed share
+          2+ chalk (>= 20% owned) vs <= 1    2.74    2.32     2.15  1.22/nan/9.62/0.48          0.561
+                   0 chalk (>= 20%) vs 1+    0.16    0.38     0.41 0.46/0.00/0.00/0.00          0.136
+                  3+ sub-5% skill vs <= 1    0.42    0.54     0.60 0.62/0.00/0.34/0.00          0.309
+                     2+ sub-3% skill vs 0    0.41    0.52     0.60 0.40/0.00/0.43/0.37          0.324
+                            0 sub-3% vs 1    2.13    1.79     1.66   2.11/nan/1.94/nan          0.561
+ownership sum above own median (chalkier)    1.40    1.36     1.37 1.24/0.00/1.61/1.16          0.434
+            ownership sum >= 130 vs < 100    3.06    2.56     2.18  1.65/nan/5.79/1.65          0.563
+            expected copies >= 1 vs < 0.2     NaN     NaN      NaN     nan/nan/nan/nan          0.000
+           an exact copy exists vs unique    1.22    0.62     0.69 0.00/0.00/4.45/0.00          0.021
+                  QB owned >= 15% vs < 5%    0.00    0.00     0.00    nan/nan/nan/0.00          0.020
+                           1+ hot RB vs 0    0.69    0.65     0.65  nan/0.00/1.42/0.81          0.031
+                        1+ hot WR/TE vs 0    0.38    0.49     0.58  nan/0.00/0.41/0.26          0.396
+                           1+ hot QB vs 0    0.00    0.33     0.48  nan/0.00/0.00/0.00          0.005
+  1+ hot & chalky (>= 10% owned) vs 0 hot    0.38    0.48     0.58  nan/0.00/0.40/0.35          0.387
+    1+ hot & quiet (< 10% owned) vs 0 hot    0.46    0.54     0.58  nan/0.00/0.47/0.64          0.050
+                   QB rank 9+ vs rank 1-3    2.14    1.69     1.72 2.92/0.00/1.95/0.37          0.699
+                  QB rank 4-8 vs rank 1-3    0.55    0.63     0.76 0.48/1.25/0.51/1.20          0.674
+
+=== DEALING: users with 20+ Millionaire entries who also entered a priority contest the same week ===
+priority-contest lineups by multi-entry Millionaire users: 8170 (users 172), weeks [np.int64(1), np.int64(2), np.int64(3), np.int64(4)]
+mean over those lineups:
+week                       2.119
+pri_rank_pct               0.484
+pri_top3                   0.002
+pri_top10pct               0.104
+copy_of_milly_row          0.257
+proj_pctile_in_book        0.502
+own_pctile_in_book         0.502
+copies_pctile_in_book      0.108
+proj_minus_book_mean       0.097
+own_minus_book_mean        0.783
+book_n                   133.782
+pri_proj                 124.598
+pri_own                  116.930
+pri_exp_copies             0.000
+pri_stars                  0.655
+pri_hot                    0.551
+by week:
+      copy_of_milly_row  proj_pctile_in_book  own_pctile_in_book  copies_pctile_in_book  proj_minus_book_mean  own_minus_book_mean
+week                                                                                                                              
+1                 0.214                0.484               0.472                  0.046                -0.158               -1.813
+2                 0.417                0.612               0.711                  0.018                 1.589               15.409
+3                 0.295                0.510               0.521                  0.166                 0.232                2.577
+4                 0.229                0.620               0.632                  0.043                 1.601                8.224
+the ones that finished top 3 vs the rest:
+          copy_of_milly_row  proj_pctile_in_book  own_pctile_in_book  copies_pctile_in_book  pri_exp_copies  pri_stars  pri_hot
+pri_top3                                                                                                                       
+0                     0.257                0.501               0.502                  0.108             0.0      0.655    0.551
+1                     0.214                0.566               0.576                  0.066             0.0      0.786    0.714
+the ones that finished top 10% vs the rest:
+              copy_of_milly_row  proj_pctile_in_book  own_pctile_in_book  copies_pctile_in_book  pri_exp_copies
+pri_top10pct                                                                                                   
+0                         0.257                0.498               0.496                  0.105             0.0
+1                         0.250                0.536               0.552                  0.129             0.0
+distribution of proj_pctile_in_book (where in his own book the satellite lineup sits by projection):
+proj_pctile_in_book
+(-0.01, 0.2]    1866
+(0.2, 0.4]      1530
+(0.4, 0.6]      1410
+(0.6, 0.8]      1550
+(0.8, 1.0]      1814
+
+=== DUPLICATION: exact copies in the contest (share of lineups with >= 2 copies) ===
+   milly   field: n 1,316,963  dup share 0.085  mean copies 1.84  mean exp_copies 0.00  own_sum 113.2
+   milly  top 1%: n   13,270  dup share 0.126  mean copies 1.39  mean exp_copies 0.00  own_sum 122.3
+   milly   top 3: n       12  dup share 0.000  mean copies 1.00  mean exp_copies 0.00  own_sum 106.5
+   milly    OURS: n       61  dup share 0.033  mean copies 1.11  mean exp_copies 0.00  own_sum 103.9
+priority   field: n   12,219  dup share 0.021  mean copies 2.29  mean exp_copies 0.00  own_sum 118.2
+priority  top 1%: n      115  dup share 0.035  mean copies 1.03  mean exp_copies 0.00  own_sum 125.6
+priority   top 3: n       43  dup share 0.047  mean copies 1.05  mean exp_copies 0.00  own_sum 129.6
+priority    OURS: n       27  dup share 0.000  mean copies 1.00  mean exp_copies 0.00  own_sum 116.8
+done
