@@ -223,8 +223,14 @@ the full game stack read no difference before (studies 26 and 74), but those bui
 
 **The pick:** [ ] — **on a fresh draw (study 103):** [ ]
 
-**Using a pick:** none of the three is an existing setting; a pick that holds needs a production switch with a parity test
-first. **Week 5 only if that is built and tested Saturday and you say yes; otherwise Week 6.**
+**Using a pick:**
+- **The full game stack:** its production switch and the laptop's wiring are **already built and tested** (left off, not merged;
+  the outside reviewer's switch matches the lab's code exactly, 341 production tests pass). The overnight audit change that lets
+  only those lineups hold 5 players from one game is part of it. If study 102 picks it and study 103 holds it, it can be merged
+  (left off) and checked on your Week-4 book before the 10:28 arming; **using it is then one setting (A1_FULL_STACK = 1), only
+  if you say yes.**
+- **The two upside versions:** no production switch exists (production would need a distribution around Fantasy Points'
+  projections); **Week 6 at the earliest.**
 
 **With the RB version (section 2):** the two were tested separately, so they cannot be armed together unless **study 104** —
 the RB version plus the pick in one book, against the RB version alone, fixed before study 102 was read — holds them together.
