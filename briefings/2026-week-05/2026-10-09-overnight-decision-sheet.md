@@ -19,7 +19,9 @@ QB + 1 lineups; the cheap +2 block (entered at the arming, TERM_ROWS = 8).
 | **The RB with his QB, only for the expected winner of a high-scoring game** (studies 97 + 99) | one arm setting: RB_MATE_C = 4 and RB_MATE_SCOPE = favhi | merged and left off; checked on your Week-4 book (Buffalo, Houston, San Francisco; 4 of 4 lineups); the paper comparison follows it |
 | **A different shape mix** (studies 95 + 98 say keep today's) | one arm setting: MIX_QUOTAS = your split (any share, 0% to 100%) | merged; every tested split already built once on your Week-4 book |
 | **Rows sharing at most 3 players** (study 100's pick) | **not suggested: study 101 did not confirm it** (a little worse on a fresh draw) | scored on paper this Sunday instead, so the real results test it |
-| **A ceiling build from study 102** (only if 102 picks it and 103 holds) | a reviewed merge first, then one setting | built and reviewed, not merged |
+| **Full game stacks (QB + 2 + 2 from the opponent) in 8 lineups** (study 102) | **not suggested: worse** (the best lineup about 1.7 points lower, clearly below zero) | built and reviewed, not merged |
+| **The 8 cheap-block lineups built for high scores** (study 102's pick; study 103 rechecking) | no switch yet; Week 6 at the earliest | the test model's version only |
+| **The whole book built for high scores** (study 102, information) | not suggested: **more 200+ lineups (15.5% vs 12.3% of weeks, on both opponent sets) but fewer big wins** (worse on both sets) | the trade your 200+ goal runs into |
 
 **Anything not tested together stays apart:** an RB version with a full-game-stack version, for example, only with a combined
 test (study 104 runs it overnight if both hold).
