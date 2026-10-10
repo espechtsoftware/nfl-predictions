@@ -17,7 +17,7 @@
 #   armed late.
 set -uo pipefail
 SHAPE="mixt"             # his formal yes 2026-10-06: "yes to the winners' mix with the tilt and the quarterback cap" (the tilt removed by his 10-06 yes)
-FRIDAY_HEAD="b00c5e439a1e2a004832428f8381aa8e187d548f"   # 10-10: + the arm test for FAVHI LIVE (tests only; union code == 5faf2f05). 10-09/10: his package (5eab90f4) + his test-2 row rules (e8c63263 + 58a328b6) + ONECATCH (c391fbd0 + f483644c, LIVE) + the RBMATE4 flag and wiring (4caff46d + 77bd55c5, off) + the zero-quota parser (21fa9d29) + the FAVHI scope (60f6dbe9 + 2bd5bbff, off; studies 97 / 99); A3 cancelled by him
+FRIDAY_HEAD="d2b2b32678b1d9e8d293b45c5b64f7ae806c0a2d"   # 10-10: + SAT_SUPPLY_CT (his "18:00, after a final arm"; reviewed, APPROVED; union / host code == b00c5e43). Before: 10-10: + the arm test for FAVHI LIVE (tests only; union code == 5faf2f05). 10-09/10: his package (5eab90f4) + his test-2 row rules (e8c63263 + 58a328b6) + ONECATCH (c391fbd0 + f483644c, LIVE) + the RBMATE4 flag and wiring (4caff46d + 77bd55c5, off) + the zero-quota parser (21fa9d29) + the FAVHI scope (60f6dbe9 + 2bd5bbff, off; studies 97 / 99); A3 cancelled by him
 PLAN_SHA=5f8352eebf17860795922f8b5bca754c4ed0566c8c5ca63419e6dacd24e59470     # Rev6 (his FINAL contest order 10-07; Rev3's contests
                                     # re-ordered, the same book; installed 10-07 14:38 after the priority screen's pair (ii);
                                     # Rev3 kept as contests.json.rev3-8625de0e)
@@ -85,7 +85,7 @@ TERM_SHA=""                         # its sha256, pinned (the arm refuses a mism
 TERM_CAP=2.0                        # the block's cap in projected points = its dose (matchup and cheap +2: 2.0; cheap +4:
                                     # 4.0); the arm refuses a bonus file whose largest bonus exceeds it (the union would clip
                                     # a +4 file to +2 silently: a different rule from the one tested) and a cap outside (0, 5]
-SAT_SUPPLY_CT=""                    # the Saturday D12800's time, CT (the D6400 5 minutes later); empty = 10:30 as before. His 10-10
+SAT_SUPPLY_CT="18:00"               # the Saturday D12800's time, CT (the D6400 5 minutes later); empty = 10:30 as before. His 10-10
                                     # decision ("I think we should postpone the supply build if we can"; his answer "18:00, after a
                                     # final arm"): the arm-only commit sets 18:00 and arms ONCE with his final settings, so the
                                     # canary builds the book he enters. From 10:30 to 21:00 (about 2.5 h, done before Sunday's 04:30)
