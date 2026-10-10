@@ -60,4 +60,7 @@ A1 .30 / A2 .14 / B .28 / C .28). **The arms nest:**
   1406** (`--ref102`).
 - **Per-slate fields stay outside the blocks the reader compares across rows** (study 102's smoke lesson).
 - **The smoke:** (a machine gap the lab reviewer names; filled in when it ends).
-- **Code:** (filled in when written).
+- **Code:** nfl2 `production/s105-upside-dose-20261010` @ `789d83b3` (off study 102's frozen `969f4d3d`):
+  `experiments/s105_upside_dose.py` `21412869…` (pins s102 `ca7f4399…`); `scripts/s105_drive.py` `4d7320a2…`;
+  `scripts/s105_census.py` `ffe023c2…`; **`scripts/s105_report.py` (the reader) `a3633451…`** (seed 20261148);
+  `tests/test_s105_upside_dose.py` `a46b45f2…` (9).
