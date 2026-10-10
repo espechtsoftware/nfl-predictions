@@ -198,6 +198,15 @@ reviewer and updated as each study is read.
 - **Versions to try later:** a fresh draw; it is a variant of your cheap-block trial, so it would be judged with that trial on
   Monday 10-19.
 
+### 18. At least 1.5 receptions a game for running backs (study 116, "REC_LOW") — *a small lean on one opponent set; idea from the same slates*
+- **Your idea** ("a minimum number of receptions for a running back"), after the carries floor removed the pass-catching backs.
+- **Study 116:** **+0.3** (set A +1.4, set B −0.7), 5% more expected big wins, the best lineup about the same; not your rule.
+  The stricter **2.0** read **−1.4**, worse on both sets. Both cost far less than the carries floor (−4.6), as the pass-catcher
+  reasoning expected.
+- **Caution:** the idea came from these same past slates' real scores, so even a pass would have been "consistent", not proof.
+- **On your real book:** it would change about 5 of 26 lineups (the harness's dose); production's switch exists, default off.
+- **Next, if ever:** a paper version on a live week's real results is the fair test.
+
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
   the full game stack (74), two bring-backs (76) — each at or below your book on 2023–24.
