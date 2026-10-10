@@ -255,6 +255,9 @@ reviewer and updated as each study is read.
   fewer expected big wins); the same at 1.6× **−5.2** (−4.0 / −6.3); and **at most one such "hot" player per lineup**, with no
   fade, **−1.8** (−2.5 / −1.2; 10% fewer expected big wins). Every version was below your book on both sets, so the fresh-draw
   check was not run. In the test model a player coming off a big game is still worth his projection.
+  **Receivers and tight ends only (study 115, your "Test today for this week"):** at most one hot WR / TE per lineup **−1.6**
+  (−1.0 / −2.3; 5% fewer expected big wins); 2 points off each hot WR / TE **−1.8** (−3.4 / −0.1). Smaller losses than the
+  all-position versions, still worse on both sets; the fresh-draw check was not run.
 
 - **More rules from your real Weeks 1–4 fields (study 110), each worse on both random opponent sets:** the QB only from the
   slate's three highest-total games **−3.6** (9% fewer expected big wins; the average finish lower); at most 4 of 8 players from
@@ -277,8 +280,6 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 115 (your "Test today for this week"):** the recency rules on wide receivers and tight ends only — at most one "hot"
-  WR / TE per lineup, or 2 points off each hot WR / TE.
 - **Study 112 (your usage floors):** at least 13 carries a game (RBs), 32 pass attempts (QBs), 4.5 targets (WRs / TEs), each
   set to change about 8–15 of your 26 lineups. Touchdown and red-zone floors were dropped before the run: no level changes
   fewer than about 16–22 lineups (a zero average removes every player without a recent touchdown at once).
