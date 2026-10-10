@@ -1,12 +1,16 @@
-# Preregistration: study 105, the upside build's dose-response — how many lineups on upside buys how many 200+ lineups for how many big wins, in the harness (DRAFT 2026-10-10, information only, for Week 6)
+# Preregistration: study 105, the upside build's dose-response — how many lineups on upside buys how many 200+ lineups for how many big wins, in the harness (DRAFT 2026-10-10; FROZEN 2026-10-10; information only, for Week 6)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer; the laptop's proposal, agreed by the
-lab reviewer as **information only**. The lab reviewer reviews, runs the binding census, freezes, runs and reads; the laptop
-acks and reproduces. **No pick rule and no confirmation study:** there is no production switch for an upside objective, so
-nothing from this study can be armed in Week 5. The run must end well before the 10:28 arming.
-- **Banks and seed (the laptop's full-set check and text scan: CLEAN against every used or reserved bank, studies 90–104;
-  the only context hits the 09-19 "inactive" counts and old shas):** **3420–3431** (set A 3420–3425, set B 3426–3431; sims bases 3470–3481, fields 4120–4131); the reader's bootstrap
-  seed **20261148**.
+**Status: FROZEN 2026-10-10 (04:34 CDT)** by the lab reviewer, after the outside reviewer's DRAFT and code, the smoke and the
+binding census, before any scored bank. The text changed at the freeze in this status block and §4 (the binding census) only.
+The laptop acks. **Information only:** no pick rule and no confirmation study; nothing from this study can be armed in Week 5
+(no production switch for an upside objective). The run must end well before the 10:28 arming.
+- **Banks 3420–3431** (set A 3420–3425, set B 3426–3431; sims bases 3470–3481, fields 4120–4131), the reader's bootstrap seed
+  **20261148**. The laptop's scan was clean: the full set against every used or reserved bank's {b, b + 50, b + 700} (studies 90–104
+  included), no results file; the text scans found only the 09-19 evidence files' letter-labelled "bank" fields with
+  inactive-player counts and shas in old 08-xx manifests or reports (incidental); this study's own files were not yet pushed
+  at the scan.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run, recorded in `RUN_ENV_s105.txt` committed with the
+  confirmatory census. The run starts from lab `7e3877cf` on production/s105-upside-dose-20261010 (results/s105/).
 
 ## 1. Why
 - Studies 102 and 103 read building **every** lineup on each player's simulated 85th-percentile score (CEIL_ALL) against his
@@ -70,6 +74,14 @@ A1 .30 / A2 .14 / B .28 / C .28). **The arms nest:**
   - **Fixed before the freeze (the first unit step, code `789d83b3`):** one test asserted the text "PICK:" absent from the
     reader, which the variable declaration `_PICK: dict` contains; it now asserts the printed PICK line is absent (`c341d94d`).
     No module, reader or census change.
+- **The binding census at the freeze** (the lab reviewer's; outcome-blind; bank 1406; 36 slate-banks of 2023-24; PYTHONHASHSEED=0;
+  9 tests pass; lab `7e3877cf` on production/s105-upside-dose-20261010: `CENSUS_s105_binding.txt` `bdef1c2f…`,
+  `census_mechanics_bank1406.jsonl` `69fb0fc1…`): 0 row-rule / ownership-cap fallbacks in all 4 arms; ONECATCH 504 of 504 in
+  every arm; **the dose binds as designed:** 0 / 5 / 10 / 0 distinct book solves on p85 by the first-rows switch per slate-bank
+  (min = max; CEIL_ALL's 26 rows on p85 by the objective); **LIVE and CEIL_ALL identical to study 102's, rows and dealing, on
+  36 of 36 slate-banks**; p85 − mean 5.68 points per skill player; flex WR / RB per book 15.2 / 10.8 (LIVE), 18.5 / 7.5
+  (ROWS13), 19.3 / 6.7 (ROWS18), 22.9 / 3.1 (ALL); rows shared with LIVE 1.06 / 0.94 / 0.69 of 26; projection per row vs LIVE
+  +0.00 / −0.05 / −0.24; none dealt identical.
 - **Code:** nfl2 `production/s105-upside-dose-20261010` @ `2d03ee58` (off study 102's frozen `969f4d3d`):
   `experiments/s105_upside_dose.py` `21412869…` (pins s102 `ca7f4399…`); `scripts/s105_drive.py` `4d7320a2…`;
   `scripts/s105_census.py` `ffe023c2…`; **`scripts/s105_report.py` (the reader) `a3633451…`** (seed 20261148);
