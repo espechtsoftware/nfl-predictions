@@ -73,11 +73,20 @@ listed edits, a test asserts it); every arm his live Week-5 construction (the pa
 ## 5. Smoke and code
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke (the unit tests, the mechanics smoke 2023 W3 / 2023 W11 /
   2024 W10, the census, the full path: reader exit and line count only).
-- **The smoke:** (a machine gap the lab reviewer names; filled in when it ends).
-- **Code:** nfl2 `production/s109-recency-fade-20261010` @ `f3cd184e` (off study 102's frozen `969f4d3d`; s65 brought in byte for
+- **The smoke (DONE in the gap the lab reviewer named during the laptop's study-106 ack; bank 1406; 2024 W10, 2023 W11, 2023 W3;
+  PYTHONHASHSEED=0; `results_bank1406.jsonl` `8d508ec6…`; code `f3cd184e`, the census fixed at `070003f1`):** every arm 41 rows
+  within the package's caps; RB-mate slots 12 of 12 ruled, every arm; ONECATCH 42 of 42, none dropped, every arm; **LIVE
+  identical to study 97's RBMATE4_FAVHI, rows and dealing, on 3 of 3 slate-banks**; **the fade binds:** FADE2 flags 21.0
+  skill players per slate-bank (QB / RB / WR / TE 2.3 / 7.0 / 9.7 / 2.0), LIVE's book rows holding one 19.0 of 26 (min 15),
+  the arm's own rows 2.0; FADE2_16 flags 36.3, LIVE's rows 23.3 (min 23), its own 8.3; the full path: the reader exited 0 (41
+  lines; 52 two-draw); only the census, the exit codes and the line counts were read.
+  - **Fixed before the freeze:** 8 of 9 unit tests passed; the outcome-blind test flagged the census's parity line, which read
+    the fade's dose setting as `m["own"]["fade"]["points"]`; it now reads `.get("points")`, the same setting (census
+    `7025a16e`). No module or reader change; the unit re-run waits for a machine gap.
+- **Code:** nfl2 `production/s109-recency-fade-20261010` @ `070003f1` (off study 102's frozen `969f4d3d`; s65 brought in byte for
   byte from `cf53ef1`, s96 / s97 from `3cf3e8eb` / `af07583e`):
   - `experiments/s109_recency_fade.py` `d1bf7f94…` (pins s95 `46b80611…`, s65 `7667c963…`, s97 `7df6f324…`)
   - `scripts/s109_drive.py` `f1845246…`
-  - `scripts/s109_census.py` `895aaaf9…`
+  - `scripts/s109_census.py` `7025a16e…`
   - **`scripts/s109_report.py` (the reader) `f1c0790b…`** (seed 20261151)
   - `tests/test_s109_recency_fade.py` `d2c84155…` (9)
