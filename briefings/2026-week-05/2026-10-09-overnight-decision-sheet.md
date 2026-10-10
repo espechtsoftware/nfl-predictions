@@ -35,10 +35,22 @@ test. (Study 104 would have run that combination; it was not run, because study 
 - **Study 109:** your recency fade (2 points off when the last game was twice the average; also at 1.6 times).
 - **Last, as you asked:** each live rule removed one at a time from the full armed book.
 
-**The arming time.** 10:28 keeps Saturday's 10:30 test build (its receipt check and the paper comparison's check) and the
-backup supply for Sunday. A test that passes later can still go in by a re-arm on Saturday afternoon or evening. The hard
-stop is Saturday night, before Sunday's early builds. The plan: arm at 10:28 with what you have decided, and re-arm only if
-a later result passes and you want it.
+**The arming time (your decision this morning: "18:00, after a final arm").** The experiments have the machine until about
+17:30. I arm ONCE at about 17:55 with your final settings, and the Saturday test build (the canary) runs at 18:00 on exactly
+the book you will enter. It finishes about 20:30, which leaves the night to fix anything before Sunday's 04:30 builds. The
+change that makes the time a setting was reviewed and merged; the arm script is set for 18:00 and its check passes.
+
+**Today's queue, in order** (every result is read and reproduced before it reaches you):
+1. Study 106 (your floor of 8), then 107 (its fresh-draw check, if 106 passes).
+2. Study 109 (your recency fade at 2× and 1.6×) **plus HOT1** (at most one player coming off a big game per lineup; your "Add both").
+3. Study 108 (per-position floors) if 107 holds.
+4. Study 110: the outside reviewer's five ideas (no low-owned players; QB from the top-3 games; popular punts only; no QB with
+   his own defense plus $49,500 salary) **plus VAL4** (at most 4 top-value players per lineup); study 111 re-checks a pass.
+5. Your usage floors (carries, pass attempts, targets, touchdowns, red-zone targets), with a re-check if one passes.
+6. **Last, as you asked:** each live rule removed one at a time.
+
+**Data collection today:** the DraftKings salary loop was found down since Friday 04:07 and restarted at 05:37 (logged);
+Friday's two FP ownership captures are in; today's captures run in the morning and at the 18:00 arm.
 
 **The arming itself (the laptop):** set the cheap block (TERM_ROWS = 8), apply your choices, run the check before 10:28, then
 arm. By 11:00 the first build's receipt must show every chosen rule applied; then the reviewer's paper-comparison check.
