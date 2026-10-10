@@ -280,6 +280,21 @@ READ `4d0b354d`, lab `463d5050`; reproduced byte for byte by the laptop).
 **By your rule, which counts big wins, it loses.** If you ever want to trade big wins for more 200+ lineups, this is the
 measured price; it has no production switch (Week 6 at the earliest). (Other versions tonight also showed higher 200+ rates
 without that cost — the RB version of section 2 among them — but at about 12–14% the 200+ rate is too noisy to rank on.)
+**Why "built for high scores" doesn't win more** (your question this morning; descriptive, after the reads — the laptop's
+tabulation of the raw rows, re-computed identically by the outside reviewer):
+
+| | Study 102: your book | 102: every lineup on upside | Study 103: your book | 103: every lineup on upside |
+|---|---|---|---|---|
+| Slates whose best lineup reached 200 | 12.3% | 15.5% | 14.1% | 16.4% |
+| All 200+ lineups (432 slate-banks) | 87 | 82 | 94 | 103 |
+| Where a 200+ lineup finished, on average | top 1.0% | top 0.8% | top 1.0% | top 0.9% |
+| Slates whose best lineup finished in the top 0.1% | 4.9% | 5.1% | 6.5% | 4.9% |
+
+- The upside build makes about the **same number** of 200+ lineups, spread over **more** slates — so more slates "reach 200".
+- A 200 in the test fields finishes around the **top 1%**; a big win needs about the **top 0.1%**.
+- How often the book's best lineup reached the **top 0.1%** did not rise (5.1% vs 4.9%; 4.9% vs 6.5%), while the rest of the
+  book finished lower — so big wins fell.
+
 **The full game stack was worse again.** **Suggested: keep your live settings.**
 
 **Using a pick:**
