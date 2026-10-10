@@ -4,9 +4,11 @@
 106's READ**. The lab reviewer freezes it after study 106's READ; the laptop acks. **Information for his decision.**
 
 ## 1. Why
-- Study 106 (`reports/2026-10-10-prereg-study106-min-proj.md`) picks at most ONE of three projection floors by his rule.
-  Picking the largest of three gains on the same slates flatters the pick (the winner's curse); a fresh draw is the check
-  (studies 98, 101 and 103 failed it tonight; 99 passed).
+- Study 106 (`reports/2026-10-10-prereg-study106-min-proj.md`) reads ONE projection floor (MINPROJ8; study 106's pre-freeze
+  changes 2 and 3) against LIVE by his rule: one comparison, not the largest of three. A single pass on the same slates still
+  needs the draw check (studies 98, 101 and 103 failed it overnight; 99 passed).
+- **Correction (2026-10-10, before study 106's READ):** this paragraph first said "picks at most ONE of three projection floors";
+  study 106 was cut to one floor before its freeze.
 - **Honest limit, plainly:** fresh banks re-use the SAME 36 slates' real outcomes; study 107 checks the opponent and
   simulation draw and the winner's curse, **not new outcomes — not out-of-sample.**
 
@@ -17,8 +19,9 @@
   bases 3544–3555, fields 4194–4205). The reader's bootstrap seed is study 106's (20261149), the same resamples, so the intervals
   are correlated with 106's; the pass rule below uses point estimates only.
 - **THE PASS RULE (fixed now):** the pick − LIVE on P(≥ 1 big seat) is **better on both draws AND the pooled expected big seats
-  ratio ≥ 0.80** (his rule again; guard 1 printed). Pass → the floor "held on a fresh draw": information for Week 6, with the
-  production change named in study 106 §4. Fail → "did not hold" (not suggested).
+  ratio ≥ 0.80** (his rule again; guard 1 printed). Pass → the floor "held on a fresh draw": one existing setting
+  (`LIVE_MIN_PROJ`, which floors Fantasy Points' projection in Week 5; study 106 §4). Fail → "did not hold" (not suggested).
+  (Corrected before study 106's READ: this line first named a production change; none is needed.)
 - **If study 106 picks nothing, study 107 is not run** (recorded).
 - **Disclosure (2026-10-10, still before study 106's READ):** study 106's arms were changed before its freeze to carry the
   operator's adopted RBMATE4_FAVHI in every arm (study 106 §2); study 107 re-runs study 106's frozen code, so it inherits that
