@@ -178,9 +178,10 @@ whether to use it is your call.
 - **A new shape mix:** one setting at arming (MIX_QUOTAS), built and tested; any share including 0% or 100%.
 - **The RB version for the expected winner of a high-scoring game (study 99 confirmed it):** its switch is built, reviewed and
   checked on your Week-4 book (Buffalo, Houston and San Francisco; all 4 lineups got their RB, −0.11 projected points per
-  lineup). Tonight, in order: the lab reviewer's paper-arm update, then the switch is merged **left off**, then the laptop's
-  Week-4 checks at the merged state. **Using it is one setting at arming (RB_MATE_C = 4 with RB_MATE_SCOPE = favhi), only if
-  you say yes;** leaving it off keeps today's book.
+  lineup). The lab reviewer's paper-arm update is in, and the switch is **merged at `5faf2f05`, left off**; the laptop's
+  Week-4 checks and the lab reviewer's gate at the merged state follow tonight. **Using it is one setting at arming
+  (RB_MATE_C = 4 with RB_MATE_SCOPE = favhi, one arm-only commit), only if you say yes;** leaving it off keeps today's book. [W4
+  gates at 5faf2f05: ]
 - **No QB + 2 version passed,** so none was built.
 - **An RB version and a QB + 2 version together:** not allowed by the switches tonight — study 97 read them separately, and
   separately-read rules have not added up before (studies 93 + 94; study 83's combination −1.9). If you want both, one goes live
