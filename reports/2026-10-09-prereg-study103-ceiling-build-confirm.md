@@ -18,6 +18,7 @@ for his morning decision.**
 - **Banks (the laptop's full-set check: clean against every used bank, studies 100–102 included):** **3396–3407** (set A
   3396–3401, set B 3402–3407; sims bases 3446–3457, fields 4096–4107). The reader's bootstrap seed is study 102's (20261146):
   the same resamples, so the intervals are correlated with 102's; the pass rule below uses point estimates only.
+  **The laptop's text scan: CLEAN** (the same context hits as study 102's).
 - **THE PASS RULE (fixed now; the lab reviewer's guarded rule):** the pick − LIVE is
   - **> 0 on both draws for the mean best real lineup points**, AND
   - **P(≥ 1 big seat) not worse on both draws**, AND

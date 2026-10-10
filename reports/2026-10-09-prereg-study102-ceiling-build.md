@@ -8,6 +8,8 @@ FREEZES; the laptop acks. **Information for his morning decision; a pick goes to
 before this study's READ.**
 - **Banks and seed (the laptop's full-set check: clean against every used bank, studies 100 / 101 included):** **3384–3395**
   (set A 3384–3389, set B 3390–3395; sims bases 3434–3445, fields 4084–4095); the reader's bootstrap seed 20261146.
+  **The laptop's text scan: CLEAN** (every context hit is this study's own files, shas, an l03 timing, or the 09-19 evidence
+  files' "inactive" counts under letter-labelled banks).
 
 ## 1. Why
 - **The operator, 10-09 evening, in the laptop's session (HANDOFF `f68ebf50`, verbatim):** "...if you're not seeing really good
