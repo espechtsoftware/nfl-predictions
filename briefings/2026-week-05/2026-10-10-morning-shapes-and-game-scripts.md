@@ -25,6 +25,24 @@ proof. **The test model builds lineups from its own simulated projections; your 
 not carry over** (studies 91 and 92 showed both directions). The laptop's Week-4 check shows what a change does to your real
 book.
 
+## About "200+ fairly regularly" (your note to the laptop last night)
+
+From your real Weeks 1–4 fields (the laptop's count, HANDOFF `3ac3bfd7`; aggregates only):
+
+| Week | Share of the field at 200+ | The field's top 0.1% starts at | The field's best | Our best entry |
+|---|---|---|---|---|
+| 1 (a high-scoring week) | 2.3% | 229.5 | 274.0 | 196.2 |
+| 2 | 0.10% | 200.3 | 235.5 | 156.2 |
+| 3 | 0.25% | 206.0 | 239.8 | 178.9 |
+| 4 | 0.18% | 205.4 | 234.2 | 182.6 |
+
+- **In a normal week, 200 is a top-0.1–0.25% score — roughly a contest-winning one.** None of our 535 entries reached it (best
+  196.2).
+- In the test model your live book's best lineup reaches 200 on about 13% of slates — already 2–4 times what 26 average field
+  lineups would. No change tested so far moved that by more than about 3 points in 100 (one reading +8, not repeated).
+- So "200+ regularly" means winning a contest most weeks; tonight's work tries to raise the book's ceiling (its best lineup),
+  and **every suggestion below shows its 200+ rate** next to the big-win numbers.
+
 ## 1. The shape percentages (study 95)
 
 Your live mix: **A1 30%** (QB + 2 receivers + a bring-back), **A2 14%** (QB + 2, no bring-back), **B 28%** (QB + 1 + a
