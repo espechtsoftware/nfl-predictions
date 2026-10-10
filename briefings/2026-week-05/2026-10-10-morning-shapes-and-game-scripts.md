@@ -215,10 +215,12 @@ re-checked — information only.
 
 **The pick on a fresh draw (study 101): it did NOT hold.** Overlap 3 against your book: best lineup −0.9 (A −1.3, B −0.5),
 big wins −1.3 (A −1.6, B −1.0), ×0.95 — worse on both opponent sets on both measures (study 101's READ `4b847774`, lab
-`36038cd6`). Study 100's best simple setting was the luck of one draw (picking the best of five flatters it). **QB cap 3's
+`36038cd6`; reproduced byte for byte by the laptop). Study 100's best simple setting was the luck of one draw (picking the best
+of five flatters it). **QB cap 3's
 big-win pass did not repeat either** (−0.4: A +0.3, B −1.0). **Suggested: keep your live settings.**
 
-Nothing to arm from studies 100 / 101.
+Nothing to arm from studies 100 / 101. Overlap 3 is planned for the Week-5 paper co-run (the lab reviewer's study 38 amendment,
+its smoke after study 102's run), so Sunday's real results will score it anyway, at no cost to your book.
 
 ## 3c. Building for the ceiling: three new constructions (study 102) and the check of its pick (study 103)
 
