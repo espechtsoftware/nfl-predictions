@@ -85,7 +85,7 @@ TERM_SHA="5941678b4b378a6f49bbcf7f2e1086d4b37a94d655a5d29e2365fee12e4325a2"   # 
 TERM_CAP=2.0                        # the block's cap in projected points = its dose (matchup and cheap +2: 2.0; cheap +4:
                                     # 4.0); the arm refuses a bonus file whose largest bonus exceeds it (the union would clip
                                     # a +4 file to +2 silently: a different rule from the one tested) and a cap outside (0, 5]
-SAT_SUPPLY_CT="18:00"               # the Saturday D12800's time, CT (the D6400 5 minutes later); empty = 10:30 as before. His 10-10
+SAT_SUPPLY_CT="21:00"               # MOVED 10-10 17:0x to 21:00 (his "We are going to delay the 6 o'clock build for a few hours"; 21:00 = the arm's latest allowed; the arm must finish by 20:58). Was 18:00. The Saturday D12800's time, CT (the D6400 5 minutes later); empty = 10:30 as before. His 10-10
                                     # decision ("I think we should postpone the supply build if we can"; his answer "18:00, after a
                                     # final arm"): the arm-only commit sets 18:00 and arms ONCE with his final settings, so the
                                     # canary builds the book he enters. From 10:30 to 21:00 (about 2.5 h, done before Sunday's 04:30)
