@@ -118,6 +118,10 @@ wins; it also beats the unconditioned RB version on both sets (+2.3). **No QB + 
 12.7% of slates with this version against 11.8% for your book (the plain RB version 14.4%, the naked version 13.7%); the best
 lineup's average was 175.6–178.2 across all versions — on the ceiling every version is within the noise.
 
+**On your real Week-4 book** (the laptop's check of the production switch, built tonight and left off): it applied to
+Buffalo, Houston and San Francisco (the expected winners of the high-scoring games), all 4 lineups got their RB, at 0.11 projected
+points per lineup.
+
 **How much to trust it:** small and not clear of zero; of the eleven comparisons two passed — both are this one version (against
 your book and against the plain RB version, so they move together) — about what chance alone gives. Study 99 re-runs it on a fresh
 draw.
