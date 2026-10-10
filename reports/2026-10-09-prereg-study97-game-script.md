@@ -23,6 +23,10 @@ overnight.**
   game (25+ in 22.7%). The QB and his own RB barely move together on a favorite (correlation ≈ 0), but on the favorite in a
   high-total game the QB + RB1 pair reaches 45 points more often (33.8%) than QB + WR1 (30.9%). Trailing teams in high-total
   games have the highest pass rate and a higher QB–WR1 correlation (0.36 vs 0.28), but the favorite there has the higher ceiling.
+- **The stricter cut (≥ 7, his "blowing out"), from the same research:** the RB1 of a 7+ favorite vs a 3–7 favorite — goal-line
+  carries 0.84 vs 0.79, rushing TDs 0.58 vs 0.53, P(≥ 25 DK) 19.2% vs 17.8% — a little more, not a different picture; for a 7+
+  favorite OUTSIDE a high-total game the QB + RB1 pair reached 45 points less often than QB + WR1 (20.9% vs 25.3%), the reverse
+  of the high-total case.
 - **The prior (both ledgers):** QB + 1 only in the top-2-total games (study 15) NO DIFFERENCE; a one-game shootout book
   (study 26) NO DIFFERENCE with a ceiling signal; a stack from each top-4 game (study 43); the underdog's QB in a top-4 game (study
   80) NO DIFFERENCE, leaning worse; the lead RB + his DST on a 6-point favorite (study 16, the thesis portfolio) NO DIFFERENCE,
@@ -34,7 +38,9 @@ eight listed edits, a test asserts it); **every arm is his live Week-5 construct
 15, te1 / low1, ONECATCH, the QB cap 5, the DST cap 6, overlap 4, the cheap +2 block, 15 spares, Rev6, his cell quotas).
 - **LIVE** — 93's `lead_rules(0, True, 0, …)` (= study 95's LIVE and study 96's ONECATCH; a test asserts call-for-call identity).
 - **RBMATE4** — study 96's `combo_rules` with every (QB, own RB) pair (= 96's ONECATCH_RBMATE4; a second read on new banks).
-- **RBMATE4_FAV** — the same, the floor's pairs only for QBs of an **expected winner** (margin ≥ 3).
+- **RBMATE4_FAV** — the same, the floor's pairs only for QBs of **the expected winner (margin ≥ 3)** — an expected winner, not
+  necessarily a blowout: the research's goal-line and TD gains already appear at 3–7 points (below), so the wider cut keeps
+  support; no stricter arm is added tonight (multiplicity and run time).
 - **RBMATE4_FAVHI** — only for the **expected winner of a high-total game** (margin ≥ 3 and the game in the slate's top third).
 - **QB2_SHOOT** — on the QB + 2 rows (A1, A2), the QB only from a **high-total game** (either side).
 - **QB2_DOGHI** — on the QB + 2 rows, the QB only from the **trailing side of a high-total game** (margin < 0).
@@ -67,7 +73,9 @@ eight listed edits, a test asserts it); **every arm is his live Week-5 construct
 - The census reports per slate-bank the scenario teams (FAV / FAVHI / HIGH / DOGHI), each arm's floor pairs and banned QBs (and
   the slates where none qualify), the RBMATE slots / floors ruled / dropped, the QB + 2 bans ruled / dropped, ONECATCH ruled /
   dropped, THE BINDING (the book rows whose QB is in each scenario, overall / on the QB + 2 rows / on the C rows), the vacuity vs
-  LIVE, and LIVE vs study 95's LIVE.
+  LIVE, and LIVE vs study 95's LIVE; **THE VACUITY LINES:** the slate-banks where RBMATE4_FAV / FAVHI's pair set is empty (the
+  slot is taken without a floor, so the arm builds as LIVE there), and where QB2_SHOOT / DOGHI has no eligible QB (no ban) or
+  fewer than 3 (the QB cap of 5 cannot fill the QB + 2 rows from them alone, so drops are expected and recorded).
 - The transfer caveat: the harness builds on simulator means; his book on Fantasy Points' projections.
 - **Production:** each arm is a small filter on tonight's flags (the laptop's request): RBMATE4_FAV / FAVHI = `--mix-rb-mate-c 4`
   with its pair set filtered by the frame's lines; QB2_SHOOT / DOGHI = A1 / A2 QB bans by the same lines. Built only on his word.
@@ -76,6 +84,6 @@ eight listed edits, a test asserts it); **every arm is his live Week-5 construct
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke: the unit tests, the mechanics smoke (2023 W3, 2023 W11,
   2024 W10), the binding census, the full-path smoke (reader exit and line count only).
 - **The smoke:** (waiting for a machine gap; filled in when it ends).
-- **Code:** nfl2 `production/s97-game-script-20261009` @ `ab1c0a34` (branched from study 96's census `0a09750a`):
-  `experiments/s97_game_script.py` `77552103…` (pins s96 `0363a84f…`); `scripts/s97_drive.py` `5dff66b7…`; `scripts/s97_census.py`
-  `c42b3b35…`; **`scripts/s97_report.py` (the reader) `0d1f4f15…`** (seed 20261142); `tests/test_s97_game_script.py` `18d417ad…` (13).
+- **Code:** nfl2 `production/s97-game-script-20261009` @ `6615eeca` (branched from study 96's census `0a09750a`):
+  `experiments/s97_game_script.py` `9e10cd94…` (pins s96 `0363a84f…`); `scripts/s97_drive.py` `5dff66b7…`; `scripts/s97_census.py`
+  `bd79999b…`; **`scripts/s97_report.py` (the reader) `0d1f4f15…`** (seed 20261142); `tests/test_s97_game_script.py` `5d11f2db…` (13).
