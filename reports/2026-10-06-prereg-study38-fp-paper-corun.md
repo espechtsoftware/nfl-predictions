@@ -1524,6 +1524,46 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     printed as its own block, after the 6r line, from Week 6's reader run. The reader code for that line is a separate,
     reviewed amendment before Week 6's read; its text must print exactly the rule above.
 
+- **Amendment 6z5 (2026-10-10, before Week 5's lock; no Week-5 outcome exists): two stars per lineup on paper.**
+  - **Why.** The operator, asked about a two-star book (the qualifiers page's arithmetic: about 1.4 thirty-point games per lineup
+    against 0.74): "Test it now for this week". Then, told that Week 5's slate has only 4 RB / WR / TE at $8,000+ (4 × 9 rows =
+    36 slots, fewer than the 52 an every-row rule needs; 21 of his 26 Week-4 lineups hold fewer than two), he chose "Paper this
+    week, test for W6 (Recommended)": "Add the two-star version (8 lineups, and all lineups where it fits) to Sunday's paper
+    comparison; run the past-slates test calmly after the arm for Week 6." The harness test is study 117 (Week 6).
+  - **The prior:** study 92's STAR1 (at least one star in every row) read −5.8 [−11.4, −0.7], WORSE, and its Week-3 / 4
+    real-field replay failed; study 78's two stars on the first 8 rows read +1.8, NO DIFFERENCE (guard 1 fails).
+  - **What changes.** Two exploratory arms, both his live construction (`FOLLOW_QA0`) with **at least 2 of study 92's S2 set**
+    (`star_set`: RB / WR / TE at $8,000+, in the pool; already pinned by 6r) per scoped row:
+    - **MIXT_QA0_STAR2:** every book row, where it fits;
+    - **MIXT_QA0_STAR2_8:** the term block's 8 rows only. term_book solves the live block first, so these are the book solves
+      j in [k_book − n_term, k_book). Without a live term block the arm is missing.
+    - **The vehicle, `star_rows()`:** a CapBuilder layer entered inside S37.built_with and BEFORE the row rules (the row-rule /
+      one-catcher wrapper subclasses it). At a scoped book solve it extends the set_constraints the current optimize carries
+      with (stars, ">=", 2) in ONE call. **An infeasible solve is re-solved without the star rule only** (te1 / low1, ONECATCH
+      and the RB floor kept), recorded per (cell, j).
+    - The scorer scores both. The reader prints them on the 6r line against MIXT_QA0, with contest groups and expected big
+      seats. **Information only: not in amendment 7b's list.** The manifest records each arm's rows with 2+ stars, the term
+      rows with 2+ (from term_book's block labels), and the rule's ruled / fallback solves.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z5/`, script `run.sh` `2ef502934b24`,
+    log `c0cf2ebc1124`; lab `0ee35848`; production = `s38-prod-pin` `83d68f63` (= FRIDAY_HEAD; the files the gate reads are
+    byte-identical to `7a20dd74`'s); PYTHONHASHSEED=0; the 6z3 / 6z4 smoke's inputs):
+    - 61 tests pass (rc 0); union-argument mismatches none.
+    - **All 39 arms of the 6z3 / 6z4 smoke build identical** (rows + ranks); STAR2 and STAR2_8 built (41 arms).
+    - MIXT_QA0: 5 of 26 rows with 2+ stars (all 5 in the term block's 8).
+    - **STAR2:** 14 of 26 rows with 2+ stars; the rule held on 14 book solves and fell back on 12 (the 4-star pool). None of its
+      term rows hold two, because the stars are spent in the live block first. 0 rows shared with MIXT_QA0; FP 139.44 vs 140.57
+      per dealt lineup; no row-tier fallback.
+    - **STAR2_8:** 8 of 8 term rows with 2+ stars, the rule held on all 8, 0 fallbacks; 18 rows shared with MIXT_QA0; FP 140.58
+      vs 140.57. On Week 4 it changes only 3 of the 8 term rows' star count (5 → 8), so it is close to the live book there.
+  - **Code:** lab `0ee35848` (on 6z3 / 6z4's `fad0cbe2`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `cc067ca32596cc63985dac3653dbb2a8fbcaf036a25aa11d296192c79585ef9c`;
+    - `scripts/s38_build.py` `45d3b7cb8653d31b0a22337a06966fc119016b95abc58e0532dafefb60466ac3` (unchanged);
+    - `scripts/s38_score.py` `e1861919fdd84132fd810505c9b075b3e9938a81dabd6575d31e6edf61952c3f`;
+    - `scripts/s38_report.py` `439028b39d2acbabcd82a3c10e899610cfc0cfaba45b05cbcec95f88906a5282`;
+    - `tests/test_s38_paper_corun.py` `345854f2baecc3ee4e19ecc92c5d3567ec9b474bc8cec385b960feaad7181857` (61 tests).
+  - **The integrity gate** pins this module sha in place of 6z3 / 6z4's `5efb6de6…`; the production pin stays `83d68f63`.
+  - **Order:** this amendment; the laptop's ack (a reproduction of the smoke); the gate pin.
+
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
 - **Study 37** (Addendum 142): the regulars' structure (about 11 QB stacks and a steep player curve, their own tier
