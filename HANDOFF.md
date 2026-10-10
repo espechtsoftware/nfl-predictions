@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (12:58 CDT) — his question: today's armed book's high score in each 2026 week (descriptive, in-sample)
+
+- **His words:** "With the current book that we have have we run it across the four weeks of 2026. I would like to know the
+  high score for each of those weeks." and "A lot has changed since 10.9." (the 10-09 replay was W3–W4 only, before ONECATCH
+  and FAVHI).
+- **Built** (`/home/erich/rehearsals/nowbook-20261010T175612Z`; the scratch `now_book.sh`): the full armed construction (0.35 + own cap 15, te1 / low1, ONECATCH, FAVHI,
+  the cheap +2 block on 8 rows, K 26, Rev7) at integration 78f597f4, PYTHONHASHSEED=0. **W4 faithful** (FP projections +
+  ownership): the same 26 lineups as the morning W4 check's LIVE c605cab6 (order differs: Rev7's dealing). **W3 approximate**
+  (our T-70 projections + our Saturday ownership model). **W1–2 cannot be built** (no point-in-time ownership file).
+- **The best lineup's real points** (DraftKings' own FPTS, moneygate_score), against the Millionaire:
+  - W4: **177.90** (2nd 158.72); winner 234.20, top-1% line 182.78; would rank about 2,490 of 161,764 (1.5%).
+  - W3: **162.74** (2nd 155.60); winner 239.80, top-1% line 188.20; about 14,800 (9.2%).
+  - No row reached 180 in either week. His entered books (more lineups: 144 / 93 distinct) had best 178.88 (W3) / 182.58 (W4).
+- Nothing decides on it.
+
 ## 2026-10-10 (12:30 CDT) — study 114 READ: keep every rule (4 still helping, 2 a wash; no removal, 114b not run), reproduced byte for byte; OPERATOR: the cheap block stays on ("Keep it on (Recommended)"); today's queue done
 
 - **Study 114** (the reviewer; lab `d3a523e5`; run 11:30:27–12:21:56; confirmatory census `2d4765d5` committed before the read).
