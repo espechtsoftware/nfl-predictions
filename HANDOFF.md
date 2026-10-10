@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (17:17 CDT) — OPERATOR: the Saturday supply moved 18:00 -> 21:00; NOT armed yet (waiting for his next instructions; the arm by 20:58)
+
+- **His words (verbatim):** "We are going to delay the 6 o'clock build for a few hours. Please get that going and I will follow up with your
+  next instructions."
+- **Done:** arm-only commit `ecc817a9`: SAT_SUPPLY_CT="21:00" (the arm's latest allowed; the D6400 at 21:05). Tests reading the arm +
+  test_s38_snapshot 71 passed (rc 0); `--check` rc 0 at 17:17 ("D12800 at 21:00 CT ... the arm must finish by 2058"; 13 units). The 17:20
+  arm timer was stopped. (The script comment says "17:0x"; the change was made at 17:17.)
+- **O-67 for 21:00:** the supply preflight needs projections <= 120 min old at 21:00 / 21:05 -> project-slate re-run planned ~19:50
+  (finishing ~19:53). The 16:43 batch would be 137 min old at 21:00.
+- **Waiting:** his follow-up instructions; then the arm (by 20:58), the post-arm checks (ownership_lag.csv + check_ownership_lag.py;
+  check_build_inputs.py), the 21:00 canary (~23:30 done), the canary snapshot and the reviewer's gate.
+
 ## 2026-10-10 (16:44 CDT) — 16:40 FP ownership captured; project-slate re-run (the BLOCKER fix) done; the 18:00 preflight now fails only on chosen-dose.env (the arm writes it)
 
 - **FP projected ownership** (16:40:36): rc 0; 1,147 rows at 21:40:36Z (W5 captures: 10-09 21:33, 10-10 13:55, 10-10 21:40).
