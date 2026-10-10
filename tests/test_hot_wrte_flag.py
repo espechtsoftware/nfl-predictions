@@ -50,7 +50,8 @@ def test_the_ids_are_the_pools_hot_wr_and_te_only(tmp_path):
     assert ids == set() and dk_ids == []
 
 
-@pytest.mark.parametrize("case", ["missing", "no_meta", "x", "week", "flipped", "dst", "repeat", "nan", "column"])
+@pytest.mark.parametrize("case", ["missing", "no_meta", "x", "week", "flipped", "dst", "repeat", "nan", "column",
+                                  "no_rows", "hot_2", "late_game"])
 def test_the_loader_refuses_a_bad_file(tmp_path, case):
     rows, meta, header = list(ROWS), dict(META), True
     if case == "no_meta":
@@ -67,6 +68,12 @@ def test_the_loader_refuses_a_bad_file(tmp_path, case):
         rows.append("101,g9,W Twin,WR,4,0.0,0.0,0,0")
     elif case == "nan":
         rows[4] = "105,g5,W Cold,WR,4,nan,10.0,4,0"
+    elif case == "no_rows":                                                   # header only: s38 refuses it too
+        rows = []
+    elif case == "hot_2":
+        rows[0] = "101,g1,W Hot,WR,4,30.0,10.0,4,2"
+    elif case == "late_game":                                                 # a last game in the build's own week
+        rows[0] = "101,g1,W Hot,WR,5,30.0,10.0,4,1"
     p = tmp_path / "none.csv" if case == "missing" else _write(tmp_path, meta, rows, header=header)
     if case == "column":
         p.write_text(p.read_text().replace(",prior_n,", ",n_prior,"))
@@ -115,3 +122,4 @@ def test_the_host_the_timers_and_the_arm_carry_it_only_on_the_row_rules():
     assert '\nHOT_WRTE_MAX="" ' in arm or '\nHOT_WRTE_MAX="1" ' in arm                    # off, or his yes at the arm
     assert '"$HOT_WRTE_MAX" == 1 && "$ROW_RULES" == te1_low1 && "$HOT_SHA" =~ ^[0-9a-f]{64}$' in arm
     assert "e+=(UNION_MIX_HOT_WRTE_MAX=$HOT_WRTE_MAX UNION_MIX_HOT_SOURCE=$HOT_FILE); else u+=(-u UNION_MIX_HOT_WRTE_MAX -u UNION_MIX_HOT_SOURCE)" in arm
+    assert '[[ -z "$HOT_WRTE_MAX" || "$HOT_FILE" == "$HOME/private/paper-corun/hot/w05.csv" ]]' in arm   # one file for live + paper

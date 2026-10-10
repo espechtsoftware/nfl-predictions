@@ -723,9 +723,15 @@ def hot_wrte_ids(source: Path, t70: pd.DataFrame, exclude: set[str]) -> tuple[se
     missing = [c for c in HOT_COLS if c not in d.columns]
     if missing:
         refuse(f"{Path(source).name} lacks {missing}")
+    if d.empty:                                              # s38 paper_hot() parity: a header-only file is refused
+        refuse(f"{Path(source).name} has no data rows")
     num = d[["last_week", "last_pts", "prior_mean", "prior_n", "hot"]].apply(pd.to_numeric, errors="coerce")
     if not np.isfinite(num.to_numpy(float)).all():
         refuse(f"{Path(source).name}: a non-finite number")
+    if not num["hot"].isin([0, 1]).all():
+        refuse(f"{Path(source).name}: hot must be 0 or 1")
+    if not isinstance(meta.get("week"), int) or not (num["last_week"] < meta["week"]).all():
+        refuse(f"{Path(source).name}: a last game not before week {meta.get('week')!r}")
     if d["dk_player_id"].duplicated().any() or d["gsis_id"].duplicated().any():
         refuse(f"{Path(source).name}: a repeated id")
     if not d["pos"].isin(SKILL).all():

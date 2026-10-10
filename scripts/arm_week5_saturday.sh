@@ -113,6 +113,8 @@ _c=$(( 10#${SUPPLY%:*} * 60 + 10#${SUPPLY#*:} - 2 )); CUTOFF=$(printf '%02d%02d'
 [[ -z "$ROW_RULES" || ( "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 ) ]] || stop "ROW_RULES=$ROW_RULES: empty, or te1_low1 with his package (OWN_CAP_DELTA=15)"
 [[ -z "$HOT_WRTE_MAX" || ( "$HOT_WRTE_MAX" == 1 && "$ROW_RULES" == te1_low1 && "$HOT_SHA" =~ ^[0-9a-f]{64}$ && "$(sha256sum "$HOT_FILE" 2>/dev/null | cut -c1-64)" == "$HOT_SHA" ) ]] \
   || stop "HOT_WRTE_MAX=$HOT_WRTE_MAX: empty (off), or 1 with ROW_RULES=te1_low1 and HOT_FILE (absolute) pinned by HOT_SHA"
+[[ -z "$HOT_WRTE_MAX" || "$HOT_FILE" == "$HOME/private/paper-corun/hot/w05.csv" ]] \
+  || stop "HOT_FILE=$HOT_FILE: with HOT_WRTE_MAX=1 it must be the study-38 snapshot's hot file ~/private/paper-corun/hot/w05.csv (one file for the live rule and the paper arms; the reviewer 10-10)"
 [[ "$ONE_CATCHER_ALL" == 0 || ( "$ONE_CATCHER_ALL" == 1 && "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 && "$SHAPE" == mixt && "$MIX_FILL" == rr \
       && "$MIX_COVER" == 0 && "$MIX_RS" == 0 && -z "$BRING_BACK_TOP_WR" && "$WINNER_SELECT" == 0 ) ]] \
   || stop "ONE_CATCHER_ALL=$ONE_CATCHER_ALL: 0, or 1 with ROW_RULES=te1_low1, his package (OWN_CAP_DELTA=15), SHAPE=mixt, MIX_FILL=rr, MIX_COVER=0, MIX_RS=0, no BRING_BACK_TOP_WR and WINNER_SELECT=0 (the union refuses the rest)"
