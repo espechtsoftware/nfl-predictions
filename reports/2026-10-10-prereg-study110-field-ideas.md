@@ -81,6 +81,15 @@ Each arm makes one change:
 - **The real-field patterns are measured on actual ownership** (W1–W3) **and FP's projected ownership** (W4). The harness's
   rules use its own predicted ownership (the rescaled blend), as the live low rule does.
 - **QBTOP3 uses the pre-lock totals the frame carries;** production has the same column.
+- **How many of his 26 real Week-4 lineups each rule would change** (the laptop's outcome-blind check, 10-10: the armed book with
+  FAVHI, FP projections and FP's Week-4 ownership): **LOW0 4; QBTOP3 6** (ties make it 4 games, the cut at a total of 48.5);
+  **VAL4 17** (rows with 5+ top-value players); **HYGIENE 1**; POPPUNT not computed. A pass's live effect scales with these
+  counts, not with the harness's.
+- **HYGIENE barely touches his real book** (the laptop's outcome-blind check, 10-10: the Week-4 armed book with FAVHI, `c605cab6`,
+  FP projections): its lowest lineup is $49,700 (none under $49,500), so the salary floor is a no-op there, and the QB +
+  own-DST ban touches 1 lineup of 26. A HYGIENE pass would move about one lineup live. **The $49,500 is kept** (the real-field
+  pattern's own threshold, briefing idea 5); raising it until it binds would test a different rule. If the binding census
+  shows the floor never binds on the 36 slates, HYGIENE reads as the QB + own-DST ban alone (the lab reviewer's call).
 - **VAL4 ranks on the harness's simulated mean;** production would rank on Fantasy Points' projections (the page's definition,
   after the FP override on the T-70 frame). The two value lists differ.
 - **The census, per arm:**
@@ -99,7 +108,21 @@ Each arm makes one change:
 ## 5. Smoke and code
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke (the unit tests, the mechanics smoke 2023 W3 / 2023 W11 /
   2024 W10, the census, the full path: reader exit and line count only).
-- **The smoke:** (a machine gap the lab reviewer names; filled in when it ends).
+- **The smoke (DONE 10-10, 06:24:21–06:26:55 CDT, in the gap the lab reviewer named after the laptop's study-109 census; bank
+  1406; 2024 W10, 2023 W11, 2023 W3; PYTHONHASHSEED=0; code `083f11e2`; `results_bank1406.jsonl` `88ae979e…`):**
+  - the unit tests 15 passed;
+  - every arm 26 book rows within the package's caps; row rules 78 of 78 ruled, none infeasible; RB-mate slots 12 of 12 and
+    ONECATCH 42 of 42, none dropped, every arm; **LIVE identical to study 97's RBMATE4_FAVHI, rows and dealing, on 3 of 3**;
+  - **each rule binds** (LIVE → the arm): LOW0's rows with a low-owned player 16.33 → 0; QBTOP3's QB in a top-3 game 11.67 → 26
+    of 26 (book rules ruled 78, none plain; 31.7 QBs banned per slate); POPPUNT's block applied on every slate (popular cheap
+    players given the term 5.7, min 5); HYGIENE's QB + own-DST rows 1.33 → 0 (book rules 78, none plain); VAL4's rows with 5+
+    top-value players 13.33 → 0 (top-value players per slate QB / RB / WR / TE 3.0 / 5.3 / 7.3 / 3.7);
+  - **one half of HYGIENE did not bind on the smoke slates:** LIVE's lowest book salary was already $49,700, so the $49,500
+    floor changed nothing there; the binding census on the 36 slates shows how often it binds;
+  - dealt identical to LIVE: 0.000 for every arm but HYGIENE (0.333); none above 0.80. VAL4 shares no row with LIVE; its
+    projection per row is within ±0.05 of LIVE's on each slate;
+  - the full path: the reader exited 0 (80 lines; 106 two-draw). Only the census, the exit codes and the line counts were
+    read.
 - **Fixed before any run (found while adding VAL4):** the census's parity expected te1 / low1 on every arm, so LOW0's recorded
   rules would have stopped it at the first row. It now mirrors the module's rules per arm (a test asserts it). The class was
   swept: study 109 had the same defect (fixed); 106 and 112 agree.
