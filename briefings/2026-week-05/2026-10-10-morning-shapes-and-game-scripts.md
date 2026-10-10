@@ -326,11 +326,28 @@ fixed before study 102 was read).
    approximately. On your real Week-4 book an FP floor of 8 changes 3 of 26 lineups and 10 changes 23 (the laptop's check). A
    floor of 12 is not tested: with the cheap block on, production refuses it (it removes every cheap-block player).
 3. **Study 109 — a recency fade** (your "2 point reduction in the projection when the players last game was twice the
-   average"): at 2.0× and 1.6×, on every lineup of your armed book (with the RB version).
-4. **Last, as you asked:** "Did we try what you had planned of removing one rule at a time to see if it was really helpful?
-   That in my opinion should be the last thing we do after we've tried the other experiments." The shapes were done this way
-   (study 95: removing A1, B or C hurt; A2 changed nothing). Removing each live **rule** from the full armed book is not done
-   yet; it comes after the studies above, **before your 18:00 final arm** (every study ends by about 17:30).
+   average"): at 2.0× and 1.6×, on every lineup of your armed book (with the RB version). **Added this morning, as you said
+   ("Add both today"):** at most one "hot" player per lineup (a player coming off a game at twice his average), with no change
+   to the projections. A pick is re-checked on a fresh draw (study 109b).
+4. **Study 110 — rules from your real Weeks 1–4 fields** (the ideas page you queued): no low-owned player at all; the QB from
+   one of the slate's three highest-total games; the cheap block only on popular cheap players; no QB with his own defense and
+   at least $49,500 of salary. **Added this morning ("Add both today"):** at most 4 of a lineup's 8 players from the top tenth by
+   value. A pick is re-checked on a fresh draw (study 111).
+5. **Study 112 — usage floors** (your minimum rush attempts, pass attempts, targets, touchdowns and red-zone targets): one floor
+   per version, each from games before the slate only; a pick is re-checked on a fresh draw (study 113).
+6. **Last, as you asked (study 114):** "Did we try what you had planned of removing one rule at a time to see if it was really
+   helpful? That in my opinion should be the last thing we do after we've tried the other experiments." The shapes were done
+   this way (study 95: removing A1, B or C hurt; A2 changed nothing). Study 114 removes each live **rule** in turn from your
+   full armed book: the 35% cap with the ownership limit (as one), the one-TE limit, the one-low-owned limit, the cheap block,
+   one receiver per team, and the RB version. A removal is suggested only if your book does better without it on both
+   opponent sets; with six removals one or two can pass by chance, so a suggested removal is re-checked on a fresh draw (study
+   114b) before it reaches you. **Only two can be switched off for tonight as things stand** (the cheap block, the RB version);
+   the others are tied together in the arming script, so removing one of them would wait for Week 6. Every study ends by about
+   17:30, **before your 18:00 final arm.**
+7. **Your question "77, 79 and 81 all looked promising. Do you think any could be adopted?" (the laptop's answer, checked
+   against the ledger):** 79 is already live, as one receiver per team (study 93, +2.0). 77 (the QB alone, +1.8 at first) and
+   81 (no $5,000+ TE, +4.7 as one of about 35 side comparisons) failed their re-reads: 77 read −1.9, −2.0 and −0.2 afterwards;
+   81 read −1.2 on fresh opponents. Neither is adoptable.
 
 ## 4. The rest of last evening (for the record)
 
