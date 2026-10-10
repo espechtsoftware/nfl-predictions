@@ -1,7 +1,11 @@
 # Preregistration: study 107, the go / no-go for study 106's floor — the pick vs LIVE on a fresh draw of the same slates (DRAFT 2026-10-10, committed BEFORE study 106 is read)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer, committed and pushed **before study
-106's READ**. The lab reviewer freezes it after study 106's READ; the laptop acks. **Information for his decision.**
+**Status: NOT RUN (2026-10-10): its condition failed — study 106 (READ_s106.txt `0a75e37c`, lab `960c320c`) picked nothing:
+MINPROJ8 − LIVE on P(≥ 1 big seat) −0.02684 [−0.07677, +0.02040], worse on both draws (A −0.02652, B −0.02716), expected big
+seats ×0.882, guard 1 fails (lower −0.01639); "PICK: none -- keep the live book". Its banks stay unused. Study 108 (his
+per-position floors, study-list row 89's second step) was conditional on a floor holding here, so it is NOT RUN either and
+was never drafted. Recorded under the design fixed before study 106's READ.** Earlier status: DRAFT 2026-10-10 (the times are
+this file's commits) by the outside reviewer, committed and pushed **before study 106's READ**. The lab reviewer freezes it after study 106's READ; the laptop acks. **Information for his decision.**
 
 ## 1. Why
 - Study 106 (`reports/2026-10-10-prereg-study106-min-proj.md`) reads ONE projection floor (MINPROJ8; study 106's pre-freeze
