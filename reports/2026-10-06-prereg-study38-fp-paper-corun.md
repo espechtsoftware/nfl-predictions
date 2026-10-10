@@ -1402,6 +1402,43 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     6z needs nothing new from production).
   - **Order:** this amendment; the laptop's ack; the gate pin.
 
+- **Amendment 6z2 (2026-10-10, before Week 5's lock; no Week-5 outcome exists): study 115's HOT_WRTE1 on paper.**
+  - **Why.** The laptop asked him, "Put the WR/TE cap on paper this Sunday beside the all-position one, so your real results
+    decide it?" His answer, verbatim: "Yes, on paper (Recommended)". Study 115 read HOT_WRTE1 −1.6, worse on both draws,
+    expected big seats ×0.95 (Addendum 206, READ `5ecd46e6`). The real-field screen behind it pointed the other way (within the
+    same user, a lineup with a hot WR / TE had lower top-1% odds in Weeks 2–4, after the fact). His 10-06 rule applies: when an
+    idea fails only under our ratings, the fair test is the real field, on paper.
+  - **What changes.**
+    - **MIXT_QA0_HOT_WRTE1** (exploratory): his live construction (`FOLLOW_QA0`: every live setting, FAVHI included) plus **at
+      most one hot WR / TE per row**, in the live row-rule tier (ONE list with the live rules; HOT1's pattern).
+    - **The set:** 6y's paper hot file, validated by `paper_hot()` first with every refusal unchanged. Then `paper_hot_wrte()`
+      keeps the rows whose file pos is WR or TE and hot = 1 (study 115's mask on study 109's flag), matched to the pool on
+      dk_player_id.
+    - No file, or a refused file, means the arm is missing (recorded), as with HOT1.
+    - The scorer scores it. The reader prints it on the 6r line against MIXT_QA0, with its contest groups and both books' expected
+      big seats. Information only.
+    - The manifest records the pool's hot WR / TE count, and each arm's hot WR / TE per row and rows with 2+.
+  - **Production:** the HOT_WRTE1 switch (production/hot-wrte-switch-20261010 @ `cdff786f`, default off) is not merged for Week
+    5. Nothing in production changes; the paper arm reads the same snapshot hot file as HOT1.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z2/`, script `run.sh` `f2adf1c13bc6`,
+    log `a5155202c13f`; lab `0b3aa516`; production = `s38-prod-pin` `7a20dd74`; PYTHONHASHSEED=0; the laptop's Week-4 FAVHI
+    receipt `80cf84f1…` and its `paper-hot-w04.csv` `58aa89a4…`):
+    - 58 tests pass (rc 0); union-argument mismatches none in both builds.
+    - **With the hot file: all 36 arms of 6z's smoke build identical** (rows + ranks); HOT_WRTE1 built (37 arms). The file's 24
+      hot players (QB 2 / RB 6 / WR 12 / TE 4) are all in the pool; 16 are WR / TE. **HOT_WRTE1: 0 rows with 2+ hot WR / TE**
+      (MIXT_QA0: 6 of 26, the research page's count under study 109's flag; HOT1: 0), 0.85 hot WR / TE per row (MIXT_QA0 1.08),
+      3 rows shared with MIXT_QA0, FP 140.49 vs 140.57 per dealt lineup, no fallback row.
+    - **Without the hot file:** HOT1 and HOT_WRTE1 missing ("no paper hot file in the snapshot"); every other arm identical to the
+      build with it (35 arms).
+  - **Code:** lab `0b3aa516` (on 6z's `87fcb9b7`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `1420932a03f553be99837473aede1f14addf21fe5c2ac332bd97fe66e947382c`;
+    - `scripts/s38_build.py` `e394c7bcddf173c651d1b2c2312738cb0886a5123bc2bb71507c0c1cff06db28` (unchanged);
+    - `scripts/s38_score.py` `5bafc55587fe7b2f0dc2f25a0157c6f73764489687f29f1fb90f6dc3e52efdc8`;
+    - `scripts/s38_report.py` `2d4f2f59ca901625f4590d9ecf8b4e217e32d7a5494e140d3c92f12ac5f95e17`;
+    - `tests/test_s38_paper_corun.py` `8ffd6aac0cf3387bfeff119b57ad725db97c0366d9211242addb80726b4dae90` (58 tests).
+  - **The integrity gate** pins this module sha in place of 6z's `9b5cb251…`; the production pin stays FRIDAY_HEAD (`7a20dd74`).
+  - **Order:** this amendment; the laptop's ack (one reproduction covers 6z and 6z2); the gate pin.
+
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
 - **Study 37** (Addendum 142): the regulars' structure (about 11 QB stacks and a steep player curve, their own tier
