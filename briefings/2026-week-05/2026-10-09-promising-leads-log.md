@@ -107,7 +107,7 @@ reviewer and updated as each study is read.
 - +0.8 (A +0.9, B +0.6), 3% fewer expected big wins; costs 0.9 more projected points per lineup on your real book.
 - A second reading of the package against your old 50% book: +0.3 (the first read was +1.2) — roughly even in the test model.
 
-### 11. The QB's own running back as a stack mate, 4 lineups (study 94) — *passed your rule; live in Week 5 if built and every check passes (your decision)*
+### 11. The QB's own running back as a stack mate, 4 lineups (studies 94, 96) — *did not hold up on top of one receiver per team: paper only*
 - **Study 94 (36 past slates, two random opponent sets), on your armed version:** in the first 4 QB-plus-one lineups, the QB,
   one of his receivers and his own running back. **+2.0** (set A +1.7, set B +2.4); about 3% more expected big wins. It passed
   your "better on both draws" rule. Under no true effect a rule passes about one time in four to one in three, and two of the
@@ -119,6 +119,11 @@ reviewer and updated as each study is read.
 - **Your decision (10-09): "Try live W5 if built".** Tonight: a test of it together with one receiver per team (study 96, your
   rule), the production switch, the Week-4 check and the paper-arm check. It goes live at Saturday's 10:28 arming only if all
   pass; otherwise it goes to paper. It would be the fourth change this week.
+- **Study 96 (the test together with one receiver per team, tonight): −0.5** (set A −0.7, set B −0.2); about 3% fewer
+  expected big wins. It failed your rule on both random opponent sets, although the rule bound in every case (the QB's own
+  back was in all 4 lineups each time). So study 94's +2.0 did not hold up once one receiver per team is in. It stays on
+  paper (scored on the real Week-5 fields beside your book); the switch stays off. The game-script versions (the back only
+  on an expected winner, or a winner in a high-scoring game) are study 97, tonight.
 
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
@@ -164,6 +169,11 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- Nothing tonight.
+- **Study 95 (tonight; information for your morning decision on the percentages):** the shape comparison you asked for — each
+  shape alone, and the mix with one shape removed at a time, against your live mix. How its result becomes a suggested mix was
+  written down before it runs.
+- **Study 97 (tonight, after 95):** the shapes by game situation, as you asked — the RB mate only on an expected winner (or a
+  winner in a high-scoring game), the expected winner's RB without his QB or with the trailing QB, and the QB + 2 stacks only in
+  high-scoring games or on their trailing side. Its rule for the morning suggestion was also written down first.
 
 *Updated as each study is read.*
