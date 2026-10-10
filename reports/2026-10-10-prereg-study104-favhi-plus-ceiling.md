@@ -1,6 +1,8 @@
 # Preregistration: study 104, the RB version that held (FAVHI) together with study 102's pick, in one book — conditional (DRAFT 2026-10-10, committed BEFORE study 102 is read)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer, on the laptop's proposal, agreed by
+**Status: NOT RUN (2026-10-10): its condition failed — study 103 (READ `4d0b354d`, lab `463d5050`) did not hold study 102's
+pick CEIL_BLOCK8 (mean best set B −0.04). The code (lab `448c3d77`) stays unrun, as written. Recorded here under the design
+fixed before study 102's READ.** Earlier status: DRAFT 2026-10-10 (the times are this file's commits) by the outside reviewer, on the laptop's proposal, agreed by
 the lab reviewer; committed and pushed **before study 102's READ**. The code is written only if study 103 holds; the lab
 reviewer reviews it, runs the census and freezes; the laptop acks. **Information for his morning decision.**
 
