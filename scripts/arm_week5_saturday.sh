@@ -53,6 +53,10 @@ DK_STATUS_SHA=""                    # its sha256, pinned (the arm refuses a mism
 MAX_BAND=""                         # the band cap (the operator 10-10): 1 = at most one RB / WR / TE with salary in BAND per book row,
                                     # in the row-rule tier (ROW_RULES=te1_low1 required); "" = off
 BAND=""                             # with MAX_BAND=1: the salary band LO:HI, e.g. 5300:6000 (inclusive)
+QB_MAX_SALARY=""                    # the QB salary cap by cell (the operator 10-10: "in cells B and C, QB salary <= 6400"): no QB
+                                    # above this DK salary on the QB_MAX_SALARY_CELLS book rows, in the row-rule tier
+                                    # (ROW_RULES=te1_low1 required); "" = off
+QB_MAX_SALARY_CELLS=""              # with QB_MAX_SALARY: the MIX cells, e.g. B,C
 MIX_FILL=rr                         # the MIX fill order (study 42; his 10-06 evening yes, "Use round-robin"): the cells in
                                     # turn, a row per shape for the top QBs (the outside reviewer's arm; NO DIFFERENCE on
                                     # P(>=1 big), +9% expected seats). group = the earlier book; value is NOT to be armed
@@ -125,6 +129,10 @@ _c=$(( 10#${SUPPLY%:*} * 60 + 10#${SUPPLY#*:} - 2 )); CUTOFF=$(printf '%02d%02d'
 [[ -z "$MAX_BAND" || ( "$MAX_BAND" == 1 && "$BAND" =~ ^[0-9]{4,5}:[0-9]{4,5}$ && "$ROW_RULES" == te1_low1 ) ]] \
   || stop "MAX_BAND=$MAX_BAND BAND=$BAND: empty, or 1 with BAND=LO:HI and ROW_RULES=te1_low1 (the band cap sits in the row-rule tier)"
 [[ -n "$MAX_BAND" || -z "$BAND" ]] || stop "BAND=$BAND without MAX_BAND=1"
+[[ -z "$QB_MAX_SALARY" || ( "$QB_MAX_SALARY" =~ ^[0-9]{4,5}$ && "$QB_MAX_SALARY_CELLS" =~ ^(A1|A2|B|C)(,(A1|A2|B|C))*$ && "$ROW_RULES" == te1_low1 \
+      && "$SHAPE" == mixt ) ]] \
+  || stop "QB_MAX_SALARY=$QB_MAX_SALARY QB_MAX_SALARY_CELLS=$QB_MAX_SALARY_CELLS: empty, or a salary with MIX cells (e.g. B,C), ROW_RULES=te1_low1 and SHAPE=mixt (the cap sits in the row-rule tier)"
+[[ -n "$QB_MAX_SALARY" || -z "$QB_MAX_SALARY_CELLS" ]] || stop "QB_MAX_SALARY_CELLS=$QB_MAX_SALARY_CELLS without QB_MAX_SALARY"
 [[ "$MIX_FILL" == group || ( ( "$MIX_FILL" == value || "$MIX_FILL" == rr ) && "$SHAPE" == mixt ) ]] || stop "MIX_FILL=$MIX_FILL: group, or value / rr with SHAPE=mixt"
 [[ "$MIX_COVER" =~ ^[0-8]$ && ( "$MIX_COVER" == 0 || "$SHAPE" == mixt ) ]] || stop "MIX_COVER=$MIX_COVER: 0..8, and not 0 only with SHAPE=mixt"
 [[ "$MIX_RS" == 0 || ( "$MIX_RS" =~ ^(9|13|17)$ && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_COVER" == 0 ) ]] || stop "MIX_RS=$MIX_RS: 0, or 9 / 13 / 17 with SHAPE=mixt, MIX_FILL=rr and MIX_COVER=0"
@@ -200,6 +208,7 @@ arm_env() {
   if [[ -n "$SAT_SUPPLY_CT" ]]; then e+=(SAT_SUPPLY_CT=$SAT_SUPPLY_CT); u+=(-u SAT_FALLBACK_CT); else u+=(-u SAT_SUPPLY_CT -u SAT_FALLBACK_CT); fi
   if [[ -n "$DK_STATUS_FILE" ]]; then e+=(UNION_DK_STATUS=$DK_STATUS_FILE); else u+=(-u UNION_DK_STATUS); fi
   if [[ -n "$MAX_BAND" ]]; then e+=(UNION_MIX_MAX_BAND=$MAX_BAND UNION_MIX_BAND=$BAND); else u+=(-u UNION_MIX_MAX_BAND -u UNION_MIX_BAND); fi
+  if [[ -n "$QB_MAX_SALARY" ]]; then e+=(UNION_MIX_QB_MAX_SALARY=$QB_MAX_SALARY UNION_MIX_QB_MAX_SALARY_CELLS=$QB_MAX_SALARY_CELLS); else u+=(-u UNION_MIX_QB_MAX_SALARY -u UNION_MIX_QB_MAX_SALARY_CELLS); fi
   env "${u[@]}" "${e[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head PROD_ARMED_HEAD=$(git -C "$P" rev-parse HEAD) \
     D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \
     LEV_CBC_THREADS=8 EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00 \
@@ -212,7 +221,7 @@ if [[ "${ARM_LATE:-0}" == 1 ]]; then SKIP="d6400 d12800sat d6400sat"; EXPECT_N=1
 [[ "${ARM_LATE:-0}" == 1 ]] || (( 10#$(date +%H%M) < 10#$CUTOFF )) || stop "it is $(date +%H:%M); the $SUPPLY Saturday D12800 would be in the past. Operator decision: ARM_LATE=1 (no Saturday supply builds, $((EXPECT_N - 2)) timers)"
 [[ -n "$SAT_SUPPLY_CT" ]] && say "the Saturday supply moves (his 10-10 decision): D12800 at $SAT_SUPPLY_CT CT, D6400 5 minutes later; the arm must finish by $CUTOFF"
 if [[ "$CHECK" == --check ]]; then
-  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; player cap $MAIN_CAP of the book; ownership cap ${OWN_CAP_DELTA} points; row rules ${ROW_RULES:-off}; one catcher per team $ONE_CATCHER_ALL; RB mate in C rows $RB_MATE_C (scope $RB_MATE_SCOPE); MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT; priority order $PRIORITY_ORDER; bring-back top WR ${BRING_BACK_TOP_WR:-off}${BRING_BACK_TOP_WR_ROWS:+ on $BRING_BACK_TOP_WR_ROWS rows}; term block $TERM_ROWS${TERM_SHA:+ (file ${TERM_SHA:0:12})}"
+  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; player cap $MAIN_CAP of the book; ownership cap ${OWN_CAP_DELTA} points; row rules ${ROW_RULES:-off}; one catcher per team $ONE_CATCHER_ALL; RB mate in C rows $RB_MATE_C (scope $RB_MATE_SCOPE); MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT; priority order $PRIORITY_ORDER; bring-back top WR ${BRING_BACK_TOP_WR:-off}${BRING_BACK_TOP_WR_ROWS:+ on $BRING_BACK_TOP_WR_ROWS rows}; term block $TERM_ROWS${TERM_SHA:+ (file ${TERM_SHA:0:12})}; status exclusions $( [[ -n "$DK_STATUS_SHA" ]] && echo "file ${DK_STATUS_SHA:0:12}" || echo off); band cap ${MAX_BAND:-off}${BAND:+ at $BAND}; QB salary cap ${QB_MAX_SALARY:-off}${QB_MAX_SALARY_CELLS:+ on $QB_MAX_SALARY_CELLS}"
   UNITS=$(arm_env "$SKIP" bash scripts/arm_week_timers.sh 5 2>&1 | grep -oE 'nfl-week5-[a-z0-9-]+' | sort -u)
   for s in $SKIP; do UNITS=$(echo "$UNITS" | grep -vx "nfl-week5-$(echo $s | sed -E 's/^(d[0-9]+)sat$/\1-sat/')-build"); done
   echo "$UNITS" | sed 's/^/  planned: /'

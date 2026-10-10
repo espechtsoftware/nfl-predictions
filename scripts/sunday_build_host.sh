@@ -575,6 +575,25 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
       band_alert "the row rules are not on for this run (UNION_MIX_ROW_RULES=${UNION_MIX_ROW_RULES:-unset}, ownership cap on: $OWN_CAP_ON)"
     fi
   fi
+  qbsal_alert() {                                           # the QB salary cap not applied: the book stands without it, loudly
+    printf '%s run %s: QB SALARY CAP NOT APPLIED: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$1" | tee -a "$OUT/ALERT-qb-salary-cap-not-applied-$RUN_TAG.txt"
+    printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+      "!!! QB SALARY CAP NOT APPLIED for $RUN_TAG: $1 -- the book stands without it" \
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  }
+  # The QB salary cap by cell (the operator 10-10: "in cells B and C, QB salary <= 6400"): in the row-rule tier, ONLY with his row
+  # rules. Off = unset or 0. Row rules not on = no QB salary cap, LOUDLY.
+  QBSAL_ON=0
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_QB_MAX_SALARY:-0}" != "0" ]]; then
+    if (( ROW_RULES_ON )) && [[ "$UNION_MIX_QB_MAX_SALARY" =~ ^[0-9]{4,5}$ && "${UNION_MIX_QB_MAX_SALARY_CELLS:-}" =~ ^(A1|A2|B|C)(,(A1|A2|B|C))*$ ]]; then
+      UNION_ARGS+=(--mix-qb-max-salary "$UNION_MIX_QB_MAX_SALARY" --mix-qb-max-salary-cells "$UNION_MIX_QB_MAX_SALARY_CELLS"); QBSAL_ON=1
+      echo "QB SALARY CAP for $RUN_TAG: ON (no QB above \$$UNION_MIX_QB_MAX_SALARY on the $UNION_MIX_QB_MAX_SALARY_CELLS book rows; with the row rules)"
+    elif (( ROW_RULES_ON )); then
+      qbsal_alert "UNION_MIX_QB_MAX_SALARY='$UNION_MIX_QB_MAX_SALARY' / UNION_MIX_QB_MAX_SALARY_CELLS='${UNION_MIX_QB_MAX_SALARY_CELLS:-}' is not a salary and a cell list"
+    else
+      qbsal_alert "the row rules are not on for this run (UNION_MIX_ROW_RULES=${UNION_MIX_ROW_RULES:-unset}, ownership cap on: $OWN_CAP_ON)"
+    fi
+  fi
   # Study 48b's winner-likeness order (operator 10-07: "Test tonight, aim for Week 5"; default off): FP's projected
   # ownership (the term's FP export when there is one, else this run's own capture + export) and the players' prior-game
   # touchdowns / attempts (scripts/winner_like_inputs.py), then the union re-orders the main book by study 48's frozen
@@ -697,6 +716,12 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   if (( BAND_ON )) && [[ "$UNION_MAIN_EFFECTIVE" != "mix" ]]; then
     band_alert "the MIX main was refused; the house fallback ($UNION_MAIN_EFFECTIVE) has no band cap"
   fi
+  if (( QBSAL_ON )) && grep -q 'QB SALARY CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
+    qbsal_alert "the union refused it: $(grep -h 'QB SALARY CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
+  fi
+  if (( QBSAL_ON )) && [[ "$UNION_MAIN_EFFECTIVE" != "mix" ]]; then
+    qbsal_alert "the MIX main was refused; the house fallback ($UNION_MAIN_EFFECTIVE) has no QB salary cap"
+  fi
   if (( OWN_CAP_ON )) && grep -q 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     own_cap_alert "the union refused it: $(grep -h 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
@@ -708,6 +733,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" "$UNION_DIR/one_catcher_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" "$UNION_DIR/rb_mate_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-band-cap-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-band-cap-not-applied-$RUN_TAG.txt" "$UNION_DIR/band_cap_not_applied.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/ALERT-qb-salary-cap-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-qb-salary-cap-not-applied-$RUN_TAG.txt" "$UNION_DIR/qb_salary_cap_not_applied.txt"
   # the projection source travels with the union dir, so the upload sheet can name it (the outside review 10-06, (1b))
   [[ -n "$UNION_DIR" && -f "$OUT/proj_fp-$RUN_TAG.txt" ]] && cp "$OUT/proj_fp-$RUN_TAG.txt" "$UNION_DIR/proj_source_log.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/proj_source_fallback-$RUN_TAG.txt" ]] && cp "$OUT/proj_source_fallback-$RUN_TAG.txt" "$UNION_DIR/proj_source_fallback.txt"

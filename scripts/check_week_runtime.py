@@ -283,6 +283,16 @@ def main():
         fail(f"UNION_MIX_MAX_BAND=1 needs UNION_MIX_BAND=LO:HI (got {_bd!r})")
     if _bd and _mb != "1":
         fail(f"UNION_MIX_BAND={_bd!r} is read only with UNION_MIX_MAX_BAND=1")
+    # the QB salary cap by cell (the operator 10-10): a salary with a MIX cell list, only on top of the row rules and the MIX main
+    _qs = os.environ.get("UNION_MIX_QB_MAX_SALARY", "")
+    _qc = os.environ.get("UNION_MIX_QB_MAX_SALARY_CELLS", "")
+    if _qs not in ("", "0") and (not re.fullmatch(r"[0-9]{4,5}", _qs) or not 3000 <= int(_qs) <= 10000 or _rr != "te1_low1"
+                                 or os.environ.get("UNION_MAIN") != "mix"
+                                 or not re.fullmatch(r"(A1|A2|B|C)(,(A1|A2|B|C))*", _qc) or len(set(_qc.split(","))) != len(_qc.split(","))):
+        fail(f"UNION_MIX_QB_MAX_SALARY={_qs!r} must be a salary 3000..10000 with UNION_MIX_QB_MAX_SALARY_CELLS=distinct MIX cells "
+             f"(got {_qc!r}), UNION_MIX_ROW_RULES=te1_low1 and UNION_MAIN=mix")
+    if _qc and _qs in ("", "0"):
+        fail(f"UNION_MIX_QB_MAX_SALARY_CELLS={_qc!r} is read only with UNION_MIX_QB_MAX_SALARY")
     if os.environ.get("UNION_MIX_QB2_SCOPE", "") not in ("", "off"):
         fail("UNION_MIX_QB2_SCOPE is not built (no QB + 2 scope passed study 97): unset it")
     _fill = os.environ.get("UNION_MIX_FILL", "")

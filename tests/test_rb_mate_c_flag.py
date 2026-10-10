@@ -308,8 +308,8 @@ def test_the_floor_changes_the_book_and_off_is_the_onecatch_call(monkeypatch, tm
      'if rb_mate_c and name == "B" and len(rm_state["used"]) < int(rb_mate_c):'),                # the wrong cell
     ('if rb_mate_c and name == "C" and len(rm_state["used"]) < int(rb_mate_c):',
      'if rb_mate_c and name == "C" and len(rm_state["ruled"]) < int(rb_mate_c):'),               # a dropped floor frees its slot
-    ("got = _solve(name, extra_bans, use_term, rb + oc_bounds, rm_pairs)   # no pair",
-     "got = _solve(name, extra_bans, use_term, rb, rm_pairs)   # no pair"),                                     # ONECATCH left out of the floor tier
+    ("got = _solve(name, extra_bans, use_term, rbx + oc_bounds, rm_pairs)  # no pair",
+     "got = _solve(name, extra_bans, use_term, rbx, rm_pairs)  # no pair"),                                     # ONECATCH left out of the floor tier
 ])
 def test_a_mutated_rule_is_caught(monkeypatch, tmp_path, old, new):
     fr, caps, bounds, cons = OCT.inputs(tmp_path)
