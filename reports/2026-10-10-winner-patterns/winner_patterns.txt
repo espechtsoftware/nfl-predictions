@@ -1,0 +1,332 @@
+W1: frame 367 players; hot2 14 hot16 26 late 135; priority contests 1
+  milly: 823,092 lineups with 9 matched players; ours 57; contests 1
+  priority: 4,993 lineups with 9 matched players; ours 3; contests 1
+W2: frame 418 players; hot2 28 hot16 42 late 172; priority contests 2
+  milly: 172,330 lineups with 9 matched players; ours 1; contests 1
+  priority: 126 lineups with 9 matched players; ours 4; contests 2
+W3: frame 439 players; hot2 23 hot16 37 late 134; priority contests 7
+  milly: 161,502 lineups with 9 matched players; ours 1; contests 1
+  priority: 6,511 lineups with 9 matched players; ours 13; contests 7
+W4: frame 316 players; hot2 15 hot16 28 late 105; priority contests 4
+  milly: 160,039 lineups with 9 matched players; ours 2; contests 1
+  priority: 589 lineups with 9 matched players; ours 7; contests 4
+
+=== MILLIONAIRE, W1-4 pooled: group means (pre-lock features; ownership realized) ===
+group                    field     top 10%     top 1%   top 0.1%    top 100       OURS
+lineups            1316963.000  132551.000  13270.000   1333.000    400.000     61.000
+proj                   122.825     124.273    124.861    124.920    123.915    125.223
+points                 134.208     183.409    208.646    226.840    222.732    146.448
+own_sum                 27.982      28.845     28.905     28.742     28.840     31.315
+log_own_prod           -36.380     -35.793    -35.593    -35.546    -35.662    -36.789
+n_chalk20                0.033       0.048      0.050      0.042      0.085      0.000
+n_sub5                   7.370       7.321      7.341      7.383      7.360      7.393
+n_games                  5.863       5.660      5.513      5.481      5.685      4.820
+n_teams                  6.908       6.783      6.734      6.794      6.885      6.049
+mates_wrte               1.127       1.292      1.406      1.437      1.393      1.820
+mates_rb                 0.192       0.164      0.127      0.095      0.080      0.475
+bb_wrte                  0.353       0.414      0.433      0.372      0.375      0.525
+bb_rb                    0.169       0.264      0.359      0.430      0.325      0.377
+dst_faces                0.080       0.064      0.056      0.045      0.043      0.049
+dst_rb                   0.158       0.138      0.133      0.124      0.140      0.033
+n_topval                 3.111       3.682      3.847      3.839      3.178      3.295
+n_val80                  4.886       5.513      5.780      5.835      5.128      5.311
+n_lowval                 0.502       0.326      0.248      0.212      0.323      0.180
+n_prank3                 1.840       1.999      2.005      1.947      1.663      1.426
+qb_prank                 8.895       9.200      9.797     10.256     10.560      9.967
+min_proj                 7.846       7.996      8.127      8.146      8.190      8.127
+min_rb                  14.182      14.715     14.728     14.611     13.557     14.765
+min_wr                   9.606       9.696      9.800      9.874     10.390      9.929
+min_te                   9.064       8.927      8.841      8.740      8.966      8.554
+qb_proj                 19.763      19.687     19.568     19.472     19.025     19.628
+n_under8                 0.602       0.548      0.504      0.490      0.540      0.475
+n_under10                1.498       1.472      1.407      1.355      1.280      1.377
+n_hot2                   0.817       0.688      0.621      0.599      0.627      0.541
+n_hot16                  1.535       1.665      1.777      1.878      1.455      1.066
+n_late                   2.933       2.583      2.316      2.194      2.650      2.754
+n_star                   0.544       0.739      0.813      0.884      0.998      0.311
+n_cheap                  0.844       1.035      1.094      1.071      1.167      0.934
+wr_spend             19599.229   19474.095  19568.628  19548.687  20453.500  19685.246
+rb_spend             16254.580   16643.564  16789.872  16965.941  15516.250  16703.279
+qb_sal                5961.051    5855.637   5770.965   5698.425   5642.250   5819.672
+dst_sal               2937.422    2904.602   2901.191   2896.324   2829.250   3295.082
+sal_sd                1343.647    1423.972   1451.886   1461.831   1546.760   1257.088
+sal_total            49862.757   49879.038  49884.167  49887.172  49886.000  49772.131
+n_te                     1.245       1.274      1.266      1.263      1.433      1.098
+n_rb                     2.408       2.413      2.430      2.459      2.295      2.525
+bb_rb_only_share         0.114       0.160      0.216      0.299      0.242      0.344
+bb_receiver_share        0.324       0.373      0.406      0.359      0.365      0.525
+min_proj<8 share         0.507       0.475      0.446      0.432      0.438      0.443
+min_proj<10 share        0.899       0.896      0.902      0.916      0.850      0.934
+hot2>=1 share            0.551       0.522      0.484      0.474      0.482      0.426
+topval>=3 share          0.636       0.761      0.789      0.794      0.688      0.639
+star>=1 share            0.498       0.674      0.732      0.782      0.757      0.295
+
+=== MILLIONAIRE by week: top 1% vs field vs ours (selected) ===
+-- W1
+group           field     top 1%       OURS
+lineups    823092.000   8308.000     57.000
+n_topval        3.158      4.316      3.123
+n_val80         4.888      6.262      5.228
+n_prank3        1.898      2.237      1.333
+min_proj        7.651      8.067      8.119
+n_under8        0.663      0.467      0.474
+n_hot2          0.535      0.597      0.509
+n_hot16         1.143      2.104      1.035
+n_late          2.948      1.916      2.754
+n_star          0.429      0.746      0.246
+n_chalk20       0.000      0.000      0.000
+n_sub5          7.385      7.351      7.386
+n_games         5.817      5.382      4.825
+mates_rb        0.200      0.131      0.509
+sal_sd       1313.052   1385.967   1219.527
+wr_spend    19735.997  19009.701  19764.912
+qb_prank        8.656      9.566     10.211
+proj          122.561    125.345    124.569
+points        142.256    218.264    147.361
+-- W2
+group           field     top 1%       OURS
+lineups    172330.000   1729.000      1.000
+n_topval        2.645      2.848      7.000
+n_val80         4.871      5.237      7.000
+n_prank3        1.868      2.137      4.000
+min_proj        8.330      8.854      8.116
+n_under8        0.414      0.175      0.000
+n_hot2          1.572      0.784      2.000
+n_hot16         2.494      1.402      2.000
+n_late          3.251      4.069      2.000
+n_star          0.803      1.116      1.000
+n_chalk20       0.000      0.000      0.000
+n_sub5          7.352      7.426      7.000
+n_games         6.007      6.090      6.000
+mates_rb        0.190      0.199      0.000
+sal_sd       1366.655   1560.966   1910.456
+wr_spend    19062.642  21183.285  19400.000
+qb_prank        8.838      7.405     12.000
+proj          123.675    124.711    139.203
+points        115.591    188.966    126.620
+-- W3
+group           field     top 1%       OURS
+lineups    161502.000   1620.000      1.000
+n_topval        3.032      3.456      5.000
+n_val80         4.629      4.877      6.000
+n_prank3        1.668      1.754      3.000
+min_proj        7.915      7.442      7.392
+n_under8        0.542      0.949      1.000
+n_hot2          1.398      0.792      0.000
+n_hot16         2.456      1.477      2.000
+n_late          2.542      2.312      0.000
+n_star          0.696      1.306      1.000
+n_chalk20       0.270      0.409      0.000
+n_sub5          7.552      7.478      8.000
+n_games         5.992      5.408      5.000
+mates_rb        0.172      0.049      0.000
+sal_sd       1440.361   1685.148   1889.734
+wr_spend    19034.529  18783.148  17900.000
+qb_prank        9.812     13.804      8.000
+proj          122.639    125.344    132.787
+points        128.483    196.035    127.580
+-- W4
+group           field     top 1%       OURS
+lineups    160039.000   1613.000      2.000
+n_topval        3.450      2.895      5.500
+n_val80         5.149      4.788      6.500
+n_prank3        1.688      0.924      2.000
+min_proj        8.255      8.345      8.745
+n_under8        0.555      0.601      0.500
+n_hot2          0.867      0.398      1.000
+n_hot16         1.587      0.795      1.000
+n_late          2.905      2.497      4.500
+n_star          0.706      0.337      1.500
+n_chalk20       0.000      0.000      0.000
+n_sub5          7.127      7.056      7.500
+n_games         5.820      5.674      4.000
+mates_rb        0.170      0.112      0.000
+sal_sd       1378.632   1440.214   1684.562
+wr_spend    20043.480  21505.580  18450.000
+qb_prank        9.257      9.524      3.000
+proj          123.460    122.041    133.086
+points        118.647    192.869    139.780
+
+=== MILLIONAIRE: bring-back type among lineups with a bring-back (share) ===
+    field: n 576,982  receiver bring-back 0.741  RB-only 0.259
+   top 1%: n   8,249  receiver bring-back 0.653  RB-only 0.347
+ top 0.1%: n     877  receiver bring-back 0.545  RB-only 0.455
+     OURS: n      53  receiver bring-back 0.604  RB-only 0.396
+
+=== PRIORITY CONTESTS (4444 / 555 / 333 / FFWC), W1-4 pooled: group means ===
+group                  field    top 10%     top 2%  top 3 per contest       OURS
+lineups            12219.000   1216.000    239.000             43.000     27.000
+proj                 124.489    125.618    125.900            126.303    129.788
+points               139.638    186.537    203.854            192.881    120.899
+own_sum               28.961     29.403     29.165             32.251     32.316
+log_own_prod         -36.052    -35.775    -35.674            -35.001    -36.166
+n_chalk20              0.162      0.188      0.188              0.233      0.148
+n_sub5                 7.501      7.419      7.452              7.070      7.259
+n_games                5.614      5.373      5.213              5.279      5.074
+n_teams                6.696      6.516      6.414              6.442      6.037
+mates_wrte             1.428      1.608      1.749              1.698      2.000
+mates_rb               0.178      0.140      0.096              0.070      0.111
+bb_wrte                0.435      0.467      0.490              0.605      0.704
+bb_rb                  0.192      0.341      0.423              0.465      0.370
+dst_faces              0.034      0.021      0.021              0.000      0.000
+dst_rb                 0.183      0.155      0.121              0.186      0.037
+n_topval               3.494      3.894      3.929              3.674      4.963
+n_val80                5.236      5.606      5.653              5.558      6.296
+n_lowval               0.368      0.218      0.146              0.233      0.111
+n_prank3               1.908      2.067      1.983              1.651      1.704
+qb_prank               9.551     10.826     11.745             11.419      6.222
+min_proj               8.093      8.000      7.937              8.060      9.106
+min_rb                14.757     15.062     15.193             14.877     15.546
+min_wr                 9.711      9.690      9.888             10.025     11.432
+min_te                 9.251      8.890      8.512              9.166      9.953
+qb_proj               19.345     18.822     18.582             18.521     19.926
+n_under8               0.578      0.642      0.690              0.791      0.333
+n_under10              1.378      1.440      1.498              1.256      1.222
+n_hot2                 0.892      0.688      0.561              0.465      1.407
+n_hot16                1.716      1.609      1.490              1.233      2.148
+n_late                 2.755      2.436      2.222              2.953      2.370
+n_star                 0.654      0.965      1.013              0.860      0.444
+n_cheap                0.893      1.081      1.201              1.326      0.815
+wr_spend           18873.738  18445.806  18449.372          19004.651  19162.963
+rb_spend           16546.469  17222.615  17358.577          16995.349  15192.593
+qb_sal              5860.913   5593.503   5512.971           5497.674   5870.370
+dst_sal             2792.847   2777.220   2801.255           2783.721   3100.000
+sal_sd              1447.941   1536.446   1560.684           1600.768   1347.174
+sal_total          49866.143  49888.158  49897.071          49909.302  49888.889
+n_te                   1.415      1.453      1.469              1.442      1.593
+n_rb                   2.367      2.394      2.402              2.372      2.222
+bb_rb_only_share       0.111      0.167      0.205              0.186      0.296
+bb_receiver_share      0.396      0.428      0.464              0.558      0.667
+min_proj<8 share       0.507      0.542      0.577              0.581      0.333
+min_proj<10 share      0.872      0.904      0.937              0.814      0.667
+hot2>=1 share          0.602      0.517      0.427              0.349      0.741
+topval>=3 share        0.750      0.836      0.854              0.837      0.926
+star>=1 share          0.587      0.818      0.833              0.721      0.370
+
+=== PRIORITY: bring-back type among lineups with a bring-back ===
+    field: n   6,192  receiver bring-back 0.781  RB-only 0.219
+   top 2%: n     160  receiver bring-back 0.694  RB-only 0.306
+    top 3: n      32  receiver bring-back 0.750  RB-only 0.250
+     OURS: n      26  receiver bring-back 0.692  RB-only 0.308
+
+=== MILLIONAIRE: within user-week MH odds ratios (users with 20+ entries) ===
+                   feature (vs reference)  top 1%  top 4%  top 10%       top 1% by week  n compared  exposed share
+      3+ top-decile-value players vs <= 1    2.09    1.95     1.89  3.54/0.90/2.83/0.48      450196          0.864
+    5+ top-quintile-value players vs <= 3    2.67    2.65     2.46  7.61/1.43/0.90/0.54      451957          0.835
+       2+ below-median-value players vs 0    0.43    0.48     0.51  0.14/0.77/0.63/0.74      418199          0.088
+   3+ top-3-projected-at-position vs <= 1    1.38    1.40     1.43  2.08/1.42/0.84/0.17      336571          0.462
+            QB top-3 projected vs rank 7+    0.60    0.62     0.64  0.37/3.12/0.69/0.65      427669          0.273
+               min projection >= 8 vs < 8    1.34    1.29     1.22  1.75/1.56/0.42/0.80      555285          0.486
+              min projection >= 10 vs < 8    0.81    0.97     1.00  0.94/1.61/0.29/0.80      341926          0.165
+       no player under 8 (RB/WR/TE) vs 2+    1.74    1.59     1.41  3.88/2.14/0.26/0.67      313968          0.859
+ 1+ hot player (last game >= 2x avg) vs 0    0.85    0.92     0.98  1.16/0.46/0.57/0.33      555285          0.521
+            2+ hot players (>= 1.6x) vs 0    3.02    3.00     2.96 47.17/0.28/0.27/0.16      346081          0.658
+           3+ late-window players vs <= 1    0.43    0.48     0.54  0.26/5.00/1.04/0.85      429114          0.728
+              0 late-window players vs 2+    2.19    1.99     1.79  3.34/0.08/0.92/1.07      467192          0.061
+          2+ chalk (>= 20% owned) vs <= 1     NaN     NaN      NaN      nan/nan/nan/nan      555285          0.000
+                  3+ sub-5% owned vs <= 1     NaN     NaN      NaN      nan/nan/nan/nan      555285          1.000
+                        1+ $8k+ star vs 0    2.68    2.35     2.21 3.68/1.76/19.70/0.46      555285          0.511
+                       2+ $8k+ stars vs 0    2.77    2.13     1.90  nan/2.39/51.68/0.13      291796          0.069
+receiver bring-back vs RB-only bring-back    0.69    0.77     0.83  0.58/1.48/0.54/3.60      273647          0.749
+                    QB + his RB (1+) vs 0    0.63    0.73     0.83  0.62/1.04/0.22/0.66      555285          0.196
+                         5+ games vs <= 4    0.57    0.61     0.65  0.49/1.42/0.63/1.09      555285          0.877
+                         7+ teams vs <= 5    0.59    0.62     0.66  0.46/1.28/0.73/1.33      407334          0.875
+  salary spread top third vs bottom third    2.36    1.92     1.79  1.58/7.88/7.70/2.99      370300          0.500
+               WR spend >= $20k vs < $18k    0.91    0.92     0.89 0.54/11.65/1.17/3.48      425623          0.497
+  projection above own median (reference)    1.55    1.41     1.38  2.19/0.76/1.36/0.56      555285          0.494
+
+=== PRIORITY CONTESTS: by-contest MH odds ratios (controls the field) ===
+                   feature (vs reference)  top 2%  top 5%  top 10%       top 2% by week  n compared  exposed share
+      3+ top-decile-value players vs <= 1    2.78    2.68     2.16    6.91/nan/2.00/nan       10151          0.903
+    5+ top-quintile-value players vs <= 3    1.83    1.69     1.72    7.83/nan/1.28/nan        9954          0.880
+       2+ below-median-value players vs 0    0.39    0.43     0.51  0.00/0.00/0.46/0.00        9041          0.068
+   3+ top-3-projected-at-position vs <= 1    1.17    1.43     1.62  1.82/0.00/0.99/0.17        7380          0.432
+            QB top-3 projected vs rank 7+    0.55    0.66     0.62   0.43/nan/0.60/0.92        9681          0.234
+               min projection >= 8 vs < 8    0.76    0.81     0.86   2.01/nan/0.30/5.57       12219          0.493
+              min projection >= 10 vs < 8    0.34    0.44     0.60   0.90/nan/0.16/4.64        7758          0.201
+       no player under 8 (RB/WR/TE) vs 2+    0.55    0.57     0.64    5.11/nan/0.17/nan        6869          0.877
+ 1+ hot player (last game >= 2x avg) vs 0    0.48    0.63     0.67  0.98/0.00/0.29/0.16       12219          0.602
+            2+ hot players (>= 1.6x) vs 0    1.06    1.40     1.45 19.22/0.05/0.19/0.00        8425          0.770
+           3+ late-window players vs <= 1    0.51    0.63     0.67   0.26/nan/0.78/0.38        9642          0.659
+              0 late-window players vs 2+    1.38    1.26     1.16  3.53/0.00/0.89/5.17        9999          0.107
+          2+ chalk (>= 20% owned) vs <= 1     NaN     NaN      NaN      nan/nan/nan/nan       12219          0.000
+                  3+ sub-5% owned vs <= 1     NaN     NaN      NaN      nan/nan/nan/nan       12219          1.000
+                        1+ $8k+ star vs 0    3.74    3.51     3.66 2.86/0.39/11.63/0.19       12219          0.587
+                       2+ $8k+ stars vs 0    9.97    8.03     8.80  nan/0.00/24.74/0.00        5837          0.136
+receiver bring-back vs RB-only bring-back    0.63    0.65     0.68    0.78/nan/0.52/nan        6192          0.781
+                    QB + his RB (1+) vs 0    0.49    0.51     0.73  0.62/0.00/0.40/0.46       12219          0.178
+                         5+ games vs <= 4    0.52    0.58     0.62    0.45/nan/0.51/nan       12219          0.866
+                         7+ teams vs <= 5    0.52    0.61     0.61    0.39/nan/0.53/nan        8635          0.856
+  salary spread top third vs bottom third    2.98    2.44     2.38  1.18/1.00/9.48/1.51        8154          0.500
+               WR spend >= $20k vs < $18k    0.65    0.58     0.64   0.59/nan/0.57/2.44        9004          0.401
+  projection above own median (reference)    1.29    1.31     1.24  1.66/0.00/1.10/1.17       12219          0.434
+
+=== PRIORITY CONTESTS: within user-week MH (users with 3+ priority lineups) ===
+                   feature (vs reference)  top 5%  top 10%  top 20%      top 5% by week  n compared  exposed share
+      3+ top-decile-value players vs <= 1    2.24     1.88     1.70   2.82/nan/1.83/nan        8923          0.910
+    5+ top-quintile-value players vs <= 3    1.31     1.33     1.46  5.84/nan/0.97/0.25        8747          0.890
+       2+ below-median-value players vs 0    0.49     0.75     0.91  0.00/nan/0.54/0.45        7959          0.060
+   3+ top-3-projected-at-position vs <= 1    1.50     1.60     1.50  2.16/nan/1.17/0.71        6423          0.437
+            QB top-3 projected vs rank 7+    0.76     0.71     0.70  0.55/nan/0.95/0.69        8450          0.227
+               min projection >= 8 vs < 8    0.84     0.93     0.93  1.66/nan/0.46/6.77       10681          0.491
+              min projection >= 10 vs < 8    0.50     0.70     0.68  0.69/nan/0.39/9.05        6740          0.194
+       no player under 8 (RB/WR/TE) vs 2+    0.53     0.66     0.67  1.63/nan/0.23/2.40        5975          0.878
+ 1+ hot player (last game >= 2x avg) vs 0    0.70     0.74     0.82  1.23/nan/0.40/0.35       10681          0.598
+            2+ hot players (>= 1.6x) vs 0    1.61     1.65     1.73 14.35/nan/0.28/0.34        7300          0.761
+           3+ late-window players vs <= 1    0.72     0.81     0.87  0.25/nan/1.35/1.63        8431          0.651
+              0 late-window players vs 2+    0.80     0.74     0.83   3.22/nan/0.44/nan        8704          0.111
+          2+ chalk (>= 20% owned) vs <= 1     NaN      NaN      NaN     nan/nan/nan/nan       10681          0.000
+                  3+ sub-5% owned vs <= 1     NaN      NaN      NaN     nan/nan/nan/nan       10681          1.000
+                        1+ $8k+ star vs 0    3.75     3.75     3.27  2.88/nan/7.79/0.34       10681          0.591
+                       2+ $8k+ stars vs 0   11.55     9.50     6.50  nan/nan/16.17/0.00        5045          0.133
+receiver bring-back vs RB-only bring-back    0.74     0.74     0.80  0.77/nan/0.72/0.89        5390          0.787
+                    QB + his RB (1+) vs 0    0.47     0.70     0.91  0.52/nan/0.38/1.54       10681          0.181
+                         5+ games vs <= 4    0.65     0.70     0.71   0.51/nan/0.76/nan       10681          0.862
+                         7+ teams vs <= 5    0.61     0.68     0.66  0.47/nan/0.79/2.47        7444          0.850
+  salary spread top third vs bottom third    2.27     2.15     2.15  1.11/nan/4.22/0.11        7128          0.500
+               WR spend >= $20k vs < $18k    0.61     0.67     0.70  0.54/nan/0.63/1.54        7733          0.393
+  projection above own median (reference)    1.29     1.22     1.17  1.16/nan/1.41/1.16       10681          0.474
+
+=== MILLIONAIRE: realized points minus projection, by number of top-decile-value players in the lineup ===
+                    n    proj  points    gap  top1
+week n_topval                                     
+1    0          20714  114.64  128.99  14.35   0.0
+     1          92116  117.38  131.46  14.08   0.0
+     2         174869  119.82  135.45  15.63   0.0
+     3         207681  122.31  140.31  17.99  0.01
+     4+        327712  126.14  151.00  24.86  0.02
+2    0           8255  115.53  114.33  -1.20  0.01
+     1          28329  118.81  112.91  -5.89  0.01
+     2          44506  121.95  113.77  -8.18  0.01
+     3          45617  124.93  116.23  -8.70  0.01
+     4+         45623  128.60  118.63  -9.97  0.01
+3    0           4365  114.23  113.33  -0.89   0.0
+     1          19719  117.13  118.93   1.80   0.0
+     2          37296  119.94  123.44   3.50  0.01
+     3          42062  122.72  128.59   5.87  0.01
+     4+         58060  126.82  136.02   9.20  0.01
+4    0           3841  113.05  117.92   4.88  0.01
+     1          15878  116.40  120.02   3.62  0.01
+     2          29869  119.49  120.38   0.89  0.01
+     3          35856  122.43  119.77  -2.66  0.01
+     4+         74595  127.58  117.16 -10.43  0.01
+
+=== MILLIONAIRE: OURS vs field, projection and points by week ===
+                 n    proj  points    gap  n_topval  n_prank3
+week ours                                                    
+1    False  823035  122.56  142.26  19.69      3.16       1.9
+     True       57  124.57  147.36  22.79      3.12      1.33
+2    False  172329  123.67  115.59  -8.08      2.65      1.87
+     True        1  139.20  126.62 -12.58       7.0       4.0
+3    False  161501  122.64  128.48   5.84      3.03      1.67
+     True        1  132.79  127.58  -5.21       5.0       3.0
+4    False  160037  123.46  118.65  -4.81      3.45      1.69
+     True        2  133.09  139.78   6.69       5.5       2.0
+
+=== MILLIONAIRE: min projection and hot players, distribution by group ===
+    field: n 1,316,963 | min_proj p10/p50/p90 5.4/7.9/10.0 | share min<8 0.507 min<10 0.899 | min_rb 14.2 min_wr 9.6 min_te 9.1 qb 19.8 | hot2 0.82 (share>=1 0.551) hot16 1.53
+   top 1%: n  13,270 | min_proj p10/p50/p90 6.2/8.2/9.9 | share min<8 0.446 min<10 0.902 | min_rb 14.7 min_wr 9.8 min_te 8.8 qb 19.6 | hot2 0.62 (share>=1 0.484) hot16 1.78
+ top 0.1%: n   1,333 | min_proj p10/p50/p90 6.6/8.4/9.6 | share min<8 0.432 min<10 0.916 | min_rb 14.6 min_wr 9.9 min_te 8.7 qb 19.5 | hot2 0.60 (share>=1 0.474) hot16 1.88
+     OURS: n      61 | min_proj p10/p50/p90 6.6/8.1/9.8 | share min<8 0.443 min<10 0.934 | min_rb 14.8 min_wr 9.9 min_te 8.6 qb 19.6 | hot2 0.54 (share>=1 0.426) hot16 1.07
+
+done
