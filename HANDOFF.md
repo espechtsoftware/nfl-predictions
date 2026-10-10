@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (23:28 CDT) — study 98 READ: the suggested mix did NOT hold on a fresh draw (PAPER ONLY), so keep the live 30 / 14 / 28 / 28; study 99 running
+
+- **Study 98** (the reviewer; lab `fb17beb0`, READ_s98 `6d78607e`; confirmatory census `f6a93526`). **The laptop reproduced
+  both byte for byte.**
+  - SUGGESTED (A1 39.1 / A2 12.2 / B 24.3 / C 24.3) − LIVE: +0.006 [−0.026, +0.036]; A −0.00005, B +0.011; seats 1.018.
+  - **His rule: PAPER ONLY** (set A not > 0).
+  - The 200+ rate: LIVE 12.7%, SUGGESTED 10.9%; mean best 176.7 / 177.1.
+- **Together with study 95:** the live shape mix holds up, and nothing tonight says to change the percentages. MIX_QUOTAS stays
+  empty unless he decides otherwise.
+- **Study 99** (FAVHI confirmation; 97's frozen code on 3198–3209) running from 23:27, about 60 min.
+- **Studies 100 / 101 and 102 / 103** (the ceiling sweep and the ceiling constructions, his "not giving up on the high scores")
+  follow; their banks are clean.
+
 ## 2026-10-09 (23:28 CDT) — laptop: the prepared switches for the morning, and the merge order the paper co-run requires
 
 **Prepared tonight (all default off, unmerged unless noted), so each candidate his morning word could pick is a switch:**
