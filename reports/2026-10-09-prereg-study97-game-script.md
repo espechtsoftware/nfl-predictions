@@ -1,10 +1,16 @@
-# Preregistration: study 97, the shapes by game script — the RB mate on the expected winner, and the QB + 2 stacks in shootouts and on their trailing side, on his live Week-5 book, in the harness (DRAFT 2026-10-09)
+# Preregistration: study 97, the shapes by game script — the RB mate on the expected winner, and the QB + 2 stacks in shootouts and on their trailing side, on his live Week-5 book, in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (20:05 CDT; smoke done 20:22)** by the outside reviewer; code and smoke done (§5). The
-reviewer reviews, runs the binding census and FREEZES; the laptop acks. **Information for his morning decision; nothing changes
-overnight.**
-- **Banks and seed:** **3124–3135** (set A 3124–3129, set B 3130–3135; sims bases 3174–3185, fields 3824–3835), seed 20261142 —
-  the laptop's full-set check is clean against 710 used banks (90–96 included); its text-scan tally follows.
+**Status: FROZEN 2026-10-09 (20:28 CDT)** by the reviewer, after the outside reviewer's DRAFT, the smoke and the binding census,
+before any scored bank. The text changed at the freeze in this status block and §5 (the binding census) only. The laptop acks.
+**Information for his morning decision; nothing changes overnight.**
+- **Banks 3124–3135** (set A 3124–3129, set B 3130–3135; sims bases 3174–3185, fields 3824–3835), **seed 20261142**. The laptop's scan was clean: the full set against 710 used banks' {b, b + 50, b + 700} (studies 90–96 included), no season
+  years, no results file; the repository text scans found only incidental shas and timings and the study list's own row 87.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run (O-63), recorded in `RUN_ENV_s97.txt` committed with
+  the confirmatory census.
+- **Read with the census in mind:** QB2_DOGHI is "the trailing side of a high-total game WHERE FEASIBLE": under the QB cap 5 and
+  the ownership cap, 4.6% of its QB + 2 solves fall back to an unrestricted QB (recorded), and it still moves those rows from 3.2
+  to 11.4 of 12. FAVRB_NAKED4 binds weakly (the live book already holds an expected winner's RB away from his QB in most C rows),
+  so a null there says little. FAV means the expected winner (margin ≥ 3), not necessarily a blowout.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
 
@@ -113,6 +119,17 @@ eight listed edits, a test asserts it); **every arm is his live Week-5 construct
   QB2_DOGHI −0.91; **LIVE identical to study 95's LIVE (the outside reviewer's 95 smoke) on 3 of 3 slate-banks**; the full path:
   the reader exited 0 (122 lines; 166 with the two-draw path on a copy); only the census, the exit codes and the line counts were
   read.
+- **The binding census** (the reviewer's; outcome-blind; bank 1406; 36 slate-banks of 2023–24; code `af07583e` clean;
+  PYTHONHASHSEED=0; 17 tests pass; lab `707f60ea`: `CENSUS_s97_binding.txt` `fde564ce…`, `census_mechanics_bank1406.jsonl`
+  `e7899ddc…`): **0 row-rule and ownership-cap fallbacks in all 8 arms** (936 of 936); **ONECATCH 504 of 504 B / C solves ruled
+  in every arm**; scenario teams per slate-bank FAV 8.3 (min 4), FAVHI 3.3 (min 1), HIGH 8.7 (min 6), DOGHI 4.3 (min 3);
+  **RBMATE floors ruled** RBMATE4 144 of 144, FAV 144, FAVHI 143 (1 dropped), NAKED 144, OPPQB 138 (6 dropped; its pair set
+  empty on 1 of 36 slate-banks, which then builds as LIVE); **QB + 2 scenario bans** SHOOT 432 of 432, DOGHI 412 + 20 dropped
+  (4.6%; eligible QBs per slate-bank 7.8, never fewer than 3); **the binding:** QB + 2 rows whose QB is HIGH 8.1 → 12.0 of 12
+  (SHOOT), DOGHI 3.2 → 11.4 (DOGHI); C rows whose QB is FAV 4.0 → 5.6 (FAV), FAVHI 2.1 → 4.8 (FAVHI); B rows with a FAV RB and
+  the opposing QB 0.8 → 3.9 (OPPQB); C rows with a naked FAV RB only 5.4 → 6.2 (NAKED binds weakly: the live book already holds
+  one in most C rows); **LIVE's rows and dealing identical to study 95's LIVE (the reviewer's 95 census, `65c2407c`) on 36 of
+  36 slate-banks**; build 100 s per slate-bank.
 - **Code:** nfl2 `production/s97-game-script-20261009` @ `af07583e` (branched from study 96's census `0a09750a`):
   `experiments/s97_game_script.py` `7df6f324…` (pins s96 `0363a84f…`); `scripts/s97_drive.py` `5dff66b7…`; `scripts/s97_census.py`
   `346b403f…`; **`scripts/s97_report.py` (the reader) `e5827c73…`** (seed 20261142); `tests/test_s97_game_script.py` `61f20b91…` (17).
