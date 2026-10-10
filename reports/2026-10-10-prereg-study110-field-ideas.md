@@ -81,6 +81,11 @@ Each arm makes one change:
 - **The real-field patterns are measured on actual ownership** (W1–W3) **and FP's projected ownership** (W4). The harness's
   rules use its own predicted ownership (the rescaled blend), as the live low rule does.
 - **QBTOP3 uses the pre-lock totals the frame carries;** production has the same column.
+- **HYGIENE barely touches his real book** (the laptop's outcome-blind check, 10-10: the Week-4 armed book with FAVHI, `c605cab6`,
+  FP projections): its lowest lineup is $49,700 (none under $49,500), so the salary floor is a no-op there, and the QB +
+  own-DST ban touches 1 lineup of 26. A HYGIENE pass would move about one lineup live. **The $49,500 is kept** (the real-field
+  pattern's own threshold, briefing idea 5); raising it until it binds would test a different rule. If the binding census
+  shows the floor never binds on the 36 slates, HYGIENE reads as the QB + own-DST ban alone (the lab reviewer's call).
 - **VAL4 ranks on the harness's simulated mean;** production would rank on Fantasy Points' projections (the page's definition,
   after the FP override on the T-70 frame). The two value lists differ.
 - **The census, per arm:**
