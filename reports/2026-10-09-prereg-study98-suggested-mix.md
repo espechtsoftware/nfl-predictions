@@ -1,7 +1,6 @@
 # Preregistration: study 98, study 95's suggested shape mix against his live mix, on a fresh draw of the same slates (DRAFT 2026-10-09)
 
-**Status: DRAFT 2026-10-09** (the time is this file's commit) by the outside reviewer; code done (7 tests), the smoke waiting for
-a machine gap. The lab reviewer reviews, runs the binding census and FREEZES; the laptop acks. **Information for his morning
+**Status: DRAFT 2026-10-09** (the times are this file's commits) by the outside reviewer; code and smoke done (§4). The lab reviewer reviews, runs the binding census and FREEZES; the laptop acks. **Information for his morning
 decision.**
 - **Banks and seed (the laptop scans):** **3136–3147** (set A 3136–3141, set B 3142–3147; sims bases 3186–3197, fields 3836–3847),
   seed 20261143.
@@ -34,7 +33,13 @@ listed edits, a test asserts it); both arms his live Week-5 construction (the pa
 ## 4. Smoke, census and integrity
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke (the unit tests, the mechanics smoke 2023 W3 / 2023 W11 /
   2024 W10, the census with `--ref95`, the full path: reader exit and line count only).
-- **The smoke:** (a machine gap after study 97's run; filled in when it ends).
+- **The smoke (DONE in the gap after study 97's run; bank 1406; 2023 W3, 2023 W11, 2024 W10; PYTHONHASHSEED=0;
+  `results_bank1406.jsonl` `c917a5af…`; code `ac7dd400`):** 7 unit tests pass; both arms 41 rows within the armed caps, 8 term rows,
+  in the pool; 0 row-rule and ownership-cap fallbacks (78 of 78 each); ONECATCH ruled on every B / C book solve, none dropped (LIVE
+  42, SUGGESTED 39: one fewer C row per slate-bank); **the book rows A1 / A2 / B / C: LIVE 8 / 4 / 7 / 7, SUGGESTED 10 / 3 / 7 / 6**;
+  rows shared with LIVE 12.33 of 26, dealt identical 0.000; projection per row vs LIVE −0.05; **LIVE identical to study 95's LIVE
+  (the outside reviewer's 95 smoke) on 3 of 3 slate-banks**; the full path: the reader exited 0 (24 lines; 28 with the two-draw
+  path on a copy); only the census, the exit codes and the line counts were read.
 - **Code:** nfl2 `production/s98-suggested-mix-20261009` @ `ac7dd400` (branched from study 95's READ `8735c6de`):
   `experiments/s98_suggested_mix.py` `328c1255…` (pins s95 `46b80611…`); `scripts/s98_drive.py` `aaf3fd31…`; `scripts/s98_census.py`
   `0bc611ba…`; **`scripts/s98_report.py` (the reader) `60d01b13…`** (seed 20261143); `tests/test_s98_suggested_mix.py` `8e3b1d63…` (7).
