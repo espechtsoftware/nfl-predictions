@@ -14,8 +14,8 @@ reviews, runs the binding census and FREEZES; the laptop acks. **Week-6 informat
   if they all are still worth doing?"; then "I like what you suggesated for removing one at a time when we do the comparison of
   the shapes. But let's do that after we finish the other tests" (HANDOFF `c85774de`).
 - **Then, in the outside reviewer's session, after studies 93 and 94 read** and the reviewer recommended "go ahead with
-  production's tests that take away one shape at a time": **"Lets try them tonight"** (the laptop records it verbatim; HANDOFF
-  commit: to be cited here before the freeze). This lifts his earlier HOLD on the each-shape-at-100% test (row 85): the ONLY_x
+  production's tests that take away one shape at a time": **"Lets try them tonight"** (the laptop recorded it verbatim, with the
+  reviewer's context and reading, in HANDOFF `ad00da5c`). This lifts his earlier HOLD on the each-shape-at-100% test (row 85): the ONLY_x
   arms are that test.
 - **The shapes (his live book, `mix_shapes.MIX_CELLS`, by dealt entries):** A1 30% (QB + 2 + a bring-back, the old house shape),
   A2 14% (QB + 2, no bring-back), B 28% (QB + 1 + a bring-back + a pair from a second game), C 28% (QB + 1, no bring-back).
