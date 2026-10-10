@@ -98,7 +98,21 @@ game, or no feature row) is kept** and counted.
 ## 6. Smoke and code
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke and the census (the unit tests, the mechanics smoke 2023 W3
   / 2023 W11 / 2024 W10, the census with its threshold scan, the full path: reader exit and line count only).
-- **The smoke and the chosen thresholds:** (filled in when done).
+- **The smoke at the placeholders (DONE 10-10, 07:18:17–07:20:44 CDT, in the gap the lab reviewer named after the laptop's
+  study-110 census; bank 1406; 2024 W10, 2023 W11, 2023 W3; PYTHONHASHSEED=0; code `24a88fb1`; `results_bank1406.jsonl`
+  `75e73545…`):**
+  - the unit tests 12 passed;
+  - every arm 26 book rows within the package's caps; row rules 78 of 78 ruled, none infeasible; RB-mate slots 12 of 12 and
+    ONECATCH 42 of 42, none dropped, every arm; spares 15 of 15; **LIVE identical to study 97's RBMATE4_FAVHI on 3 of 3**;
+    coverage 316.7–321.7 frame rows with a value per slate-bank;
+  - LIVE's rows touched at the placeholders: RUSH 5.7, PASS 6.0, TGT 8.0, TD 22.7, RZ 24.0 of 26;
+  - **the threshold scan on these 3 slates (a preview; the binding census on the 36 slates decides):** RUSH → 12 carries (9.3
+    rows), PASS → 32 attempts (10.0), TGT stays 4.0 (8.0); **TD and RZ find no threshold in range** → dropped under §3. Every TD
+    floor from 0.05 to 0.25 touches 22.7 rows: a player with no TD in his window has a mean of 0, so any floor removes all of
+    them at once. RZ at 0.1 already touches 17.3;
+  - the full path: the reader exited 0 (80 lines; 106 two-draw). Only the census, the exit codes and the line counts were
+    read.
+- **The chosen thresholds:** (filled in from the binding census, then the re-smoke at them).
 - **Code:** nfl2 `production/s112-usage-floors-20261010` @ `24a88fb1` (off study 106's frozen `afdfad8c`):
   - `experiments/s112_usage_floors.py` `6fd4813c…` (pins s106 `45a8d3dd…`)
   - `scripts/s112_drive.py` `c06f7644…`
