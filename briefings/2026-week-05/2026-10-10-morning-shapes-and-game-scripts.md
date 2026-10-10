@@ -182,8 +182,8 @@ whether to use it is your call.
   checked on your Week-4 book (Buffalo, Houston and San Francisco; all 4 lineups got their RB, −0.11 projected points per
   lineup). The lab reviewer's paper-arm update is in, and the switch is **merged at `5faf2f05`, left off**; the laptop's
   Week-4 checks and the lab reviewer's gate at the merged state follow tonight. **Using it is one setting at arming
-  (RB_MATE_C = 4 with RB_MATE_SCOPE = favhi, one arm-only commit), only if you say yes;** leaving it off keeps today's book. [W4
-  gates at 5faf2f05: ]
+  (RB_MATE_C = 4 with RB_MATE_SCOPE = favhi, one arm-only commit), only if you say yes;** leaving it off keeps today's book.
+  The laptop's Week-4 gates at `5faf2f05` passed (00:40): with it off, your book is byte for byte today's.
 - **No QB + 2 version passed,** so none was built.
 - **An RB version and a QB + 2 version together:** not allowed by the switches tonight — study 97 read them separately, and
   separately-read rules have not added up before (studies 93 + 94; study 83's combination −1.9). If you want both, one goes live
