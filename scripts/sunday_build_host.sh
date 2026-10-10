@@ -556,6 +556,23 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   elif [[ "${UNION_MAIN:-mean}" == "mix" && "$RB_SCOPE" != all ]]; then
     rb_mate_alert "UNION_MIX_RB_MATE_SCOPE=$RB_SCOPE without UNION_MIX_RB_MATE_C=4"
   fi
+  a1_stack_alert() {                                        # study 102's TAIL_STACK8 not applied: the book stands without it
+    printf '%s run %s: A1 FULL STACK NOT APPLIED: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$1" | tee -a "$OUT/ALERT-a1-full-stack-not-applied-$RUN_TAG.txt"
+    printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+      "!!! A1 FULL STACK NOT APPLIED for $RUN_TAG: $1 -- the book stands without it" \
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  }
+  # Study 102's TAIL_STACK8 (his 10-09 night "over 200 fairly regularly" / "not giving up on the high scores"; default off):
+  # every A1 book row tries QB + 2 + >= 2 opponents (5 from one game) in a top-4-total game, ONLY on top of ONECATCH, with the
+  # live quotas and no RB mate (the construction study 102 read); else LOUDLY off.
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_A1_FULL_STACK:-0}" == "1" ]]; then
+    if (( ONE_CATCHER_ON )) && [[ "${UNION_MIX_RB_MATE_C:-0}" == "0" && -z "${UNION_MIX_CELL_QUOTAS:-}" && "${MAX_PER_GAME:-4}" == "4" ]]; then
+      UNION_ARGS+=(--mix-a1-full-stack)
+      echo "A1 FULL STACK for $RUN_TAG: ON (the A1 rows as QB + 2 + 2 opponents in the top-4-total games; with ONECATCH)"
+    else
+      a1_stack_alert "ONECATCH is not on, or an RB mate / cell quotas / a per-game cap other than 4 is set (untested with it)"
+    fi
+  fi
   # Study 48b's winner-likeness order (operator 10-07: "Test tonight, aim for Week 5"; default off): FP's projected
   # ownership (the term's FP export when there is one, else this run's own capture + export) and the players' prior-game
   # touchdowns / attempts (scripts/winner_like_inputs.py), then the union re-orders the main book by study 48's frozen
@@ -672,6 +689,12 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   if (( RB_MATE_ON )) && grep -q 'RB MATE SCOPE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     rb_mate_alert "the union refused the scope (the RB mate is off): $(grep -h 'RB MATE SCOPE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
+  if [[ "${UNION_MIX_A1_FULL_STACK:-0}" == "1" ]] && grep -q 'A1 FULL STACK NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
+    a1_stack_alert "the union refused it: $(grep -h 'A1 FULL STACK NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
+  fi
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_A1_FULL_STACK:-0}" == "1" && "$UNION_MAIN_EFFECTIVE" != "mix" ]]; then
+    a1_stack_alert "the MIX main was refused; the house fallback ($UNION_MAIN_EFFECTIVE) has no A1 full stack"
+  fi
   if (( OWN_CAP_ON )) && grep -q 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     own_cap_alert "the union refused it: $(grep -h 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
@@ -682,6 +705,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" "$UNION_DIR/row_rules_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" "$UNION_DIR/one_catcher_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" "$UNION_DIR/rb_mate_not_applied.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/ALERT-a1-full-stack-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-a1-full-stack-not-applied-$RUN_TAG.txt" "$UNION_DIR/a1_full_stack_not_applied.txt"
   # the projection source travels with the union dir, so the upload sheet can name it (the outside review 10-06, (1b))
   [[ -n "$UNION_DIR" && -f "$OUT/proj_fp-$RUN_TAG.txt" ]] && cp "$OUT/proj_fp-$RUN_TAG.txt" "$UNION_DIR/proj_source_log.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/proj_source_fallback-$RUN_TAG.txt" ]] && cp "$OUT/proj_source_fallback-$RUN_TAG.txt" "$UNION_DIR/proj_source_fallback.txt"

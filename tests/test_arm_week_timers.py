@@ -475,5 +475,27 @@ def test_study97s_favhi_scope_rides_only_with_the_rb_mate_and_a_refused_scope_ne
     assert "qb2" not in host.lower()                                                      # no QB + 2 scope is built
     arm = (root / "arm_week5_saturday.sh").read_text()
     assert "\nRB_MATE_SCOPE=all " in arm and "QB2_SCOPE" not in arm
-    assert "UNION_MIX_RB_MATE_SCOPE=$RB_MATE_SCOPE \\" in arm
+    assert "UNION_MIX_RB_MATE_SCOPE=$RB_MATE_SCOPE " in arm
     assert '[[ "$RB_MATE_SCOPE" == all || ( "$RB_MATE_SCOPE" == favhi && "$RB_MATE_C" == 4 ) ]]' in arm
+
+
+def test_study102s_a1_full_stack_rides_only_on_onecatch_without_an_rb_mate_or_quotas():
+    """Study 102's TAIL_STACK8 (his 10-09 night "not giving up on the high scores"; default off): UNION_MIX_A1_FULL_STACK reaches
+    the units; the host passes --mix-a1-full-stack only with ONECATCH on and no RB mate / cell quotas / per-game cap other
+    than 4 (the construction 102 read), else an ALERT; the builder's refusal line and a house fallback raise the same ALERT;
+    the arm keeps it 0 with a pair stop."""
+    from pathlib import Path
+    r = _run(UNION_MIX_A1_FULL_STACK="1")
+    assert "UNION_MIX_A1_FULL_STACK=1" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    root = Path(__file__).resolve().parents[1] / "scripts"
+    host = (root / "sunday_build_host.sh").read_text()
+    assert ('if (( ONE_CATCHER_ON )) && [[ "${UNION_MIX_RB_MATE_C:-0}" == "0" && -z "${UNION_MIX_CELL_QUOTAS:-}" && "${MAX_PER_GAME:-4}" == "4" ]]; then\n'
+            '      UNION_ARGS+=(--mix-a1-full-stack)') in host
+    assert "grep -q 'A1 FULL STACK NOT APPLIED' \"$OUT/union-$RUN_TAG.txt\"" in host
+    assert '"$UNION_DIR/a1_full_stack_not_applied.txt"' in host
+    assert host.index("ONE_CATCHER_ON=1") < host.index("UNION_ARGS+=(--mix-a1-full-stack)") < host.index('UNION_RC=0; run_union "${UNION_ARGS[@]}"')
+    arm = (root / "arm_week5_saturday.sh").read_text()
+    assert "\nA1_FULL_STACK=0 " in arm or "\nA1_FULL_STACK=1 " in arm
+    assert "UNION_MIX_A1_FULL_STACK=$A1_FULL_STACK" in arm
+    assert ('[[ "$A1_FULL_STACK" == 0 || ( "$A1_FULL_STACK" == 1 && "$ONE_CATCHER_ALL" == 1 && "$RB_MATE_C" == 0 && -z "$MIX_QUOTAS" ) ]]'
+            in arm)
