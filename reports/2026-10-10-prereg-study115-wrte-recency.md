@@ -1,12 +1,14 @@
-# Preregistration: study 115, the recency rules on wide receivers and tight ends only, on his armed Week-5 book, in the harness (DRAFT 2026-10-10)
+# Preregistration: study 115, the recency rules on wide receivers and tight ends only, on his armed Week-5 book, in the harness (DRAFT 2026-10-10; FROZEN 2026-10-10)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer; the design is the laptop's proposal
-with the lab reviewer's calls. The lab reviewer reviews, runs the binding census, freezes, runs and reads; the laptop acks and
-reproduces. **A pick goes to study 115b** (the fresh-draw check), whose preregistration is committed before this study's READ.
-- **Banks and seed (the laptop's reservation; the full-set check: CLEAN; the text scans of both repositories: CLEAN, 10-10):** **3946–3957** (set A
-  3946–3951, set B 3952–3957; sims bases 3996–4007, fields 4646–4657); the reader's bootstrap seed **20261159**.
-- **Timing (the lab reviewer's order):** after study 110 (and 111 if 110 picks), before 112, so that a pick and its fresh-draw
-  check can READ before his 17:55 arm.
+**Status: FROZEN 2026-10-10 (08:29 CDT)** by the lab reviewer, after the outside reviewer's DRAFT and code, the smoke and the
+binding census, before any scored bank. The text changed at the freeze in this status block and §5 (the binding census) only.
+The laptop acks. **For his decision this week; a pick goes to study 115b** (its preregistration committed before this READ).
+- **Banks 3946–3957** (set A 3946–3951, set B 3952–3957; sims bases 3996–4007, fields 4646–4657), the reader's bootstrap seed
+  **20261159**. The laptop's scan was clean: the full set against every used or reserved bank's {b, b + 50, b + 700} (the reserved blocks
+  included), no results file; the text scans found only this study's and study 115b's own preregistrations, the study-list row
+  and n_sims constants that fall in the sims range by number only (incidental).
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run, recorded in `RUN_ENV_s115.txt` committed with the
+  confirmatory census. The run starts from lab `6472ca2e` on production/s115-wrte-recency-20261010 (results/s115/).
 
 ## 1. Why
 - **The operator, 10-10, in the laptop's session:** "Test today for this week" — the outside model's second page,
@@ -86,6 +88,18 @@ book** (the package, te1 / low1, the cheap +2 block, ONECATCH and the adopted FA
   - **the binding:** HOT_WRTE1's rows with 2+ hot WR / TE: LIVE 3.67 (max 7) → 0; FADE2_WRTE: LIVE's rows holding a hot WR / TE
     13.7 (min 7) → its own 0.3; dealt identical to LIVE 0.000 for both;
   - the full path: the reader exited 0 (41 lines; 52 two-draw). Only the census, the exit codes and the line counts were read.
+- **The binding census (DONE 10-10, 08:26:36–08:29:04 CDT; the lab reviewer's; outcome-blind; bank 1406, 36 slate-banks of
+  2023–24; PYTHONHASHSEED=0; code `197282bc`; lab `6472ca2e`: `CENSUS_s115_binding.txt` `b91d8716…`,
+  `census_mechanics_bank1406.jsonl` `8eaa371e…`):**
+  - the unit tests 10 passed; every arm 41 rows within the package's caps; **0 row-rule and 0 ownership-cap fallbacks** in all
+    3 arms (936 of 936 ruled); ONECATCH 504 of 504 and RB-mate slots 144 of 144 in every arm (LIVE re-solved 1 slot without the
+    floor, the arms 0); **LIVE identical to study 97's RBMATE4_FAVHI, rows and dealing, on 36 of 36**;
+  - **the mask holds:** FADE2_WRTE flags QB / RB / WR / TE 0.0 / 0.0 / 8.9 / 3.9 per slate-bank; study 109's flag unmasked gives
+    2.4 / 5.1 / 8.9 / 3.9 (information), so the WR / TE counts are 109's own;
+  - **the binding:** HOT_WRTE1's rows with 2+ hot WR / TE: LIVE 5.08 (max 18) → **0.00 (max 0)**, hot WR / TE per row 0.78 →
+    0.62, rows shared with LIVE 11.08 of 26, dealt identical 0.167, projection per row −0.06; FADE2_WRTE: LIVE's rows holding a
+    hot WR / TE 14.5 of 26 → its own 4.1, rows shared with LIVE 3.47, dealt identical 0.056, projection per row −0.40 (the
+    unfaded mean); flex WR / RB 15.2 / 10.8 → 13.4 / 12.6.
 - **Code:** nfl2 `production/s115-wrte-recency-20261010` @ `197282bc` (off study 109's `65edc3c0`, whose module is the frozen
   `996077e6`):
   - `experiments/s115_wrte_recency.py` `4f195d69…` (pins s109 `996077e6…`)
