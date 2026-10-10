@@ -1606,6 +1606,50 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     `S38_PAPER_OPRK_FILE` merges, after the byte check of the files the gate reads.
   - **Order:** this amendment; the laptop's ack; the gate pin; the stop rule (all by 16:45, else Week 6's first paper arm).
 
+- **Amendment 6z7 (2026-10-10, before Week 5's lock; no Week-5 outcome exists): our model's boom chance as a paper block.**
+  - **Why.** The operator: "Have we tried considering the probability of each player to reach 25 to 30 points?" (study list row
+    108); then, on the laptop's question, "Yes, on paper with the 16:50 stop (Recommended)" to a boom-chance block on paper for
+    Sunday, with a hard stop (built, checked and merged by 16:50, or Week 6).
+  - **The prior:** ceiling objectives never won in the harness (lab cohorts 039 / 045 / 046; studies 100–103, Addenda 197–201).
+    The reason it might: on Weeks 1–4 our p_20_plus is roughly calibrated, and within each projection quartile the higher-boom
+    half hit 30+ more often (the laptop's check), though it was also projected 0.4–2.6 points higher.
+  - **What changes.** **MIXT_QA0_BOOMBLOCK8** (exploratory) is 6z6's pattern with a fourth PAPER block file:
+    - his live construction with the 8-row block from the snapshot's `paper-boom-*.csv`, **in place of** any live block (6b's
+      frozen block parameters); reference MIXT_QA0_NOTERM, and also printed against MIXT_QA0. Information only (not in 7b's list).
+    - **The file:** `reports/2026-10-10-boom/boom_block_file.py` (the outside reviewer's), from our model's pre-lock
+      `p_20_plus`: the last generation of `nfl_predictions.player_projections` strictly before `--as-of`. It refuses one at or
+      after it, one older than 36 h (Saturday's run is accepted when Sunday's is missing; both are pre-lock), a duplicate id,
+      or no bonus at all.
+    - **The bonus:** z = the within-position residual of p_20_plus on the frame's projection (FP's after the override, the book's
+      mean) under a **degree-2 polynomial fit** (probability scale), standardized within position; bonus = clip(z, 0, 2) for
+      QB / RB / WR / TE; no p_20_plus means 0. It is the term-block format own_bonus reads, with every skill player once and the
+      DST omitted.
+    - **Why degree 2, decided on pre-lock inputs only:** P(20+) is convex in the projection, so a straight-line fit left
+      positive residuals at both ends. On Week 4 it put a bonus on 85 of the 93 players projected at 3 or less and almost none in
+      the middle. The degree-2 fit spreads the bonus across the projection bands (the writer's note records both tables).
+    - Sunday: the file is written on the T-70 union frame from our last pre-lock generation, then the snapshot's
+      `S38_PAPER_BOOM_FILE`. No file, or a refused one, means the arm is missing.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z7/`, script `run.sh` `720923400bdb`,
+    log `7051912cc20d`; lab `ebd3b10f`; production = `s38-prod-pin` `2e392141`; PYTHONHASHSEED=0; the 6z6 smoke's inputs plus a
+    **SYNTHETIC** Week-4 boom file `boom-w4-synthetic.csv` `658ee97c…`, mechanics only):
+    - 63 tests pass (rc 0); union-argument mismatches none.
+    - **All 42 arms of the 6z6 smoke build identical** (rows + ranks); BOOMBLOCK8 built (43 arms).
+    - The file applied: 115 players with a term, none capped, coverage 1.0. 8 term rows; 18 rows shared with MIXT_QA0, 16 with
+      NOTERM; no fallback row.
+    - **The writer's own output** on Week 4 (`boom_block_file.py` `d6f60039…` at review/oprk-block-file-20261010 @ `b27ec857`, 12
+      offline tests pass; the Week-4 entered frame; generation 2026-10-04T16:04:17Z before a 17:00Z as-of; `paper-boom-w04.csv`
+      `2421fd52…`: 292 skill players, 152 with a bonus, 12 at +2) reads cleanly through production's `own_bonus` (the pinned
+      checkout): 152 players with a term, the maximum 2.0, coverage 1.0.
+  - **Code:** lab `ebd3b10f` (on 6z6's `ebfff041`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `d9589ae697c51416ce7bf50410202912a7d43be4d1c1709cb8220c3037e15aa7`;
+    - `scripts/s38_build.py` `a260422c50a0a5b7f9789b71b9a43005e383df12425cabe84928bf5272f57f81` (the paper-boom glob);
+    - `scripts/s38_score.py` `fbdbcd722202c707769935fec017bff5aa0a9857f21f1645e79b7d54370feef3`;
+    - `scripts/s38_report.py` `aec13c0d8912e9eb5dd11f772f8ca8667b2bce042c343fcb6cf22c2d9802a51d`;
+    - `tests/test_s38_paper_corun.py` `ea0b9cfa1766806d0cb73d6585fba829fd699739a8e690b2e72e9114c6c68ca2` (63 tests).
+  - **The integrity gate** pins this module sha in place of 6z6's `b54dc93a…`. The production pin moves with FRIDAY_HEAD when
+    `S38_PAPER_BOOM_FILE` merges, after the byte check.
+  - **Order:** this amendment; the laptop's ack; the gate pin; the stop rule (all by 16:50, else Week 6's first paper arm).
+
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
 - **Study 37** (Addendum 142): the regulars' structure (about 11 QB stacks and a steep player curve, their own tier
