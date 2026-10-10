@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08, 10-09 and 10-10, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q, 6r, 6s, 6t, 6u, 6v, 6w and 6x before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08, 10-09 and 10-10, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q, 6r, 6s, 6t, 6u, 6v, 6w, 6x and 6y before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -1320,6 +1320,335 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     - `scripts/s38_build.py` unchanged (`15373e14…`).
   - **The integrity gate** pins this module sha (`9a82569c…`) in place of 6w's `e7038cba…`, on the live snapshot.
   - **Order:** this amendment; the laptop's ack; the gate pin.
+
+- **Amendment 6y (2026-10-10, before Week 5's lock; no Week-5 outcome exists): study 109's HOT1 on paper.**
+  - **Why.** The operator, relaying the researcher: "Since the harness and the real fields disagree on hot players, a HOT1
+    paper arm in study 38 would let Week 5's real results arbitrate at no cost to the book." Study 109 read HOT1 −1.8 in the
+    harness, worse on both draws (Addendum 204); the research page's real-field screen pointed the other way. His 10-06 rule:
+    when an idea fails only under our ratings, the fair test is the real field on paper.
+  - **What changes.**
+    - **MIXT_QA0_HOT1** (exploratory): his live construction (`FOLLOW_QA0`: every live setting, FAVHI included) plus **at most
+      one hot skill player per row**, in the live row-rule tier (ONE list with the live rules, the STAR1 pattern).
+    - **"hot" = study 109's flag:** study 65's last_game() at 2.0× -- the last REG game this season ≥ 2.0 × max(the mean of his
+      up to 4 REG games just before it, crossing into last season, 5), with ≥ 2 such games.
+    - **The input:** the snapshot's `paper-hot-wNN.csv`. Production writes it pre-lock (`reports/2026-10-10-paper-hot/
+      paper_hot_flags.py`, from production's `player_week_actuals`, DraftKings classic points; s38_snapshot.sh copies it with
+      `S38_PAPER_HOT_FILE` and lists it in the manifest). The format was agreed with the laptop before either side built.
+      It is one '#' JSON metadata line (the rule's x / floor / min_prior / prior_games, the season and week) and then
+      dk_player_id, gsis_id, name, pos, last_week, last_pts, prior_mean, prior_n, hot.
+    - **`paper_hot()` refuses the file** if its metadata is off the frozen rule or the build's week, a column is missing, a
+      value is not finite, a position is not a skill position, an id repeats, a last game is not before the week, or **any
+      row's flag disagrees with its own numbers** (it recomputes every flag). It is matched on dk_player_id. No file, or a
+      refused file, means the arm is missing (recorded).
+    - The scorer scores it; the reader prints it on the 6r line against MIXT_QA0 with its contest groups and both books'
+      expected big seats. Information only.
+    - The source differs from study 109's (production's player_week_actuals rather than nflverse weekly + study 50's DK formula);
+      the rule is the same.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6y/`, script `run.sh` `7845d4d75f8f`,
+    log `2a2f5cd467e4`; lab `10b30f18`; production = `s38-prod-pin` `c08dadcd`; PYTHONHASHSEED=0; the laptop's Week-4 FAVHI
+    receipt `80cf84f1…` and its `paper-hot-w04.csv` `58aa89a4…`):
+    - 56 tests pass (rc 0); union-argument mismatches none in both builds.
+    - **Live favhi with the hot file:** all 33 arms of the Friday gate's build identical (rows + ranks); MS3 (6x) and HOT1
+      built. The file: 265 players, 24 hot (QB 2 / RB 6 / WR 12 / TE 4), 24 in the pool. **HOT1: 0 rows with 2+ hot players**
+      (MIXT_QA0: 14 of 26, the laptop's live count), 0.85 hot per row (MIXT_QA0 1.50), 3 rows shared with MIXT_QA0, FP 139.99 vs
+      140.57 per dealt lineup, no fallback row.
+    - **Without the hot file:** HOT1 missing ("no paper hot file in the snapshot"); every other arm identical to the build
+      with it (34 arms).
+    - The loader, run alone on the laptop's file: it refuses the file at week 5 (a week mismatch) and refuses a copy with one
+      flipped flag.
+  - **Code:** lab `10b30f18` (on 6x's `233ed9fa`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `bd25620d6a840d2edde9e8236fe6ba77dac78ab927881e006a9e0911a6e723b3`;
+    - `scripts/s38_build.py` `e394c7bcddf173c651d1b2c2312738cb0886a5123bc2bb71507c0c1cff06db28` (the snapshot's paper-hot-*.csv);
+    - `scripts/s38_score.py` `85323cd4b9263e94ae56c2412a77ad943a254000e057c482aff6137361e20190`;
+    - `scripts/s38_report.py` `110d4346cb2764ca13a37b7ca725f3590777c16f6e85c03d16730209d4b095a5`;
+    - `tests/test_s38_paper_corun.py` `133b9787cdc11afe5ac73f277b15f9d3a396cd3796f2a99967cd8e2ba5dd7894` (56 tests).
+  - **The integrity gate** pins this module sha (`bd25620d…`) in place of 6x's `9a82569c…`; the production pin is FRIDAY_HEAD
+    (`7a20dd74`, which carries the snapshot's hot-file copy). **VAL4 on paper** (the operator: "the same applies to VAL4 if
+    study 110 reads it negative") is decided at study 110's READ.
+  - **Order:** this amendment; the laptop's ack; the gate pin.
+
+- **Amendment 6z (2026-10-10, before Week 5's lock; no Week-5 outcome exists): study 110's VAL4 on paper.**
+  - **Why.** The operator, relaying the researcher: "Since the harness and the real fields disagree on hot players, a HOT1
+    paper arm in study 38 would let Week 5's real results arbitrate at no cost to the book. The same applies to VAL4 if study
+    110 reads it negative." Study 110 read VAL4 −2.9, worse on both draws, expected big seats ×0.92 (Addendum 205, READ
+    `763ae1fb`); the field screen behind it pointed the other way (4 of 4 real weeks, after the fact).
+  - **What changes.**
+    - **MIXT_QA0_VAL4** (exploratory): his live construction (`FOLLOW_QA0`: every live setting, FAVHI included) plus **at most
+      4 of the 8 skill players per row from the top value tenth**, in the live row-rule tier (ONE list with the live rules, the
+      HOT1 pattern).
+    - **"Top value" = study 110's value_ids on FP's projections:** the paper pool's projection (the build's mean_projection,
+      Fantasy Points' after the override -- what production's switch would read) per $1,000 of DraftKings salary, ranked
+      WITHIN POSITION (QB / RB / WR / TE) among the pool's players projected ≥ 3 with a salary (pandas rank(pct=True), ties
+      'average'); the top tenth = percentile ≥ 0.9. Study 110 ranked the harness's simulated means; the rule is the same.
+    - **No new file:** the snapshot frame's own projections and salaries. The arm is always built.
+    - The scorer scores it; the reader prints it on the 6r line against MIXT_QA0 with its contest groups and both books'
+      expected big seats. Information only. The build manifest records the top-value count by position, and each arm's
+      top-value players per row and rows with 5+.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z/`, script `run.sh` `d67abf501efb`,
+    log `898a9e203382`; lab `87fcb9b7`; production = `s38-prod-pin` `7a20dd74`; PYTHONHASHSEED=0; the laptop's Week-4 FAVHI
+    receipt `80cf84f1…` and its `paper-hot-w04.csv` `58aa89a4…`):
+    - 57 tests pass (rc 0); union-argument mismatches none.
+    - **All 35 arms of 6y's smoke build identical** (rows + ranks); VAL4 built (36 arms).
+    - The pool's top-value players: 20 (QB 3 / RB 5 / WR 8 / TE 4). **VAL4: 0 rows with 5+ top-value players** (MIXT_QA0: 17 of
+      26 -- the same 17 lineups the laptop counted VAL4 would change on his real Week-4 book), 3.92 top-value per row (MIXT_QA0 4.50), 0 rows shared with
+      MIXT_QA0, FP 140.37 vs 140.57 per dealt lineup, no fallback row.
+  - **Code:** lab `87fcb9b7` (on 6y's `10b30f18`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `9b5cb25162556c216f935c079a4f8447af54a0111690becb76e0c9d591a0d260`;
+    - `scripts/s38_build.py` `e394c7bcddf173c651d1b2c2312738cb0886a5123bc2bb71507c0c1cff06db28` (unchanged);
+    - `scripts/s38_score.py` `9b1973152e5a48e6ad53f61477308ed17049c355646e63730e6c2e1ca485af30`;
+    - `scripts/s38_report.py` `9dd6c7857d28f6ddbfbe34ce322a7027d8ccc3e0e3b855ca76741a6353a78132`;
+    - `tests/test_s38_paper_corun.py` `c7bd978b6b8b93c498225d3ea15acee2db71cdcc80b146f034e73e66a3173829` (57 tests).
+  - **The integrity gate** pins this module sha in place of 6y's `bd25620d…`; the production pin stays FRIDAY_HEAD (`7a20dd74`;
+    6z needs nothing new from production).
+  - **Order:** this amendment; the laptop's ack; the gate pin.
+
+- **Amendment 6z2 (2026-10-10, before Week 5's lock; no Week-5 outcome exists): study 115's HOT_WRTE1 on paper.**
+  - **Why.** The laptop asked him, "Put the WR/TE cap on paper this Sunday beside the all-position one, so your real results
+    decide it?" His answer, verbatim: "Yes, on paper (Recommended)". Study 115 read HOT_WRTE1 −1.6, worse on both draws,
+    expected big seats ×0.95 (Addendum 206, READ `5ecd46e6`). The real-field screen behind it pointed the other way (within the
+    same user, a lineup with a hot WR / TE had lower top-1% odds in Weeks 2–4, after the fact). His 10-06 rule applies: when an
+    idea fails only under our ratings, the fair test is the real field, on paper.
+  - **What changes.**
+    - **MIXT_QA0_HOT_WRTE1** (exploratory): his live construction (`FOLLOW_QA0`: every live setting, FAVHI included) plus **at
+      most one hot WR / TE per row**, in the live row-rule tier (ONE list with the live rules; HOT1's pattern).
+    - **The set:** 6y's paper hot file, validated by `paper_hot()` first with every refusal unchanged. Then `paper_hot_wrte()`
+      keeps the rows whose file pos is WR or TE and hot = 1 (study 115's mask on study 109's flag), matched to the pool on
+      dk_player_id.
+    - No file, or a refused file, means the arm is missing (recorded), as with HOT1.
+    - The scorer scores it. The reader prints it on the 6r line against MIXT_QA0, with its contest groups and both books' expected
+      big seats. Information only.
+    - The manifest records the pool's hot WR / TE count, and each arm's hot WR / TE per row and rows with 2+.
+  - **Production:** the HOT_WRTE1 switch (production/hot-wrte-switch-20261010 @ `cdff786f`, default off) is not merged for Week
+    5. Nothing in production changes; the paper arm reads the same snapshot hot file as HOT1.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z2/`, script `run.sh` `f2adf1c13bc6`,
+    log `a5155202c13f`; lab `0b3aa516`; production = `s38-prod-pin` `7a20dd74`; PYTHONHASHSEED=0; the laptop's Week-4 FAVHI
+    receipt `80cf84f1…` and its `paper-hot-w04.csv` `58aa89a4…`):
+    - 58 tests pass (rc 0); union-argument mismatches none in both builds.
+    - **With the hot file: all 36 arms of 6z's smoke build identical** (rows + ranks); HOT_WRTE1 built (37 arms). The file's 24
+      hot players (QB 2 / RB 6 / WR 12 / TE 4) are all in the pool; 16 are WR / TE. **HOT_WRTE1: 0 rows with 2+ hot WR / TE**
+      (MIXT_QA0: 6 of 26, the research page's count under study 109's flag; HOT1: 0), 0.85 hot WR / TE per row (MIXT_QA0 1.08),
+      3 rows shared with MIXT_QA0, FP 140.49 vs 140.57 per dealt lineup, no fallback row.
+    - **Without the hot file:** HOT1 and HOT_WRTE1 missing ("no paper hot file in the snapshot"); every other arm identical to the
+      build with it (35 arms).
+  - **Code:** lab `0b3aa516` (on 6z's `87fcb9b7`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `1420932a03f553be99837473aede1f14addf21fe5c2ac332bd97fe66e947382c`;
+    - `scripts/s38_build.py` `e394c7bcddf173c651d1b2c2312738cb0886a5123bc2bb71507c0c1cff06db28` (unchanged);
+    - `scripts/s38_score.py` `5bafc55587fe7b2f0dc2f25a0157c6f73764489687f29f1fb90f6dc3e52efdc8`;
+    - `scripts/s38_report.py` `2d4f2f59ca901625f4590d9ecf8b4e217e32d7a5494e140d3c92f12ac5f95e17`;
+    - `tests/test_s38_paper_corun.py` `8ffd6aac0cf3387bfeff119b57ad725db97c0366d9211242addb80726b4dae90` (58 tests).
+  - **The integrity gate** pins this module sha in place of 6z's `9b5cb251…`; the production pin stays FRIDAY_HEAD (`7a20dd74`).
+  - **Order:** this amendment; the laptop's ack (one reproduction covers 6z and 6z2); the gate pin.
+
+- **Amendments 6z3 and 6z4 (2026-10-10, before Week 5's lock; no Week-5 outcome exists): the top-game cap and the TD-value
+  block on paper.**
+  - **Why.** The operator: "Read 2026-10-10-afternoon-ideas.md on review/additional-suggestions-20261010 and queue these" (the
+    outside model's page, `3cc045cb`), items 2 and 3. Item 1 (O-60) went to Week 6 by his answer ("Week 6, rebuilt
+    (Recommended)"); item 4 (the two-week rule) is a separate amendment, put to him before any Week-5 result.
+  - **6z3, MIXT_QA0_TOPCAP6** (exploratory): his live construction (`FOLLOW_QA0`) with **at most 6 book rows whose QB plays in
+    the slate's top-total game**.
+    - The top-total game is study 110's frozen `top_total_games(pool, 1)`, pasted byte for byte (text sha `086ef835…`; a test
+      compares it): the pool's highest median game_total over the games with a QB in the pool, ties included.
+    - The bound, `top_cap()`: a CapBuilder layer in own_caps' pattern. It subclasses the current builder, so it nests inside
+      the ownership cap and the row rules. Once 6 book rows (build order) hold a QB of that game, every QB of that game is banned
+      in the remaining book solves. Infeasible means the same solve without the ban, recorded. Spares are never touched.
+    - **Why on paper:** the page's real-field screen (the Millionaire won from the 2nd- or 3rd-highest total in Weeks 1, 3 and
+      4), against every harness game-coverage read (studies 16, 24, 43, 47: flat or worse). The real field arbitrates.
+  - **6z4, MIXT_QA0_TDBLOCK8** (exploratory): 6i's pattern with a second PAPER block file.
+    - It is his live construction with the 8-row TD-value block **in place of** any live block (6b's frozen block parameters:
+      8 rows, tilt 0.20, cap 2.0, coverage gate 0.5); reference MIXT_QA0_NOTERM, and the reader also prints it against
+      MIXT_QA0.
+    - The file: the snapshot's `paper-tdblock-*.csv`, written by production's `scripts/td_value_block_file.py` (10-07, row 48;
+      the reviewer's format, timing and harm screen, `reports/2026-10-07-td-block-harm-screen.md`). It is the term-block format
+      own_bonus reads: td_res = the anytime-TD price's residual on salary within position; b_td = clip(z, 0, 2) for RB / WR /
+      TE under $7,000.
+    - Sunday: the writer runs on the T-70 union frame with `--as-of 2026-10-11T10:00:00Z` (05:00 CT, after the 04:30 props
+      pull; inside its 3-hour max age), before the snapshot (`S38_PAPER_TDBLOCK_FILE`).
+    - No file, or a refused one, means the arm is missing (recorded).
+    - **The prior, stated plainly:** the 10-07 Weeks 2–4 in-sample replay (HANDOFF 10-07; screen `f61aa4cc`) read TDBLOCK8's
+      P(≥ 1 big seat) at W2 .0313 / W3 .0178 / W4 .4047 against LIVE's .0413 / .0016 / .4336. It was below LIVE in Weeks 2 and
+      4, so NOT ENTERED by its frozen screen; the matchup + TD combination (MTDBLOCK8) was enterable in-sample, carried by Week 4.
+      The page's "the one upside signal that held" refers to the field screen, not this replay.
+  - The scorer scores both arms. The reader prints them on the 6r line, with contest groups and expected big seats. Information
+    only. The build manifest records the top-total game and its QBs (`paper_topcap`), the TD file's application
+    (`paper_tdblock`), and per arm the book rows on the top game's QBs (`topqb_rows`) and the cap's ruled / plain solves.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z34/`, script `run.sh` `50e3e6987fb3`,
+    log `861a35697ceb`; lab `fad0cbe2`; production = `s38-prod-pin` `7a20dd74`; PYTHONHASHSEED=0; the laptop's Week-4 FAVHI
+    receipt `80cf84f1…`, `paper-hot-w04.csv` `58aa89a4…`, and the 10-07 replay's TD file `tdup-w4.csv` `4fc6f632…`):
+    - 60 tests pass (rc 0); union-argument mismatches none in both builds.
+    - **All 37 arms of 6z2's smoke build identical** (rows + ranks); TOPCAP6 and TDBLOCK8 built (39 arms). A 15-second
+      overlap with two laptop union builds (13:30:58–13:31:13) is disclosed; the identities held.
+    - The top-total game on Week 4: JAX–CIN (2 QBs in the pool). **TOPCAP6: 6 book rows on its QBs** (MIXT_QA0: 10); the cap
+      ruled 40 later book solves, 0 fell back; 14 rows shared with MIXT_QA0; FP 140.58 vs 140.57 per dealt lineup; no fallback
+      row.
+    - **TDBLOCK8:** the file applied (108 players with a term, none capped, coverage 1.0); 8 term rows; 18 rows shared with
+      MIXT_QA0, 16 with NOTERM; FP 140.76 vs 140.57; no fallback row.
+    - **Without the TD file:** TDBLOCK8 missing ("no paper TD-value block file"); every other arm identical to the build with it
+      (38 arms).
+  - **Code:** lab `fad0cbe2` (on 6z2's `0b3aa516`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `5efb6de63be81353e0daad9ba53f8c1c45ef567711bb187ffb78c480e5bc6c2e`;
+    - `scripts/s38_build.py` `45d3b7cb8653d31b0a22337a06966fc119016b95abc58e0532dafefb60466ac3` (the paper-tdblock glob);
+    - `scripts/s38_score.py` `dc87670616276a48eb1d9e97296846f4fa62e1cc601b57d338edcb490af50f6f`;
+    - `scripts/s38_report.py` `c54f9a2337cedc870b52e112f932ac2087b53cb30a67f5e528c41db6b2e9ea2c`;
+    - `tests/test_s38_paper_corun.py` `cf3c26803edfa1a2130b79b39131e396d1f15f49b24c861f17f39577993e77df` (60 tests).
+  - **The integrity gate** pins this module sha in place of 6z2's `1420932a…`. The production pin moves with FRIDAY_HEAD when the
+    snapshot's `S38_PAPER_TDBLOCK_FILE` merges, after a byte check of the files the gate reads from the production checkout.
+  - **Order:** this amendment; the laptop's ack (a reproduction of the smoke); the gate pin.
+
+- **Amendment 7b (2026-10-10, before Week 5's lock; no Week-5 outcome exists): a two-week adoption rule for the paper arms with
+  real-field support. In force by his decision, verbatim (the laptop's session, AskUserQuestion, with this text): "Set it as
+  written (Recommended)".** Asked at the same time: "Keep 5; paper tests it (Recommended)" (the QB cap stays 5; TOPCAP6 carries
+  the hedge on paper) and "Paper only (Recommended)" (HOT_WRTE1 stays on paper; its switch unmerged).
+  - **Why.** The afternoon page (item 4): the harness and the real fields disagree on the input-level rules this week, and
+    study 38's own verdict needs four weeks all positive, slower than his horizon. A rule written now, before any Week-5
+    result, keeps a two-week read a test rather than a choice made after seeing the numbers.
+  - **The arms it covers (fixed now; no other arm may use it):** MIXT_QA0_HOT1 (6y), MIXT_QA0_HOT_WRTE1 (6z2), MIXT_QA0_VAL4 (6z),
+    MIXT_QA0_STAR1 (S2, 6r), MIXT_QA0_NOTERM (the live book without the cheap block), MIXT_QA0_MS3 (6x) and MIXT_QA0_TOPCAP6
+    (6z3).
+  - **The statistic, per week and per arm:** d = P(≥ 1 big seat) of the arm's book minus that of MIXT_QA0 (his live book that
+    week), in the real Millionaire field, as study 38's scorer computes it (`p1`, big_seat_stats). This is the reader's 6r line,
+    "− QA0". Every arm here is read against MIXT_QA0, including NOTERM, because adopting it would replace the live book.
+  - **THE RULE:** an arm is **adoptable for Week 7, by his decision**, iff:
+    - Weeks 5 and 6 are both VALID by study 38's rule (the books built live, the manifest checked, the union arguments
+      matching, under 1% of names missing);
+    - the arm was built in both weeks (not missing);
+    - **d > 0 in Week 5 AND d > 0 in Week 6**;
+    - the expected big seats summed over the two weeks, the arm's over MIXT_QA0's, is ≥ 0.80 (study 38's guard 2, at two weeks).
+    - Mean entry pct (guard 1) is printed, not gating.
+    - If an arm is missing or a week is invalid, it is NOT adoptable under this rule (no substitute week).
+  - **What a pass means, plainly:** with one slate a week, d > 0 in both weeks happens about **1 time in 4** for an arm with no
+    real effect. Across these 7 arms, **one or two false passes are expected**. A pass is a candidate for his decision, never an
+    automatic switch. If several pass, the reader lists them by the summed d; he chooses at most one per week.
+  - **Changes between the weeks:** if a live construction setting changes for Week 6, the Week-6 arms follow it (FOLLOW_QA0, as
+    always), and Week 6's d is read against Week 6's live book. The amendment that makes the change says so.
+  - **What it does not change:** study 38's frozen primary (RS0 − QA0 over four weeks) and its verdicts. The two-week line is
+    printed as its own block, after the 6r line, from Week 6's reader run. The reader code for that line is a separate,
+    reviewed amendment before Week 6's read; its text must print exactly the rule above.
+
+- **Amendment 6z5 (2026-10-10, before Week 5's lock; no Week-5 outcome exists): two stars per lineup on paper.**
+  - **Why.** The operator, asked about a two-star book (the qualifiers page's arithmetic: about 1.4 thirty-point games per lineup
+    against 0.74): "Test it now for this week". Then, told that Week 5's slate has only 4 RB / WR / TE at $8,000+ (4 × 9 rows =
+    36 slots, fewer than the 52 an every-row rule needs; 21 of his 26 Week-4 lineups hold fewer than two), he chose "Paper this
+    week, test for W6 (Recommended)": "Add the two-star version (8 lineups, and all lineups where it fits) to Sunday's paper
+    comparison; run the past-slates test calmly after the arm for Week 6." The harness test is study 117 (Week 6).
+  - **The prior:** study 92's STAR1 (at least one star in every row) read −5.8 [−11.4, −0.7], WORSE, and its Week-3 / 4
+    real-field replay failed; study 78's two stars on the first 8 rows read +1.8, NO DIFFERENCE (guard 1 fails).
+  - **What changes.** Two exploratory arms, both his live construction (`FOLLOW_QA0`) with **at least 2 of study 92's S2 set**
+    (`star_set`: RB / WR / TE at $8,000+, in the pool; already pinned by 6r) per scoped row:
+    - **MIXT_QA0_STAR2:** every book row, where it fits;
+    - **MIXT_QA0_STAR2_8:** the term block's 8 rows only. term_book solves the live block first, so these are the book solves
+      j in [k_book − n_term, k_book). Without a live term block the arm is missing.
+    - **The vehicle, `star_rows()`:** a CapBuilder layer entered inside S37.built_with and BEFORE the row rules (the row-rule /
+      one-catcher wrapper subclasses it). At a scoped book solve it extends the set_constraints the current optimize carries
+      with (stars, ">=", 2) in ONE call. **An infeasible solve is re-solved without the star rule only** (te1 / low1, ONECATCH
+      and the RB floor kept), recorded per (cell, j).
+    - The scorer scores both. The reader prints them on the 6r line against MIXT_QA0, with contest groups and expected big
+      seats. **Information only: not in amendment 7b's list.** The manifest records each arm's rows with 2+ stars, the term
+      rows with 2+ (from term_book's block labels), and the rule's ruled / fallback solves.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z5/`, script `run.sh` `2ef502934b24`,
+    log `c0cf2ebc1124`; lab `0ee35848`; production = `s38-prod-pin` `83d68f63` (= FRIDAY_HEAD; the files the gate reads are
+    byte-identical to `7a20dd74`'s); PYTHONHASHSEED=0; the 6z3 / 6z4 smoke's inputs):
+    - 61 tests pass (rc 0); union-argument mismatches none.
+    - **All 39 arms of the 6z3 / 6z4 smoke build identical** (rows + ranks); STAR2 and STAR2_8 built (41 arms).
+    - MIXT_QA0: 5 of 26 rows with 2+ stars (all 5 in the term block's 8).
+    - **STAR2:** 14 of 26 rows with 2+ stars; the rule held on 14 book solves and fell back on 12 (the 4-star pool). None of its
+      term rows hold two, because the stars are spent in the live block first. 0 rows shared with MIXT_QA0; FP 139.44 vs 140.57
+      per dealt lineup; no row-tier fallback.
+    - **STAR2_8:** 8 of 8 term rows with 2+ stars, the rule held on all 8, 0 fallbacks; 18 rows shared with MIXT_QA0; FP 140.58
+      vs 140.57. On Week 4 it changes only 3 of the 8 term rows' star count (5 → 8), so it is close to the live book there.
+  - **Code:** lab `0ee35848` (on 6z3 / 6z4's `fad0cbe2`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `cc067ca32596cc63985dac3653dbb2a8fbcaf036a25aa11d296192c79585ef9c`;
+    - `scripts/s38_build.py` `45d3b7cb8653d31b0a22337a06966fc119016b95abc58e0532dafefb60466ac3` (unchanged);
+    - `scripts/s38_score.py` `e1861919fdd84132fd810505c9b075b3e9938a81dabd6575d31e6edf61952c3f`;
+    - `scripts/s38_report.py` `439028b39d2acbabcd82a3c10e899610cfc0cfaba45b05cbcec95f88906a5282`;
+    - `tests/test_s38_paper_corun.py` `345854f2baecc3ee4e19ecc92c5d3567ec9b474bc8cec385b960feaad7181857` (61 tests).
+  - **The integrity gate** pins this module sha in place of 6z3 / 6z4's `5efb6de6…`; the production pin stays `83d68f63`.
+  - **Order:** this amendment; the laptop's ack (a reproduction of the smoke); the gate pin.
+
+- **Amendment 6z6 (2026-10-10, before Week 5's lock; no Week-5 outcome exists): DK's opponent rank as a paper block.**
+  - **Why.** The operator: "Can we do a quick study using the DK rankings that we have (which I believe is only one week so
+    probably not great yet) and see if it is accurate at all for projecting? With that a paper study would be good." The
+    accuracy read is its own preregistration (`reports/2026-10-10-prereg-oprk-accuracy-w05.md`, the laptop's; descriptive, one
+    week). This amendment is the paper study.
+  - **What changes.** **MIXT_QA0_OPRKBLOCK8** (exploratory) is 6z4's pattern with a third PAPER block file:
+    - his live construction with the 8-row block from the snapshot's `paper-oprk-*.csv`, **in place of** any live block (6b's
+      frozen block parameters); reference MIXT_QA0_NOTERM, and also printed against MIXT_QA0.
+    - It is DK's counterpart to MBLOCK8, our own matchup block on paper since 6i; the two read side by side.
+    - **The file:** `reports/2026-10-10-oprk/oprk_block_file.py` (the outside reviewer's; production review/oprk-block-file-
+      20261010). OPRK = DK's draftable attribute −2 (1 = toughest, 32 = easiest, by the player's position), from the last
+      capture of the main group (154468) strictly before `--as-of`, joined by dk_player_id. Bonus = clip(2 × (OPRK − 16) / 16, 0,
+      2) for QB / RB / WR / TE, 0 without a rank. It is the term-block format own_bonus reads, with every skill player once and
+      the DST omitted.
+    - The writer refuses: no capture before the as-of; one older than 3 h (`--max-age-hours`, td_value_block_file.py's default;
+      Saturday's capture is refused for a Sunday as-of); a duplicate dk id; no bonus at all. Writer `eaa7ca96…` at
+      review/oprk-block-file-20261010 @ `35f4f46a` (8 offline tests pass).
+    - Sunday: the laptop's ~10:35 CT capture, the file written on the T-70 union frame just after it, the snapshot's
+      `S38_PAPER_OPRK_FILE`. No file, or a refused one, means the arm is missing.
+    - **The prior:** none on DK's rank; DK rewrites past weeks, so Weeks 1–4 cannot be recovered, and the harness cannot read it.
+    - Information only (not in amendment 7b's list).
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z6/`, script `run.sh` `c2d146815284`,
+    log `31ac4fdf24d5`; lab `ebfff041`; production = `s38-prod-pin` `83d68f63`; PYTHONHASHSEED=0; the 6z5 smoke's inputs plus a
+    **SYNTHETIC** Week-4 OPRK file (`oprk-w4-synthetic.csv` `d7336650…`, ranks from a fixed hash of opponent and position; it
+    tests the mechanics only, since DK's Week-4 ranks cannot be recovered)):
+    - 62 tests pass (rc 0); union-argument mismatches none.
+    - **All 41 arms of the 6z5 smoke build identical** (rows + ranks); OPRKBLOCK8 built (42 arms).
+    - The file applied: 119 players with a term, none capped, coverage 1.0. 8 term rows; 18 rows shared with MIXT_QA0, 16 with
+      NOTERM; no fallback row.
+    - **The writer's own output** (`--synthetic` on the Week-4 entered frame, `paper-oprk-w04-SYNTHETIC.csv` `01aa355f…`, 292 skill
+      players, 147 with a bonus) reads cleanly through production's `own_bonus` (the pinned checkout): 147 players with a term,
+      the maximum 2.0, coverage 1.0.
+  - **Code:** lab `ebfff041` (on 6z5's `0ee35848`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `b54dc93ae17ab3ee7d2f6a030590818091a0439a0ef3c5d0a6dc2c6a3fb33c34`;
+    - `scripts/s38_build.py` `092532e74bda404f8e1f255920d8153e9d963a530a66e34ff0be699b177e78f6` (the paper-oprk glob);
+    - `scripts/s38_score.py` `c00daf943b014871f0e5824dc8f9c851ba19f286ddcbf1411ecc66b0660b9292`;
+    - `scripts/s38_report.py` `094f05817e7a716d92117f4ba601a73d80176b84e3c3e5492c5674665310f23d`;
+    - `tests/test_s38_paper_corun.py` `7faae0f6c9e6f9824f2850eca614b6f230d563fb119edaa87819dfaaf3bb0cde` (62 tests).
+  - **The integrity gate** pins this module sha in place of 6z5's `cc067ca3…`. The production pin moves with FRIDAY_HEAD when
+    `S38_PAPER_OPRK_FILE` merges, after the byte check of the files the gate reads.
+  - **Order:** this amendment; the laptop's ack; the gate pin; the stop rule (all by 16:45, else Week 6's first paper arm).
+
+- **Amendment 6z7 (2026-10-10, before Week 5's lock; no Week-5 outcome exists): our model's boom chance as a paper block.**
+  - **Why.** The operator: "Have we tried considering the probability of each player to reach 25 to 30 points?" (study list row
+    108); then, on the laptop's question, "Yes, on paper with the 16:50 stop (Recommended)" to a boom-chance block on paper for
+    Sunday, with a hard stop (built, checked and merged by 16:50, or Week 6).
+  - **The prior:** ceiling objectives never won in the harness (lab cohorts 039 / 045 / 046; studies 100–103, Addenda 197–201).
+    The reason it might: on Weeks 1–4 our p_20_plus is roughly calibrated, and within each projection quartile the higher-boom
+    half hit 30+ more often (the laptop's check), though it was also projected 0.4–2.6 points higher.
+  - **What changes.** **MIXT_QA0_BOOMBLOCK8** (exploratory) is 6z6's pattern with a fourth PAPER block file:
+    - his live construction with the 8-row block from the snapshot's `paper-boom-*.csv`, **in place of** any live block (6b's
+      frozen block parameters); reference MIXT_QA0_NOTERM, and also printed against MIXT_QA0. Information only (not in 7b's list).
+    - **The file:** `reports/2026-10-10-boom/boom_block_file.py` (the outside reviewer's), from our model's pre-lock
+      `p_20_plus`: the last generation of `nfl_predictions.player_projections` strictly before `--as-of`. It refuses one at or
+      after it, one older than 36 h (Saturday's run is accepted when Sunday's is missing; both are pre-lock), a duplicate id,
+      or no bonus at all.
+    - **The bonus:** z = the within-position residual of p_20_plus on the frame's projection (FP's after the override, the book's
+      mean) under a **degree-2 polynomial fit** (probability scale), standardized within position; bonus = clip(z, 0, 2) for
+      QB / RB / WR / TE; no p_20_plus means 0. It is the term-block format own_bonus reads, with every skill player once and the
+      DST omitted.
+    - **Why degree 2, decided on pre-lock inputs only:** P(20+) is convex in the projection, so a straight-line fit left
+      positive residuals at both ends. On Week 4 it put a bonus on 85 of the 93 players projected at 3 or less and almost none in
+      the middle. The degree-2 fit spreads the bonus across the projection bands (the writer's note records both tables).
+    - Sunday: the file is written on the T-70 union frame from our last pre-lock generation, then the snapshot's
+      `S38_PAPER_BOOM_FILE`. No file, or a refused one, means the arm is missing.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z7/`, script `run.sh` `720923400bdb`,
+    log `7051912cc20d`; lab `ebd3b10f`; production = `s38-prod-pin` `2e392141`; PYTHONHASHSEED=0; the 6z6 smoke's inputs plus a
+    **SYNTHETIC** Week-4 boom file `boom-w4-synthetic.csv` `658ee97c…`, mechanics only):
+    - 63 tests pass (rc 0); union-argument mismatches none.
+    - **All 42 arms of the 6z6 smoke build identical** (rows + ranks); BOOMBLOCK8 built (43 arms).
+    - The file applied: 115 players with a term, none capped, coverage 1.0. 8 term rows; 18 rows shared with MIXT_QA0, 16 with
+      NOTERM; no fallback row.
+    - **The writer's own output** on Week 4 (`boom_block_file.py` `d6f60039…` at review/oprk-block-file-20261010 @ `b27ec857`, 12
+      offline tests pass; the Week-4 entered frame; generation 2026-10-04T16:04:17Z before a 17:00Z as-of; `paper-boom-w04.csv`
+      `2421fd52…`: 292 skill players, 152 with a bonus, 12 at +2) reads cleanly through production's `own_bonus` (the pinned
+      checkout): 152 players with a term, the maximum 2.0, coverage 1.0.
+  - **Code:** lab `ebd3b10f` (on 6z6's `ebfff041`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `d9589ae697c51416ce7bf50410202912a7d43be4d1c1709cb8220c3037e15aa7`;
+    - `scripts/s38_build.py` `a260422c50a0a5b7f9789b71b9a43005e383df12425cabe84928bf5272f57f81` (the paper-boom glob);
+    - `scripts/s38_score.py` `fbdbcd722202c707769935fec017bff5aa0a9857f21f1645e79b7d54370feef3`;
+    - `scripts/s38_report.py` `aec13c0d8912e9eb5dd11f772f8ca8667b2bce042c343fcb6cf22c2d9802a51d`;
+    - `tests/test_s38_paper_corun.py` `ea0b9cfa1766806d0cb73d6585fba829fd699739a8e690b2e72e9114c6c68ca2` (63 tests).
+  - **The integrity gate** pins this module sha in place of 6z6's `b54dc93a…`. The production pin moves with FRIDAY_HEAD when
+    `S38_PAPER_BOOM_FILE` merges, after the byte check.
+  - **Order:** this amendment; the laptop's ack; the gate pin; the stop rule (all by 16:50, else Week 6's first paper arm).
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
