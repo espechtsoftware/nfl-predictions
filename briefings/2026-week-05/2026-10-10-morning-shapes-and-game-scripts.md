@@ -225,6 +225,10 @@ the full game stack read no difference before (studies 26 and 74), but those bui
 **Using a pick:** none of the three is an existing setting; a pick that holds needs a production switch with a parity test
 first. **Week 5 only if that is built and tested Saturday and you say yes; otherwise Week 6.**
 
+**With the RB version (section 2):** the two were tested separately, so they cannot be armed together unless **study 104** —
+the RB version plus the pick in one book, against the RB version alone, fixed before study 102 was read — holds them together.
+It runs only if study 102 picks something and study 103 holds it (due about 07:00). Otherwise it is one or the other. [104: ]
+
 ## 4. The rest of last evening (for the record)
 
 - **One receiver per team in the QB + 1 lineups (study 93): armed** (+2.0, better on both sets; your "Live W5 if built").
