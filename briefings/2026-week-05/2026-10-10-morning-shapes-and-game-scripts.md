@@ -6,7 +6,9 @@ something is successful, we'll discuss in the morning how we want to use it."
 
 ## The short version
 
-- **Shape percentages (study 95):** [FILLED FROM STUDY 95'S READ BY THE RULE FIXED BEFORE IT — `92108ea0`]
+- **Shape percentages (study 95):** your mix held up — removing A1, B or C was worse on both opponent sets. The rule fixed
+  beforehand suggests a small shift: **A1 39% / A2 12% / B 24% / C 24%** (two more QB + 2 + bring-back lineups), on a weak
+  signal; keeping today's 30 / 14 / 28 / 28 is just as defensible.
 - **Game situations (study 97):** [FILLED FROM STUDY 97'S READ BY ITS §3 RULE, FIXED BEFORE IT]
 - **The RB stack mate, unconditioned (study 96): paper only.** On top of the one-receiver-per-team rule it read −0.5 (worse on
   both opponent sets), although every lineup got its RB. It stays off (RB_MATE_C = 0) unless you choose a version below.
@@ -30,20 +32,31 @@ bring-back + a pair from a second game), **C 28%** (QB + 1, no bring-back).
 
 | Version | Pooled | Set A | Set B | Big wins | Your rule |
 |---|---|---|---|---|---|
-| Without A1 (the rest scaled up) | [ ] | [ ] | [ ] | [ ] | [ ] |
-| Without A2 | [ ] | [ ] | [ ] | [ ] | [ ] |
-| Without B | [ ] | [ ] | [ ] | [ ] | [ ] |
-| Without C | [ ] | [ ] | [ ] | [ ] | [ ] |
-| A1 alone (100%) | [ ] | [ ] | [ ] | [ ] | information |
-| A2 alone | [ ] | [ ] | [ ] | [ ] | information |
-| B alone | [ ] | [ ] | [ ] | [ ] | information |
-| C alone | [ ] | [ ] | [ ] | [ ] | information |
+| Without A1 (the rest scaled up) | −2.0 (−6.9 to +2.8) | −1.2 | −2.8 | ×0.92 | worse on both sets |
+| Without A2 | +0.1 (−3.2 to +3.5) | −0.2 | +0.4 | ×1.02 | no difference |
+| Without B | −2.5 (−7.1 to +1.9) | −0.4 | −4.7 | ×0.92 | worse on both sets |
+| Without C | −1.2 (−5.9 to +4.0) | −0.2 | −2.1 | ×0.93 | worse on both sets |
+| A1 alone (100%) | −0.5 (−5.9 to +4.8) | +0.9 | −2.0 | ×0.98 | information (its finishes slip: a safety check fails) |
+| A2 alone | +1.0 (−5.0 to +7.1) | +2.4 | −0.4 | ×1.03 | information (its finishes slip: a safety check fails) |
+| B alone | −4.5 (−9.3 to +0.1) | −4.0 | −5.0 | ×0.81 | information: clearly worse |
+| C alone | −3.7 (−8.8 to +1.3) | −4.4 | −3.0 | ×0.86 | information: clearly worse |
 
 **The rule, written before the run:** a shape whose removal helped on both sets gets **halved** (dropped only if the gain is
 clear on the pooled interval); a shape whose removal hurt on both sets gets **raised by half**; everything else **stays**; then
 the shares are re-scaled to 100%. "Alone" results are information only.
 
-**Suggested mix:** [ ] — **on your real Week-4 book** (the laptop's builds): [ ]. Arming any mix is one setting (MIX_QUOTAS).
+**What it says, plainly: your live mix held up.** Taking out A1, B or C made the book worse on both opponent sets; taking out
+A2 changed nothing; a book of only B or only C was clearly worse; a book of only A1 or only A2 was mixed.
+
+**The rule's suggestion: A1 39% / A2 12% / B 24% / C 24%** (the book's 26 lineups: 10 / 3 / 7 / 6, against today's 8 / 4 / 7 /
+7 — two more A1, one fewer A2 and one fewer C). Only A1 moves: removing it hurt on both sets and A1 alone was not worse on both,
+so the rule raises it by half; B and C hurt when removed too, but a book of only B or only C was worse as well, so the rule keeps
+them; A2 stays.
+
+**How much to trust it:** the A1 signal is weak (removing A1 cost about 2 points, with a range from −6.9 to +2.8 — the kind of
+reading chance alone gives about one time in three or four), and the new mix itself was never tested. **Keeping today's mix is
+just as defensible; the change is small (two lineups) and either choice is reasonable.** Arming any mix is one setting
+(MIX_QUOTAS = A1 0.3913 / A2 0.1217 / B 0.2435 / C 0.2435).
 
 ## 2. Game situations (study 97)
 
