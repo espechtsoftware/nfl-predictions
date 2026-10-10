@@ -59,8 +59,18 @@ A1 .30 / A2 .14 / B .28 / C .28). **The arms nest:**
   the rows shared with LIVE; the projection per row on the mean. **CEIL_ALL equals study 102's CEIL_ALL, row for row, on bank
   1406** (`--ref102`).
 - **Per-slate fields stay outside the blocks the reader compares across rows** (study 102's smoke lesson).
-- **The smoke:** (a machine gap the lab reviewer names; filled in when it ends).
-- **Code:** nfl2 `production/s105-upside-dose-20261010` @ `789d83b3` (off study 102's frozen `969f4d3d`):
+- **The smoke (DONE in the gap the lab reviewer named after its 6x smoke; bank 1406; 2024 W10, 2023 W11, 2023 W3;
+  PYTHONHASHSEED=0; `results_bank1406.jsonl` `155644ba…`; code `2d03ee58`):** 9 unit tests pass; every arm 41 rows within the
+  package's caps (9 / 6, QB 5, overlap 4), 8 term rows, in the pool; ONECATCH ruled 42 of 42 B / C book solves, none dropped,
+  every arm; **the dose binds as designed:** the first-rows switch put exactly 0 / 5 / 10 / 0 distinct book solves on p85 per
+  slate-bank (min = max on every slate-bank; CEIL_ALL's 26 rows on p85 by the objective); p85 − mean 5.77 points per skill
+  player; **LIVE and CEIL_ALL identical to study 102's, rows and dealing, on 3 of 3 slate-banks**; the full path: the drive
+  exited 0 (2 slates), the reader exited 0 (59 lines; 71 with the two-draw path on a copy, the dose curve printed once); only
+  the census, the exit codes, the line counts and one test failure line were read.
+  - **Fixed before the freeze (the first unit step, code `789d83b3`):** one test asserted the text "PICK:" absent from the
+    reader, which the variable declaration `_PICK: dict` contains; it now asserts the printed PICK line is absent (`c341d94d`).
+    No module, reader or census change.
+- **Code:** nfl2 `production/s105-upside-dose-20261010` @ `2d03ee58` (off study 102's frozen `969f4d3d`):
   `experiments/s105_upside_dose.py` `21412869…` (pins s102 `ca7f4399…`); `scripts/s105_drive.py` `4d7320a2…`;
   `scripts/s105_census.py` `ffe023c2…`; **`scripts/s105_report.py` (the reader) `a3633451…`** (seed 20261148);
-  `tests/test_s105_upside_dose.py` `a46b45f2…` (9).
+  `tests/test_s105_upside_dose.py` `c341d94d…` (9).
