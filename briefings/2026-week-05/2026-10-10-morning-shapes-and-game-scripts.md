@@ -89,7 +89,9 @@ just as defensible; the change is small (two lineups) and either choice is reaso
 
 **The suggested mix against today's, on a fresh draw of the same past slates (study 98, the laptop's proposal): it did not
 hold.** +0.6 (−2.6 to +3.6); set A 0.0, set B +1.1; ×1.02 expected big wins — not better on both opponent sets, so by your
-rule it stays on paper (study 98's READ `6d78607e`, lab `fb17beb0`). **Suggested: keep today's 30 / 14 / 28 / 28** (nothing
+rule it stays on paper (study 98's READ `6d78607e`, lab `fb17beb0`; reproduced byte for byte by the laptop). Its 200+ rate
+(the laptop's count): the best lineup reached 200 on 10.9% of slates against 12.7% for your mix, with the best lineup's average
+177.1 vs 176.7 — no ceiling gain either. **Suggested: keep today's 30 / 14 / 28 / 28** (nothing
 to change at arming). If you want the shift anyway, it is one setting (MIX_QUOTAS = A1 0.3913 / A2 0.1217 / B 0.2435 /
 C 0.2435); the evidence for it is a coin flip.
 
