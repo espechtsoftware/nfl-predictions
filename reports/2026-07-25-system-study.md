@@ -10478,3 +10478,207 @@ secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier fi
   MIXT_QA0_SHRINK07 and MIXT_QA0_STAR1, overall and by contest group).
 - **In plain words:** both suggestions made the book worse in the test model on two independent draws, and the star rule also
   did worse in the replay of his real Week 4; neither goes live. They are scored on paper beside his book in Week 5.
+
+## Addendum 191 (2026-10-09): study 93 (three earlier leads re-read on his armed Week-5 version -- the QB alone in 3 lineups, one receiver per team on every QB + 1 lineup, a WR in the flex on 8 lineups -- in the harness; Week-6 candidates): one receiver per team leans positive on both draws (+2.0; seats ×1.11): a Week-6 candidate by the two-draw rule; the QB alone and a WR in the flex are flat on the armed version
+
+**Setup.**
+- **His request** (HANDOFF `7a47ecc3`, verbatim there): asked "is there anything in your log for things that seemed promising
+  that we should still try?", he answered the list "let's try each that you suggested". Items 2–4 are re-read here on top of his
+  ARMED version (the post-selection law): the package (0.35 + the ownership cap + 15) and the row rules (te1 + low1).
+- **The priors:** study 77's QB alone (+1.8 alone; flat or negative in combinations, Addenda 175, 181, 182); study 79's
+  one-receiver rule (Addendum 177: its 8-row version changed nothing on his real book; the every-row version +2.1 as a side
+  reading); study 75's WR flex (Addendum 173: +2.3 on its read, −1.1 on 2022). All three were read on the old book; this re-reads them on the armed one.
+- **The arms.** Study 89's harness via study 92's frozen module; every arm the armed version. ARMED (the reference);
+  QBALONE3 (the first 3 C-cell book solves with the QB naked); ONECATCH (every B / C book solve: at most one WR / TE per team);
+  WRFLEX8 (the first 8 book solves: at least 4 WRs, i.e. a WR in the flex). Study 83's combo logic re-stated and merged with the
+  armed row rules in ONE optimize patch; the fallback tiers explicit (the lead dropped first, the armed rules kept; then none).
+- **The read:** each lead − ARMED on P(≥ 1 big seat), pooled and on two draws, with his rule shape printed for a W6 decision
+  (both draws > 0 and seats ≥ 0.80) and guard 1 beside it. Disclosed: the same 36 slates as 89–92 (multiplicity).
+- **Preregistration:** `reports/2026-10-09-prereg-study93-leads.md` (DRAFT by the outside reviewer; FROZEN `380349a2`, 10-09 17:04
+  CDT, before any scored bank).
+- **Code:** nfl2 `ac7ea5b0`: module `5f4e1fb9…` (pins s92 `37980da6…`); drive `b930be57…`; census `9b0d3f40…`; reader `9dc905d4…`;
+  tests `05633b15…` (8).
+- **Panel:** banks 3024–3035 (A 3024–3029, B 3030–3035), B 20,000, seed 20261138, PYTHONHASHSEED=0; the laptop's scan was clean.
+- **His real W4 book** (the laptop's counts on the armed version): all three bind (QBALONE3 3 rows; ONECATCH 5 of 14 B / C rows
+  hold a same-team pair away from the QB; WRFLEX8 the flex is RB in 7 of the first 8 rows).
+- **Census** (binding, bank 1406; lab `8bc3ef7a`; the laptop's re-run identical): 0 fallbacks and 0 leads dropped in every arm;
+  QBALONE3 3 naked rows; ONECATCH pair rows 4.1 → 1.2 (identical to ARMED on 0.083 of slate-banks); WRFLEX8 flex WR 15.8 → 17.6
+  (identical on 0.139); ARMED identical rows to study 92's census.
+- **Read:** the reader `9dc905d4`; READ `df5d74c3` (lab `9a9a2331`). The confirmatory census (`7d665d6a`, raw shas `c0774c5b`,
+  RUN_ENV `b884b5dd`; lab `474cc1bb`) was committed before the READ: 0 row-rule / ownership-cap fallbacks and 0 leads dropped in
+  every arm (C0 1,296 slots; ONECATCH 6,048 and WRFLEX8 3,456 ruled solves).
+- **Reproduced byte-identically by the laptop** at `9a9a2331`: the raw files 3024–3035 pass `sha256sum -c` against
+  `RAW_s93_run.sha256`; the READ is `df5d74c3` and the confirmatory census `7d665d6a` (cmp-identical).
+
+**Reader output (verbatim):**
+```
+STUDY 93 READER  sha256 9dc905d41fc9d0ac977494b31e130aebf923d0eae3f5888551d6aa7a1c07e2a2
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [3024, 3025, 3026, 3027, 3028, 3029, 3030, 3031, 3032, 3033, 3034, 3035]  sets {'pooled': [3024, 3025, 3026, 3027, 3028, 3029, 3030, 3031, 3032, 3033, 3034, 3035], 'A': [3024, 3025, 3026, 3027, 3028, 3029], 'B': [3030, 3031, 3032, 3033, 3034, 3035]}  B 20000  seed 20261138  comparisons (('QBALONE3', 'ARMED'), ('ONECATCH', 'ARMED'), ('WRFLEX8', 'ARMED')) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 92 / 91 / 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["ARMED", "QBALONE3", "ONECATCH", "WRFLEX8"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"ARMED": 0.35, "ONECATCH": 0.35, "QBALONE3": 0.35, "WRFLEX8": 0.35}, "delta": 0.15, "lead_fallback": "the lead rule dropped first, the armed row rules kept", "leads": {"ONECATCH": [0, true, 0], "QBALONE3": [3, false, 0], "WRFLEX8": [0, false, 8]}, "low_pct": 3.0, "own_arms": ["ARMED", "QBALONE3", "ONECATCH", "WRFLEX8"], "row_rules": {"ARMED": ["te1", "low1"], "ONECATCH": ["te1", "low1"], "QBALONE3": ["te1", "low1"], "WRFLEX8": ["te1", "low1"]}, "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "skill_sum": 800.0, "source": "blend_pct"}, {"ARMED": [9, 6], "ONECATCH": [9, 6], "QBALONE3": [9, 6], "WRFLEX8": [9, 6]}, "37980da6506df0a799e97b5dae29e670228398cb405be01a3c93cc47f2c7e252", "9cde18bd221e52069b449044a37720996ffb0efafac88202d44f02a7dc898aa8", "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== QBALONE3 vs ARMED  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.00215  [-0.02685, +0.02141] (two-sided 0.95)  seasons 2023 -0.00123, 2024 -0.00306
+  GUARD 1 mean entry pct +0.00295  one-sided lower +0.00071  (must exceed -0.015)
+  GUARD 2 expected big seats 0.49090 vs 0.51543  ratio 0.952  (must be >= 0.80)
+  QBALONE3 dealt identical to ARMED: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3024, 3025, 3026, 3027, 3028, 3029]: +0.01416  [-0.02888, +0.05595]  seasons 2023 +0.00414, 2024 +0.02419
+  set B [3030, 3031, 3032, 3033, 3034, 3035]: -0.01846  [-0.04853, +0.01271]  seasons 2023 -0.00660, 2024 -0.03031
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set B -0.01846 < 0  (set A +0.01416, set B -0.01846, the difference +0.03262; seats ratio 0.952)
+  EXPLORATORY the l02 field (pooled): -0.00092  [-0.02533, +0.02249]
+
+== ONECATCH vs ARMED  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.02018  [-0.00408, +0.04559] (two-sided 0.95)  seasons 2023 +0.02426, 2024 +0.01610
+  GUARD 1 mean entry pct +0.00059  one-sided lower -0.00158  (must exceed -0.015)
+  GUARD 2 expected big seats 0.57057 vs 0.51543  ratio 1.107  (must be >= 0.80)
+  ONECATCH dealt identical to ARMED: 0.169 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3024, 3025, 3026, 3027, 3028, 3029]: +0.03562  [-0.00446, +0.07672]  seasons 2023 +0.00740, 2024 +0.06384
+  set B [3030, 3031, 3032, 3033, 3034, 3035]: +0.00474  [-0.02434, +0.03480]  seasons 2023 +0.04112, 2024 -0.03164
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.03562, set B +0.00474, the difference +0.03088; seats ratio 1.107)
+  EXPLORATORY the l02 field (pooled): +0.02170  [-0.00133, +0.04618]
+
+== WRFLEX8 vs ARMED  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.00300  [-0.02717, +0.02126] (two-sided 0.95)  seasons 2023 -0.00724, 2024 +0.00124
+  GUARD 1 mean entry pct +0.00202  one-sided lower +0.00004  (must exceed -0.015)
+  GUARD 2 expected big seats 0.51727 vs 0.51543  ratio 1.004  (must be >= 0.80)
+  WRFLEX8 dealt identical to ARMED: 0.076 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3024, 3025, 3026, 3027, 3028, 3029]: -0.00944  [-0.05167, +0.03165]  seasons 2023 -0.02889, 2024 +0.01001
+  set B [3030, 3031, 3032, 3033, 3034, 3035]: +0.00343  [-0.03287, +0.04098]  seasons 2023 +0.01440, 2024 -0.00753
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.00944 < 0  (set A -0.00944, set B +0.00343, the difference -0.01287; seats ratio 1.004)
+  EXPLORATORY the l02 field (pooled): -0.00611  [-0.02956, +0.01766]
+
+
+== THE W6 CANDIDATE RULE per lead (better on both draws AND seats >= 0.80; information for his decision):
+  QBALONE3  PAPER ONLY: draw B -0.01846 is not > 0  |  guard 1 (mean entry pct, one-sided lower) +0.00071 (passes -0.015)  |  under no true effect about one time in four to one in three
+  ONECATCH  A W6 CANDIDATE (better on both draws)  |  guard 1 (mean entry pct, one-sided lower) -0.00158 (passes -0.015)  |  under no true effect about one time in four to one in three
+  WRFLEX8   PAPER ONLY: draw A -0.00944 is not > 0  |  guard 1 (mean entry pct, one-sided lower) +0.00004 (passes -0.015)  |  under no true effect about one time in four to one in three
+
+  ARMED row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  QBALONE3 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  ONECATCH row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  WRFLEX8 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  ARMED        v2: P(>=1 big) 0.36531  expected big seats 0.51543  P(>=2) 0.11111  entry pct 0.50343  |  l02: P(>=1 big) 0.39641
+               book: projection per row 124.69  salary 49971  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.19  predicted ownership per row 94.4%  distinct QBs 8.3  non-DST players 50.7  rows with 2+ TEs 0.0  low-owned per row 0.656  naked-QB rows 0.0  receiver-pair rows 3.6  flex WR rows 15.6
+  QBALONE3     v2: P(>=1 big) 0.36316  expected big seats 0.49090  P(>=2) 0.10034  entry pct 0.50638  |  l02: P(>=1 big) 0.39549
+               book: projection per row 124.70  salary 49971  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.20  predicted ownership per row 94.4%  distinct QBs 8.2  non-DST players 50.8  rows with 2+ TEs 0.0  low-owned per row 0.652  naked-QB rows 3.0  receiver-pair rows 4.0  flex WR rows 15.0
+  ONECATCH     v2: P(>=1 big) 0.38549  expected big seats 0.57057  P(>=2) 0.13614  entry pct 0.50402  |  l02: P(>=1 big) 0.41811
+               book: projection per row 124.69  salary 49970  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.19  predicted ownership per row 94.4%  distinct QBs 8.2  non-DST players 50.6  rows with 2+ TEs 0.0  low-owned per row 0.657  naked-QB rows 0.0  receiver-pair rows 1.3  flex WR rows 15.2
+  WRFLEX8      v2: P(>=1 big) 0.36231  expected big seats 0.51727  P(>=2) 0.11555  entry pct 0.50545  |  l02: P(>=1 big) 0.39030
+               book: projection per row 124.67  salary 49969  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.19  predicted ownership per row 94.6%  distinct QBs 8.3  non-DST players 50.7  rows with 2+ TEs 0.0  low-owned per row 0.652  naked-QB rows 0.0  receiver-pair rows 3.8  flex WR rows 17.5
+```
+
+**Reading.**
+- **ONECATCH (one WR / TE per team on every QB + 1 lineup): +2.0 [−0.4, +4.6]**, positive on both draws (A +3.6, B +0.5),
+  expected big seats ×1.11, guard 1 passes. By the two-draw rule it is **a Week-6 candidate**. It is not separable from zero, the
+  two draws differ by 3.1 points (the bank-set size Addendum 182 measured), and under no true effect a lead passes this rule about
+  one time in four to one in three; with three leads read here, one passing is close to what chance gives. It also dealt the
+  armed book unchanged on 17% of slate-banks (no such pair to remove). On his real W4 book it binds (5 of 14 B / C rows).
+- **QBALONE3 −0.2** (A +1.4, B −1.8) and **WRFLEX8 −0.3** (A −0.9, B +0.3): flat on the armed version; paper only.
+- **In plain words:** of the three earlier leads, only "one receiver per team" leans positive on both independent draws, by about
+  2 points and 11% more expected big wins -- worth a real-week look, not yet evidence. The QB alone and a WR in the flex add
+  nothing on top of the armed version.
+- **His decision** (in the laptop's session, after the cautions -- about one in three pass by chance, the third change this week,
+  the code and the package's checks): "Live W5 if built in time (Recommended)" -- built and checked tonight on the tested version
+  (QB-plus-one lineups only), live at Saturday's arming only if every check passes, with the book without it scored on paper
+  beside it (study 38 amendment 6t); otherwise paper.
+
+## Addendum 192 (2026-10-09): study 94 (RB pairs on his armed Week-5 version -- the QB stacked with his own RB on 4 C-cell lineups, the DST with its own RB on 8 lineups -- in the harness; Week-6 candidates): the QB's own RB as a stack mate leans positive on both draws (+2.0; seats ×1.03): a Week-6 candidate by the two-draw rule; the DST with its own RB is slightly negative on both draws (−1.0): paper only
+
+**Setup.**
+- **His request** (HANDOFF `7a47ecc3` and after): item 5 of "let's try each that you suggested" (the suggestions briefing's S4: an RB
+  counting as a stack mate, a DST paired with its own RB), built tonight on his yes. Dupe-aware dealing is a real-field replay for
+  next week.
+- **The priors:** study 16's thesis portfolio carried RB-led favourite blowouts (the lead RB + his team's DST) in its 15%
+  alternative; production's permanent FORBID_RB_DST bans an RB with the OPPOSING DST (no conflict with an own-team pair); the
+  co-ownership audit found RB + own DST the most inflated chalk pair (1.7×).
+- **The arms.** Study 89's harness via 93's module; every arm the armed version (the package + te1 + low1). ARMED (the reference);
+  RBMATE4 (the first 4 C-cell book solves: the QB, one catcher and his own RB -- an interaction floor over (QB, own-team RB) pairs,
+  floor 1); DSTRB8 (book solves j < 8: the lineup's DST with its own RB -- a floor over (DST, own-team RB) pairs). The floor and
+  the armed rules in ONE optimize patch; the floor dropped first, the armed rules kept, then none.
+- **What the harness cannot see (the outside reviewer's §4):** the scored field already puts a QB-team RB in about 18% of lineups
+  (fit to the real W2–4 Millionaire), so RBMATE4 is read against the shape at its real rate; but the field's DST is drawn
+  independently, so the duplication cost of RB + own DST is invisible here and DSTRB8's read is optimistic on that count.
+- **Preregistration:** `reports/2026-10-09-prereg-study94-rb-pairs.md` (DRAFT by the outside reviewer; FROZEN `ca14803f`, 10-09
+  17:51 CDT, before any scored bank).
+- **Code:** nfl2 `627e5153`: module `2eb7835b…` (pins s93 `5f4e1fb9…`); drive `d71eb15e…`; census `b9b70ab6…`; reader `82260ef0…`;
+  tests `327815db…` (10).
+- **Panel:** banks 3036–3047 (A 3036–3041, B 3042–3047), B 20,000, seed 20261139, PYTHONHASHSEED=0; the laptop's scan was clean.
+- **His real W4 book** (the laptop's counts): both bind (RBMATE4: 3 of the first 4 C rows change; DSTRB8: all of the first 8).
+- **Census** (binding, bank 1406; lab `1088d74d`; the laptop's re-run identical): 0 fallbacks, no floor dropped; QB + own-RB rows
+- **Read:** the reader `82260ef0`; READ `67b312a4` (lab `9076fa79`). The confirmatory census (`498f6278`, raw shas `4402b1e8`,
+  RUN_ENV `86c91eec`; lab `babb6bc7`) was committed before the READ: 0 row-rule / ownership-cap fallbacks and 0 leads dropped in
+  every arm (RBMATE4 1,728 and DSTRB8 3,456 ruled solves); QB + own-RB rows 2.5 → 5.1 (RBMATE4), DST + own-RB rows 3.1 → 9.4
+  (DSTRB8); rows shared with the package 6.1 of 26 (RBMATE4) and 1.3 (DSTRB8).
+- **Reproduced byte-identically by the laptop** at `9076fa79` (PYTHONHASHSEED=0): the raw files 3036–3047 pass `sha256sum -c`
+  against `RAW_s94_run.sha256`; the READ is `67b312a4` and the confirmatory census `498f6278` (cmp-identical).
+
+**Reader output (verbatim):**
+```
+STUDY 94 READER  sha256 82260ef01cf70b07d2f601242e684ad1f3ee5ea01baa40770aa41579cd4134de
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [3036, 3037, 3038, 3039, 3040, 3041, 3042, 3043, 3044, 3045, 3046, 3047]  sets {'pooled': [3036, 3037, 3038, 3039, 3040, 3041, 3042, 3043, 3044, 3045, 3046, 3047], 'A': [3036, 3037, 3038, 3039, 3040, 3041], 'B': [3042, 3043, 3044, 3045, 3046, 3047]}  B 20000  seed 20261139  comparisons (('RBMATE4', 'ARMED'), ('DSTRB8', 'ARMED')) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 93 / 92 / 91 / 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["ARMED", "RBMATE4", "DSTRB8"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"ARMED": 0.35, "DSTRB8": 0.35, "RBMATE4": 0.35}, "delta": 0.15, "lead_fallback": "the lead rule dropped first, the armed row rules kept", "leads": {"DSTRB8": [0, 8], "RBMATE4": [4, 0]}, "low_pct": 3.0, "own_arms": ["ARMED", "RBMATE4", "DSTRB8"], "row_rules": {"ARMED": ["te1", "low1"], "DSTRB8": ["te1", "low1"], "RBMATE4": ["te1", "low1"]}, "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "skill_sum": 800.0, "source": "blend_pct"}, {"ARMED": [9, 6], "DSTRB8": [9, 6], "RBMATE4": [9, 6]}, "5f4e1fb9977d349183adc3457782b131673a8bcf06bf3e850af2c149c52bfd4d", "37980da6506df0a799e97b5dae29e670228398cb405be01a3c93cc47f2c7e252", "9cde18bd221e52069b449044a37720996ffb0efafac88202d44f02a7dc898aa8", "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== RBMATE4 vs ARMED  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.02010  [-0.01049, +0.04909] (two-sided 0.95)  seasons 2023 +0.04394, 2024 -0.00375
+  GUARD 1 mean entry pct -0.00098  one-sided lower -0.00362  (must exceed -0.015)
+  GUARD 2 expected big seats 0.56817 vs 0.55287  ratio 1.028  (must be >= 0.80)
+  RBMATE4 dealt identical to ARMED: 0.002 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3036, 3037, 3038, 3039, 3040, 3041]: +0.01659  [-0.02209, +0.05313]  seasons 2023 +0.05549, 2024 -0.02232
+  set B [3042, 3043, 3044, 3045, 3046, 3047]: +0.02361  [-0.02363, +0.06852]  seasons 2023 +0.03240, 2024 +0.01483
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.01659, set B +0.02361, the difference -0.00703; seats ratio 1.028)
+  EXPLORATORY the l02 field (pooled): +0.02338  [-0.00741, +0.05264]
+
+== DSTRB8 vs ARMED  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.01027  [-0.05150, +0.03039] (two-sided 0.95)  seasons 2023 -0.00651, 2024 -0.01404
+  GUARD 1 mean entry pct +0.00049  one-sided lower -0.00427  (must exceed -0.015)
+  GUARD 2 expected big seats 0.53485 vs 0.55287  ratio 0.967  (must be >= 0.80)
+  DSTRB8 dealt identical to ARMED: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3036, 3037, 3038, 3039, 3040, 3041]: -0.00136  [-0.04536, +0.04277]  seasons 2023 +0.01094, 2024 -0.01366
+  set B [3042, 3043, 3044, 3045, 3046, 3047]: -0.01919  [-0.07890, +0.03530]  seasons 2023 -0.02396, 2024 -0.01442
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.00136 < 0; set B -0.01919 < 0  (set A -0.00136, set B -0.01919, the difference +0.01783; seats ratio 0.967)
+  EXPLORATORY the l02 field (pooled): -0.00639  [-0.04850, +0.03487]
+
+
+== THE W6 CANDIDATE RULE per lead (better on both draws AND seats >= 0.80; information for his decision):
+  RBMATE4   A W6 CANDIDATE (better on both draws)  |  guard 1 (mean entry pct, one-sided lower) -0.00362 (passes -0.015)  |  under no true effect about one time in four to one in three
+  DSTRB8    PAPER ONLY: draw A -0.00136 is not > 0; draw B -0.01919 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.00427 (passes -0.015)  |  under no true effect about one time in four to one in three
+
+  ARMED row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  RBMATE4 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  DSTRB8 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  ARMED        v2: P(>=1 big) 0.37508  expected big seats 0.55287  P(>=2) 0.12753  entry pct 0.50271  |  l02: P(>=1 big) 0.40200
+               book: projection per row 124.69  salary 49971  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.20  predicted ownership per row 94.4%  distinct QBs 8.3  non-DST players 50.6  rows with 2+ TEs 0.0  low-owned per row 0.649  QB + own-RB rows 2.5  DST + own-RB rows 3.1
+  RBMATE4      v2: P(>=1 big) 0.39518  expected big seats 0.56817  P(>=2) 0.12999  entry pct 0.50174  |  l02: P(>=1 big) 0.42539
+               book: projection per row 124.67  salary 49969  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.19  predicted ownership per row 94.4%  distinct QBs 8.3  non-DST players 50.7  rows with 2+ TEs 0.0  low-owned per row 0.656  QB + own-RB rows 5.1  DST + own-RB rows 3.2
+  DSTRB8       v2: P(>=1 big) 0.36481  expected big seats 0.53485  P(>=2) 0.11597  entry pct 0.50320  |  l02: P(>=1 big) 0.39561
+               book: projection per row 124.62  salary 49964  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.18  predicted ownership per row 94.3%  distinct QBs 8.2  non-DST players 51.0  rows with 2+ TEs 0.0  low-owned per row 0.656  QB + own-RB rows 2.5  DST + own-RB rows 9.4
+```
+
+**Reading.**
+- **RBMATE4 (the QB + one catcher + his own RB on the first 4 C-cell lineups): +2.0 [−1.0, +4.9]**, positive on both draws
+  (A +1.7, B +2.4), expected big seats ×1.03, guard 1 passes. By the two-draw rule it is **a Week-6 candidate**. It is not
+  separable from zero, and under no true effect a lead passes this rule about one time in four to one in three. Across the five
+  leads of his "let's try each" read in the harness on these 36 slates (studies 93–94), two passed (ONECATCH, RBMATE4), which is about what chance
+  gives. Its gain sits in 2023 (+4.4 pooled); 2024 is −0.4 pooled (set A −2.2, set B +1.5). The scored field already carries a
+  QB-team RB in about 18% of lineups, so the read is against the shape at its real rate. On his real W4 book it binds (3 of the
+  first 4 C rows change).
+- **DSTRB8 (the DST with its own RB on 8 lineups): −1.0 [−5.2, +3.0]**, negative on both draws (A −0.1, B −1.9), seats ×0.97:
+  paper only. The field's DST is drawn independently here, so the real duplication cost of this chalk pair is not in the read; the
+  live result would be worse, not better.
+- **Not read: the combination.** RBMATE4 was read on the armed version WITHOUT ONECATCH. If ONECATCH goes live in Week 5, RBMATE4
+  on top of it is a new arm (the post-selection law): its C rows hold one catcher already, but the read does not transfer.
+- **In plain words:** putting the quarterback's own running back into 4 of his QB-plus-one lineups leans positive on both sets
+  of simulated opponents (same past slates), by about 2 points -- worth a Week-6 look, not yet evidence, and all of the gain came
+  from the 2023 slates. Pairing a defense with its own running back adds nothing here and would cost more in real contests.
+- **His decision** (his rule printed, not applied): pending. The laptop took RBMATE4 to him on the evening of 10-09, since it
+  meets the same rule as ONECATCH: Week-5 paper or later. No production flag exists for it. DSTRB8 stays on paper.
