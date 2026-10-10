@@ -307,8 +307,18 @@ fixed before study 102 was read).
 
 ## What is still running this morning (information for Week 6 unless a result is clear)
 
-1. **Study 105 — the upside dose curve:** how many 200+ lineups each step of "more lineups on upside" (13, 18, 26 of 26) buys,
-   and what it costs in big wins.
+1. **Study 105 — the upside dose curve (READ; information for Week 6):** on a fresh draw, against your book (200+ rate 12.0% on
+   this draw), each row is the change:
+
+   | Lineups built on upside | Best lineup reached 200 | Big wins (set A / set B), expected | Average finish |
+   |---|---|---|---|
+   | 13 of 26 | **+3.2 slates in 100** (+2.8 / +3.7; interval +0.5 to +6.7) | −1.7 (−2.6 / −0.7), ×0.94 | lower (check fails) |
+   | 18 of 26 | −0.9 (0.0 / −1.9) | −4.5 (−5.6 / −3.4), ×0.86 | lower (check fails) |
+   | 26 of 26 | +0.7 (−0.9 / +2.3) | −3.4 (−6.1 / −0.8), ×0.90 | lower (check fails) |
+
+   **Every dose cost big wins on both opponent sets; the 200+ gain jumps around** (+3 at 13 lineups, −1 at 18, +1 at all 26;
+   the same all-26 version read +3.2 and +2.3 in studies 102 / 103), so there is no "sweet spot" that buys 200+ lineups without
+   giving up big wins. Read on your book before the RB version (study 105's READ `efbea1ce`, lab `6ab0b595`).
 2. **Study 106 — a projection floor** (your "no player with a projected score less than 8"): floors of 8 / 10 / 12 against your
    book; a passing floor is re-checked on a fresh draw (study 107), and only then **your per-position floors** (study 108).
    Production's floor today filters on our own projections, not Fantasy Points', so a live FP floor needs a small change first.
