@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (04:14 CDT) — study 103 READ: CEIL_BLOCK8 did NOT hold, so study 104 is not run; CEIL_ALL's trade consistent on 4 of 4 opponent sets
+
+- **Study 102**, reproduced byte for byte by the laptop: READ_s102 `3a992f7f`, census `f53a9f7b`. Records merged `7cf1a31a`
+  (Addendum 200; 102 / 103 / 104 preregs; the leads log).
+- **Study 103** (102's frozen code on banks 3396–3407; lab `463d5050`, READ_s103 `4d0b354d`; confirmatory census `ad0c0610`).
+  **The laptop reproduced both byte for byte.**
+  - **CEIL_BLOCK8:** mean best +0.346 (A +0.729, **B −0.037**), "not eligible: mean best not > 0 on both draws"; P(≥ 1 big) A
+    +0.011, B −0.030; seats 0.950. **It fails**, so **study 104 is not run** (its prereg said so).
+  - **The reader:** "PICK: none -- keep the live book."
+  - **CEIL_ALL** (information): P(best ≥ 200) +0.023 (16.4% vs 14.1%; A +0.019, B +0.028); mean best +1.08, > 0 on both draws
+    here. **But big seats are worse on both draws again** (A −0.033, B −0.026; seats 0.883); guard 1 fails again.
+  - **Across 102 + 103 (four opponent sets):** more 200+ lineups and fewer big wins every time. A consistent trade, not a gain
+    by his rule.
+  - **TAIL_STACK8:** worse again (mean best −0.83; big seats worse on both; ×0.90).
+- **The night's construction answer to "over 200":** nothing tested raises the 200+ rate without giving up big wins. FAVHI is the
+  one change that passed his rule twice (with a slightly higher 200+ rate, like several others). Building the whole book for the
+  ceiling buys more 200s at the cost of contest wins. The live book stands, plus FAVHI as his morning option.
+- **Next:**
+  - the reviewer's 6x tests and smoke (MS3 on paper);
+  - an optional study 105, a CEIL dose-response (W6 information), at the reviewer's call;
+  - the morning page; the arming.
+
 ## 2026-10-10 (03:28 CDT) — study 102 READ (ceiling builds): the pick is CEIL_BLOCK8 (study 103 runs); CEIL_ALL raises the 200+ rate on both draws but costs big wins; TAIL_STACK8 is worse
 
 Reported by the reviewer (lab `2ec19654`, READ_s102 `3a992f7f`; confirmatory census committed before the read); **the laptop's
