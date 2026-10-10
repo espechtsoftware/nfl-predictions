@@ -11818,3 +11818,140 @@ secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier fi
   live book stands. One side note held across three reads: without the cheap +2 block the harness gives about 5–13% more expected
   big wins; his Week-5 trial judges that on real results. Study 102 (ceiling-built rows and full game stacks) is tonight's
   remaining ceiling test; study 38's pending amendment 6x puts OVERLAP3 on paper (MIXT_QA0_MS3) for the real Week-5 outcomes.
+
+## Addendum 200 (2026-10-10): study 102 (ceiling construction -- the 8 block rows on each player's simulated 85th percentile, the whole book on it, and the A1 rows as full game stacks in the top-4 games -- on his live Week-5 book, in the harness; his "200+" night notes): the pick rule picks CEIL_BLOCK8 (the cheap block on each player's 85th percentile: +0.2 points on the book's mean best lineup, big seats ×0.97) → study 103; the whole book on the 85th percentile raises the 200+ rate on both draws (15.5% vs 12.3%) at a cost of big wins (−3.5, ×0.86, guard 1 fails); the full game stack is worse on every measure (mean best −1.7 [−3.0, −0.3])
+
+**Setup.**
+- **His notes** (HANDOFF `f68ebf50`): "...scores over 200 fairly regularly. So do what you can"; then "It sounds like you're giving
+  up on the high scores. That's not what I want." -- after a ceiling-objective study had been withdrawn as a closed family.
+- **The prior, stated first (prereg §1):** NEGATIVE for the player-upside objectives (Addendum 2's p90; PREREG-006 / 010's q97 /
+  q98.75; PREREG-098's finish objective; L14's P(≥ line); Addenda 62 / 65's tail sorting; study 26's P90 −2.7, seats ×0.82), all on
+  older constructions; NO DIFFERENCE for the game stack (study 26's one-game shootout; study 74 −2.9). Re-read here under the
+  post-selection law (his armed construction) on a new endpoint (the book's best real lineup).
+- **Field description (the laptop's count of his real W1–4 fields, aggregates; outcome-conditioned):** about 1 in 5 of the field's
+  200+ lineups carries two or more of the QB's opponents (18.5%), against 1.9% of our entries; 95% of those 200+ lineups come from
+  the high-scoring Week 1. It describes lineups after the games, not that building them helps -- which TAIL_STACK8 tests.
+- **The arms** (study 95's harness, every arm his armed construction; version (b), the outside reviewer's mechanics): **LIVE**;
+  **CEIL_BLOCK8** (the 8 cheap-block rows built on p85 + the cheap term instead of the mean + the term; the other 18 rows
+  unchanged); **CEIL_ALL** (every row on a p85 base, the block with the term); **TAIL_STACK8** (every A1 book solve a full game
+  stack: QB + ≥ 2 own WR / TE + ≥ 2 opponents, max 5 from one game on those solves only, the QB's game in the slate's top-4
+  pre-lock totals; the full stack dropped first if infeasible). p85 = each player's 85th percentile over the same 20,000 sims as
+  the mean.
+- **The read and the pick rule:** study 100's, unchanged (the largest pooled gain in mean best real lineup points, > 0 on both
+  draws, AND P(≥ 1 big seat) not worse on both draws, AND seats ≥ 0.80; none → keep the live book); P(best ≥ 200) printed beside
+  it. A pick goes to study 103 (the same rule on a fresh draw, committed before this READ), and on a hold to study 104 (with
+  FAVHI, committed before this READ).
+- **Preregistration:** `reports/2026-10-09-prereg-study102-ceiling-build.md` (DRAFT by the outside reviewer; FROZEN `664894dd`, 10-10
+  01:55 CDT, before any scored bank). The full-path smoke caught a reader defect (a per-slate record inside the compared arm
+  definitions), fixed in the module before the freeze (`969f4d3d`) and the class swept into 103 / 104.
+- **Code:** nfl2 `969f4d3d`: module `ca7f4399…` (pins s95 `46b80611…`); drive `7ac2fefc…`; census `4dcab0b5…`; reader `581dabd9…`;
+  tests `8b1a410c…` (12).
+- **Panel:** banks 3384–3395 (A 3384–3389, B 3390–3395), B 20,000, seed 20261146, PYTHONHASHSEED=0; the laptop's scan was clean.
+- **Census** (binding, bank 1406; lab `7b65f1c8`; the laptop's re-run identical): 0 fallbacks in all 4 arms; ONECATCH 504 of 504
+  everywhere; p85 − mean 5.68 points per skill player; TAIL_STACK8's A1 rows full game stacks on every solve (288 of 288); CEIL_ALL's
+  flex RB rows 3.1 vs 10.8; rows shared with LIVE CEIL_BLOCK8 18.2, CEIL_ALL 0.7, TAIL_STACK8 1.7 of 26; none dealt identical.
+- **Read:** the reader `581dabd9`; READ `3a992f7f` (lab `2ec19654`). The confirmatory census (`f53a9f7b`, raw shas
+  `79dacf43`, RUN_ENV `d533d37c`; lab `a5ac454c`) was committed before the READ: 0 row-rule / ownership-cap fallbacks in all 4
+  arms; ONECATCH 6,048 of 6,048 in every arm; TAIL_STACK8's full-stack A1 solves 3,449 ruled + 7 re-solved plain of 3,456
+  (full stacks on 7.98 of 8 A1 rows); p85 − mean 5.69 points per skill player; rows shared with LIVE: CEIL_BLOCK8 18.1,
+  CEIL_ALL 0.7, TAIL_STACK8 1.5 of 26; none dealt identical.
+- **Reproduced byte-identically by the laptop** at `2ec19654` (PYTHONHASHSEED=0): the raw files 3384–3395 pass `sha256sum -c`
+  against `RAW_s102_run.sha256`; the READ is `3a992f7f` and the confirmatory census `f53a9f7b` (cmp-identical).
+
+**Reader output (verbatim):**
+```
+STUDY 102 READER  sha256 581dabd95939c9f40c0c3570558f54b7791c17ff1f8b2dd5d793635bd7f9f68f
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [3384, 3385, 3386, 3387, 3388, 3389, 3390, 3391, 3392, 3393, 3394, 3395]  sets {'pooled': [3384, 3385, 3386, 3387, 3388, 3389, 3390, 3391, 3392, 3393, 3394, 3395], 'A': [3384, 3385, 3386, 3387, 3388, 3389], 'B': [3390, 3391, 3392, 3393, 3394, 3395]}  B 20000  seed 20261146  comparisons (('CEIL_BLOCK8', 'LIVE'), ('CEIL_ALL', 'LIVE'), ('TAIL_STACK8', 'LIVE')) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 93 / 92 / 91 / 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["LIVE", "CEIL_BLOCK8", "CEIL_ALL", "TAIL_STACK8"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"CEIL_ALL": 0.35, "CEIL_BLOCK8": 0.35, "LIVE": 0.35, "TAIL_STACK8": 0.35}, "delta": 0.15, "low_pct": 3.0, "one_catcher": "every arm: study 93's ONECATCH (lead_rules onepc)", "own_arms": ["LIVE", "CEIL_BLOCK8", "CEIL_ALL", "TAIL_STACK8"], "quotas": {"CEIL_ALL": [0.3, 0.14, 0.28, 0.28], "CEIL_BLOCK8": [0.3, 0.14, 0.28, 0.28], "LIVE": [0.3, 0.14, 0.28, 0.28], "TAIL_STACK8": [0.3, 0.14, 0.28, 0.28]}, "row_rules": {"CEIL_ALL": ["te1", "low1"], "CEIL_BLOCK8": ["te1", "low1"], "LIVE": ["te1", "low1"], "TAIL_STACK8": ["te1", "low1"]}, "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "settings": {"CEIL_ALL": {"a1_full_stack": false, "cheap_term": true, "p85_rows": "all"}, "CEIL_BLOCK8": {"a1_full_stack": false, "cheap_term": true, "p85_rows": "block"}, "LIVE": {"a1_full_stack": false, "cheap_term": true, "p85_rows": "none"}, "TAIL_STACK8": {"a1_full_stack": true, "cheap_term": true, "p85_rows": "none"}}, "skill_sum": 800.0, "source": "blend_pct"}, {"CEIL_ALL": [9, 6], "CEIL_BLOCK8": [9, 6], "LIVE": [9, 6], "TAIL_STACK8": [9, 6]}, "5f4e1fb9977d349183adc3457782b131673a8bcf06bf3e850af2c149c52bfd4d", "37980da6506df0a799e97b5dae29e670228398cb405be01a3c93cc47f2c7e252", "9cde18bd221e52069b449044a37720996ffb0efafac88202d44f02a7dc898aa8", "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== CEIL_BLOCK8 vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.00425  [-0.02055, +0.01230] (two-sided 0.95)  seasons 2023 -0.02401, 2024 +0.01550
+  GUARD 1 mean entry pct -0.00481  one-sided lower -0.01080  (must exceed -0.015)
+  GUARD 2 expected big seats 0.53987 vs 0.55812  ratio 0.967  (must be >= 0.80)
+  CEIL_BLOCK8 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3384, 3385, 3386, 3387, 3388, 3389]: +0.00110  [-0.01667, +0.01857]  seasons 2023 -0.02184, 2024 +0.02405
+  set B [3390, 3391, 3392, 3393, 3394, 3395]: -0.00961  [-0.03195, +0.01222]  seasons 2023 -0.02617, 2024 +0.00695
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set B -0.00961 < 0  (set A +0.00110, set B -0.00961, the difference +0.01071; seats ratio 0.967)
+  EXPLORATORY the l02 field (pooled): -0.00466  [-0.02101, +0.01167]
+  CEILING (the pick statistic) mean best real lineup points per slate +0.195  [-0.731, +1.371]  seasons 2023 -0.465, 2024 +0.854; set A +0.359; set B +0.031
+  P(best >= 200) +0.00926  [-0.00926, +0.03704]; set A +0.01852; set B +0.00000
+
+== CEIL_ALL vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.03501  [-0.10654, +0.03509] (two-sided 0.95)  seasons 2023 -0.07279, 2024 +0.00277
+  GUARD 1 mean entry pct -0.01430  one-sided lower -0.02465  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48131 vs 0.55812  ratio 0.862  (must be >= 0.80)
+  CEIL_ALL dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3384, 3385, 3386, 3387, 3388, 3389]: -0.03081  [-0.12021, +0.05665]  seasons 2023 -0.06799, 2024 +0.00637
+  set B [3390, 3391, 3392, 3393, 3394, 3395]: -0.03920  [-0.10117, +0.02103]  seasons 2023 -0.07758, 2024 -0.00082
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.03081 < 0; set B -0.03920 < 0  (set A -0.03081, set B -0.03920, the difference +0.00839; seats ratio 0.862)
+  EXPLORATORY the l02 field (pooled): -0.04050  [-0.11165, +0.02839]
+  CEILING (the pick statistic) mean best real lineup points per slate -0.529  [-3.205, +2.247]  seasons 2023 -0.994, 2024 -0.065; set A -0.240; set B -0.818
+  P(best >= 200) +0.03241  [-0.02546, +0.09259]; set A +0.03241; set B +0.03241
+
+== TAIL_STACK8 vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.03207  [-0.06778, +0.00249] (two-sided 0.95)  seasons 2023 -0.03808, 2024 -0.02606
+  GUARD 1 mean entry pct -0.00513  one-sided lower -0.01211  (must exceed -0.015)
+  GUARD 2 expected big seats 0.50047 vs 0.55812  ratio 0.897  (must be >= 0.80)
+  TAIL_STACK8 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3384, 3385, 3386, 3387, 3388, 3389]: -0.02550  [-0.07369, +0.02012]  seasons 2023 -0.01875, 2024 -0.03225
+  set B [3390, 3391, 3392, 3393, 3394, 3395]: -0.03864  [-0.08293, +0.00687]  seasons 2023 -0.05741, 2024 -0.01987
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.02550 < 0; set B -0.03864 < 0  (set A -0.02550, set B -0.03864, the difference +0.01315; seats ratio 0.897)
+  EXPLORATORY the l02 field (pooled): -0.03262  [-0.06760, +0.00160]
+  CEILING (the pick statistic) mean best real lineup points per slate -1.679  [-3.020, -0.318]  seasons 2023 -1.688, 2024 -1.669; set A -1.843; set B -1.515
+  P(best >= 200) -0.00463  [-0.03472, +0.02546]; set A -0.00926; set B +0.00000
+
+
+== HIS RULE on P(>= 1 big seat) per arm (better on both draws AND seats >= 0.80; information):
+  CEIL_BLOCK8 PAPER ONLY: draw B -0.00961 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.01080 (passes -0.015)  |  under no true effect about one time in four to one in three
+  CEIL_ALL  PAPER ONLY: draw A -0.03081 is not > 0; draw B -0.03920 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.02465 (FAILS -0.015)  |  under no true effect about one time in four to one in three
+  TAIL_STACK8 PAPER ONLY: draw A -0.02550 is not > 0; draw B -0.03864 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.01211 (passes -0.015)  |  under no true effect about one time in four to one in three
+
+== THE PICK RULE (pre-stated): the largest pooled gain in mean best points that is > 0 on both draws (mean best points), AND P(>= 1 big seat) not worse on both draws, AND seats ratio >= 0.80; none -> keep the live book
+  CEIL_BLOCK8 mean best +0.195 (A +0.359, B +0.031); P(>=1 big) A +0.00110, B -0.00961; seats 0.967  ->  ELIGIBLE
+  CEIL_ALL  mean best -0.529 (A -0.240, B -0.818); P(>=1 big) A -0.03081, B -0.03920; seats 0.862  ->  not eligible: mean best not > 0 on both draws; P(>= 1 big seat) worse on both draws
+  TAIL_STACK8 mean best -1.679 (A -1.843, B -1.515); P(>=1 big) A -0.02550, B -0.03864; seats 0.897  ->  not eligible: mean best not > 0 on both draws; P(>= 1 big seat) worse on both draws
+  PICK: CEIL_BLOCK8 (to study 103)
+
+  LIVE row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; full-stack A1 solves ruled 0 + plain 0; over 432 slate-banks
+  CEIL_BLOCK8 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; full-stack A1 solves ruled 0 + plain 0; over 432 slate-banks
+  CEIL_ALL row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; full-stack A1 solves ruled 0 + plain 0; over 432 slate-banks
+  TAIL_STACK8 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; full-stack A1 solves ruled 3449 + plain 7; over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  LIVE         v2: P(>=1 big) 0.37622  expected big seats 0.55812  P(>=2) 0.12990  entry pct 0.50154  |  l02: P(>=1 big) 0.40733  |  the best real lineup: mean 177.18  P(best >= 200) 0.1227
+               book: projection per row 124.71  salary 49971  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.21  predicted ownership per row 94.3%  distinct QBs 8.2  non-DST players 50.8  rows with 2+ TEs 0.0  low-owned per row 0.655  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  CEIL_BLOCK8  v2: P(>=1 big) 0.37196  expected big seats 0.53987  P(>=2) 0.12447  entry pct 0.49673  |  l02: P(>=1 big) 0.40267  |  the best real lineup: mean 177.37  P(best >= 200) 0.1319
+               book: projection per row 124.75  salary 49972  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.19  predicted ownership per row 94.6%  distinct QBs 8.3  non-DST players 50.1  rows with 2+ TEs 0.0  low-owned per row 0.627  same-team receiver pair rows 1.4  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  CEIL_ALL     v2: P(>=1 big) 0.34121  expected big seats 0.48131  P(>=2) 0.10677  entry pct 0.48724  |  l02: P(>=1 big) 0.36683  |  the best real lineup: mean 176.65  P(best >= 200) 0.1551
+               book: projection per row 124.45  salary 49970  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.21  predicted ownership per row 94.4%  distinct QBs 8.4  non-DST players 49.9  rows with 2+ TEs 0.0  low-owned per row 0.607  same-team receiver pair rows 1.6  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  TAIL_STACK8  v2: P(>=1 big) 0.34415  expected big seats 0.50047  P(>=2) 0.11919  entry pct 0.49641  |  l02: P(>=1 big) 0.37471  |  the best real lineup: mean 175.50  P(best >= 200) 0.1181
+               book: projection per row 124.40  salary 49966  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.20  predicted ownership per row 93.9%  distinct QBs 8.4  non-DST players 52.8  rows with 2+ TEs 0.0  low-owned per row 0.664  same-team receiver pair rows 3.1  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+```
+
+**Reading.**
+- **The pick: CEIL_BLOCK8** (the 8 cheap-block rows built on each player's 85th percentile plus the cheap term, instead of the
+  mean plus the term; the other 18 rows unchanged): the book's mean best real lineup **+0.20 [−0.73, +1.37]** points (A +0.36,
+  B +0.03); P(≥ 1 big seat) −0.4 (A +0.1, B −1.0: not worse on both draws); expected big seats ×0.97; the 200+ rate +0.9 points
+  (A +1.9, B 0.0). A tiny gain; it goes to study 103 (the same rule on a fresh draw, committed before this READ).
+- **CEIL_ALL** (every row on the 85th percentile): **the 200+ rate +3.2 points on each draw** (15.5% vs 12.3%) -- but
+  P(≥ 1 big seat) **−3.5 [−10.7, +3.5]** (A −3.1, B −3.9), expected big seats ×0.86,
+  guard 1 fails (the mean entry percentile's one-sided lower bound −0.0247), and the mean best lineup −0.53. It buys the 200+
+  rate with big wins; not eligible. Its book puts a WR in the flex far more often (flex WR / RB 22.7 / 3.3 vs 15.2 / 10.8).
+- **TAIL_STACK8** (every A1 row a full game stack in the top-4 games; 3,449 of 3,456 A1 solves ruled): the mean best lineup
+  **−1.68 [−3.02, −0.32]**, an interval clear of zero, against the arm (A −1.84, B −1.52); P(≥ 1 big seat)
+  −3.2 [−6.8, +0.2] (A −2.6, B −3.9); expected big seats ×0.90; the 200+ rate −0.5. The field's 200+ lineups carry 2+ opponents
+  far more often than ours (the laptop's description), but building them before the games costs here, as in studies 26 and 74.
+  The production switch (`4c3cad58`) and its wiring (`e7a9bd26`) stay unmerged.
+- **Against the stated prior (prereg §1):** NEGATIVE for the upside objectives -- CEIL_ALL is negative on big seats, and the
+  block form near zero; NO DIFFERENCE for the game stack -- it reads negative.
+- **In plain words:** building lineups for their upside instead of their average does raise how often the book's best lineup
+  reaches 200 when every lineup is built that way (about 3 more slates in 100, on both opponent sets), but it costs about 3.5
+  slates in 100 with a big win, which is what he plays for. Building only the 8 cheap-block lineups that way is a wash (a tiny
+  gain, re-checked by study 103). Forcing full game stacks (QB + 2 + 2 opponents in the top games) is worse on every measure.
+  Nothing here is armable for Week 5: the upside versions have no production switch (Week 6 at the earliest).
+- **Next:** study 103 (FROZEN `f725accf`, 10-10 03:31 CDT; the deciding line CEIL_BLOCK8 − LIVE ELIGIBLE again on banks
+  3396–3407) runs now; on a hold, study 104 (FAVHI + CEIL_BLOCK8 against FAVHI).
