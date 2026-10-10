@@ -57,8 +57,11 @@ def test_the_timing_refusals():
         O.check_timing("2026-10-11T15:35:00Z", "2026-10-11T15:40:00", 24)
     with pytest.raises(ValueError, match="not before"):
         O.check_timing("2026-10-11T15:40:00Z", "2026-10-11T15:40:00Z", 24)
-    with pytest.raises(ValueError, match="more than 24 h"):
-        O.check_timing("2026-10-10T14:31:41Z", "2026-10-11T15:40:00Z", 24)                # Saturday's capture on Sunday: refused
+    # Saturday's capture, 14:31:41 CT = 19:31:41Z; Sunday's as-of, 10:40 CT = 15:40Z: about 20 h apart
+    O.check_timing("2026-10-10T19:31:41Z", "2026-10-11T15:40:00Z", 24)                       # a 24 h limit would ACCEPT it
+    with pytest.raises(ValueError, match="more than 3 h"):
+        O.check_timing("2026-10-10T19:31:41Z", "2026-10-11T15:40:00Z", 3)                    # the default 3 h refuses it
+    O.check_timing("2026-10-11T15:35:00Z", "2026-10-11T15:40:00Z", 3)                       # Sunday's 10:35 CT capture passes
 
 
 def test_the_capture_csv_takes_the_last_pull_before_as_of(tmp_path):
@@ -83,6 +86,11 @@ def test_the_synthetic_capture_is_deterministic_and_labelled(tmp_path):
     assert a.equals(b) and (a.snapshot_ts == O.SYNTHETIC_TS).all()
     assert sorted(a.oprk.unique()) == [1.0, 5.0, 10.0, 14.0, 19.0, 23.0, 28.0, 32.0]        # 8 opponents spread over 1-32
     assert (a.bonus_points > 0).any() and (a.bonus_points == 0).any()
+
+
+def test_the_default_max_age_is_three_hours():
+    import inspect
+    assert 'default=3.0' in inspect.getsource(O.main)
 
 
 def test_a_missing_as_of_is_refused(tmp_path):

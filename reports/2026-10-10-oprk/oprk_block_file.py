@@ -12,7 +12,8 @@ cap 2.0 adds the bonus:
 Output (plain CSV, the format own_bonus reads; no metadata line): dk_player_id, id, display_name, pos, team, opp, pred_own
 (= bonus / 0.20), bonus_points, oprk, snapshot_ts; every skill player of the frame once (a bonus of 0 included), the DST
 omitted. Refuses (exit 3): an --as-of without a time zone; no capture for --group before --as-of; a capture more than
---max-age-hours (default 24) before --as-of (a missed Sunday capture must not hand Saturday's ranks to the file); a dk_player_id
+--max-age-hours (default 3) before --as-of (a missed Sunday capture must not hand Saturday's ranks to the file: Saturday's
+14:31 CT capture is about 20 h before a Sunday 10:40 CT --as-of, so a 24 h limit would accept it); a dk_player_id
 repeated in the capture or the frame; a frame without skill players; a week where no player carries a bonus.
 
 Two inputs besides BigQuery, for a mechanics smoke (W1-4 ranks were never stored):
@@ -120,7 +121,7 @@ def main(argv=None) -> int:
     ap.add_argument("--group", type=int, required=True, help="the DK draft group (W5 main slate: 154468)")
     ap.add_argument("--frame", type=Path, required=True)
     ap.add_argument("--as-of", help="UTC ISO time; the last capture strictly before it (not with --synthetic)")
-    ap.add_argument("--max-age-hours", type=float, default=24.0, help="refuse a capture older than this before --as-of")
+    ap.add_argument("--max-age-hours", type=float, default=3.0, help="refuse a capture older than this before --as-of")
     src = ap.add_mutually_exclusive_group()
     src.add_argument("--capture-csv", type=Path, help="a capture file (dk_player_id, oprk, pulled_at) instead of BigQuery")
     src.add_argument("--synthetic", action="store_true", help="a deterministic capture from the frame (mechanics smokes only)")
