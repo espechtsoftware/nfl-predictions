@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (09:23 CDT) — study 115 READ: HOT_WRTE1 and FADE2_WRTE slightly worse, so no pick, 115b not run, the switch unmerged; OPERATOR: HOT_WRTE1 on paper in W5 (reproduced byte for byte)
+
+- **Study 115** (the reviewer; lab `46236e09`; confirmatory census `79b87a17` committed before the read). **The laptop reproduced
+  both byte for byte:** READ_s115 `5ecd46e6` (reader 0f2f9e9b); census `0cca1a9c` (54665c91).
+  - **HOT_WRTE1:** −1.6 [−4.8, +1.3], A −1.0 / B −2.3; seats ×0.95; guard 1 passes; mean best −0.4.
+  - **FADE2_WRTE:** −1.8, A −3.4 / B −0.1; seats ×0.93; guard 1 FAILS.
+  - No pick. 115b is not run (banks 3984–3995 stay unused).
+- **The production switch** (production/hot-wrte-switch-20261010 @ `cdff786f`; the reviewer's static review resolved) is NOT
+  merged today: it would only stay off, and a merge moves FRIDAY_HEAD + both s38 pins before the canary. Its full test run
+  and the W4 ON / ONEMPTY check (`hotwrte_w4_check.sh`) come before any future merge. s38 7a-min is parked (8ecf4cd8).
+- **The laptop's question:** "The WR/TE hot-player test (115) read slightly worse in the harness (about -1.6 big wins, on both opponent sets), so nothing changes in your live book. The real fields pointed the other way. Put the WR/TE cap on paper this Sunday beside the all-position one, so your real results decide it?"
+- **His answer: "Yes, on paper (Recommended)".** The reviewer adds MIXT_QA0_HOT_WRTE1 as s38 amendment 6z2 (on 6z's VAL4; the same snapshot hot
+  file with the WR / TE mask; HOT1's pattern), with a re-smoke and the laptop's ack before the 18:00 gate.
+- **Study 112** (usage floors; RUSH 13 / PASS 32 / TGT 4.5) frozen 09:19. The laptop's ack is in progress: 12 tests passed,
+  census re-run running.
+
 ## 2026-10-10 (08:23 CDT) — study 110 READ: none of the five field ideas (+ VAL4) passes his rule, so the pick is none; 111 not run; VAL4 goes on paper (s38 6z) (reproduced byte for byte)
 
 - **Study 110** (the reviewer; lab `73efac12`; confirmatory census `e11661b8` committed before the read; 432 / 432 rows).
