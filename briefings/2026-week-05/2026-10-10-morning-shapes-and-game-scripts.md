@@ -62,7 +62,7 @@ the shares are re-scaled to 100%. "Alone" results are information only.
 | … only the expected winner of a high-scoring game | [ ] | [ ] | [ ] | [ ] | [ ] |
 | The expected winner's RB WITHOUT his QB ("naked") | [ ] | [ ] | [ ] | [ ] | [ ] |
 | The expected winner's RB with the TRAILING team's QB (QB + 1 + that RB) | [ ] | [ ] | [ ] | [ ] | [ ] |
-| QB + 2 lineups only from high-scoring games | [ ] | [ ] | [ ] | [ ] | [ ] |
+| QB + 2 lineups only from high-scoring games (your idea: the shootout QB + 2 in place of today's QB + 2) | [ ] | [ ] | [ ] | [ ] | [ ] |
 | QB + 2 lineups only from the trailing side of high-scoring games | [ ] | [ ] | [ ] | [ ] | [ ] |
 (The expected-winner versions are also compared with the unconditioned RB version: [ ].)
 
