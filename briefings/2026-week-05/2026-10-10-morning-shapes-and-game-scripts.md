@@ -19,7 +19,9 @@ something is successful, we'll discuss in the morning how we want to use it."
   trailing-side QB + 2 was worse both times (−5.0, −5.6).
 - **The RB stack mate, unconditioned (study 96): paper only.** On top of the one-receiver-per-team rule it read −0.5 (worse on
   both opponent sets), although every lineup got its RB. It stays off (RB_MATE_C = 0) unless you choose a version below.
-- **Raising the ceiling (studies 100–103, your "200+" notes):** [ ]
+- **Raising the ceiling (studies 100–103, your "200+" notes):** five simple settings barely moved the best lineup, and the
+  best of them (overlap 3) did not hold on a fresh draw: **keep your live settings** (studies 100 / 101). Three new
+  constructions for the ceiling (study 102): [102: ]
 - **Already armed for Week 5 (your decisions):** Fantasy Points' projections, the winners' shape mix, the cheap +2 block, the
   35% cap with the ownership limit (+ 15), at most one TE and one player under 3% per lineup, and one receiver per team in the
   QB + 1 lineups. (The cheap +2 block is entered at Saturday's arming, as designed: TERM_ROWS = 8.)
@@ -211,11 +213,12 @@ lineup on average, and every version's 200+ rate stays within about a point of y
 passed your big-win rule** (+1.7 overall, better on both sets: +3.2 / +0.2, ×1.00) but not the ceiling rule, and it was not
 re-checked — information only.
 
-**The pick on a fresh draw (study 101):** [ ]
+**The pick on a fresh draw (study 101): it did NOT hold.** Overlap 3 against your book: best lineup −0.9 (A −1.3, B −0.5),
+big wins −1.3 (A −1.6, B −1.0), ×0.95 — worse on both opponent sets on both measures (study 101's READ `4b847774`, lab
+`36038cd6`). Study 100's best simple setting was the luck of one draw (picking the best of five flatters it). **QB cap 3's
+big-win pass did not repeat either** (−0.4: A +0.3, B −1.0). **Suggested: keep your live settings.**
 
-**Using the pick, if it holds:** overlap 3 is one morning setting (MAX_SHARED = 3), plus the lab reviewer's paper-arm update
-(the paper arms are defined at 4 to 7 shared players today). It costs little either way: under a point on the best lineup and
-no change in the 200+ rate.
+Nothing to arm from studies 100 / 101.
 
 ## 3c. Building for the ceiling: three new constructions (study 102) and the check of its pick (study 103)
 
