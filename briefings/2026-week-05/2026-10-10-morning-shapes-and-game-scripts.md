@@ -12,8 +12,9 @@ something is successful, we'll discuss in the morning how we want to use it."
   suggested.
 - **Game situations (studies 97 and 99): one version passed, and it HELD on a fresh draw** — **the QB's own RB in 4 QB + 1
   lineups, only when his team is the expected winner of a high-scoring game.** Study 97 +0.9 (×1.10 expected big wins), study 99
-  +3.4 (×1.18): better on all four opponent sets, and the only version that raised the 200+ rate on both reads (15.0% vs
-  11.1% in study 99). Still not clear of chance on its own; **your call** — it is merged and left off, and using it is one
+  +3.4 (×1.18): better on all four opponent sets. Its 200+ rate was a little higher on both reads (12.7% vs 11.8% in 97,
+  15.0% vs 11.1% in 99), as were several other versions' (the 200+ rate is noisy at about 12%). Still not clear of chance on
+  its own; **your call** — it is merged and left off, and using it is one
   setting at arming (RB_MATE_C = 4 with RB_MATE_SCOPE = favhi). The shootout QB + 2 did not pass (−0.7, then +0.5 split); the
   trailing-side QB + 2 was worse both times (−5.0, −5.6).
 - **The RB stack mate, unconditioned (study 96): paper only.** On top of the one-receiver-per-team rule it read −0.5 (worse on
@@ -156,8 +157,9 @@ to pass, passed again:
 laptop.)
 
 **Its 200+ rate** (descriptive, the laptop's count): the book's best lineup reached 200 on **15.0%** of slates with this version
-against 11.1% for your book (best-lineup average 178.9 vs 176.8); in study 97 it was 12.7% vs 11.8%. **It is the one version
-tonight that raised the ceiling on both reads.**
+against 11.1% for your book (best-lineup average 178.9 vs 176.8); in study 97 it was 12.7% vs 11.8%. **Several other versions
+were also above your book on both reads** (the expected-winner version, the plain RB version, the trailing-QB version and the
+shootout QB + 2; study 97 had every version above it): at about 12%, the 200+ rate is too noisy to single any version out.
 
 **How much to trust it now:** across the two studies the expected-winner-of-a-high-scoring-game version is ahead of your book on
 all four opponent sets (+0.9 and +3.4) with 10–18% more expected big wins, and ahead of the plain RB version on all four as well.
