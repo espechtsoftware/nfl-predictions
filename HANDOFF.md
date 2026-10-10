@@ -14,7 +14,7 @@
 # Project handoff
 ## 2026-10-09 (20:12 CDT) — OPERATOR: the favored RB naked or with the trailing QB, "Do as you suggest" (study 97 arms); study 96 READ PAPER ONLY (reproduced); the W4 RBMATE4 check and the shape builds
 
-**His words, in the outside reviewer's session at about 20:15 CDT, relayed verbatim:**
+**His words, in the outside reviewer's session, relayed verbatim** (relayed as "about 20:15 CDT"; this entry's clock reads 20:12, so that time is approximate and earlier in fact):
 - "Im open to the RB being naked if the qb underperforms when favored.  Ill trust your opinion on that"
 - then "Or the qb from the trailing team etc"
 - then "Do as you suggest"
