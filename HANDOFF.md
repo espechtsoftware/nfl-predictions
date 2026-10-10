@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (15:46 CDT) — s38 6z7 (boom-chance paper block) acked inside the 16:50 stop; FRIDAY_HEAD cbd1c49e; the boom writer in
+
+- **6z7, MIXT_QA0_BOOMBLOCK8** (lab `ebd3b10f`: module d9589ae6, build a260422c, score fbdbcd72, report aec13c0d, tests ea0b9cfa (63); prereg
+  793b63ef): our model's pre-lock p_20_plus beyond the book's projection (degree-2 fit within position, z standardized, bonus clip(z, 0, 2)),
+  the 8-row paper block in place of the cheap block, vs NOTERM. **The laptop's smoke reproduction byte-identical** (armedFH 17c34ee8;
+  synthetic W4 boom file 658ee97c). Acked; the gate pin moves to ebd3b10f.
+- **The snapshot flag** S38_PAPER_BOOM_FILE (e78c77bc, APPROVED) merged -> **FRIDAY_HEAD = `cbd1c49ef4cacbdf349052fb05129b5d7ad69ce2`**
+  (arm-only 888b4dd7): tests reading the arm + test_s38_snapshot 71 passed (rc 0); `--check` rc 0 (13 units); the W4 gate aa12ac0e.
+- **The writer** `reports/2026-10-10-boom/boom_block_file.py` (the outside reviewer's, review/oprk-block-file-20261010 @ b27ec857, sha
+  **d6f60039**, APPROVED; its own W4 output 2421fd52 reads cleanly through own_bonus): byte-identical in integration; tests passed on the
+  branch (12 with the OPRK writer's, rc 0); tests merge Monday. The Sunday step is in the checklist.
+- **The canary snapshot** also takes a Saturday boom file (exercise only): the writer on the canary frame with --as-of after the 15:30
+  refresh's project-slate run.
+
 ## 2026-10-10 (15:37 CDT) — OPERATOR: a 'boom chance' block on paper for Sunday (s38 6z7, MIXT_QA0_BOOMBLOCK8), hard stop 16:50
 
 - **His words (verbatim):** "So there's no way we can test anything now." -> the laptop: a paper test can still go into Sunday's
