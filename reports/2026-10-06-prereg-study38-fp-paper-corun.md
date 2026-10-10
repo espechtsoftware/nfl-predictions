@@ -1564,6 +1564,48 @@ score. Nothing here enters a contest: the money path, its checkout and its files
   - **The integrity gate** pins this module sha in place of 6z3 / 6z4's `5efb6de6…`; the production pin stays `83d68f63`.
   - **Order:** this amendment; the laptop's ack (a reproduction of the smoke); the gate pin.
 
+- **Amendment 6z6 (2026-10-10, before Week 5's lock; no Week-5 outcome exists): DK's opponent rank as a paper block.**
+  - **Why.** The operator: "Can we do a quick study using the DK rankings that we have (which I believe is only one week so
+    probably not great yet) and see if it is accurate at all for projecting? With that a paper study would be good." The
+    accuracy read is its own preregistration (`reports/2026-10-10-prereg-oprk-accuracy-w05.md`, the laptop's; descriptive, one
+    week). This amendment is the paper study.
+  - **What changes.** **MIXT_QA0_OPRKBLOCK8** (exploratory) is 6z4's pattern with a third PAPER block file:
+    - his live construction with the 8-row block from the snapshot's `paper-oprk-*.csv`, **in place of** any live block (6b's
+      frozen block parameters); reference MIXT_QA0_NOTERM, and also printed against MIXT_QA0.
+    - It is DK's counterpart to MBLOCK8, our own matchup block on paper since 6i; the two read side by side.
+    - **The file:** `reports/2026-10-10-oprk/oprk_block_file.py` (the outside reviewer's; production review/oprk-block-file-
+      20261010). OPRK = DK's draftable attribute −2 (1 = toughest, 32 = easiest, by the player's position), from the last
+      capture of the main group (154468) strictly before `--as-of`, joined by dk_player_id. Bonus = clip(2 × (OPRK − 16) / 16, 0,
+      2) for QB / RB / WR / TE, 0 without a rank. It is the term-block format own_bonus reads, with every skill player once and
+      the DST omitted.
+    - The writer refuses: no capture before the as-of; one older than 3 h (`--max-age-hours`, td_value_block_file.py's default;
+      Saturday's capture is refused for a Sunday as-of); a duplicate dk id; no bonus at all. Writer `eaa7ca96…` at
+      review/oprk-block-file-20261010 @ `35f4f46a` (8 offline tests pass).
+    - Sunday: the laptop's ~10:35 CT capture, the file written on the T-70 union frame just after it, the snapshot's
+      `S38_PAPER_OPRK_FILE`. No file, or a refused one, means the arm is missing.
+    - **The prior:** none on DK's rank; DK rewrites past weeks, so Weeks 1–4 cannot be recovered, and the harness cannot read it.
+    - Information only (not in amendment 7b's list).
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z6/`, script `run.sh` `c2d146815284`,
+    log `31ac4fdf24d5`; lab `ebfff041`; production = `s38-prod-pin` `83d68f63`; PYTHONHASHSEED=0; the 6z5 smoke's inputs plus a
+    **SYNTHETIC** Week-4 OPRK file (`oprk-w4-synthetic.csv` `d7336650…`, ranks from a fixed hash of opponent and position; it
+    tests the mechanics only, since DK's Week-4 ranks cannot be recovered)):
+    - 62 tests pass (rc 0); union-argument mismatches none.
+    - **All 41 arms of the 6z5 smoke build identical** (rows + ranks); OPRKBLOCK8 built (42 arms).
+    - The file applied: 119 players with a term, none capped, coverage 1.0. 8 term rows; 18 rows shared with MIXT_QA0, 16 with
+      NOTERM; no fallback row.
+    - **The writer's own output** (`--synthetic` on the Week-4 entered frame, `paper-oprk-w04-SYNTHETIC.csv` `01aa355f…`, 292 skill
+      players, 147 with a bonus) reads cleanly through production's `own_bonus` (the pinned checkout): 147 players with a term,
+      the maximum 2.0, coverage 1.0.
+  - **Code:** lab `ebfff041` (on 6z5's `0ee35848`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `b54dc93ae17ab3ee7d2f6a030590818091a0439a0ef3c5d0a6dc2c6a3fb33c34`;
+    - `scripts/s38_build.py` `092532e74bda404f8e1f255920d8153e9d963a530a66e34ff0be699b177e78f6` (the paper-oprk glob);
+    - `scripts/s38_score.py` `c00daf943b014871f0e5824dc8f9c851ba19f286ddcbf1411ecc66b0660b9292`;
+    - `scripts/s38_report.py` `094f05817e7a716d92117f4ba601a73d80176b84e3c3e5492c5674665310f23d`;
+    - `tests/test_s38_paper_corun.py` `7faae0f6c9e6f9824f2850eca614b6f230d563fb119edaa87819dfaaf3bb0cde` (62 tests).
+  - **The integrity gate** pins this module sha in place of 6z5's `cc067ca3…`. The production pin moves with FRIDAY_HEAD when
+    `S38_PAPER_OPRK_FILE` merges, after the byte check of the files the gate reads.
+  - **Order:** this amendment; the laptop's ack; the gate pin; the stop rule (all by 16:45, else Week 6's first paper arm).
+
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
 - **Study 37** (Addendum 142): the regulars' structure (about 11 QB stacks and a steep player curve, their own tier
