@@ -3,6 +3,30 @@
 **For:** Erich, before Friday's code freeze. Written by the laptop agent, with the reviewer's recommendation for each
 test. **Every result below was read by the reviewer and re-run by the laptop with identical output.**
 
+## Saturday morning (10-10): what is ready, and the one-line switch for each choice
+
+**Read first:** the morning page, `briefings/2026-week-05/2026-10-10-morning-shapes-and-game-scripts.md` (the outside
+reviewer's; every number checked by the lab reviewer and reproduced byte for byte by the laptop). This section is only the
+arming side.
+
+**Already armed for Week 5 (your decisions):** Fantasy Points' projections; the winners' shape mix 30 / 14 / 28 / 28; the 35%
+player cap with the ownership limit (+15); at most one TE and one player under 3% per lineup; one receiver per team in the
+QB + 1 lineups; the cheap +2 block (entered at the arming, TERM_ROWS = 8).
+
+| If you choose… | What changes before 10:28 | Status of the pieces |
+|---|---|---|
+| **Keep everything as armed** | nothing; arm as is | ready |
+| **The RB with his QB, only for the expected winner of a high-scoring game** (studies 97 + 99) | one arm setting: RB_MATE_C = 4 and RB_MATE_SCOPE = favhi | merged and left off; checked on your Week-4 book (Buffalo, Houston, San Francisco; 4 of 4 lineups); the paper comparison follows it |
+| **A different shape mix** (studies 95 + 98 say keep today's) | one arm setting: MIX_QUOTAS = your split (any share, 0% to 100%) | merged; every tested split already built once on your Week-4 book |
+| **Rows sharing at most 3 players** (study 100's pick; study 101 rechecking) | one arm setting: MAX_SHARED = 3 | production accepts it; checked on your Week-4 book (25 of 26 lineups change, at almost no projected cost); the paper comparison's update is being finished |
+| **A ceiling build from study 102** (only if 102 picks it and 103 holds) | a reviewed merge first, then one setting | built and reviewed, not merged |
+
+**Anything not tested together stays apart:** an RB version with a full-game-stack version, for example, only with a combined
+test (study 104 runs it overnight if both hold).
+
+**The arming itself (the laptop):** set the cheap block (TERM_ROWS = 8), apply your choices, run the check before 10:28, then
+arm. By 11:00 the first build's receipt must show every chosen rule applied; then the reviewer's paper-comparison check.
+
 ## Midday: the new direction (your decisions this morning)
 
 - **Why:** the check of your real Weeks 1–4 entries
