@@ -194,15 +194,23 @@ Your note: "keep trying different variations … scores over 200 fairly regularl
 read on its **best real lineup** (the average per slate) with the 200+ rate beside it; the rule fixed before the run picks the
 largest gain that is positive on both opponent sets without costing big wins; study 101 re-runs the pick on a fresh draw.
 
-| Version | Best lineup vs your book | Set A | Set B | 200+ rate (yours: [ ]) | Big wins | Picked? |
+| Version | Best lineup vs your book (points) | Set A | Set B | 200+ rate (yours: 12.3%) | Big wins: set A / set B, expected | Picked? |
 |---|---|---|---|---|---|---|
-| QB cap 3 (no QB in more than 3 lineups) | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |
-| Overlap 3 (at most 3 shared players between lineups) | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |
-| No cheap +2 block | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |
-| Ownership cap + 10 (instead of + 15) | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |
-| More bring-back lineups (A1 37 / A2 7 / B 42 / C 14) | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |
+| QB cap 3 (no QB in more than 3 lineups) | +0.4 (−1.1 to +2.0) | +1.1 | −0.2 | 13.2% | +3.2 / +0.2, ×1.00 | no (worse on set B) |
+| **Overlap 3 (at most 3 shared players between lineups)** | **+0.7 (−1.1 to +2.5)** | **+1.0** | **+0.5** | 12.5% | +3.7 / −1.8, ×0.96 | **yes → study 101** |
+| No cheap +2 block | −0.3 (−1.5 to +0.8) | −1.2 | +0.6 | 11.3% | −1.0 / +3.5, ×1.05 | no |
+| Ownership cap + 10 (instead of + 15) | −0.1 (−1.3 to +1.1) | +1.0 | −1.3 | 11.6% | −0.3 / −2.4, ×0.93 | no (big wins worse on both) |
+| More bring-back lineups (A1 37 / A2 7 / B 42 / C 14) | −0.3 (−2.3 to +1.7) | −0.4 | −0.2 | 11.8% | −0.7 / +0.3, ×0.99 | no |
 
-**The pick:** [ ] — **on a fresh draw (study 101):** [ ]
+(study 100's READ `40cec728`, lab `fd990ddf`. Your book's best lineup averaged 176.8 points.)
+
+**What it says, plainly: these five settings barely move the ceiling.** The best of them adds 0.7 points to the book's best
+lineup on average, and every version's 200+ rate stays within about a point of yours (11–13%). **The pick is overlap 3**
+(better best lineup on both opponent sets without costing big wins on both); study 101 re-checks it on a fresh draw. **QB cap 3
+passed your big-win rule** (+1.7 overall, better on both sets: +3.2 / +0.2, ×1.00) but not the ceiling rule, and it was not
+re-checked — information only.
+
+**The pick on a fresh draw (study 101):** [ ]
 
 **Using a pick:** QB cap 3, no cheap block and the bring-back mix are morning settings (QB_CAP_ROWS / TERM_ROWS / MIX_QUOTAS);
 overlap 3 also needs the lab reviewer's paper-arm update; ownership + 10 needs a prepared production change (built, unmerged).
