@@ -55,7 +55,10 @@ them; A2 stays.
 
 **How much to trust it:** the A1 signal is weak (removing A1 cost about 2 points, with a range from −6.9 to +2.8 — the kind of
 reading chance alone gives about one time in three or four), and the new mix itself was never tested. **Keeping today's mix is
-just as defensible; the change is small (two lineups) and either choice is reasonable.** Arming any mix is one setting
+just as defensible; the change is small (two lineups) and either choice is reasonable.**
+
+**The suggested mix against today's, on a fresh draw of the same past slates (study 98, the laptop's proposal):** [ ] — a
+check against a lucky draw, not new games. Arming any mix is one setting
 (MIX_QUOTAS = A1 0.3913 / A2 0.1217 / B 0.2435 / C 0.2435).
 
 ## 2. Game situations (study 97)
@@ -84,6 +87,9 @@ naked and trailing-QB versions must beat your book; a QB + 2 version must beat y
 with the higher pooled gain.
 
 **Suggested:** [ ]
+
+**Each pick re-run on a fresh draw of the same past slates (study 99, committed before study 97 was read):** [ ] — a pick
+counts as "held" only if it passes the same rule again.
 
 **Notes for reading it (the lab reviewer's 36-slate check):**
 - **The "naked" version changed about 7–8 of your 26 lineups on average, and nothing at all on about half the slates** (your
