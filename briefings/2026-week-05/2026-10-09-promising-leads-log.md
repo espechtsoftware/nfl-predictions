@@ -181,6 +181,23 @@ reviewer and updated as each study is read.
 - **Not usable in Week 5 either way:** production has no switch for it yet (it needs an upside score around Fantasy Points'
   projections); Week 6 at the earliest.
 
+### 16. No low-owned player at all (study 110, "LOW0") — *a small lean, not a pass: more big wins expected, one set flat*
+- **The idea (from your real Weeks 1–4 fields):** your live rule allows one player predicted under 3% per lineup; this allows
+  none. Top-1% lineups had no player at 5% or below about twice as often as the field, in all four weeks.
+- **Study 110, on your armed book with the RB version:** **+0.3** slates in 100 with a big win (set A −0.3, set B +0.8), but
+  **11% more expected big wins** (more slates with two or more) and the best lineup +1.1 points; the average finish a little
+  higher. It does not pass your rule (set A just below zero). The 200+ rate unchanged.
+- **On your real Week-4 book:** it would change 4 of 26 lineups (the laptop's check).
+- **Versions to try later:** a fresh draw before anything else (the noise caution above); production needs the low-owned setting
+  to accept 0 (today it takes only 1).
+
+### 17. The cheap +2 block only on popular punts (study 110, "POPPUNT") — *a lean on one opponent set only*
+- **The idea (your real fields):** cheap players helped when they were the popular value plays (5%+ owned), not the obscure ones.
+- **Study 110:** **+1.0** (set A +2.3, set B −0.2), 5% more expected big wins; the best lineup about the same. Not your rule (set
+  B just below zero). The page itself warned that one heavily played punt per week drives most of the field pattern.
+- **Versions to try later:** a fresh draw; it is a variant of your cheap-block trial, so it would be judged with that trial on
+  Monday 10-19.
+
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
   the full game stack (74), two bring-backs (76) — each at or below your book on 2023–24.
@@ -239,6 +256,11 @@ reviewer and updated as each study is read.
   fade, **−1.8** (−2.5 / −1.2; 10% fewer expected big wins). Every version was below your book on both sets, so the fresh-draw
   check was not run. In the test model a player coming off a big game is still worth his projection.
 
+- **More rules from your real Weeks 1–4 fields (study 110), each worse on both random opponent sets:** the QB only from the
+  slate's three highest-total games **−3.6** (9% fewer expected big wins; the average finish lower); at most 4 of 8 players from
+  the top value tenth **−2.9** (8% fewer) — it goes on paper in Week 5 so the real results can still decide it; no QB with his
+  own defense plus at least $49,500 of salary **−0.6** (the salary floor never bound; it moves 1 lineup of your real book).
+
 - **Your 10-09 evening question — correlations that could give an edge (three quick screens on your real Weeks 1–4; the plan
   was written down before any result was read):**
   - *Defense strength normalized like DVOA:* already in our model (each defense's points allowed to a position, adjusted for
@@ -254,9 +276,8 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 110 (the selection ideas you queued from your real fields):** no low-owned players at all; the QB from the top-3 game
-  totals; the cheap block only on popular punts; no QB with his own defense plus at least $49,500 of salary; at most 4 top-value
-  players per lineup (your "add both today").
+- **Study 115 (your "Test today for this week"):** the recency rules on wide receivers and tight ends only — at most one "hot"
+  WR / TE per lineup, or 2 points off each hot WR / TE.
 - **Study 112 (your usage floors):** at least 13 carries a game (RBs), 32 pass attempts (QBs), 4.5 targets (WRs / TEs), each
   set to change about 8–15 of your 26 lineups. Touchdown and red-zone floors were dropped before the run: no level changes
   fewer than about 16–22 lineups (a zero average removes every player without a recent touchdown at once).
