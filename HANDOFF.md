@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (01:42 CDT) — study 100 READ (the ceiling sweep): the pick rule picks OVERLAP3 (mean best +0.7; the 200+ rate flat); study 101 runs
+
+- **Study 100** (the reviewer; lab `fd990ddf`, READ_s100 `40cec728`; confirmatory census `9d0faa4a`). **The laptop reproduced both
+  byte for byte.** The pick statistic is the book's best real lineup, mean per slate; each arm − LIVE:
+
+  | Arm | Mean best | Set A | Set B | P(best ≥ 200) | Verdict |
+  |---|---|---|---|---|---|
+  | OVERLAP3 (≤ 3 shared players) | +0.72 [−1.06, +2.53] | +0.98 | +0.46 | +0.002 (A −0.005, B +0.009) | **ELIGIBLE, the pick** |
+  | QBCAP3 | +0.43 | +1.07 | −0.21 | +0.009 | not eligible |
+  | NOCHEAP | −0.30 | | | | not eligible |
+  | BBHEAVY | −0.12 | | | | not eligible |
+  | OWN10 | −0.31 | | | | not eligible |
+
+  - OVERLAP3: P(≥ 1 big) A +0.037, B −0.018 (not worse on both); seats 0.961.
+  - QBCAP3 passes his big-seat rule (A +0.032, B +0.002), but its mean best is not > 0 on both draws.
+  - OWN10: big seats worse on both draws; guard 1 fails.
+- **In plain words:** rows sharing at most 3 players (instead of 4) raise the book's best lineup by under a point on average; the
+  200+ rate does not move. Study 101 rechecks it on a fresh draw (banks 3322–3333).
+- **Production if he picks it:** one setting (MAX_SHARED=3; check_week_runtime accepts 3–8) plus the reviewer's study 38 6x. The
+  laptop's W4 check (`--mean-max-shared 3` on the armed version) goes in the next gap.
+
 ## 2026-10-10 (00:53 CDT) — CORRECTION (laptop): FAVHI was NOT "the one version that raised the ceiling on both reads"
 
 The laptop's line in the study 99 entry (and in its message to the outside reviewer, which reached the morning page) was false.
