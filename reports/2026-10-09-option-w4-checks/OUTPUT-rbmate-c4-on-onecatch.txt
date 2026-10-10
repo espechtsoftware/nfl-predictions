@@ -1,0 +1,20 @@
+== rbmateC4 W4 check at 5c66f156 20:09:37; option: --mix-rb-mate-c 4
+off rc 0 a4ab283949254d12 (known answer a4ab283949254d12)
+armed rc 0 293d9465eec54e4f (known answer 293d9465eec54e4f)
+on rc 0
+OWN CAP: every skill player at most floor(26 x (own / 100 + 15 / 100)) main rows (own = fp_own_raw x 1.0128, the frame's skill players summing to 800%); pool cap rows {3: 107, 4: 64, 5: 29, 6: 14, 7: 8, 8: 6, 9: 3, 10: 3, 11: 1}; the player
+ROW RULES: at most 1 TE and at most 1 skill player under 3% FP projected ownership per main row (55 TEs, 163 low-owned of 235 pool skill players)
+ONE CATCHER: at most one WR / TE per team on the B / C book rows (24 teams); ruled 14, re-solved without it 0; book rows with two WR / TE of one team 12 (B / C 0)
+RB MATE: the QB's own RB on the first 4 C-cell book rows (59 pairs); slots 4, ruled 4, re-solved without it 0
+ARMED: {"rows": 26, "cells": {"mix_A1": 8, "mix_B": 7, "mix_C": 7, "mix_A2": 4}, "pair_rows": 0, "pair_rows_bc": 0, "pair_at": [], "tes_per_row": 1.0, "flex": "8/0/18", "distinct": 52, "fp_proj_per_row": 139.94, "qb_own_rb_rows": 4, "qb_own_rb_at": [3, 10, 20, 23], "c_rows_at": [3, 7, 8, 13, 17, 18, 23]}
+ON:    {"rows": 26, "cells": {"mix_A1": 8, "mix_B": 7, "mix_C": 7, "mix_A2": 4}, "pair_rows": 1, "pair_rows_bc": 0, "pair_at": [11], "tes_per_row": 1.0, "flex": "10/0/16", "distinct": 55, "fp_proj_per_row": 139.87, "qb_own_rb_rows": 6, "qb_own_rb_at": [3, 7, 10, 13, 18, 20], "c_rows_at": [3, 7, 8, 13, 17, 18, 23]}
+rows of ON not in ARMED: 20 of 26; their cells: {'mix_A1': 6, 'mix_B': 5, 'mix_C': 6, 'mix_A2': 3}
+changed positions under his W5 plan (contests / big): 1:3c/2big 4:2c/1big 7:2c/1big 8:2c/1big 10:2c/1big 11:2c/1big 12:2c/1big 13:2c/1big 14:2c/1big 15:2c/1big 16:2c/1big 17:2c/1big 18:2c/1big 19:2c/1big 20:2c/1big 21:2c/1big 22:1c/0big 23:1c/0big 24:1c/0big 25:1c/0big
+receipt rb_mate: {"cell": "C", "rows_cap": 4, "pairs": 59, "slots": [["C", 2], ["C", 6], ["C", 10], ["C", 14]], "ruled": [["C", 2], ["C", 6], ["C", 10], ["C", 14]], "resolved_without": []}
+receipt rb_mate_source: {"applied": true}
+receipt one_catcher: {"cells": ["B", "C"], "max_per_team": 1, "teams": 24, "ruled_solves": 14, "ruled": [["B", 1], ["C", 2], ["B", 5], ["C", 6], ["B", 9], ["C", 10], ["B", 13], ["C", 14], ["B", 16], ["C", 17], ["B", 19], ["C", 20], ["B", 23], ["C", 24]], "resolved_without": [], "pair_rows_book": 12, "pair_rows_bc": 0}
+receipt one_catcher_source: {"applied": true}
+receipt row_rules: {"bounds": [{"ids": 55, "lo": 0, "hi": 1}, {"ids": 163, "lo": 0, "hi": 1}], "ruled_solves": 26, "resolved_without": []}
+receipt row_rules_source: {"source": "/home/erich/week4-sunday/ownership_fp-20261004t1550z-d800-32cdb61.csv", "source_sha256": "0ec90a6bad5f5d42a461c1417f15f932a7920372a5627abbed2d09f01bbf546a", "low_pct": 3.0, "pool_skill_players": 235, "named": 235, "low_owned": 163, "pool_tes": 55, "applied": true, "te_max": 1, "low_own_max": 1}
+== done 20:10:01 /home/erich/rehearsals/flagcheck-rbmateC4-20261010T010937Z
+== RBMATE check rc 0

@@ -224,3 +224,51 @@ every QB + 1 (B / C) book row, including the cheap block's.
   - It costs almost nothing in projection, and the book uses 5 fewer distinct players.
   - The changed rows include 16 positions dealt into a big contest under his W5 plan.
 
+## Addendum (20:09 run, written 20:12): RBMATE4 on top of ONECATCH (his "Try live W5 if built"; study 96 read it PAPER ONLY)
+
+- **The code under test:** the outside reviewer's flag `--mix-rb-mate-c 4` (review/rb-mate-c-20261009 @ `4caff46d`) and the
+  laptop's wiring (production/rbmate-wiring-20261009 @ `77bd55c5`), merged on integration `48955ffd` as `5c66f156`.
+- **The runner:** `flag_w4_check_armed2.sh`. Gates: OFF == `a4ab2839`; ARMED (the package + te1_low1 + ONECATCH, the option
+  absent) == the 18:33 ONECATCH book `293d9465`. Both reproduced byte for byte.
+- Verbatim: `OUTPUT-rbmate-c4-on-onecatch.txt`.
+
+| | ARMED (+ ONECATCH) | + RBMATE4 |
+|---|---|---|
+| Rows with the QB's own RB | 4 | 6 |
+| Rows changed | | 20 of 26 |
+| FP projection per row | 139.94 | 139.87 (−0.07) |
+| Flex WR / TE / RB | 8 / 0 / 18 | 10 / 0 / 16 |
+| Distinct players | 52 | 55 |
+
+- **The receipt:** rb_mate_source applied; 59 (QB, own RB) pairs; slots C 2 / 6 / 10 / 14, all 4 ruled, 0 re-solved without
+  the floor. ONECATCH still 14 / 14 ruled with 0 B / C pairs.
+- **Status:** study 96 read ONECATCH + RBMATE4 PAPER ONLY by his rule (−0.5, negative on both draws). RB_MATE_C stays 0; this
+  check only proves the flag on his book in case a game-script version (study 97) is chosen.
+
+## Addendum (20:10 run, written 20:12): study 95's shape arms built on the armed version (his morning percentages)
+
+His words (HANDOFF `543f2695`): "we're going to decide the percentages of each of the successful shapes first thing in the
+morning".
+- **Setup:** production's `--mix-cell-quotas` now takes a cell at 0 (production/cell-quotas-zero-20261009 @ `21fa9d29`,
+  parser only; the reviewer approved it).
+- **The runner:** `quota_w4_builds.sh`, using study 95's exact quota floats. Gates: ARMED, and the default quotas spelled
+  out ("A1=0.3,A2=0.14,B=0.28,C=0.28"), both == `293d9465`.
+- Verbatim: `OUTPUT-shape-arms-quotas.txt`.
+
+| Arm | Rows A1 / A2 / B / C | FP per row | Distinct players | Rows changed | QBs |
+|---|---|---|---|---|---|
+| ARMED (live) | 8 / 4 / 7 / 7 | 139.94 | 52 | | 8 |
+| NO_A1 | 0 / 6 / 10 / 10 | 140.25 | 53 | 24 | 9 |
+| NO_A2 | 9 / 0 / 9 / 8 | 140.02 | 55 | 20 | 10 |
+| NO_B | 10 / 6 / 0 / 10 | 139.95 | 53 | 24 | 10 |
+| NO_C | 10 / 6 / 10 / 0 | 139.80 | 59 | 16 | 10 |
+| ONLY_A1 | 26 / 0 / 0 / 0 | 139.38 | 60 | 24 | 10 |
+| ONLY_A2 | 0 / 26 / 0 / 0 | 139.60 | 52 | 26 | 9 |
+| ONLY_B | 0 / 0 / 26 / 0 | 140.14 | 56 | 26 | 9 |
+| ONLY_C | 0 / 0 / 0 / 26 | 140.36 | 51 | 26 | 9 |
+
+- **The cell counts** equal the reviewer's known answers from study 95's census (the same allocate / interleave functions).
+- **No arm passed a row to A1.** ONECATCH ruled every B / C solve in each arm.
+- **Reading:** every arm builds on his real book, and the projection moves by at most 0.5 per row. Whatever percentages he
+  picks can be armed through MIX_QUOTAS once the parser merges.
+

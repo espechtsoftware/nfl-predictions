@@ -1,0 +1,24 @@
+== quota W4 builds at 21fa9d29 20:10:01 -> /home/erich/rehearsals/quotacheck-20261010T011001Z
+ARMED rc 0 293d9465eec54e4f (known answer 293d9465eec54e4f)
+LIVE rc 0 293d9465eec54e4f quotas A1=0.3,A2=0.14,B=0.28,C=0.28
+NO_A1 rc 0 e50386ca9f6bd2b6 quotas A1=0,A2=0.20000000000000004,B=0.4000000000000001,C=0.4000000000000001
+NO_A2 rc 0 ff2e9d5500ccb3f3 quotas A1=0.3488372093023256,A2=0,B=0.32558139534883723,C=0.32558139534883723
+NO_B rc 0 062d2679ac1f3574 quotas A1=0.4166666666666667,A2=0.19444444444444448,B=0,C=0.38888888888888895
+NO_C rc 0 987522444b9e2b65 quotas A1=0.4166666666666667,A2=0.19444444444444448,B=0.38888888888888895,C=0
+ONLY_A1 rc 0 4baa3bd406a5ca45 quotas A1=1,A2=0,B=0,C=0
+ONLY_A2 rc 0 36f674c16a969984 quotas A1=0,A2=1,B=0,C=0
+ONLY_B rc 0 2d91cb16d4e925a2 quotas A1=0,A2=0,B=1,C=0
+ONLY_C rc 0 c9fb7517a6f20418 quotas A1=0,A2=0,B=0,C=1
+arm      cells A1/A2/B/C   FP/row distinct changed  QBs oc ruled passes
+ARMED    8/4/7/7           139.94       52       0    8       14      0
+LIVE     8/4/7/7           139.94       52       0    8       14      0
+NO_A1    0/6/10/10         140.25       53      24    9       20      0
+NO_A2    9/0/9/8           140.02       55      20   10       17      0
+NO_B     10/6/0/10         139.95       53      24   10       10      0
+NO_C     10/6/10/0         139.80       59      16   10       10      0
+ONLY_A1  26/0/0/0          139.38       60      24   10        0      0
+ONLY_A2  0/26/0/0          139.60       52      26    9        0      0
+ONLY_B   0/0/26/0          140.14       56      26    9       26      0
+ONLY_C   0/0/0/26          140.36       51      26    9       26      0
+== done 20:11:24 /home/erich/rehearsals/quotacheck-20261010T011001Z
+== quota builds rc 0 20:11:24
