@@ -59,7 +59,9 @@ change that makes the time a setting was reviewed and merged; the arm script is 
    than the carries floor, but not used; the re-check and the backup version are not run.** It goes into your entries this week only
    if it beats your book on both sets of opponents AND holds on a fresh set (116b). If it passes, a version that keeps the
    backup when the team's pass-catching back is out is tested beside the re-check (116c, your question).
-6. **Last, as you asked (running now, after 116 read):** each live rule removed one at a time.
+6. ~~Last, as you asked: each live rule removed one at a time~~ **READ: keep every rule. Removing the low-owned limit,
+   the 35% package, the one-TE rule or the RB with his QB each made the book worse on both sets of opponents; removing
+   the cheap block or the one-receiver rule changed almost nothing. Your word after the read: the cheap block stays on.**
 
 **Data collection today:** the DraftKings salary loop was found down since Friday 04:07 and restarted at 05:37 (logged);
 Friday's two FP ownership captures are in; today's captures run in the morning and at the 18:00 arm.

@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (12:30 CDT) — study 114 READ: keep every rule (4 still helping, 2 a wash; no removal, 114b not run), reproduced byte for byte; OPERATOR: the cheap block stays on ("Keep it on (Recommended)"); today's queue done
+
+- **Study 114** (the reviewer; lab `d3a523e5`; run 11:30:27–12:21:56; confirmatory census `2d4765d5` committed before the read).
+  **The laptop reproduced both byte for byte** (to 12:23:27): READ_s114 `f436c5d8` (reader 04262d65); census `2d4765d5`.
+  Each "remove X" minus LIVE:
+  - the package −3.9 (A −2.3 / B −5.4; seats ×0.98; P(best ≥ 200) 13.4% → 8.8%, −4.6 [−10.2, −0.5]): **still helping**;
+  - te1 −3.2 (A −4.2 / B −2.3): **still helping**;
+  - low1 **−5.1 [−8.7, −1.9] WORSE** (A −7.2 / B −3.1; seats ×0.85): **still helping, clearly**;
+  - FAVHI −2.2 (A −1.6 / B −2.7; seats ×0.90): **still helping**;
+  - the cheap +2 block −0.4 (A −1.6 / B +0.8) and ONECATCH +0.0 (A +1.6 / B −1.5): keep (no clear evidence).
+  - No removal suggested; **114b NOT RUN** (banks 3884–3895 unused).
+- **OPERATOR (AskUserQuestion, after 114's read): the cheap block, "Keep it on (Recommended)".** The evening arm sets
+  TERM_ROWS=8 / TERM_SHA 5941678b… as planned; Sunday's NOTERM paper arm judges it; review Monday 10-19.
+- **Records merged:** Addendum 209 (verbatim cmp-identical) + prereg 114b NOT RUN (`85dee75a`); the morning page's item 6
+  table (`222c784a`; its 13.4% → 8.8% checked against the READ); the leads log (`e65fab31`). The lab LEDGER row: `934b239b`.
+- **The rb-rec-floor switch** (`5e2b1a6a`): its 18 tests re-run after the note-2 edit, rc 0. Unmerged.
+- **Today's queue is done:** 105, 106, 109, 110, 112, 114, 115, 116 read; nothing passed his rule; the armed W5 book stands.
+- **Next:** about 15:30 the refresh + proof (after the 15:00 odds); about 16:45 FP ownership; the DK loop check; the arm-only
+  commit (TERM_ROWS=8 / TERM_SHA), pull, `--check`, arm by 17:58; the 18:00 canary (receipt checks, the canary hot file,
+  s38_snapshot with S38_PAPER_HOT_FILE, then the reviewer's gate at s38-6u 0b3aa516 vs s38-prod-pin 7a20dd74).
+
 ## 2026-10-10 (11:30 CDT) — study 116 READ: no pick (REC 2.0 −1.4 worse on both draws, REC_LOW 1.5 +0.3 mixed), so 116b / 116c not run and nothing changes in W5 (his rule); reproduced byte for byte; 114's scored run next
 
 - **Study 116** (the reviewer; lab `78c67c61`; run 10:54:02–11:28:57; confirmatory census `27e4833d` committed before the read).
