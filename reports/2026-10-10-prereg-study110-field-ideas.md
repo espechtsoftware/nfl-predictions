@@ -81,6 +81,10 @@ Each arm makes one change:
 - **The real-field patterns are measured on actual ownership** (W1–W3) **and FP's projected ownership** (W4). The harness's
   rules use its own predicted ownership (the rescaled blend), as the live low rule does.
 - **QBTOP3 uses the pre-lock totals the frame carries;** production has the same column.
+- **How many of his 26 real Week-4 lineups each rule would change** (the laptop's outcome-blind check, 10-10: the armed book with
+  FAVHI, FP projections and FP's Week-4 ownership): **LOW0 4; QBTOP3 6** (ties make it 4 games, the cut at a total of 48.5);
+  **VAL4 17** (rows with 5+ top-value players); **HYGIENE 1**; POPPUNT not computed. A pass's live effect scales with these
+  counts, not with the harness's.
 - **HYGIENE barely touches his real book** (the laptop's outcome-blind check, 10-10: the Week-4 armed book with FAVHI, `c605cab6`,
   FP projections): its lowest lineup is $49,700 (none under $49,500), so the salary floor is a no-op there, and the QB +
   own-DST ban touches 1 lineup of 26. A HYGIENE pass would move about one lineup live. **The $49,500 is kept** (the real-field
