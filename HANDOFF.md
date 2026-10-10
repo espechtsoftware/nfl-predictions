@@ -12,6 +12,37 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (13:47 CDT) — OPERATOR: the afternoon page queued ("queue these"); O-60 -> Week 6; "Try these now" (QB cap 3, HOT_WRTE1 live) -> both NO after their W4 checks; the two-week rule SET (s38 7b); 6z3 TOPCAP6 + 6z4 TDBLOCK8 on paper, acked
+
+- **His words (the laptop's session, verbatim):** "Read 2026-10-10-afternoon-ideas.md on review/additional-suggestions-20261010 and
+  queue these" (the page merged at 3cc045cb; study list rows 99–102). Then, pasting the outside model's items 2 and 3: **"Try these
+  now"**.
+- **His answers (AskUserQuestion, verbatim):**
+  - O-60 for Sunday: **"Week 6, rebuilt (Recommended)"** -- the laptop's and the author's (63) reading: since O-59 the T-70 frame is
+    the 10:47 pull's, the 10:30 inactives are out of the frame, and the step bumps only in-frame scratches (+0.7 / +1.6). O-60 updated.
+  - QB cap 3 live: **"Keep 5; paper tests it (Recommended)"**. The W4 check (integration 96b45262, the full armed construction, Rev7):
+    top-total game QB rows 10 -> 6, game rank 3 4 -> 6, distinct QBs 8 -> 10, 13 of 26 rows rebuilt, RB mate 4 / 4, ONECATCH ruled 14
+    with 0 relaxed; W4 real best 177.90 -> 162.40 (in-sample). The harness: study 100 +1.7 (A +3.2 / B +0.2), study 101 −0.4 (A +0.3 /
+    B −1.0). A live 3 would have broken s38's UNION_PARITY ("5") without a 60–75 min amendment; TOPCAP6 on paper is the same hedge.
+  - HOT_WRTE1 live: **"Paper only (Recommended)"**. The W4 check on cdff786f: OFF == integration's LIVE (aa12ac0e, byte for byte);
+    ON: rows with 2+ hot WR / TE 6 -> 0, 23 of 26 rows rebuilt, best 177.90 -> 167.38, mean 124.3 -> 120.9; receipt applied, RB mate 4
+    slots, ONECATCH applied. Study 115 read it −1.6, worse on both draws. The switch stays unmerged. (A staging W5 hot list from
+    Friday's A3 frame, `~/private/paper-corun/hot-staging/w05-a3.csv`: 34 hot, 25 WR / TE; unused.)
+  - The two-week rule: **"Set it as written (Recommended)"** -> study 38 amendment 7b in force (review/s38-6n-20261009 @ `1c117d61`,
+    13:40, before any W5 result): the 7 arms (HOT1, HOT_WRTE1, VAL4, S2, NOTERM, MS3, TOPCAP6); d = P(≥1 big seat) minus MIXT_QA0 in
+    the real Millionaire field; d > 0 in W5 AND W6 and the two-week seats ratio ≥ 0.80 -> a candidate for W7, his decision, at most
+    one per week; 1–2 false passes expected.
+- **Study 38 6z3 (TOPCAP6) + 6z4 (TDBLOCK8)** (lab `fad0cbe2`: module 5efb6de6, build 45d3b7cb, score dc876706, report c54f9a23,
+  tests cf3c2680 (60); prereg 14a75989). **The laptop's smoke reproduction** (13:40:35–13:45:37): books.json byte-identical
+  (armedFH 00df8c01, armedFH-notd 102e31d1); top_total_games byte-identical to study 110's (086ef835). **Acked; the gate pin moves to
+  fad0cbe2.** TDBLOCK8's prior is in its why: the 10-07 replay had TDBLOCK8 below LIVE in W2 and W4 (NOT ENTERED).
+- **The snapshot flag** `S38_PAPER_TDBLOCK_FILE` (branch production/s38-tdblock-snapshot-20261010 @ `8e8baf2e`; test_s38_snapshot.py
+  16 passed): with the reviewer for review; merged before the arm, then FRIDAY_HEAD moves in the arm-only commit (with TERM_ROWS=8 /
+  TERM_SHA) and the W4 gates re-run; the reviewer byte-checks the s38 prod files and moves s38-prod-pin. The Sunday TD-file step is in
+  the arming checklist.
+- **The machine:** my W4 builds overlapped the reviewer's smoke by about 15 s (13:30:58–13:31:13); it changed nothing (37 of 37 arms
+  identical), disclosed in 6z3's text.
+
 ## 2026-10-10 (13:07 CDT) — outside model: the afternoon page (where the room is; three items that could still change Sunday's chances; a two-week paper rule for W6); docs only
 
 - **His request:** "We are done with all of the experiments. We still have 5 hours until the build ... any ideas that you think can

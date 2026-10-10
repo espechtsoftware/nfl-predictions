@@ -212,6 +212,13 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
   it prints the hot count by position), then `S38_PAPER_HOT_FILE=$HOME/private/paper-corun/hot/w05.csv` rides the snapshot invocation
   above (MANIFEST shows `paper-hot-w05.csv`; the live build's in_manifest check needs it). A missing file = MIXT_QA0_HOT1 missing
   for W5, recorded. MIXT_QA0_VAL4 (only if study 110 reads VAL4 negative) needs no file.
+- **The TD-value block on PAPER (study 38 amendment 6z4, arm MIXT_QA0_TDBLOCK8; the operator 10-10: "queue these", the
+  afternoon page's item 3; row 48):** right after the T-70 union and BEFORE the snapshot: `cd $HOME/projects/nfl-predictions &&
+  .venv/bin/python scripts/td_value_block_file.py --season 2026 --week 5 --frame <union dir>/frame.parquet --as-of
+  2026-10-11T10:00:00Z --out $HOME/private/paper-corun/tdblock/w05.csv` (05:00 CT: the 04:30 props pull is inside its 3 h
+  max-age; it refuses an older snapshot), then `S38_PAPER_TDBLOCK_FILE=$HOME/private/paper-corun/tdblock/w05.csv` rides the
+  snapshot invocation (MANIFEST shows `paper-tdblock-w05.csv`; needs s38_snapshot.sh with the flag, branch 8e8baf2e, merged before
+  the arm). A missing file = MIXT_QA0_TDBLOCK8 missing for W5, recorded. MIXT_QA0_TOPCAP6 (6z3) needs no file.
 - **After lock (Sunday):** the reviewer builds study 38 from the snapshot (lab `d36d07d`, prereg amendment 1b `1d461fba`); the laptop re-builds and compares the printed `books identity` (a content hash) and books.json byte for byte; Monday the laptop re-runs the score byte-identically.
 - **If the T-70 build fell back to OUR projections** (both FP captures before the inactives, or any FP refusal): the union has no `--proj-source`, the snapshot tool refuses ("not an FP week") and study 38's week is INVALID by its frozen rule (W9 replaces it). Do NOT force a snapshot.
 - **Monday, after settlement imports the standings:** add week 5 to `~/moneygate/weeks.json` (paths + shas), `moneygate_score.py fetch` for W5, then the reviewer's study-38 scorer; the laptop re-runs it byte-identically.
