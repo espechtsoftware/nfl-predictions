@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q, 6r, 6s, 6t, 6u and 6v before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q, 6r, 6s, 6t, 6u, 6v and 6w before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -1237,6 +1237,47 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     `scripts/s38_build.py` unchanged.
   - **The integrity gate** pins this module sha (`0656a38e…`) in place of 6t's `b34b5468…`, on the live snapshot. **Order:**
     6u and 6v; the laptop's ack; the gate pin.
+
+- **Amendment 6w (2026-10-10, before Week 5's lock; no Week-5 outcome exists): the RB mate's game-script scope (FAVHI), and the
+  A1 full-stack switch classified.**
+  - **Why.** Study 97's pre-fixed situation rule picked RBMATE4_FAVHI -- the RB mate only for the expected winner of a high-total
+    game (Addendum 195) -- and study 99 confirmed it on a fresh draw (Addendum 197). Production built `--mix-rb-mate-scope favhi`
+    (review/game-script-scopes @ `60f6dbe9`, default all; the laptop's wiring and Week-4 check), off until his morning word (his
+    night rules, HANDOFF `543f2695`). The paper arms follow every live construction setting, so the scope must be classified and
+    followed; and production's prepared `--mix-a1-full-stack` (study 102's TAIL_STACK8, review/a1-full-stack @ `6d4c0457`,
+    store_true, default off) must be classified before any default-off merge, or 6l's default-deny would stop the build.
+  - **What changes.**
+    - `--mix-rb-mate-scope` is classified checked: all or favhi, favhi only with `--mix-rb-mate-c 4`; anything else is a parity
+      mismatch.
+    - Study 97's `scenarios` and `rm_pairs_for` are pasted byte for byte (texts `938032a8…` / `fb2142c7…`, the ones production's
+      test pins; a test). The FAVHI pairs are `rm_pairs_for("RBMATE4_FAVHI", …)` on the paper pool.
+    - **A live favhi scope:** every arm that carries the live RB mate uses the FAVHI pairs. The scope is refused -- the RB mate
+      OFF -- exactly when production refuses it (the frame lacks the lines, or no FAVHI team has both a QB and an RB in the pool).
+      The receipt must agree: `rb_mate.scope` and `rb_mate.qb_teams` (== the paper's FAVHI teams).
+    - **MIXT_QA0_RBMATE_FAVHI** (exploratory): the FAVHI RB mate on paper, built while the live scope is not favhi (with the
+      one-catcher rule live). MIXT_QA0_RBMATE (every pair) stays on paper unless the live scope is all. NORBMATE pairs with the
+      live RB mate of either scope.
+    - `--mix-a1-full-stack` is classified NOT_BUILT (off = absent; ASSUMED_DEFAULTS False). The paper arms follow it only by a
+      later amendment, if study 102 picks it and study 103 holds.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6w/`, script `run.sh` `2d276265b59e`, log
+    `a28741038fd3`; lab `2f102325`; production = the laptop's merge check `de1a7700`, which carries the scope flag; PYTHONHASHSEED=0;
+    the laptop's three Week-4 receipts: ONECATCH `e2b66fb9…`, RB mate (all) `9cd0e39c…`, RB mate (favhi) `80cf84f1…`):
+    - 52 tests pass (rc 0); union-argument mismatches none in all three builds.
+    - **RB mate not live:** all 32 earlier arms identical to 6u / 6v's smoke; MIXT_QA0_RBMATE_FAVHI built: the FAVHI teams BUF /
+      HOU / SF (8 pairs, the same teams as production's receipt), 4 of 4 slots ruled; QB + own-RB rows 4 → 7.
+    - **Live favhi, with the real receipt:** the receipt agrees (applied; scope favhi; qb_teams BUF / HOU / SF). **MIXT_QA0 equals
+      the not-live MIXT_QA0_RBMATE_FAVHI; MIXT_QA0_NORBMATE equals the not-live MIXT_QA0; MIXT_QA0_RBMATE (every pair) equals the
+      not-live one** (rows + ranks); TODAY, NORR and NOONECATCH are unchanged; RBMATE_FAVHI missing as designed.
+    - **Live all:** all 32 arms identical to 6u / 6v's live build; MIXT_QA0_RBMATE_FAVHI on paper equals the not-live one.
+  - **Code:** lab `2f102325` (`3ac7febf` and `2f102325`, on 6v's `6e67ea55`):
+    - `experiments/s38_paper_corun.py` sha256 `e7038cbaa01e91778c2dbbf18e215d99ec5e7bbd70b09118f84dd5527b8b7865`;
+    - `scripts/s38_score.py` `165185033d8e39d8f4df36da30b9e669708f6a314631954c5ec2d367a1c3c3bf`;
+    - `scripts/s38_report.py` `afa55d5a1e578d375da78a8115525e6d2fd74c8a561aa132c3aa34ad9268daec`;
+    - `tests/test_s38_paper_corun.py` `79176ac4935c6823e8241e2e916f223b68bf2f977413314c1d39fe67d370a008` (52 tests);
+    - `scripts/s38_build.py` unchanged (`15373e14…`).
+  - **The integrity gate** pins this module sha (`e7038cba…`) in place of 6v's `0656a38e…`, on the live snapshot. If the scope
+    flag merges into FRIDAY_HEAD, `s38-prod-pin` moves there and the gate is re-run.
+  - **Order:** this amendment; the laptop's ack; the gate pin; then the flags' default-off merge.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
