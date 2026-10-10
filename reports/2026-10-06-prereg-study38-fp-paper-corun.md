@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08, 10-09 and 10-10, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q, 6r, 6s, 6t, 6u, 6v, 6w and 6x before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08, 10-09 and 10-10, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q, 6r, 6s, 6t, 6u, 6v, 6w, 6x and 6y before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -1319,6 +1319,52 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     - `tests/test_s38_paper_corun.py` `622ff1d814fc6a7bb780bd8d29574b382f1236624d66e4258530d7b9eea32840` (54 tests);
     - `scripts/s38_build.py` unchanged (`15373e14…`).
   - **The integrity gate** pins this module sha (`9a82569c…`) in place of 6w's `e7038cba…`, on the live snapshot.
+  - **Order:** this amendment; the laptop's ack; the gate pin.
+
+- **Amendment 6y (2026-10-10, before Week 5's lock; no Week-5 outcome exists): study 109's HOT1 on paper.**
+  - **Why.** The operator, relaying the researcher: "Since the harness and the real fields disagree on hot players, a HOT1
+    paper arm in study 38 would let Week 5's real results arbitrate at no cost to the book." Study 109 read HOT1 −1.8 in the
+    harness, worse on both draws (Addendum 204); the research page's real-field screen pointed the other way. His 10-06 rule:
+    when an idea fails only under our ratings, the fair test is the real field on paper.
+  - **What changes.**
+    - **MIXT_QA0_HOT1** (exploratory): his live construction (`FOLLOW_QA0`: every live setting, FAVHI included) plus **at most
+      one hot skill player per row**, in the live row-rule tier (ONE list with the live rules, the STAR1 pattern).
+    - **"hot" = study 109's flag:** study 65's last_game() at 2.0× -- the last REG game this season ≥ 2.0 × max(the mean of his
+      up to 4 REG games just before it, crossing into last season, 5), with ≥ 2 such games.
+    - **The input:** the snapshot's `paper-hot-wNN.csv`. Production writes it pre-lock (`reports/2026-10-10-paper-hot/
+      paper_hot_flags.py`, from production's `player_week_actuals`, DraftKings classic points; s38_snapshot.sh copies it with
+      `S38_PAPER_HOT_FILE` and lists it in the manifest). The format was agreed with the laptop before either side built.
+      It is one '#' JSON metadata line (the rule's x / floor / min_prior / prior_games, the season and week) and then
+      dk_player_id, gsis_id, name, pos, last_week, last_pts, prior_mean, prior_n, hot.
+    - **`paper_hot()` refuses the file** if its metadata is off the frozen rule or the build's week, a column is missing, a
+      value is not finite, a position is not a skill position, an id repeats, a last game is not before the week, or **any
+      row's flag disagrees with its own numbers** (it recomputes every flag). It is matched on dk_player_id. No file, or a
+      refused file, means the arm is missing (recorded).
+    - The scorer scores it; the reader prints it on the 6r line against MIXT_QA0 with its contest groups and both books'
+      expected big seats. Information only.
+    - The source differs from study 109's (production's player_week_actuals rather than nflverse weekly + study 50's DK formula);
+      the rule is the same.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6y/`, script `run.sh` `7845d4d75f8f`,
+    log `2a2f5cd467e4`; lab `10b30f18`; production = `s38-prod-pin` `c08dadcd`; PYTHONHASHSEED=0; the laptop's Week-4 FAVHI
+    receipt `80cf84f1…` and its `paper-hot-w04.csv` `58aa89a4…`):
+    - 56 tests pass (rc 0); union-argument mismatches none in both builds.
+    - **Live favhi with the hot file:** all 33 arms of the Friday gate's build identical (rows + ranks); MS3 (6x) and HOT1
+      built. The file: 265 players, 24 hot (QB 2 / RB 6 / WR 12 / TE 4), 24 in the pool. **HOT1: 0 rows with 2+ hot players**
+      (MIXT_QA0: 14 of 26, the laptop's live count), 0.85 hot per row (MIXT_QA0 1.50), 3 rows shared with MIXT_QA0, FP 139.99 vs
+      140.57 per dealt lineup, no fallback row.
+    - **Without the hot file:** HOT1 missing ("no paper hot file in the snapshot"); every other arm identical to the build
+      with it (34 arms).
+    - The loader, run alone on the laptop's file: it refuses the file at week 5 (a week mismatch) and refuses a copy with one
+      flipped flag.
+  - **Code:** lab `10b30f18` (on 6x's `233ed9fa`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `bd25620d6a840d2edde9e8236fe6ba77dac78ab927881e006a9e0911a6e723b3`;
+    - `scripts/s38_build.py` `e394c7bcddf173c651d1b2c2312738cb0886a5123bc2bb71507c0c1cff06db28` (the snapshot's paper-hot-*.csv);
+    - `scripts/s38_score.py` `85323cd4b9263e94ae56c2412a77ad943a254000e057c482aff6137361e20190`;
+    - `scripts/s38_report.py` `110d4346cb2764ca13a37b7ca725f3590777c16f6e85c03d16730209d4b095a5`;
+    - `tests/test_s38_paper_corun.py` `133b9787cdc11afe5ac73f277b15f9d3a396cd3796f2a99967cd8e2ba5dd7894` (56 tests).
+  - **The integrity gate** pins this module sha (`bd25620d…`) in place of 6x's `9a82569c…`; the production pin is FRIDAY_HEAD
+    (`7a20dd74`, which carries the snapshot's hot-file copy). **VAL4 on paper** (the operator: "the same applies to VAL4 if
+    study 110 reads it negative") is decided at study 110's READ.
   - **Order:** this amendment; the laptop's ack; the gate pin.
 
 ## 1. Why
