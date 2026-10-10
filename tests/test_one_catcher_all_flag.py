@@ -332,7 +332,7 @@ def test_the_cli_refuses_it_off_the_armed_version():
             ur.main(base + extra + ["--mix-one-catcher-all"])
     src = (ROOT / "scripts" / "union_reselect.py").read_text()
     assert "!!! ONE CATCHER NOT APPLIED" in src and '"the row rules are not applied"' in src
-    assert src.count("one_catcher=oc_on)") == 2 and 'mix_meta["one_catcher_source"] = oc_meta' in src
+    assert src.count("one_catcher=oc_on, rb_mate_c=rm_c)") == 2 and 'mix_meta["one_catcher_source"] = oc_meta' in src
 
 
 def test_the_audit_reads_the_ruled_rows(tmp_path):
