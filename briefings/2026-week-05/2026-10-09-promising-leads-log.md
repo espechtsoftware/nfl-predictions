@@ -125,6 +125,14 @@ reviewer and updated as each study is read.
   paper (scored on the real Week-5 fields beside your book); the switch stays off. The game-script versions (the back only
   on an expected winner, or a winner in a high-scoring game) are study 97, tonight.
 
+### 12. Your shape mix (study 95) — *it holds up; the pre-written rule suggests a little more A1, on weak evidence*
+- **Study 95 (36 past slates, two random opponent sets), on your armed book:** removing A1 (−2.0), B (−2.5) or C (−1.2) made
+  the book worse on both opponent sets; removing A2 changed nothing (+0.1). A book of only B (−4.5) or only C (−3.7) was
+  worse on both sets (not separable from zero); only A1 (−0.5) or only A2 (+1.0) was mixed. No version passed your rule.
+- **The rule written before the run** turns that into: A1 39% / A2 12% / B 24% / C 24% (two more A1 lineups, one fewer A2 and
+  C), because removing A1 hurt on both sets while A1 alone did not. The reading behind it is weak (−2.0, interval −6.9 to +2.8),
+  and the new mix itself was not tested — keeping the live mix is just as defensible. Your call in the morning (one setting).
+
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
   the full game stack (74), two bring-backs (76) — each at or below your book on 2023–24.
@@ -169,11 +177,8 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 95 (tonight; information for your morning decision on the percentages):** the shape comparison you asked for — each
-  shape alone, and the mix with one shape removed at a time, against your live mix. How its result becomes a suggested mix was
-  written down before it runs.
-- **Study 97 (tonight, after 95):** the shapes by game situation, as you asked — the RB mate only on an expected winner (or a
-  winner in a high-scoring game), the expected winner's RB without his QB or with the trailing QB, and the QB + 2 stacks only in
-  high-scoring games or on their trailing side. Its rule for the morning suggestion was also written down first.
+- **Study 97 (tonight):** the shapes by game situation, as you asked — the RB mate only on an expected winner (or a winner in a
+  high-scoring game), the expected winner's RB without his QB or with the trailing QB, and the QB + 2 stacks only in
+  high-scoring games or on their trailing side. Its rule for the morning suggestion was written down first.
 
 *Updated as each study is read.*
