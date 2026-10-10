@@ -1,9 +1,12 @@
-# Preregistration: study 98, study 95's suggested shape mix against his live mix, on a fresh draw of the same slates (DRAFT 2026-10-09)
+# Preregistration: study 98, study 95's suggested shape mix against his live mix, on a fresh draw of the same slates (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09** (the times are this file's commits) by the outside reviewer; code and smoke done (§4). The lab reviewer reviews, runs the binding census and FREEZES; the laptop acks. **Information for his morning
-decision.**
-- **Banks and seed (the laptop scans):** **3136–3147** (set A 3136–3141, set B 3142–3147; sims bases 3186–3197, fields 3836–3847),
-  seed 20261143.
+**Status: FROZEN 2026-10-09 (22:51 CDT)** by the reviewer, after the outside reviewer's DRAFT, the smoke and the binding census,
+before any scored bank. The text changed at the freeze in this status block and §4 (the binding census) only. The laptop acks.
+**Information for his morning decision.**
+- **Banks 3136–3147** (set A 3136–3141, set B 3142–3147; sims bases 3186–3197, fields 3836–3847), **seed 20261143**. The laptop's scan was clean: the full set against 722 used banks' {b, b + 50, b + 700} (studies 90–97 included), no season
+  years, no results file; the repository text scans found one incidental sha fragment and nothing else.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run (O-63), recorded in `RUN_ENV_s98.txt` committed with
+  the confirmatory census.
 
 ## 1. Why
 - **Study 95** (READ `976a7558`, lab `8735c6de`; reproduced byte for byte by the laptop): no arm passed his rule; removing A1, B or
@@ -40,6 +43,12 @@ listed edits, a test asserts it); both arms his live Week-5 construction (the pa
   rows shared with LIVE 12.33 of 26, dealt identical 0.000; projection per row vs LIVE −0.05; **LIVE identical to study 95's LIVE
   (the outside reviewer's 95 smoke) on 3 of 3 slate-banks**; the full path: the reader exited 0 (24 lines; 28 with the two-draw
   path on a copy); only the census, the exit codes and the line counts were read.
+- **The binding census** (the reviewer's; outcome-blind; bank 1406; 36 slate-banks of 2023–24; code `ac7dd400` clean;
+  PYTHONHASHSEED=0; 7 tests pass; lab `0ec4c928`: `CENSUS_s98_binding.txt` `d8edeebb…`, `census_mechanics_bank1406.jsonl`
+  `e7e7715d…`): **0 row-rule and ownership-cap fallbacks in both arms** (936 of 936); **ONECATCH ruled on every B / C book
+  solve, 0 dropped** (LIVE 504, SUGGESTED 468: one fewer C row per slate-bank); **the book rows as designed** (LIVE 8 / 4 / 7 / 7,
+  SUGGESTED 10 / 3 / 7 / 6); **LIVE's rows and dealing identical to study 95's LIVE (the reviewer's 95 census, `65c2407c`) on 36
+  of 36 slate-banks**; build 51 s per slate-bank.
 - **Code:** nfl2 `production/s98-suggested-mix-20261009` @ `ac7dd400` (branched from study 95's READ `8735c6de`):
   `experiments/s98_suggested_mix.py` `328c1255…` (pins s95 `46b80611…`); `scripts/s98_drive.py` `aaf3fd31…`; `scripts/s98_census.py`
   `0bc611ba…`; **`scripts/s98_report.py` (the reader) `60d01b13…`** (seed 20261143); `tests/test_s98_suggested_mix.py` `8e3b1d63…` (7).
