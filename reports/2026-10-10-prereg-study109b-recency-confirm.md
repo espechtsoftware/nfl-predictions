@@ -1,7 +1,11 @@
 # Preregistration: study 109b, the go / no-go for study 109's pick — the pick vs LIVE on a fresh draw of the same slates (DRAFT 2026-10-10, committed BEFORE study 109 is read)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer, at the lab reviewer's request, committed
-and pushed **before study 109's READ**. The lab reviewer freezes it after study 109's READ; the laptop acks. **Information for
+**Status: NOT RUN (2026-10-10): its condition failed — study 109 (READ_s109.txt `169cc082`, lab `fb004daf`) picked nothing.
+Every arm was worse than LIVE on P(≥ 1 big seat) on both draws: FADE2 −0.04689 (A −0.05725, B −0.03654; seats 0.801; guard 1
+fails), FADE2_16 −0.05160 (A −0.04013, B −0.06308; seats 0.786; guard 1 fails), HOT1 −0.01833 (A −0.02483, B −0.01183; seats
+0.904); "PICK: none -- keep the live book". Its banks stay unused. Recorded under the design fixed before study 109's READ.**
+Earlier status: DRAFT 2026-10-10 (the times are this file's commits) by the outside reviewer, at the lab reviewer's request,
+committed and pushed **before study 109's READ**. The lab reviewer freezes it after study 109's READ; the laptop acks. **Information for
 his decision.**
 
 ## 1. Why
