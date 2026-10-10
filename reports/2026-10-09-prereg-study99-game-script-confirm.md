@@ -1,6 +1,6 @@
 # Preregistration: study 99, the confirmation of study 97's picks — study 97's frozen code on a fresh draw of the same slates (DRAFT 2026-10-09, committed BEFORE study 97 is read)
 
-**Status: DRAFT 2026-10-09 (21:45 CDT)** by the outside reviewer, committed and pushed **before study 97's READ** (the lab
+**Status: DRAFT 2026-10-09 (21:44 CDT, the commit's clock)** by the outside reviewer, committed and pushed **before study 97's READ** (the lab
 reviewer's condition, 10-09 evening). The lab reviewer freezes it (banks and seed) after study 97's READ; the laptop acks.
 **Information for his morning decision.**
 
