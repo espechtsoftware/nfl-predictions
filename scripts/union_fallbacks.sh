@@ -28,6 +28,7 @@ mix_to_house_args() {
       --mix-max-te|--mix-max-low-own|--mix-low-own-pct) skip=1 ;;     # his test-2 row rules (10-09): MIX-only
       --mix-one-catcher-all) ;;                                       # study 93's ONECATCH (10-09): MIX-only, no value
       --mix-rb-mate-c) skip=1 ;;                                      # study 96's RB mate (10-09): MIX-only, with its value
+      --mix-rb-mate-scope) skip=1 ;;                                  # study 97's RB-mate scope (10-09): MIX-only, with its value
       --main-own-cap-fallback-share) take_fb=1; own_cap=1 ;;
       --priority-order) ;;
       *) OUT_ARGS+=("$x") ;;

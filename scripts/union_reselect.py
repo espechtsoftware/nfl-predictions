@@ -607,6 +607,32 @@ def game_script_sets(t70: pd.DataFrame, pool_ids: set[str]) -> dict:
     return {"high_cut": round(cut, 3), "teams": teams, "opp_of": opp_of}
 
 
+RB_MATE_SCOPES = ("all", "favhi")    # study 97: only RBMATE4_FAVHI passed its pre-fixed rule; the other scopes are not built
+
+
+def rb_mate_scope_teams(scope: str, t70: pd.DataFrame, pool_ids: set[str]) -> tuple[set[str] | None, str | None]:
+    """Study 97's RBMATE4_FAVHI scope: (the QB teams whose (QB, own RB) pairs the RB-mate floor keeps, None) -- the expected
+    winners (margin >= 3) of the slate's high-total games, game_script_sets' FAVHI -- or (None, why) when the scope is refused:
+    the lines missing, or no (QB, own RB) pair of those teams in the pool. The caller then turns the RB mate OFF for the run (a
+    refused scope never widens to every pair: study 96 read the unscoped RB mate PAPER ONLY). scope "all": (None, None)."""
+    if scope == "all":
+        return None, None
+    if scope != "favhi":
+        raise ValueError(f"rb_mate scope {scope!r} is not built (only {RB_MATE_SCOPES})")
+    try:
+        sets = game_script_sets(t70, pool_ids)
+    except SystemExit as exc:
+        return None, str(exc)
+    teams = set(sets["teams"]["FAVHI"])
+    f = t70[t70.id.astype(str).isin(set(pool_ids))]
+    qb_t = set(f.team[f.pos.astype(str) == "QB"].astype(str))
+    rb_t = set(f.team[f.pos.astype(str) == "RB"].astype(str))
+    if not (teams & qb_t & rb_t):
+        return None, (f"no (QB, own RB) pair of the expected winners of the high-total games (FAVHI {sorted(teams)}; the high-total "
+                      f"cut {sets['high_cut']}) in the pool")
+    return teams, None
+
+
 def one_catcher_line(block: dict | None) -> str:
     """Study 93's one printed line."""
     b = block or {}
@@ -673,7 +699,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
              own_cap: dict[str, int] | None = None,
              row_bounds: list | None = None,
              one_catcher: bool = False,
-             rb_mate_c: int = 0) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             rb_mate_c: int = 0,
+             rb_mate_qb_teams: set[str] | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -735,7 +762,9 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     the term block; a slot is taken at the solve, whether ruled or not, so an ownership-cap re-peek takes another; spares
     never) the row holds its QB's OWN RB: the pinned optimize's interaction floor over (QB, RB of the QB's team) pool pairs,
     weight 1, floor 1, in ONE call with row_bounds and the one-catcher bounds; infeasible -> the same solve without the floor
-    (recorded), then ONECATCH's own tiers (nfl2 experiments/s96_onecatch_rbmate.py combo_rules @ 3cf3e8eb). Needs one_catcher."""
+    (recorded), then ONECATCH's own tiers (nfl2 experiments/s96_onecatch_rbmate.py combo_rules @ 3cf3e8eb). Needs one_catcher.
+    rb_mate_qb_teams (study 97's RBMATE4_FAVHI scope; default None = every pair): the floor's pairs only for QBs of these teams
+    (nfl2 experiments/s97_game_script.py rm_pairs_for @ af07583e); the caller passes rb_mate_scope_teams' FAVHI set."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
@@ -848,6 +877,9 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             if p["pos"] == "RB":
                 rm_rbs.setdefault(str(p["team"]), []).append(str(p["id"]))
         rm_pairs = {(str(p["id"]), r): 1.0 for p in pool if p["pos"] == "QB" for r in rm_rbs.get(str(p["team"]), [])}
+        if rb_mate_qb_teams is not None:                       # study 97's scope: only the QBs of the scope's teams
+            team_of = {str(p["id"]): str(p["team"]) for p in pool}
+            rm_pairs = {(q, r): w for (q, r), w in rm_pairs.items() if team_of.get(q) in rb_mate_qb_teams}
 
     def _peek(name: str, extra_bans: frozenset = frozenset(), use_term: bool = False):
         """Study 91's row rules around _solve (absent when row_bounds is None): on a book solve (j < k) the bounds ride as
@@ -1181,6 +1213,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             raise ValueError(f"RB MATE RECORD BROKEN: {len(rm_state['ruled'])} ruled solves, {len(rm_state['rows'])} committed, "
                              f"pending {rm_state['pending']}")
         meta["rb_mate"] = {"cell": "C", "rows_cap": int(rb_mate_c), "pairs": len(rm_pairs),
+                           "scope": "all" if rb_mate_qb_teams is None else "favhi",
+                           "qb_teams": None if rb_mate_qb_teams is None else sorted(rb_mate_qb_teams),
                            "slots": [list(x) for x in rm_state["used"]], "ruled": [list(x) for x in rm_state["ruled"]],
                            "resolved_without": [list(x) for x in rm_state["plain"]], "ruled_rows": rm_state["rows"]}
     if own_cap:                                                # study 89's receipt block (absent when off)
@@ -1455,6 +1489,10 @@ def main(argv: list[str] | None = None) -> int:
                          "C-cell BOOK solves hold the QB's own RB (an interaction floor), in one solve with the row rules and "
                          "the one-catcher bounds; infeasible -> without the floor, recorded. Needs --mix-one-catcher-all; LOUDLY off "
                          "whenever ONECATCH is not applied")
+    ap.add_argument("--mix-rb-mate-scope", choices=RB_MATE_SCOPES, default="all",
+                    help="study 97 (default all = every (QB, own RB) pair, today's --mix-rb-mate-c): favhi = only the QBs of the "
+                         "expected winners (margin = 2 x implied - total >= 3) of the slate's high-total games (>= its 2/3 "
+                         "quantile); needs --mix-rb-mate-c 4; a refused scope (no lines, no such pair) turns the RB mate OFF, LOUDLY")
     ap.add_argument("--mix-one-catcher-all", action="store_true",
                     help="study 93's ONECATCH (default off): every B / C (QB + 1) BOOK solve, the live and the term block alike, "
                          "holds at most ONE WR / TE of every team, in one solve with the row rules; infeasible -> re-solved with "
@@ -1561,6 +1599,8 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--mix-one-catcher-all is defined on his armed version only (study 93): --main mix --mix-portfolio mix "
                          "--mix-fill rr with the ownership cap and --mix-max-te 1 --mix-max-low-own 1, and no --mix-cover-games / "
                          "--mix-rs-rows / --mix-bring-back-top-wr / --winner-select")
+    if a.mix_rb_mate_scope != "all" and a.mix_rb_mate_c != 4:
+        raise SystemExit(f"--mix-rb-mate-scope {a.mix_rb_mate_scope} needs --mix-rb-mate-c 4 (study 97 read the scope on the RB mate)")
     if a.mix_rb_mate_c not in (0, 4) or (a.mix_rb_mate_c and not a.mix_one_catcher_all):
         raise SystemExit("--mix-rb-mate-c takes 0 or 4 (study 96's tested value) and needs --mix-one-catcher-all (it was read only on "
                          "top of ONECATCH)")
@@ -1772,6 +1812,15 @@ def main(argv: list[str] | None = None) -> int:
             rm_meta = {"applied": True} if rm_c else {"applied": False, "not_applied": "ONECATCH is not applied"}
             if not rm_c:
                 print(f"\n!!! RB MATE NOT APPLIED: {rm_meta['not_applied']} -- the book is built without it\n", flush=True)
+        rm_teams = None
+        if rm_c and a.mix_rb_mate_scope != "all":           # study 97's scope: a refusal turns the RB mate OFF, never widens it
+            rm_teams, why = rb_mate_scope_teams(a.mix_rb_mate_scope, fr, set(fr.id.astype(str)) - set(excl))
+            if why is not None:
+                rm_c, rm_teams = 0, None
+                rm_meta = {"applied": False, "not_applied": f"scope {a.mix_rb_mate_scope} refused: {why}"}
+                print(f"\n!!! RB MATE SCOPE NOT APPLIED: {why} -- the book is built without the RB mate\n", flush=True)
+            else:
+                rm_meta = {"applied": True, "scope": a.mix_rb_mate_scope, "qb_teams": sorted(rm_teams)}
         dcap = max(1, int(a.main_dst_cap * a.entries)) if a.main_dst_cap else None
         qcap = a.main_qb_cap_rows
         bonus, own_meta = own_bonus(a.main_own_source, fr, excl, a.main_own_tilt, a.main_own_min_coverage) if a.main_own_tilt else ({}, {})
@@ -1802,7 +1851,8 @@ def main(argv: list[str] | None = None) -> int:
                                                                        term_rows=term_rows, term_bonus=term_bonus,
                                                                        cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
                                                                        bring_back_top_wr_rows=bb_rows, own_cap=own_cap,
-                                                                       row_bounds=row_bounds, one_catcher=oc_on, rb_mate_c=rm_c)
+                                                                       row_bounds=row_bounds, one_catcher=oc_on, rb_mate_c=rm_c,
+                                                                       rb_mate_qb_teams=rm_teams)
             if own_cap_meta is not None:
                 mix_meta["own_cap_source"] = own_cap_meta
             if row_meta is not None:
@@ -1858,7 +1908,8 @@ def main(argv: list[str] | None = None) -> int:
                                                                       cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
                                                                       cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
                                                                       bring_back_top_wr_rows=bb_rows, own_cap=own_cap,
-                                                                      row_bounds=row_bounds, one_catcher=oc_on, rb_mate_c=rm_c)
+                                                                      row_bounds=row_bounds, one_catcher=oc_on, rb_mate_c=rm_c,
+                                                                       rb_mate_qb_teams=rm_teams)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
                 if oc_on:
                     print("(the ownership-term book) " + one_catcher_line(own_mix.get("one_catcher")), flush=True)
