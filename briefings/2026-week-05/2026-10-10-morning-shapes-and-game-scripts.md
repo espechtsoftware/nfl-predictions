@@ -9,7 +9,9 @@ something is successful, we'll discuss in the morning how we want to use it."
 - **Shape percentages (study 95):** your mix held up — removing A1, B or C was worse on both opponent sets. The rule fixed
   beforehand suggests a small shift: **A1 39% / A2 12% / B 24% / C 24%** (two more QB + 2 + bring-back lineups), on a weak
   signal; keeping today's 30 / 14 / 28 / 28 is just as defensible.
-- **Game situations (study 97):** [FILLED FROM STUDY 97'S READ BY ITS §3 RULE, FIXED BEFORE IT]
+- **Game situations (study 97):** one version passed — **the QB's own RB in 4 QB + 1 lineups, only when his team is the expected
+  winner of a high-scoring game** (+0.9, better on both opponent sets, ×1.10 expected big wins); small and not clear of chance;
+  re-run on a fresh draw by study 99. The shootout QB + 2 did not pass (−0.7); the trailing-side QB + 2 was clearly worse (−5.0).
 - **The RB stack mate, unconditioned (study 96): paper only.** On top of the one-receiver-per-team rule it read −0.5 (worse on
   both opponent sets), although every lineup got its RB. It stays off (RB_MATE_C = 0) unless you choose a version below.
 - **Already armed for Week 5 (your decisions):** Fantasy Points' projections, the winners' shape mix, the cheap +2 block, the
@@ -91,20 +93,30 @@ check against a lucky draw, not new games. Arming any mix is one setting
 
 | Version (each on your live book) | vs your book | Set A | Set B | Big wins | Your rule |
 |---|---|---|---|---|---|
-| RB with his QB, every C lineup (4) — a second read of 96 | [ ] | [ ] | [ ] | [ ] | [ ] |
-| RB with his QB, only on the expected winner (by 3+) | [ ] | [ ] | [ ] | [ ] | [ ] |
-| … only the expected winner of a high-scoring game | [ ] | [ ] | [ ] | [ ] | [ ] |
-| The expected winner's RB WITHOUT his QB ("naked") | [ ] | [ ] | [ ] | [ ] | [ ] |
-| The expected winner's RB with the TRAILING team's QB (QB + 1 + that RB) | [ ] | [ ] | [ ] | [ ] | [ ] |
-| QB + 2 lineups only from high-scoring games (your idea: the shootout QB + 2 in place of today's QB + 2) | [ ] | [ ] | [ ] | [ ] | [ ] |
-| QB + 2 lineups only from the trailing side of high-scoring games | [ ] | [ ] | [ ] | [ ] | [ ] |
-(The expected-winner versions are also compared with the unconditioned RB version: [ ].)
+| RB with his QB, every C lineup (4) — a second read of 96 | −1.4 (−3.8 to +1.0) | −3.7 | +0.9 | ×0.95 | no |
+| RB with his QB, only on the expected winner (by 3+) | −0.2 (−3.4 to +2.9) | +0.2 | −0.6 | ×0.97 | no |
+| **… only the expected winner of a high-scoring game** | **+0.9 (−3.1 to +5.2)** | **+0.5** | **+1.3** | **×1.10** | **passes** |
+| The expected winner's RB WITHOUT his QB ("naked") | +0.3 (−1.5 to +2.3) | −0.3 | +0.9 | ×1.03 | no (no change on 40% of slates) |
+| The expected winner's RB with the TRAILING team's QB (QB + 1 + that RB) | −0.7 (−4.2 to +2.7) | −2.5 | +1.1 | ×1.00 | no |
+| QB + 2 lineups only from high-scoring games (your idea: the shootout QB + 2 in place of today's QB + 2) | −0.7 (−4.4 to +3.0) | +0.3 | −1.8 | ×0.99 | no |
+| QB + 2 lineups only from the trailing side of high-scoring games | **−5.0 (−9.4 to −0.0)** | −6.1 | −3.9 | ×0.87 | **worse** (its finishes slip too) |
+
+Against the unconditioned RB version: the expected winner of a high-scoring game **+2.3 (−0.9 to +5.8; A +4.2, B +0.4; ×1.15) —
+passes**; the expected winner alone +1.2 (A +3.9, B −1.5) — no. The naked and trailing-QB versions against the expected-winner
+version: +0.5 and −0.5, neither passes (study 97's READ `53c1614f`, lab `8b9b3a9d`).
 
 **The rule, written before the run:** an RB-with-his-QB version must beat both your book and the unconditioned RB version; the
 naked and trailing-QB versions must beat your book; a QB + 2 version must beat your book; if more than one qualifies, the one
 with the higher pooled gain.
 
-**Suggested:** [ ]
+**Suggested (the rule fixed before the run):** **the QB's own RB in 4 of the QB + 1 lineups, but only when his team is the
+expected winner of a high-scoring game** — +0.9 against your book, better on both opponent sets, about 10% more expected big
+wins; it also beats the unconditioned RB version on both sets (+2.3). **No QB + 2 version qualifies:** the shootout QB + 2 read
+−0.7 (better on one set, worse on the other), and the trailing-side version was clearly worse (−5.0).
+
+**How much to trust it:** small and not clear of zero; of the eleven comparisons two passed — both are this one version (against
+your book and against the plain RB version, so they move together) — about what chance alone gives. Study 99 re-runs it on a fresh
+draw.
 
 **Each pick re-run on a fresh draw of the same past slates (study 99, committed before study 97 was read):** [ ] — a pick
 counts as "held" only if it passes the same rule again.
