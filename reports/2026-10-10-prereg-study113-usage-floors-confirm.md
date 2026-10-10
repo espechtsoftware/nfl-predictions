@@ -1,7 +1,11 @@
 # Preregistration: study 113, the go / no-go for study 112's usage floor — the pick vs LIVE on a fresh draw of the same slates (DRAFT 2026-10-10, committed BEFORE study 112 is read)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer, committed and pushed **before study
-112's READ**. The lab reviewer freezes it after study 112's READ; the laptop acks. **Information for his decision.**
+**Status: NOT RUN (2026-10-10): its condition failed — study 112 (READ_s112.txt `2525ef14`, lab `a4fd70e9`) picked nothing.
+Every floor was worse than LIVE on P(≥ 1 big seat) on both draws: RUSH 13 −0.04576 [−0.09343, −0.00360] (A −0.05152, B
+−0.04001; seats 0.890; guard 1 fails), PASS 32 −0.02741 (A −0.04098, B −0.01383; seats 0.888; guard 1 fails), TGT 4.5
+−0.02753 (A −0.04497, B −0.01009; seats 0.931; guard 1 fails); "PICK: none -- keep the live book". Its banks stay unused.
+Recorded under the design fixed before study 112's READ.** Earlier status: DRAFT 2026-10-10 (the times are this file's
+commits) by the outside reviewer, committed and pushed **before study 112's READ**. The lab reviewer freezes it after study 112's READ; the laptop acks. **Information for his decision.**
 
 ## 1. Why
 - Study 112 (`reports/2026-10-10-prereg-study112-usage-floors.md`) picks at most ONE of three usage floors by his rule (TD and
