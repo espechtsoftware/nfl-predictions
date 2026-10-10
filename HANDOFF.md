@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:00 CDT) — OPERATOR: the qualifiers / booms / matchups page read; two stars -> "Test it now for this week", then (after the slot count) "Paper this week, test for W6"
+
+- **His words:** "Read this. Is there anything we can try today with this info?" (briefings/2026-week-05/2026-10-10-qualifiers-booms-and-matchups.md,
+  merged with the score-this-week page at 784428d8). The laptop's answer: nothing for the live book; most of the page is what
+  Sunday's paper arms measure; offered a paper-only two-stars book. His typed answer: **"Test it now for this week"** (read as 115's
+  precedent: harness + fresh draw, live only if both pass) -> study 117 (row 103; banks 4340–4351 / 4352–4363, seed 20261165).
+- **The slot count** (before any design was frozen): W4's and W5's (Friday's A3 frame) pools hold **four** $8,000+ RB / WR / TE
+  each (RB 2, WR 2); under the 0.35 cap that is 36 star slots against 52 for two stars on all 26 rows; his W4 book had 21 of 26
+  lineups with fewer than two. The production star flag (review/shrink-star-flags-20261009) conflicts with today's union_reselect
+  on a trial merge. Put to him: **"Paper this week, test for W6 (Recommended)"**.
+- **So:** the lab reviewer adds STAR2_8 (≥ 2 stars on the 8 term rows) and STAR2 (≥ 2 where it fits) to study 38 on paper
+  (information only; not in 7b's list); study 117 runs for Week 6 (after the canary or Monday). Nothing live changes.
+- **The arm state:** integration 486abe06 (FRIDAY_HEAD 83d68f63, TERM_ROWS=8 / TERM_SHA 5941678b); `--check` rc 0 at 13:49 (13
+  units); s38 gate lab fad0cbe2 vs prod pin 83d68f63.
+
 ## 2026-10-10 (13:47 CDT) — OPERATOR: the afternoon page queued ("queue these"); O-60 -> Week 6; "Try these now" (QB cap 3, HOT_WRTE1 live) -> both NO after their W4 checks; the two-week rule SET (s38 7b); 6z3 TOPCAP6 + 6z4 TDBLOCK8 on paper, acked
 
 - **His words (the laptop's session, verbatim):** "Read 2026-10-10-afternoon-ideas.md on review/additional-suggestions-20261010 and
