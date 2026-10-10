@@ -46,6 +46,11 @@ RB_MATE_C=4                         # LIVE (his 10-10 decision in the laptop's s
 RB_MATE_SCOPE=favhi                 # LIVE with RB_MATE_C=4: favhi = only the expected winner of a high-total game (studies 97 + 99,
                                     # passed his rule twice; W4 check b6680c2c: BUF / HOU / SF, 4 / 4 rows); all = study 94's pairs
                                     # (PAPER ONLY, study 96) -- never armed
+HOT_WRTE_MAX=""                     # study 115's HOT_WRTE1 (the operator 10-10, "Test today for this week"): 1 = at most one hot WR / TE
+                                    # (study 109's flag) per book row, in the row-rule tier; empty = off. 1 only with ROW_RULES=te1_low1,
+                                    # after 115 (+ 115b) pass his rule and HIS yes at the arm
+HOT_FILE=""                         # with HOT_WRTE_MAX=1: the W5 hot-flag file (reports/2026-10-10-paper-hot/paper_hot_flags.py), ABSOLUTE path
+HOT_SHA=""                          # its sha256, pinned (the arm refuses a mismatch)
 MIX_FILL=rr                         # the MIX fill order (study 42; his 10-06 evening yes, "Use round-robin"): the cells in
                                     # turn, a row per shape for the top QBs (the outside reviewer's arm; NO DIFFERENCE on
                                     # P(>=1 big), +9% expected seats). group = the earlier book; value is NOT to be armed
@@ -106,6 +111,8 @@ _c=$(( 10#${SUPPLY%:*} * 60 + 10#${SUPPLY#*:} - 2 )); CUTOFF=$(printf '%02d%02d'
 [[ ( "$MAIN_CAP" == 0.5 && "$OWN_CAP_DELTA" == 0 ) || ( "$MAIN_CAP" == 0.35 && "$OWN_CAP_DELTA" == 15 && "$SHAPE" == mixt ) ]] \
   || stop "MAIN_CAP=$MAIN_CAP with OWN_CAP_DELTA=$OWN_CAP_DELTA: (0.5, 0) = the book as before, or (0.35, 15) = his package with SHAPE=mixt; the flat 35% never runs alone"
 [[ -z "$ROW_RULES" || ( "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 ) ]] || stop "ROW_RULES=$ROW_RULES: empty, or te1_low1 with his package (OWN_CAP_DELTA=15)"
+[[ -z "$HOT_WRTE_MAX" || ( "$HOT_WRTE_MAX" == 1 && "$ROW_RULES" == te1_low1 && "$HOT_SHA" =~ ^[0-9a-f]{64}$ && "$(sha256sum "$HOT_FILE" 2>/dev/null | cut -c1-64)" == "$HOT_SHA" ) ]] \
+  || stop "HOT_WRTE_MAX=$HOT_WRTE_MAX: empty (off), or 1 with ROW_RULES=te1_low1 and HOT_FILE (absolute) pinned by HOT_SHA"
 [[ "$ONE_CATCHER_ALL" == 0 || ( "$ONE_CATCHER_ALL" == 1 && "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 && "$SHAPE" == mixt && "$MIX_FILL" == rr \
       && "$MIX_COVER" == 0 && "$MIX_RS" == 0 && -z "$BRING_BACK_TOP_WR" && "$WINNER_SELECT" == 0 ) ]] \
   || stop "ONE_CATCHER_ALL=$ONE_CATCHER_ALL: 0, or 1 with ROW_RULES=te1_low1, his package (OWN_CAP_DELTA=15), SHAPE=mixt, MIX_FILL=rr, MIX_COVER=0, MIX_RS=0, no BRING_BACK_TOP_WR and WINNER_SELECT=0 (the union refuses the rest)"
@@ -184,6 +191,7 @@ arm_env() {
   if [[ "$SHAPE" == mixt ]]; then e+=(UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_MIX_FILL=$MIX_FILL UNION_MIX_COVER_GAMES=$MIX_COVER UNION_MIX_RS_ROWS=$MIX_RS UNION_WINNER_ORDER=$WINNER_ORDER UNION_WINNER_SELECT=$WINNER_SELECT UNION_PRIORITY_ORDER=$PRIORITY_ORDER UNION_MIX_BRING_BACK_TOP_WR=$BRING_BACK_TOP_WR UNION_MIX_BRING_BACK_TOP_WR_ROWS=$BRING_BACK_TOP_WR_ROWS UNION_TERM_BLOCK_ROWS=$TERM_ROWS UNION_TERM_BLOCK_SOURCE=$P/$TERM_FILE UNION_TERM_BLOCK_TILT=0.20 UNION_TERM_BLOCK_CAP=$TERM_CAP UNION_TERM_BLOCK_SHA256=$TERM_SHA); [[ -n "$MIX_QUOTAS" ]] && e+=(UNION_MIX_CELL_QUOTAS=$MIX_QUOTAS) || u+=(-u UNION_MIX_CELL_QUOTAS); else u+=(-u UNION_MIX_CELL_QUOTAS -u UNION_PRIORITY_ORDER -u UNION_MIX_PORTFOLIO -u UNION_MIX_FILL -u UNION_MIX_COVER_GAMES -u UNION_MIX_RS_ROWS -u UNION_WINNER_ORDER -u UNION_WINNER_SELECT -u UNION_TERM_BLOCK_ROWS -u UNION_TERM_BLOCK_SOURCE -u UNION_TERM_BLOCK_TILT -u UNION_TERM_BLOCK_CAP -u UNION_TERM_BLOCK_SHA256); e+=(UNION_MAIN=pmo_x50); fi
   if [[ -n "$QB_CAP_ROWS" ]]; then e+=(UNION_MAIN_QB_CAP_ROWS=$QB_CAP_ROWS UNION_MAIN_QB_CAP_K=$QB_CAP_K); else u+=(-u UNION_MAIN_QB_CAP_ROWS -u UNION_MAIN_QB_CAP_K); fi
   if [[ -n "$SAT_SUPPLY_CT" ]]; then e+=(SAT_SUPPLY_CT=$SAT_SUPPLY_CT); u+=(-u SAT_FALLBACK_CT); else u+=(-u SAT_SUPPLY_CT -u SAT_FALLBACK_CT); fi
+  if [[ -n "$HOT_WRTE_MAX" ]]; then e+=(UNION_MIX_HOT_WRTE_MAX=$HOT_WRTE_MAX UNION_MIX_HOT_SOURCE=$HOT_FILE); else u+=(-u UNION_MIX_HOT_WRTE_MAX -u UNION_MIX_HOT_SOURCE); fi
   env "${u[@]}" "${e[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head PROD_ARMED_HEAD=$(git -C "$P" rev-parse HEAD) \
     D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \
     LEV_CBC_THREADS=8 EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00 \
@@ -196,7 +204,7 @@ if [[ "${ARM_LATE:-0}" == 1 ]]; then SKIP="d6400 d12800sat d6400sat"; EXPECT_N=1
 [[ "${ARM_LATE:-0}" == 1 ]] || (( 10#$(date +%H%M) < 10#$CUTOFF )) || stop "it is $(date +%H:%M); the $SUPPLY Saturday D12800 would be in the past. Operator decision: ARM_LATE=1 (no Saturday supply builds, $((EXPECT_N - 2)) timers)"
 [[ -n "$SAT_SUPPLY_CT" ]] && say "the Saturday supply moves (his 10-10 decision): D12800 at $SAT_SUPPLY_CT CT, D6400 5 minutes later; the arm must finish by $CUTOFF"
 if [[ "$CHECK" == --check ]]; then
-  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; player cap $MAIN_CAP of the book; ownership cap ${OWN_CAP_DELTA} points; row rules ${ROW_RULES:-off}; one catcher per team $ONE_CATCHER_ALL; RB mate in C rows $RB_MATE_C (scope $RB_MATE_SCOPE); MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT; priority order $PRIORITY_ORDER; bring-back top WR ${BRING_BACK_TOP_WR:-off}${BRING_BACK_TOP_WR_ROWS:+ on $BRING_BACK_TOP_WR_ROWS rows}; term block $TERM_ROWS${TERM_SHA:+ (file ${TERM_SHA:0:12})}"
+  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; player cap $MAIN_CAP of the book; ownership cap ${OWN_CAP_DELTA} points; row rules ${ROW_RULES:-off}; one catcher per team $ONE_CATCHER_ALL; RB mate in C rows $RB_MATE_C (scope $RB_MATE_SCOPE); hot WR / TE per row ${HOT_WRTE_MAX:-off}${HOT_SHA:+ (file ${HOT_SHA:0:12})}; MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT; priority order $PRIORITY_ORDER; bring-back top WR ${BRING_BACK_TOP_WR:-off}${BRING_BACK_TOP_WR_ROWS:+ on $BRING_BACK_TOP_WR_ROWS rows}; term block $TERM_ROWS${TERM_SHA:+ (file ${TERM_SHA:0:12})}"
   UNITS=$(arm_env "$SKIP" bash scripts/arm_week_timers.sh 5 2>&1 | grep -oE 'nfl-week5-[a-z0-9-]+' | sort -u)
   for s in $SKIP; do UNITS=$(echo "$UNITS" | grep -vx "nfl-week5-$(echo $s | sed -E 's/^(d[0-9]+)sat$/\1-sat/')-build"); done
   echo "$UNITS" | sed 's/^/  planned: /'

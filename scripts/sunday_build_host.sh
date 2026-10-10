@@ -514,6 +514,26 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
       row_rules_alert "the ownership cap is not on for this run (no FP ownership file)"
     fi
   fi
+  hot_wrte_alert() {                                        # study 115's HOT_WRTE1 not applied: the book stands without it, loudly
+    printf '%s run %s: HOT WR/TE NOT APPLIED: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$1" | tee -a "$OUT/ALERT-hot-wrte-not-applied-$RUN_TAG.txt"
+    printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+      "!!! HOT WR/TE NOT APPLIED for $RUN_TAG: $1 -- the book stands without it" \
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  }
+  # Study 115's HOT_WRTE1 (the operator 10-10, "Test today for this week"): at most one hot WR / TE (study 109's flag, read from
+  # the hot-flag file UNION_MIX_HOT_SOURCE) per main-book row, in the row-rule tier, ONLY with his row rules. Off = unset or 0.
+  # Row rules not on = no hot rule, LOUDLY.
+  HOT_WRTE_ON=0
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_HOT_WRTE_MAX:-0}" == "1" ]]; then
+    if (( ROW_RULES_ON )) && [[ -s "${UNION_MIX_HOT_SOURCE:-}" ]]; then
+      UNION_ARGS+=(--mix-max-hot-wrte 1 --mix-hot-source "$UNION_MIX_HOT_SOURCE"); HOT_WRTE_ON=1
+      echo "HOT WR/TE for $RUN_TAG: ON (at most one hot WR / TE per book row; $(basename "$UNION_MIX_HOT_SOURCE"))"
+    elif (( ROW_RULES_ON )); then
+      hot_wrte_alert "the hot file UNION_MIX_HOT_SOURCE='${UNION_MIX_HOT_SOURCE:-}' is missing or empty"
+    else
+      hot_wrte_alert "the row rules are not on for this run (UNION_MIX_ROW_RULES=${UNION_MIX_ROW_RULES:-unset}, ownership cap on: $OWN_CAP_ON)"
+    fi
+  fi
   one_catcher_alert() {                                     # his ONECATCH not applied: the book stands without it, loudly
     printf '%s run %s: ONE CATCHER NOT APPLIED: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$1" | tee -a "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt"
     printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
@@ -657,6 +677,12 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   if [[ "${UNION_MIX_ROW_RULES:-}" == "te1_low1" ]] && grep -q 'ROW RULES NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     row_rules_alert "the union refused them: $(grep -h 'ROW RULES NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
+  if [[ "${UNION_MIX_HOT_WRTE_MAX:-0}" == "1" ]] && grep -q 'HOT WR/TE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
+    hot_wrte_alert "the union refused it: $(grep -h 'HOT WR/TE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
+  fi
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_HOT_WRTE_MAX:-0}" == "1" && "$UNION_MAIN_EFFECTIVE" != "mix" ]]; then
+    hot_wrte_alert "the MIX main was refused; the house fallback ($UNION_MAIN_EFFECTIVE) has no hot WR / TE rule"
+  fi
   if [[ "${UNION_MIX_ONE_CATCHER_ALL:-0}" == "1" ]] && grep -q 'ONE CATCHER NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     one_catcher_alert "the union refused it: $(grep -h 'ONE CATCHER NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
@@ -681,6 +707,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt" "$UNION_DIR/own_cap_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" "$UNION_DIR/row_rules_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" "$UNION_DIR/one_catcher_not_applied.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/ALERT-hot-wrte-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-hot-wrte-not-applied-$RUN_TAG.txt" "$UNION_DIR/hot_wrte_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" "$UNION_DIR/rb_mate_not_applied.txt"
   # the projection source travels with the union dir, so the upload sheet can name it (the outside review 10-06, (1b))
   [[ -n "$UNION_DIR" && -f "$OUT/proj_fp-$RUN_TAG.txt" ]] && cp "$OUT/proj_fp-$RUN_TAG.txt" "$UNION_DIR/proj_source_log.txt"

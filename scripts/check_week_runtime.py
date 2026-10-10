@@ -265,6 +265,16 @@ def main():
     if _oc == "1" and _oc_bad:
         fail(f"UNION_MIX_ONE_CATCHER_ALL=1 is refused by the union with {', '.join(_oc_bad)} (it needs portfolio mix, fill rr, "
              "no cover / half rows, no bring-back top WR, no winner select)")
+    # study 115's HOT_WRTE1 (the operator 10-10, "Test today for this week"): at most one hot WR / TE per book row, only on top
+    # of the row rules (their tier), read from a hot-flag file that must exist at the build
+    _hw = os.environ.get("UNION_MIX_HOT_WRTE_MAX", "")
+    if _hw not in ("", "0") and (_hw != "1" or _rr != "te1_low1" or os.environ.get("UNION_MAIN") != "mix"):
+        fail(f"UNION_MIX_HOT_WRTE_MAX={_hw!r} must be 1 (study 115's tested value), with UNION_MIX_ROW_RULES=te1_low1 and UNION_MAIN=mix")
+    _hs = os.environ.get("UNION_MIX_HOT_SOURCE", "")
+    if _hw == "1" and not (_hs and os.path.isfile(_hs) and os.path.getsize(_hs) > 0):
+        fail(f"UNION_MIX_HOT_WRTE_MAX=1 needs UNION_MIX_HOT_SOURCE, an existing non-empty hot-flag file (got {_hs!r})")
+    if _hs and _hw != "1":
+        fail(f"UNION_MIX_HOT_SOURCE={_hs!r} is read only with UNION_MIX_HOT_WRTE_MAX=1")
     # his 10-09 decision (study 94's RBMATE4): the QB's own RB in the first 4 C rows, only on top of ONECATCH (study 96)
     _rm = os.environ.get("UNION_MIX_RB_MATE_C", "")
     if _rm not in ("", "0") and (_rm != "4" or _oc != "1"):

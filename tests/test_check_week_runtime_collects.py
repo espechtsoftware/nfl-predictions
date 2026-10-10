@@ -393,6 +393,27 @@ def test_his_rbmate_rides_only_on_onecatch(tmp_path):
     assert any(f.startswith(msg + "'4' must be 4 (study 94's tested value), with UNION_MIX_ONE_CATCHER_ALL=1") for f in _failures(_run(env)))
 
 
+def test_study115s_hot_wrte_rides_only_on_the_row_rules_with_its_file(tmp_path):
+    """Study 115's HOT_WRTE1 (the operator 10-10): UNION_MIX_HOT_WRTE_MAX=1 needs UNION_MIX_ROW_RULES=te1_low1, UNION_MAIN=mix and
+    an existing non-empty UNION_MIX_HOT_SOURCE; any other value, a missing file, or a file without the switch is refused."""
+    def fresh(name):
+        d = tmp_path / name; d.mkdir(); return _healthy(d)
+
+    hot = tmp_path / "w05.csv"; hot.write_text("# {}\nx\n")
+    live = dict(UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix", UNION_MAIN_CAP="0.35", UNION_MAIN_OWN_CAP_DELTA="15",
+                UNION_MIX_ROW_RULES="te1_low1", UNION_MIX_FILL="rr")
+    env = fresh("a"); env.update(live, UNION_MIX_HOT_WRTE_MAX="1", UNION_MIX_HOT_SOURCE=str(hot))
+    assert not any(f.startswith("UNION_MIX_HOT") for f in _failures(_run(env)))
+    env = fresh("b"); env.update(live, UNION_MIX_HOT_WRTE_MAX="2", UNION_MIX_HOT_SOURCE=str(hot))
+    assert any(f.startswith("UNION_MIX_HOT_WRTE_MAX='2' must be 1") for f in _failures(_run(env)))
+    env = fresh("c"); env.update(live, UNION_MIX_ROW_RULES="", UNION_MIX_HOT_WRTE_MAX="1", UNION_MIX_HOT_SOURCE=str(hot))
+    assert any(f.startswith("UNION_MIX_HOT_WRTE_MAX='1' must be 1") for f in _failures(_run(env)))
+    env = fresh("d"); env.update(live, UNION_MIX_HOT_WRTE_MAX="1", UNION_MIX_HOT_SOURCE=str(tmp_path / "none.csv"))
+    assert any(f.startswith("UNION_MIX_HOT_WRTE_MAX=1 needs UNION_MIX_HOT_SOURCE") for f in _failures(_run(env)))
+    env = fresh("e"); env.update(live, UNION_MIX_HOT_SOURCE=str(hot))
+    assert any(f.startswith("UNION_MIX_HOT_SOURCE=") for f in _failures(_run(env)))
+
+
 def test_study97s_favhi_scope_rides_only_with_the_rb_mate_and_no_qb2_scope(tmp_path):
     """Study 97: the RB-mate scope is all or favhi, favhi only with UNION_MIX_RB_MATE_C=4; no QB2 scope is built."""
     def fresh(name):

@@ -687,6 +687,63 @@ def row_rule_sets(source: Path, t70: pd.DataFrame, exclude: set[str], low_pct: f
                      "pool_skill_players": n_skill, "named": named, "low_owned": len(low), "pool_tes": len(te)}
 
 
+HOT_WRTE_POS = ("WR", "TE")                # study 115's position mask on study 109's flag
+HOT_RULE = {"x": 2.0, "floor": 5.0, "min_prior": 2, "prior_games": 4}   # study 109's frozen flag (study 65's last_game() at 2.0x)
+HOT_COLS = ("dk_player_id", "gsis_id", "name", "pos", "last_week", "last_pts", "prior_mean", "prior_n", "hot")
+
+
+def hot_wrte_ids(source: Path, t70: pd.DataFrame, exclude: set[str]) -> tuple[set[str], list[str], dict]:
+    """Study 115's HOT_WRTE1 (the operator 10-10, "Test today for this week"; nfl2 experiments/s115_wrte_recency.py): the POOL's
+    hot WR / TE frame ids, read from the hot-flag file (study 38 6y's paper-hot format, written by
+    reports/2026-10-10-paper-hot/paper_hot_flags.py; study 109's frozen flag = study 65's last_game(): the last REG game this
+    season, its up-to-4 prior REG games crossing into last season, hot iff prior_n >= 2 and last_pts >= 2.0 x max(prior_mean,
+    5.0)); matched to the frame by dk_player_id; QBs / RBs / DSTs are never hot. Refuses (SystemExit 'HOT WR/TE REFUSED: ...')
+    on a missing file, a missing or different metadata line (x / floor / min_prior / prior_games), a week that is not the
+    frame's, a missing column, a non-finite number, a repeated id, a non-skill position, or a flag that disagrees with its own
+    numbers."""
+    def refuse(why: str):
+        raise SystemExit(f"HOT WR/TE REFUSED: {why}")
+    if source is None or not Path(source).is_file():
+        refuse(f"the hot file {source} does not exist")
+    lines = Path(source).read_text().splitlines()
+    if not lines or not lines[0].startswith("# "):
+        refuse(f"{Path(source).name} has no metadata line")
+    try:
+        meta = json.loads(lines[0][2:])
+    except ValueError:
+        refuse(f"{Path(source).name}: the metadata line is not JSON")
+    for key, want in HOT_RULE.items():
+        got = meta.get(key)
+        if not isinstance(got, (int, float)) or float(got) != float(want):
+            refuse(f"{Path(source).name}: metadata {key} = {got!r}, not {want}")
+    weeks = set(pd.to_numeric(t70["week"], errors="coerce").dropna().astype(int)) if "week" in t70.columns else set()
+    if weeks and meta.get("week") not in weeks:
+        refuse(f"{Path(source).name}: week {meta.get('week')!r} is not the frame's {sorted(weeks)}")
+    d = pd.read_csv(source, skiprows=1, dtype={"dk_player_id": str, "gsis_id": str, "name": str, "pos": str})
+    missing = [c for c in HOT_COLS if c not in d.columns]
+    if missing:
+        refuse(f"{Path(source).name} lacks {missing}")
+    num = d[["last_week", "last_pts", "prior_mean", "prior_n", "hot"]].apply(pd.to_numeric, errors="coerce")
+    if not np.isfinite(num.to_numpy(float)).all():
+        refuse(f"{Path(source).name}: a non-finite number")
+    if d["dk_player_id"].duplicated().any() or d["gsis_id"].duplicated().any():
+        refuse(f"{Path(source).name}: a repeated id")
+    if not d["pos"].isin(SKILL).all():
+        refuse(f"{Path(source).name}: a non-skill position")
+    again = ((num["prior_n"] >= HOT_RULE["min_prior"])
+             & (num["last_pts"] >= HOT_RULE["x"] * num["prior_mean"].clip(lower=HOT_RULE["floor"]))).astype(int)
+    if not (again == num["hot"].astype(int)).all():
+        refuse(f"{Path(source).name}: a hot flag disagrees with its own numbers")
+    hot_dk = {_dk_text(i) for i, h in zip(d["dk_player_id"], num["hot"]) if int(h) == 1} - {None}
+    pool = t70[~t70.id.astype(str).isin(exclude)]
+    dks = pool["dk_player_id"] if "dk_player_id" in pool.columns else pd.Series([None] * len(pool))
+    hit = [(str(i), _dk_text(dk)) for i, dk, pos in zip(pool.id.astype(str), dks, pool.pos.astype(str))
+           if pos in HOT_WRTE_POS and _dk_text(dk) in hot_dk]
+    ids, dk_ids = {i for i, _ in hit}, sorted({k for _, k in hit})
+    return ids, dk_ids, {"path": str(source), "sha256": sha256_file(Path(source)), "week": meta.get("week"),
+                         "rule": dict(HOT_RULE), "file_rows": int(len(d)), "file_hot": int(num["hot"].sum())}
+
+
 def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap: int | None, min_salary: int,
              weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
              bonus: dict[str, float] | None = None, portfolio: str = "mix",
@@ -1484,6 +1541,12 @@ def main(argv: list[str] | None = None) -> int:
                          "main-book row whose FP projected ownership (--main-own-cap-source's fp_own_raw, raw %%; blank = 0%%) is below "
                          "--mix-low-own-pct (1)")
     ap.add_argument("--mix-low-own-pct", type=float, default=3.0, help="study 91: the low-ownership threshold in percent (3)")
+    ap.add_argument("--mix-max-hot-wrte", type=int, default=0,
+                    help="study 115's HOT_WRTE1 (default 0 = off; only 1): at most this many hot WR / TE (study 109's flag, from "
+                         "--mix-hot-source) per main-book row, in the row-rule tier (with --mix-max-te / --mix-max-low-own); LOUDLY "
+                         "off when the row rules or the file are not applied; an empty hot list is vacuous")
+    ap.add_argument("--mix-hot-source", type=Path, default=None,
+                    help="study 115: the hot-flag file (study 38 6y's paper-hot format) for --mix-max-hot-wrte")
     ap.add_argument("--mix-rb-mate-c", type=int, default=0,
                     help="study 94's RBMATE4 with ONECATCH (study 96; default 0 = off; only 4, the tested value): the first N "
                          "C-cell BOOK solves hold the QB's own RB (an interaction floor), in one solve with the row rules and "
@@ -1593,6 +1656,12 @@ def main(argv: list[str] | None = None) -> int:
                          "(--main-own-cap-delta and --main-own-cap-source; study 91 is read on his armed package)")
     if any(v is not None and v != 1 for v in (a.mix_max_te, a.mix_max_low_own)) or not 0 < a.mix_low_own_pct <= 20:
         raise SystemExit("--mix-max-te / --mix-max-low-own take 1 (study 91's tested value); --mix-low-own-pct in (0, 20]")
+    if a.mix_max_hot_wrte not in (0, 1) or (a.mix_max_hot_wrte and (a.mix_hot_source is None or a.mix_max_te is None
+                                                                     or a.mix_max_low_own is None)):
+        raise SystemExit("--mix-max-hot-wrte takes 0 (off) or 1 (study 115's tested value); 1 needs --mix-hot-source and the row "
+                         "rules (--mix-max-te / --mix-max-low-own): it sits in their tier")
+    if a.mix_hot_source is not None and not a.mix_max_hot_wrte:
+        raise SystemExit("--mix-hot-source is read only by --mix-max-hot-wrte")
     if a.mix_one_catcher_all and (a.main != "mix" or a.mix_portfolio != "mix" or a.mix_fill != "rr" or a.mix_max_te != 1
                                   or a.mix_max_low_own != 1 or a.mix_cover_games or a.mix_rs_rows or a.mix_bring_back_top_wr
                                   or a.winner_select is not None):
@@ -1800,6 +1869,25 @@ def main(argv: list[str] | None = None) -> int:
                     row_bounds, row_meta = None, {"applied": False, "not_applied": str(exc)}
             if row_bounds is None:
                 print(f"\n!!! ROW RULES NOT APPLIED: {row_meta['not_applied']} -- the book is built without them\n", flush=True)
+        hot_meta, hot_dk_ids = None, []
+        if a.mix_max_hot_wrte:                               # study 115: in the row-rule tier, only with the applied row rules
+            if not row_bounds:
+                hot_meta = {"applied": False, "not_applied": "the row rules are not applied"}
+            else:
+                try:
+                    hot_ids, hot_dk_ids, hot_meta = hot_wrte_ids(a.mix_hot_source, fr, excl)
+                    if hot_ids:                              # an empty list is vacuous (study 115)
+                        row_bounds = row_bounds + [(hot_ids, 0, a.mix_max_hot_wrte)]
+                    hot_meta.update({"applied": True, "not_applied": None})
+                    print(f"HOT WR/TE: at most {a.mix_max_hot_wrte} hot WR / TE per main row ({len(hot_ids)} hot WR / TE in the "
+                          f"pool; study 109's flag at 2.0x; {Path(a.mix_hot_source).name})", flush=True)
+                except SystemExit as exc:
+                    hot_meta = {"applied": False, "not_applied": str(exc)}
+            if not hot_meta.get("applied"):
+                hot_meta.update({"path": str(a.mix_hot_source), "rule": dict(HOT_RULE),
+                                 "sha256": sha256_file(Path(a.mix_hot_source)) if Path(a.mix_hot_source).is_file() else None,
+                                 "week": None})
+                print(f"\n!!! HOT WR/TE NOT APPLIED: {hot_meta['not_applied']} -- the book is built without it\n", flush=True)
         oc_on, oc_meta = False, None
         if a.mix_one_catcher_all:                            # study 93: only with the applied row rules, else LOUDLY off
             oc_on = bool(row_bounds)
@@ -1857,6 +1945,11 @@ def main(argv: list[str] | None = None) -> int:
                 mix_meta["own_cap_source"] = own_cap_meta
             if row_meta is not None:
                 mix_meta["row_rules_source"] = row_meta
+            if hot_meta is not None:                        # study 115 (the receipt format agreed with the reviewer 10-10)
+                mix_meta["hot_wrte_source"] = hot_meta
+                if hot_meta.get("applied"):
+                    mix_meta["hot_wrte"] = {"max_per_row": a.mix_max_hot_wrte, "positions": list(HOT_WRTE_POS), "dk_ids": hot_dk_ids,
+                                            "rows_relaxed": len((mix_meta.get("row_rules") or {}).get("resolved_without") or [])}
             if oc_meta is not None:
                 mix_meta["one_catcher_source"] = oc_meta
             if oc_on:
