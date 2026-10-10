@@ -10686,3 +10686,89 @@ secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier fi
   otherwise paper. It would be the fourth change this week." The test together is study 96 (ONECATCH vs ONECATCH +
   RBMATE4 on the armed construction, his rule); then the production flag, the laptop's W4 check and study 38 amendment 6u.
   DSTRB8 stays on paper.
+
+## Addendum 193 (2026-10-09): study 96 (the QB's own RB as a stack mate, RBMATE4, on top of one receiver per team, ONECATCH, on his armed Week-5 book, in the harness; his Week-5 decision): the RB mate adds nothing on top of one receiver per team (−0.5; negative on both draws; seats ×0.97): PAPER ONLY by his rule -- study 94's +2.0 did not hold up
+
+**Setup.**
+- **His decision** (HANDOFF `ad00da5c`, in the laptop's session, after study 94's READ): **"Try live W5 if built"**. The option
+  text: "New code tonight, plus a test of it together with one receiver per team and the same checks as before. It goes live at
+  Saturday's 10:28 arming only if all pass, otherwise paper. It would be the fourth change this week." This study is that test.
+- **The prior:** study 94 (Addendum 192) read RBMATE4 +2.0 [−1.0, +4.9] WITHOUT ONECATCH (A +1.7, B +2.4; the gain all 2023);
+  ONECATCH has since been armed for Week 5 (arm `ee92d15b`), so the two together were untested (the post-selection law).
+- **The arms.** Study 94's harness (its frozen module `2eb7835b…`, sha-asserted; `run()` = 94's with six listed edits, a test).
+  Both arms are his armed construction: the 0.35 player cap, the ownership cap + 15, te1 + low1, the QB cap 5, the DST cap 6, the
+  overlap limit 4, the cheap +2 block, Rev6.
+  - **ONECATCH** (the reference, his armed book): study 93's `lead_rules(0, True, 0, …)` inside 89's `own_caps`, the same call as
+    study 95's LIVE.
+  - **ONECATCH_RBMATE4:** `combo_rules`, ONE optimize call per solve. ONECATCH on every B / C book solve, and on the first 4 C-cell
+    book solves (a slot taken at the solve, ruled or dropped) 94's interaction floor over (QB, RB of the QB's team) pairs.
+    Tiers: [rules + one-catcher] + floor → [rules + one-catcher] → [rules] → none, inside the ownership cap.
+- **The read:** ONECATCH_RBMATE4 − ONECATCH on P(≥ 1 big seat), pooled and on two draws (the same 36 past slates, two random sets
+  of opponents). **His Week-5 rule, printed as one line: GO LIVE in W5 iff the point is > 0 on BOTH draws AND the pooled expected
+  big seats ratio ≥ 0.80; otherwise PAPER ONLY.** Guard 1 printed beside it, outside his rule. Disclosed: under no true effect it
+  passes about one time in four to one in three, and study 94 read RBMATE4 on these same 36 slates (other banks), so this second
+  pass is not independent of the first.
+- **Preregistration:** `reports/2026-10-09-prereg-study96-onecatch-rbmate.md` (DRAFT by the outside reviewer; FROZEN `3075deaf`,
+  10-09 19:32 CDT, before any scored bank).
+- **Code:** nfl2 `3cf3e8eb`: module `0363a84f…` (pins s94 `2eb7835b…`; `combo_rules` text `66ed0eff…`); drive `ef706189…`;
+  census `f9c9e7c7…`; reader `a7cdf787…`; tests `a9e53ab9…` (12).
+- **Production:** `union_reselect --mix-rb-mate-c 4` (review/rb-mate-c-20261009 @ `4caff46d`, the outside reviewer's; reviewed
+  by the laptop and 84). It pastes `combo_rules` and 94's `rb_pairs` byte for byte. Study 38 amendment 6u (lab `3b74eaa5`)
+  follows it on paper, and a test executes `combo_rules`' text against 6u's `oc_tiers`.
+- **Panel:** banks 3112–3123 (A 3112–3117, B 3118–3123), B 20,000, seed 20261141, PYTHONHASHSEED=0; the laptop's scan was clean.
+- **Census** (binding, bank 1406; lab `0a09750a`; the laptop's re-run identical): 0 fallbacks in both arms; ONECATCH 504 of 504 B /
+  C solves ruled in both arms; RBMATE slots used 144 (4 per slate-bank), floors ruled 144, dropped 0; QB + own-RB rows 2.9 → 5.2;
+  rows shared 7.03 of 26, dealt identical 0.000; **ONECATCH identical rows and dealing to study 95's LIVE on 36 of 36**.
+- **Read:** the reader `a7cdf787`; READ `9d479980` (lab `4c212f46`). The confirmatory census (`0c390753`, raw shas `a6975727`,
+  RUN_ENV `55dd8ffd`; lab `26fae567`) was committed before the READ: 0 row-rule / ownership-cap fallbacks in both arms; ONECATCH
+  6,048 of 6,048 B / C solves ruled in both arms; RBMATE slots used 1,728 (4 per slate-bank), floors ruled 1,728, dropped 0; QB +
+  own-RB rows 2.7 → 5.1; dealt identical 0.007.
+- **Reproduced byte-identically by the laptop** at `4c212f46` (PYTHONHASHSEED=0): the raw files 3112–3123 pass `sha256sum -c`
+  against `RAW_s96_run.sha256`; the READ is `9d479980` and the confirmatory census `0c390753` (cmp-identical).
+
+**Reader output (verbatim):**
+```
+STUDY 96 READER  sha256 a7cdf787dc25ba5f685d8eb916b71404bb51c89e4acc3a14a0f8381167155f12
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [3112, 3113, 3114, 3115, 3116, 3117, 3118, 3119, 3120, 3121, 3122, 3123]  sets {'pooled': [3112, 3113, 3114, 3115, 3116, 3117, 3118, 3119, 3120, 3121, 3122, 3123], 'A': [3112, 3113, 3114, 3115, 3116, 3117], 'B': [3118, 3119, 3120, 3121, 3122, 3123]}  B 20000  seed 20261141  comparisons (('ONECATCH_RBMATE4', 'ONECATCH'),) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 94 / 93 / 92 / 91 / 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["ONECATCH", "ONECATCH_RBMATE4"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"ONECATCH": 0.35, "ONECATCH_RBMATE4": 0.35}, "delta": 0.15, "low_pct": 3.0, "own_arms": ["ONECATCH", "ONECATCH_RBMATE4"], "rbmate": {"cell": "C", "slots": 4}, "row_rules": {"ONECATCH": ["te1", "low1"], "ONECATCH_RBMATE4": ["te1", "low1"]}, "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "skill_sum": 800.0, "source": "blend_pct", "tiers": "[row + oc] + floor -> [row + oc] -> [row] -> none, inside own_caps"}, {"ONECATCH": [9, 6], "ONECATCH_RBMATE4": [9, 6]}, "2eb7835bf998e53e59709bc59d39ca6691ef8849e96f780c50f69b5323a2dcf5", "5f4e1fb9977d349183adc3457782b131673a8bcf06bf3e850af2c149c52bfd4d", "37980da6506df0a799e97b5dae29e670228398cb405be01a3c93cc47f2c7e252", "9cde18bd221e52069b449044a37720996ffb0efafac88202d44f02a7dc898aa8", "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== ONECATCH_RBMATE4 vs ONECATCH  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.00455  [-0.03964, +0.03218] (two-sided 0.95)  seasons 2023 +0.01106, 2024 -0.02015
+  GUARD 1 mean entry pct -0.00164  one-sided lower -0.00417  (must exceed -0.015)
+  GUARD 2 expected big seats 0.53697 vs 0.55583  ratio 0.966  (must be >= 0.80)
+  ONECATCH_RBMATE4 dealt identical to ONECATCH: 0.007 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3112, 3113, 3114, 3115, 3116, 3117]: -0.00697  [-0.05327, +0.04130]  seasons 2023 +0.02617, 2024 -0.04010
+  set B [3118, 3119, 3120, 3121, 3122, 3123]: -0.00213  [-0.04721, +0.05035]  seasons 2023 -0.00405, 2024 -0.00020
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.00697 < 0; set B -0.00213 < 0  (set A -0.00697, set B -0.00213, the difference -0.00484; seats ratio 0.966)
+  EXPLORATORY the l02 field (pooled): -0.00723  [-0.04250, +0.02945]
+
+
+== HIS WEEK-5 RULE ("Try live W5 if built"; better on both draws AND seats >= 0.80):
+  ONECATCH_RBMATE4  PAPER ONLY: draw A -0.00697 is not > 0; draw B -0.00213 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.00417 (passes -0.015)  |  under no true effect about one time in four to one in three
+
+  ONECATCH row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  ONECATCH_RBMATE4 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  ONECATCH     v2: P(>=1 big) 0.38311  expected big seats 0.55583  P(>=2) 0.12326  entry pct 0.50656  |  l02: P(>=1 big) 0.41395
+               book: projection per row 124.69  salary 49970  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.19  predicted ownership per row 94.5%  distinct QBs 8.2  non-DST players 50.6  rows with 2+ TEs 0.0  low-owned per row 0.650  QB + own-RB rows 2.7  DST + own-RB rows 3.2
+  ONECATCH_RBMATE4 v2: P(>=1 big) 0.37856  expected big seats 0.53697  P(>=2) 0.12706  entry pct 0.50492  |  l02: P(>=1 big) 0.40672
+               book: projection per row 124.68  salary 49969  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.19  predicted ownership per row 94.4%  distinct QBs 8.2  non-DST players 50.8  rows with 2+ TEs 0.0  low-owned per row 0.654  QB + own-RB rows 5.1  DST + own-RB rows 3.2
+```
+
+**Reading.**
+- **ONECATCH_RBMATE4 − ONECATCH: −0.5 [−4.0, +3.2]**, negative on both draws (A −0.7, B −0.2), expected big seats ×0.97, guard 1
+  passes. **His Week-5 rule: PAPER ONLY.** The rule bound fully (every one of the 1,728 floors held; QB + own-RB rows 2.7 → 5.1),
+  so the null is not vacuity: the pair simply adds nothing on top of one receiver per team in the harness.
+- **Against study 94:** RBMATE4 read +2.0 [−1.0, +4.9] on banks 3036–3047 WITHOUT ONECATCH, and −0.5 here on banks 3112–3123 WITH
+  it. The two readings differ by 2.5 points, within the bank-set spread Addendum 182 measured; 94's lean did not hold up on the
+  armed version (the post-selection law, and the reason this test was run).
+- **In plain words:** putting the quarterback's own running back into 4 of his QB-plus-one lineups does not help once the
+  one-receiver-per-team rule is in: slightly worse against both sets of simulated opponents. It stays on paper (study 38 amendment
+  6u's MIXT_QA0_RBMATE scores it on the real Week-5 fields); RB_MATE_C stays 0.
+- **For study 97's situation rule** (its prereg §3): "study 96 passed" is false, so only a conditional version that beats BOTH
+  LIVE and the unconditional RBMATE4 by his rule can be suggested.
+- **His decision:** none needed tonight (his night rules: RB_MATE_C stays 0 until his morning word); the morning page reports this
+  read.
