@@ -309,4 +309,6 @@ reviewer and updated as each study is read.
 
 ## Still running
 
+Nothing as of 10-10 midday: every study queued for today has been read.
+
 *Updated as each study is read.*
