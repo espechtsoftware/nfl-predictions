@@ -48,6 +48,14 @@ ONECATCH, 89's `own_caps`, QB cap 5, overlap 4, the cheap +2 block, A1 .30 / A2 
 - **Banks (the laptop's full-set check and text scan: CLEAN, banks and seed):** **3408–3419** (set A 3408–3413, set B 3414–3419; sims
   bases 3458–3469, fields 4108–4119); the reader's bootstrap seed **20261147** (new).
 - The census on bank 1406 before the freeze; PYTHONHASHSEED=0; one heavy job at a time.
+- **Study 102's pick (READ `3a992f7f`): CEIL_BLOCK8**, so COMBO = FAVHI + the 8 cheap-block rows on p85 + the cheap term.
+- **Code (written during study 103's run, after study 102's READ; the design above unchanged):** nfl2
+  `production/s104-favhi-ceiling-20261010` @ `448c3d77` (off study 102's frozen `969f4d3d`; s96 / s97 brought in byte for
+  byte, `0363a84f…` / `7df6f324…`): `experiments/s104_favhi_ceiling.py` `1a1a850d…` (pins s102 `ca7f4399…`, s97 `7df6f324…`);
+  `scripts/s104_drive.py` `32c2374a…`; `scripts/s104_census.py` `7ac1ebba…`; **`scripts/s104_report.py` (the reader)
+  `f3fe9938…`** (seed 20261147); `tests/test_s104_favhi_ceiling.py` `2c64dbcc…` (10). Every per-slate field sits outside the
+  blocks the reader compares (study 102's smoke lesson). **The smoke:** (only if study 103 holds; a machine gap the lab reviewer
+  names).
 - **Production if it passes:** one small reviewed commit opens the wiring's pair refusal (RB_MATE_SCOPE = favhi with
   A1_FULL_STACK = 1, or the p85 switch if one is built), plus the laptop's Week-4 check of the pair. Study 38's classification of
   any new union flag comes before any merge.
