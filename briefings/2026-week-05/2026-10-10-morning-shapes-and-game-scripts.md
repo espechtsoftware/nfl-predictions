@@ -23,7 +23,8 @@ something is successful, we'll discuss in the morning how we want to use it."
   best of them (overlap 3) did not hold on a fresh draw: **keep your live settings** (studies 100 / 101). Three new
   constructions for the ceiling (study 102): building **every** lineup on upside raised the 200+ rate (15.5% vs 12.3%) but cost
   big wins (×0.86, worse on both sets); the full game stack was worse on everything; the pick (only the 8 cheap-block lineups on
-  upside, +0.2) is re-checked by study 103 and could be used no earlier than Week 6. [103: ]
+  upside, +0.2) did not hold on a fresh draw (study 103). **Keep your live settings.** Building every lineup on upside is the
+  one direct "more 200+" lever (+2–3 slates in 100 reaching 200, on all four opponent sets), at 12–14% fewer expected big wins.
 - **Already armed for Week 5 (your decisions):** Fantasy Points' projections, the winners' shape mix, the cheap +2 block, the
   35% cap with the ownership limit (+ 15), at most one TE and one player under 3% per lineup, and one receiver per team in the
   QB + 1 lineups. (The cheap +2 block is entered at Saturday's arming, as designed: TERM_ROWS = 8.)
@@ -258,16 +259,29 @@ pick on a fresh draw.
 - **What earlier tests said** matches: building on upside lost in every earlier test (study 26: −2.7, about 18% fewer expected
   big wins); the full game stack read no difference before (studies 26 and 74).
 
-**The pick on a fresh draw (study 103):** [ ]
+**The pick on a fresh draw (study 103): it did NOT hold.** The cheap-block lineups on upside against your book: best lineup +0.3
+(A +0.7, **B −0.0**), big wins −1.0 (A +1.1, B −3.0), ×0.95 — its tiny gain in study 102 was the luck of that draw (study 103's
+READ `4d0b354d`, lab `463d5050`).
+
+| Study 103 (fresh opponents and simulations, same 36 past slates) | Best lineup vs your book | Set A | Set B | 200+ rate (yours: 14.1% on this draw) | Big wins: pooled (A / B), expected |
+|---|---|---|---|---|---|
+| The 8 cheap-block lineups on upside (the pick) | +0.3 (−0.9 to +1.6) | +0.7 | −0.0 | 14.6% | −1.0 (+1.1 / −3.0), ×0.95 |
+| Every lineup on upside | +1.1 (−1.3 to +3.7) | +1.3 | +0.8 | **16.4%** (+1.9 / +2.8) | **−3.0 (−3.3 / −2.6), ×0.88** |
+| The full game stack in the top-total games | −0.8 (−2.6 to +0.9) | −0.9 | −0.7 | 12.7% | −2.5 (−1.8 / −3.1), ×0.90 |
+
+**Building every lineup on upside repeated its trade on all four opponent sets (studies 102 and 103):** the best lineup reaches
+200 about 2–3 more slates in 100, and big wins drop about 3 slates in 100 (12–14% fewer expected big wins; its finishes slip).
+**It is the one direct "more 200+" lever found tonight, and by your rule, which counts big wins, it loses.** If you ever want
+to trade big wins for more 200+ lineups, this is the measured price; it has no production switch (Week 6 at the earliest).
+**The full game stack was worse again.** **Suggested: keep your live settings.**
 
 **Using a pick:**
-- **The cheap-block lineups on upside:** no production switch exists (production would need a distribution around Fantasy
-  Points' projections); **Week 6 at the earliest**, and only if study 103 holds.
-- **The full game stack:** not picked; its prepared switch stays unmerged and off.
+- **Nothing to arm from studies 102 / 103.** The full game stack's prepared switch stays unmerged and off.
 
 **With the RB version (section 2):** the two were tested separately, so they cannot be armed together unless **study 104** —
 the RB version plus the pick in one book, against the RB version alone, fixed before study 102 was read — holds them together.
-It runs only if study 102 picks something and study 103 holds it (due about 07:00). Otherwise it is one or the other. [104: ]
+It runs only if study 102 picks something and study 103 holds it. **Not run: study 103 did not hold the pick** (the condition
+fixed before study 102 was read).
 
 ## 4. The rest of last evening (for the record)
 
