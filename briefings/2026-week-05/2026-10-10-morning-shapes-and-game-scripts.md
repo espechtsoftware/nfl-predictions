@@ -358,6 +358,10 @@ fixed before study 102 was read).
    (study 109) but still below your book on both opponent sets, so the fresh-draw check (115b) is not run (READ `5ecd46e6`, lab
    `46236e09`). The real fields' pattern (lineups with a hot receiver won less often) does not show up when the lineups are built
    before the games in the test model.
+4c. **On paper in Week 5, so your real results decide** (study 38, scored on Sunday's real contests beside your book; nothing
+   changes in what you enter): at most one "hot" player per lineup (study 109's HOT1), at most one hot WR / TE per lineup (your
+   "Yes, on paper"), and at most 4 top-value players per lineup (VAL4). The test model read each of them slightly worse; your
+   real fields pointed the other way, and Week 5's results will say which to believe.
 5. **Study 112 — usage floors** (your minimum rush attempts, pass attempts, targets, touchdowns and red-zone targets): one floor
    per version, each from this season's games before the slate only; a pick is re-checked on a fresh draw (study 113). The
    levels were set by a rule written down before any result: each floor changes about 8–15 of your 26 lineups. **That gives at
