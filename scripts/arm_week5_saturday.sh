@@ -46,17 +46,17 @@ RB_MATE_C=4                         # LIVE (his 10-10 decision in the laptop's s
 RB_MATE_SCOPE=favhi                 # LIVE with RB_MATE_C=4: favhi = only the expected winner of a high-total game (studies 97 + 99,
                                     # passed his rule twice; W4 check b6680c2c: BUF / HOU / SF, 4 / 4 rows); all = study 94's pairs
                                     # (PAPER ONLY, study 96) -- never armed
-DK_STATUS_FILE=""                   # the operator's exclusion file (10-10, "non-negotiable unless it is certain to break things
+DK_STATUS_FILE="$HOME/week5-sunday/dk-status-w05.csv" # the operator's exclusion file (10-10, "non-negotiable unless it is certain to break things
                                     # tomorrow"): DK-format id,status (OUT) rows read by the union's --dk-status (unavailable_ids);
                                     # ABSOLUTE path, exactly $HOME/week5-sunday/dk-status-w05.csv; "" = none
-DK_STATUS_SHA=""                    # its sha256, pinned (the arm refuses a mismatch)
-MAX_BAND=""                         # the band cap (the operator 10-10): 1 = at most one RB / WR / TE with salary in BAND per book row,
+DK_STATUS_SHA="1ac591e47405596f8139d01e8dfe1829e25310ec05cb822174fd199bea731a1c" # its sha256, pinned (the arm refuses a mismatch)
+MAX_BAND="1" # the band cap (the operator 10-10): 1 = at most one RB / WR / TE with salary in BAND per book row,
                                     # in the row-rule tier (ROW_RULES=te1_low1 required); "" = off
-BAND=""                             # with MAX_BAND=1: the salary band LO:HI, e.g. 5300:6000 (inclusive)
-QB_MAX_SALARY=""                    # the QB salary cap by cell (the operator 10-10: "in cells B and C, QB salary <= 6400"): no QB
+BAND="5300:6000" # with MAX_BAND=1: the salary band LO:HI, e.g. 5300:6000 (inclusive)
+QB_MAX_SALARY="6400" # the QB salary cap by cell (the operator 10-10: "in cells B and C, QB salary <= 6400"): no QB
                                     # above this DK salary on the QB_MAX_SALARY_CELLS book rows, in the row-rule tier
                                     # (ROW_RULES=te1_low1 required); "" = off
-QB_MAX_SALARY_CELLS=""              # with QB_MAX_SALARY: the MIX cells, e.g. B,C
+QB_MAX_SALARY_CELLS="B,C" # with QB_MAX_SALARY: the MIX cells, e.g. B,C
 MIX_FILL=rr                         # the MIX fill order (study 42; his 10-06 evening yes, "Use round-robin"): the cells in
                                     # turn, a row per shape for the top QBs (the outside reviewer's arm; NO DIFFERENCE on
                                     # P(>=1 big), +9% expected seats). group = the earlier book; value is NOT to be armed
