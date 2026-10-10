@@ -580,6 +580,31 @@ def _dk_text(x) -> str | None:
 
 
 ONE_CATCHER_CELLS = ("B", "C")      # study 93's ONECATCH: the QB + 1 cells (nfl2 experiments/s93_leads.py QB1_CELLS)
+GS_FAV_MARGIN, GS_HIGH_Q = 3.0, 2.0 / 3.0                  # study 97's FAV_MARGIN / HIGH_Q (nfl2 s97_game_script.py @ af07583e)
+
+
+def game_script_sets(t70: pd.DataFrame, pool_ids: set[str]) -> dict:
+    """Study 97's scenarios (nfl2 experiments/s97_game_script.py scenarios @ af07583e, module 7df6f324) on the pool's frame rows,
+    pre-lock lines only: per team the median implied_team_total and game_total over its pool rows; margin = 2 x implied -
+    total; a high-total game = its median total >= the slate's numpy quantile 2/3 over the games; FAV margin >= 3, FAVHI = FAV
+    in a high-total game, HIGH, DOGHI = margin < 0 in a high-total game; opp_of = the other team(s) of the team's game. A team
+    without both lines is in no set. SystemExit ("GAME SCRIPT REFUSED: ...") when the frame lacks either column."""
+    if "implied_team_total" not in t70.columns or "game_total" not in t70.columns:
+        raise SystemExit("GAME SCRIPT REFUSED: the T-70 frame lacks implied_team_total / game_total")
+    f = t70[t70.id.astype(str).isin(set(pool_ids))]
+    g = pd.DataFrame({"team": f.team.astype(str).to_numpy(), "game": f.game_id.astype(str).to_numpy(),
+                      "itt": pd.to_numeric(f.implied_team_total, errors="coerce").to_numpy(),
+                      "gt": pd.to_numeric(f.game_total, errors="coerce").to_numpy()})
+    t = g.groupby("team").agg(itt=("itt", "median"), gt=("gt", "median")).dropna()
+    games = g.groupby("game")["gt"].median().dropna()
+    cut = float(np.quantile(games.to_numpy(float), GS_HIGH_Q)) if len(games) else float("inf")
+    margin = 2.0 * t["itt"] - t["gt"]
+    high = t["gt"] >= cut
+    teams = {"FAV": set(t.index[margin >= GS_FAV_MARGIN]), "FAVHI": set(t.index[(margin >= GS_FAV_MARGIN) & high]),
+             "HIGH": set(t.index[high]), "DOGHI": set(t.index[(margin < 0) & high])}
+    tg = g.drop_duplicates("team").set_index("team")["game"]
+    opp_of = {a: {b for b in tg.index if b != a and tg[b] == tg[a]} for a in tg.index}
+    return {"high_cut": round(cut, 3), "teams": teams, "opp_of": opp_of}
 
 
 def one_catcher_line(block: dict | None) -> str:
