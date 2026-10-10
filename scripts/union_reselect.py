@@ -633,6 +633,30 @@ def rb_mate_scope_teams(scope: str, t70: pd.DataFrame, pool_ids: set[str]) -> tu
     return teams, None
 
 
+BAND_POS = ("RB", "WR", "TE")       # the band cap (the operator 10-10): RB / WR / TE only
+
+
+def parse_band(spec: str | None) -> tuple[int, int]:
+    """'LO:HI' -> (lo, hi): integers, 1,000 <= lo < hi <= 20,000 (DraftKings classic salaries)."""
+    try:
+        lo, hi = (int(x) for x in str(spec).split(":"))
+    except ValueError:
+        raise SystemExit(f"--mix-band {spec!r}: 'LO:HI' in dollars, e.g. 5300:6000") from None
+    if not 1000 <= lo < hi <= 20000:
+        raise SystemExit(f"--mix-band {spec!r}: needs 1,000 <= LO < HI <= 20,000")
+    return lo, hi
+
+
+def band_ids(t70: pd.DataFrame, exclude: set[str], lo: int, hi: int) -> set[str]:
+    """The band cap's set (the operator 10-10: "at most ONE RB/WR/TE with salary in [5300, 6000] per row"): the POOL's frame ids
+    (not in `exclude`, i.e. after unavailable_ids incl. --dk-status and the min-proj floor) with pos RB / WR / TE and DraftKings
+    salary lo <= s <= hi, INCLUSIVE at both ends."""
+    pool = t70[~t70.id.astype(str).isin(exclude)]
+    sal = pd.to_numeric(pool.salary, errors="coerce")
+    m = pool.pos.astype(str).isin(BAND_POS) & (sal >= lo) & (sal <= hi)
+    return set(pool.id.astype(str)[m.to_numpy()])
+
+
 def one_catcher_line(block: dict | None) -> str:
     """Study 93's one printed line."""
     b = block or {}
@@ -1493,6 +1517,11 @@ def main(argv: list[str] | None = None) -> int:
                     help="study 97 (default all = every (QB, own RB) pair, today's --mix-rb-mate-c): favhi = only the QBs of the "
                          "expected winners (margin = 2 x implied - total >= 3) of the slate's high-total games (>= its 2/3 "
                          "quantile); needs --mix-rb-mate-c 4; a refused scope (no lines, no such pair) turns the RB mate OFF, LOUDLY")
+    ap.add_argument("--mix-max-band", type=int, default=0,
+                    help="the band cap (the operator 10-10; default 0 = off; only 1): at most this many RB / WR / TE with DraftKings "
+                         "salary in --mix-band (inclusive) per main-book row, in the row-rule tier (with --mix-max-te / "
+                         "--mix-max-low-own); LOUDLY off when the row rules are not applied; an infeasible solve drops the tier, recorded")
+    ap.add_argument("--mix-band", default=None, help="with --mix-max-band 1: the salary band 'LO:HI' in dollars, e.g. 5300:6000")
     ap.add_argument("--mix-one-catcher-all", action="store_true",
                     help="study 93's ONECATCH (default off): every B / C (QB + 1) BOOK solve, the live and the term block alike, "
                          "holds at most ONE WR / TE of every team, in one solve with the row rules; infeasible -> re-solved with "
@@ -1599,6 +1628,14 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--mix-one-catcher-all is defined on his armed version only (study 93): --main mix --mix-portfolio mix "
                          "--mix-fill rr with the ownership cap and --mix-max-te 1 --mix-max-low-own 1, and no --mix-cover-games / "
                          "--mix-rs-rows / --mix-bring-back-top-wr / --winner-select")
+    if a.mix_max_band not in (0, 1) or (a.mix_max_band and (a.mix_band is None or a.mix_max_te is None or a.mix_max_low_own is None
+                                                         or a.main != "mix")):
+        raise SystemExit("--mix-max-band takes 0 (off) or 1; 1 needs --mix-band LO:HI, --main mix and the row rules (--mix-max-te / "
+                         "--mix-max-low-own): it sits in their tier")
+    if a.mix_band is not None and not a.mix_max_band:
+        raise SystemExit("--mix-band is read only by --mix-max-band 1")
+    if a.mix_max_band:
+        parse_band(a.mix_band)
     if a.mix_rb_mate_scope != "all" and a.mix_rb_mate_c != 4:
         raise SystemExit(f"--mix-rb-mate-scope {a.mix_rb_mate_scope} needs --mix-rb-mate-c 4 (study 97 read the scope on the RB mate)")
     if a.mix_rb_mate_c not in (0, 4) or (a.mix_rb_mate_c and not a.mix_one_catcher_all):
@@ -1800,6 +1837,20 @@ def main(argv: list[str] | None = None) -> int:
                     row_bounds, row_meta = None, {"applied": False, "not_applied": str(exc)}
             if row_bounds is None:
                 print(f"\n!!! ROW RULES NOT APPLIED: {row_meta['not_applied']} -- the book is built without them\n", flush=True)
+        band_meta, band_set = None, None
+        if a.mix_max_band:                                   # the band cap (the operator 10-10): in the row-rule tier, only with them
+            lo, hi = parse_band(a.mix_band)
+            band_meta = {"band_lo": lo, "band_hi": hi, "max": int(a.mix_max_band)}
+            if not row_bounds:
+                band_meta.update({"applied": False, "not_applied": "the row rules are not applied"})
+                print(f"\n!!! BAND CAP NOT APPLIED: {band_meta['not_applied']} -- the book is built without it\n", flush=True)
+            else:
+                band_set = band_ids(fr, set(excl), lo, hi)
+                if band_set:                                 # an empty set is vacuous
+                    row_bounds = row_bounds + [(band_set, 0, int(a.mix_max_band))]
+                band_meta.update({"applied": True, "pool_band_players": len(band_set)})
+                print(f"BAND CAP: at most {a.mix_max_band} RB / WR / TE with salary ${lo:,}-${hi:,} per main row ({len(band_set)} in the "
+                      f"pool after the exclusions; in the row-rule tier)", flush=True)
         oc_on, oc_meta = False, None
         if a.mix_one_catcher_all:                            # study 93: only with the applied row rules, else LOUDLY off
             oc_on = bool(row_bounds)
@@ -1857,6 +1908,13 @@ def main(argv: list[str] | None = None) -> int:
                 mix_meta["own_cap_source"] = own_cap_meta
             if row_meta is not None:
                 mix_meta["row_rules_source"] = row_meta
+            if band_meta is not None:                        # the band cap (the receipt agreed with the lab reviewer 10-10)
+                mix_meta["band_cap_source"] = dict(band_meta)
+                if band_meta.get("applied"):
+                    dkm = dict(zip(fr.id.astype(str), fr["dk_player_id"])) if "dk_player_id" in fr.columns else {}
+                    mix_meta["band_cap"] = {**{k: band_meta[k] for k in ("band_lo", "band_hi", "max", "applied", "pool_band_players")},
+                                            "ids": sorted(band_set), "dk_ids": sorted(k for k in (_dk_text(dkm.get(i)) for i in band_set) if k),
+                                            "resolved_without": (mix_meta.get("row_rules") or {}).get("resolved_without", [])}
             if oc_meta is not None:
                 mix_meta["one_catcher_source"] = oc_meta
             if oc_on:

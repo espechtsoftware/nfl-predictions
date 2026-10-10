@@ -556,6 +556,25 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   elif [[ "${UNION_MAIN:-mean}" == "mix" && "$RB_SCOPE" != all ]]; then
     rb_mate_alert "UNION_MIX_RB_MATE_SCOPE=$RB_SCOPE without UNION_MIX_RB_MATE_C=4"
   fi
+  band_alert() {                                            # the band cap not applied: the book stands without it, loudly
+    printf '%s run %s: BAND CAP NOT APPLIED: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$1" | tee -a "$OUT/ALERT-band-cap-not-applied-$RUN_TAG.txt"
+    printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+      "!!! BAND CAP NOT APPLIED for $RUN_TAG: $1 -- the book stands without it" \
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  }
+  # The band cap (the operator 10-10: "at most ONE RB/WR/TE with salary in [5300, 6000] per row"): in the row-rule tier, ONLY with his
+  # row rules. Off = unset or 0. Row rules not on = no band cap, LOUDLY.
+  BAND_ON=0
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_MAX_BAND:-0}" == "1" ]]; then
+    if (( ROW_RULES_ON )) && [[ "${UNION_MIX_BAND:-}" =~ ^[0-9]{4,5}:[0-9]{4,5}$ ]]; then
+      UNION_ARGS+=(--mix-max-band 1 --mix-band "$UNION_MIX_BAND"); BAND_ON=1
+      echo "BAND CAP for $RUN_TAG: ON (at most one RB / WR / TE at \$${UNION_MIX_BAND%%:*}-\$${UNION_MIX_BAND##*:} per book row; with the row rules)"
+    elif (( ROW_RULES_ON )); then
+      band_alert "UNION_MIX_BAND='${UNION_MIX_BAND:-}' is not LO:HI"
+    else
+      band_alert "the row rules are not on for this run (UNION_MIX_ROW_RULES=${UNION_MIX_ROW_RULES:-unset}, ownership cap on: $OWN_CAP_ON)"
+    fi
+  fi
   # Study 48b's winner-likeness order (operator 10-07: "Test tonight, aim for Week 5"; default off): FP's projected
   # ownership (the term's FP export when there is one, else this run's own capture + export) and the players' prior-game
   # touchdowns / attempts (scripts/winner_like_inputs.py), then the union re-orders the main book by study 48's frozen
@@ -672,6 +691,12 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   if (( RB_MATE_ON )) && grep -q 'RB MATE SCOPE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     rb_mate_alert "the union refused the scope (the RB mate is off): $(grep -h 'RB MATE SCOPE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
+  if (( BAND_ON )) && grep -q 'BAND CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
+    band_alert "the union refused it: $(grep -h 'BAND CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
+  fi
+  if (( BAND_ON )) && [[ "$UNION_MAIN_EFFECTIVE" != "mix" ]]; then
+    band_alert "the MIX main was refused; the house fallback ($UNION_MAIN_EFFECTIVE) has no band cap"
+  fi
   if (( OWN_CAP_ON )) && grep -q 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     own_cap_alert "the union refused it: $(grep -h 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
@@ -682,6 +707,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" "$UNION_DIR/row_rules_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" "$UNION_DIR/one_catcher_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" "$UNION_DIR/rb_mate_not_applied.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/ALERT-band-cap-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-band-cap-not-applied-$RUN_TAG.txt" "$UNION_DIR/band_cap_not_applied.txt"
   # the projection source travels with the union dir, so the upload sheet can name it (the outside review 10-06, (1b))
   [[ -n "$UNION_DIR" && -f "$OUT/proj_fp-$RUN_TAG.txt" ]] && cp "$OUT/proj_fp-$RUN_TAG.txt" "$UNION_DIR/proj_source_log.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/proj_source_fallback-$RUN_TAG.txt" ]] && cp "$OUT/proj_source_fallback-$RUN_TAG.txt" "$UNION_DIR/proj_source_fallback.txt"

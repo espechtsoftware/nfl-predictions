@@ -274,6 +274,15 @@ def main():
     _rs = os.environ.get("UNION_MIX_RB_MATE_SCOPE", "")
     if _rs not in ("", "all") and (_rs != "favhi" or _rm != "4"):
         fail(f"UNION_MIX_RB_MATE_SCOPE={_rs!r} must be all or favhi (the one scope study 97 passed), and favhi only with UNION_MIX_RB_MATE_C=4")
+    # the band cap (the operator 10-10): 1 with LO:HI, only on top of the row rules (their tier) and the MIX main
+    _mb = os.environ.get("UNION_MIX_MAX_BAND", "")
+    if _mb not in ("", "0") and (_mb != "1" or _rr != "te1_low1" or os.environ.get("UNION_MAIN") != "mix"):
+        fail(f"UNION_MIX_MAX_BAND={_mb!r} must be 1, with UNION_MIX_ROW_RULES=te1_low1 and UNION_MAIN=mix")
+    _bd = os.environ.get("UNION_MIX_BAND", "")
+    if _mb == "1" and not re.fullmatch(r"[0-9]{4,5}:[0-9]{4,5}", _bd):
+        fail(f"UNION_MIX_MAX_BAND=1 needs UNION_MIX_BAND=LO:HI (got {_bd!r})")
+    if _bd and _mb != "1":
+        fail(f"UNION_MIX_BAND={_bd!r} is read only with UNION_MIX_MAX_BAND=1")
     if os.environ.get("UNION_MIX_QB2_SCOPE", "") not in ("", "off"):
         fail("UNION_MIX_QB2_SCOPE is not built (no QB + 2 scope passed study 97): unset it")
     _fill = os.environ.get("UNION_MIX_FILL", "")
