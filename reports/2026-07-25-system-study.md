@@ -12720,3 +12720,138 @@ secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier fi
   the fact; the production switch (built default off) stays off.
 - **In plain words:** keeping at most one receiver or tight end coming off a big game in each lineup, or marking them down 2
   points, both made the book slightly worse on both sets of simulated opponents. Nothing to arm this week.
+
+## Addendum 207 (2026-10-10): study 112 (his usage floors -- minimum carries for RBs, pass attempts for QBs, targets for WRs / TEs per game -- on his armed Week-5 book with FAVHI, in the harness): every floor is worse on both draws -- 13 carries for RBs −4.6 [−9.3, −0.4] (WORSE; expected big seats ×0.89), 32 pass attempts for QBs −2.7 (×0.89) and 4.5 targets for WRs / TEs −2.8 (×0.93), guard 1 failing for all three: keep the live book; study 113 not run
+
+**Setup.**
+- **His words** (10-10 morning, the laptop's session; study list row 92): "Have we tried anything like “minimum rush attempts per
+  game” for a RB and “minimum pass attempts for QB” and “min targets for WR”?" then "And min touchdowns and min red zone
+  targets". Never tested as a construction rule (both ledgers grepped).
+- **The prior:** NO DIFFERENCE, leaning negative (winners often carry a cheap low-volume player who boomed; study 106's
+  projection floor of 8 read −2.7, worse on both draws, Addendum 203).
+- **The arms** (study 106's frozen harness `45a8d3dd…`; every arm his armed construction with the adopted FAVHI; one pool filter
+  each, before the caps, the row-rule sets, the cheap block's term and FAVHI's pairs, as production's `excl`; DSTs exempt; a
+  player with no value kept): **LIVE**; **RUSH** (RBs under 13 carries per game leave; `carries_l4`); **PASS** (QBs under 32
+  pass attempts per game; the within-season mean of up to 4 prior games); **TGT** (WRs / TEs under 4.5 targets per game;
+  `targets_l4`). All windows are production's within-season last 4 (`sql/features/014_player_week_usage.sql`).
+- **The thresholds, by a rule fixed before any census:** the round value nearest a placeholder such that LIVE's book rows touched
+  average 8–15 of 26 on bank 1406, the arm's own build passing (cheap block never empty, ONECATCH ≤ 5% dropped, the RB-mate slots
+  complete). **TD and RZ found no threshold in range and were dropped before the freeze** (any TD floor removes every player
+  without a touchdown in his window at once -- 21.5 rows; RZ 0.1 already 15.7).
+- **The read and the pick:** his rule per arm (P(≥ 1 big seat) better on both draws AND the pooled seats ratio ≥ 0.80; guard 1
+  printed, not gating); mean best and P(best ≥ 200) printed; the pick the passing arm with the largest pooled gain → study 113
+  (its design committed before this READ). Three arms: about one false pass.
+- **Preregistration:** `reports/2026-10-10-prereg-study112-usage-floors.md` (DRAFT by the outside reviewer, the design the lab
+  reviewer's; the attempts / TD window corrected to production's within-season one at the static review, before any run;
+  FROZEN `96bbc466`, 10-10 09:19 CDT, before any scored bank).
+- **Code:** nfl2 `e111a611` (off study 106's frozen `afdfad8c`): module `16bbe046…` (pins s106 `45a8d3dd…`); drive `c06f7644…`;
+  census `41a7c150…`; reader `8c8991a9…`; tests `45e5f3bd…` (12).
+- **Panel:** banks 3604–3615 (A 3604–3609, B 3610–3615; sims 3654–3665, fields 4304–4315), B 20,000, seed 20261155,
+  PYTHONHASHSEED=0; the laptop's scan was clean.
+- **Census** (binding, bank 1406; lab `40d0cfda`; the laptop's re-run identical, with `--ref97`): LIVE identical to study 97's
+  RBMATE4_FAVHI on 36 of 36; 0 row-rule and ownership-cap fallbacks; ONECATCH 504 of 504 in every arm; LIVE's rows touched
+  10.6 / 10.5 / 11.4 of 26 (RUSH / PASS / TGT); the floors drop 40.4 RBs / 21.6 QBs / 45.4 WRs + 35.2 TEs per slate-bank; the
+  cheap block never empty (TGT min 6 termed). Disclosed: FAVHI finds no pair on 1 (RUSH) / 2 (PASS) slates, the RB-mate floor
+  re-solved without it in 5 / 9 of 144 slots (LIVE 1).
+- **His real Week-4 book** (the laptop's outcome-blind check): RUSH 13 touches 13 of 26 lineups, PASS 32 touches 14, TGT 4.5
+  touches 21 -- each floor bites harder live than its harness dose.
+- **Read:** the reader `8c8991a9`; READ `2525ef14` (lab `a4fd70e9`). The confirmatory census (`023c1d0f`, raw shas `0fa63ce8`,
+  RUN_ENV `0ad396b8`, run code `40d0cfda`; lab `eaa6b67e`) was committed before the READ: §3's scan on the 432 slate-banks gives
+  the same thresholds (13 / 32 / 4.5; TD and RZ none in range); 0 fallbacks in LIVE, PASS and TGT; RUSH 4 of 11,236 row-rule and
+  4 ownership-cap re-solves and 1 ONECATCH drop of 6,049; the RB-mate floor re-solved without it in 58 (RUSH) / 107 (PASS) of
+  1,728 slots (LIVE 10, TGT 11) -- the floors remove the favoured teams' RBs or QBs.
+- **Reproduced byte-identically by the laptop** at `a4fd70e9` (PYTHONHASHSEED=0): the raw files 3604–3615 pass `sha256sum -c`
+  against `RAW_s112_run.sha256`; the READ is `2525ef14` and the confirmatory census `023c1d0f` (cmp-identical).
+
+**Reader output (verbatim):**
+```
+STUDY 112 READER  sha256 8c8991a9c00b2a033aa5bf25fcd283418ce17fbf150d0f3361025ee096e3fbfd
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [3604, 3605, 3606, 3607, 3608, 3609, 3610, 3611, 3612, 3613, 3614, 3615]  sets {'pooled': [3604, 3605, 3606, 3607, 3608, 3609, 3610, 3611, 3612, 3613, 3614, 3615], 'A': [3604, 3605, 3606, 3607, 3608, 3609], 'B': [3610, 3611, 3612, 3613, 3614, 3615]}  B 20000  seed 20261155  comparisons (('RUSH', 'LIVE'), ('PASS', 'LIVE'), ('TGT', 'LIVE')) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 93 / 92 / 91 / 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["LIVE", "RUSH", "PASS", "TGT"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"LIVE": 0.35, "PASS": 0.35, "RUSH": 0.35, "TGT": 0.35}, "delta": 0.15, "floors": {"LIVE": 1.0, "PASS": 1.0, "RUSH": 1.0, "TGT": 1.0}, "low_pct": 3.0, "one_catcher": "every arm: study 93's ONECATCH (lead_rules onepc)", "own_arms": ["LIVE", "RUSH", "PASS", "TGT"], "quotas": {"LIVE": [0.3, 0.14, 0.28, 0.28], "PASS": [0.3, 0.14, 0.28, 0.28], "RUSH": [0.3, 0.14, 0.28, 0.28], "TGT": [0.3, 0.14, 0.28, 0.28]}, "row_rules": {"LIVE": ["te1", "low1"], "PASS": ["te1", "low1"], "RUSH": ["te1", "low1"], "TGT": ["te1", "low1"]}, "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "skill_sum": 800.0, "source": "blend_pct", "usage": {"last_n": 4, "measure": {"PASS": "attempts", "RUSH": "carries", "RZ": "rz_targets", "TD": "tds", "TGT": "targets"}, "positions": {"PASS": ["QB"], "RUSH": ["RB"], "RZ": ["RB", "WR", "TE"], "TD": ["RB", "WR", "TE"], "TGT": ["WR", "TE"]}, "thresholds": {"PASS": 32.0, "RUSH": 13.0, "RZ": 0.5, "TD": 0.25, "TGT": 4.5}}}, {"LIVE": [9, 6], "PASS": [9, 6], "RUSH": [9, 6], "TGT": [9, 6]}, "5f4e1fb9977d349183adc3457782b131673a8bcf06bf3e850af2c149c52bfd4d", "37980da6506df0a799e97b5dae29e670228398cb405be01a3c93cc47f2c7e252", "9cde18bd221e52069b449044a37720996ffb0efafac88202d44f02a7dc898aa8", "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== RUSH vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.04576  [-0.09343, -0.00360] (two-sided 0.95)  seasons 2023 -0.02024, 2024 -0.07129
+  GUARD 1 mean entry pct -0.01393  one-sided lower -0.02857  (must exceed -0.015)
+  GUARD 2 expected big seats 0.52870 vs 0.59425  ratio 0.890  (must be >= 0.80)
+  RUSH dealt identical to LIVE: 0.072 of slate-banks
+  ->  WORSE
+  set A [3604, 3605, 3606, 3607, 3608, 3609]: -0.05152  [-0.10626, -0.00168]  seasons 2023 -0.00830, 2024 -0.09474
+  set B [3610, 3611, 3612, 3613, 3614, 3615]: -0.04001  [-0.09323, +0.00847]  seasons 2023 -0.03218, 2024 -0.04784
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.05152 < 0; set B -0.04001 < 0  (set A -0.05152, set B -0.04001, the difference -0.01151; seats ratio 0.890)
+  EXPLORATORY the l02 field (pooled): -0.04494  [-0.09294, -0.00220]
+  CEILING (the pick statistic) mean best real lineup points per slate -2.418  [-5.125, -0.055]  seasons 2023 -1.950, 2024 -2.887; set A -3.551; set B -1.286
+  P(best >= 200) -0.02083  [-0.05787, +0.01389]; set A -0.04630; set B +0.00463
+
+== PASS vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.02741  [-0.09231, +0.03451] (two-sided 0.95)  seasons 2023 -0.01643, 2024 -0.03838
+  GUARD 1 mean entry pct -0.01484  one-sided lower -0.02721  (must exceed -0.015)
+  GUARD 2 expected big seats 0.52789 vs 0.59425  ratio 0.888  (must be >= 0.80)
+  PASS dealt identical to LIVE: 0.065 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3604, 3605, 3606, 3607, 3608, 3609]: -0.04098  [-0.10806, +0.02740]  seasons 2023 -0.02806, 2024 -0.05391
+  set B [3610, 3611, 3612, 3613, 3614, 3615]: -0.01383  [-0.08494, +0.05182]  seasons 2023 -0.00480, 2024 -0.02285
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.04098 < 0; set B -0.01383 < 0  (set A -0.04098, set B -0.01383, the difference -0.02716; seats ratio 0.888)
+  EXPLORATORY the l02 field (pooled): -0.02912  [-0.09549, +0.03454]
+  CEILING (the pick statistic) mean best real lineup points per slate -2.069  [-5.066, +0.505]  seasons 2023 -2.382, 2024 -1.756; set A -2.607; set B -1.531
+  P(best >= 200) -0.01620  [-0.06944, +0.03009]; set A -0.04167; set B +0.00926
+
+== TGT vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.02753  [-0.07622, +0.01723] (two-sided 0.95)  seasons 2023 +0.00329, 2024 -0.05835
+  GUARD 1 mean entry pct -0.00816  one-sided lower -0.01620  (must exceed -0.015)
+  GUARD 2 expected big seats 0.55314 vs 0.59425  ratio 0.931  (must be >= 0.80)
+  TGT dealt identical to LIVE: 0.065 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3604, 3605, 3606, 3607, 3608, 3609]: -0.04497  [-0.10439, +0.00863]  seasons 2023 -0.02450, 2024 -0.06545
+  set B [3610, 3611, 3612, 3613, 3614, 3615]: -0.01009  [-0.06129, +0.04060]  seasons 2023 +0.03107, 2024 -0.05125
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.04497 < 0; set B -0.01009 < 0  (set A -0.04497, set B -0.01009, the difference -0.03489; seats ratio 0.931)
+  EXPLORATORY the l02 field (pooled): -0.02890  [-0.07710, +0.01534]
+  CEILING (the pick statistic) mean best real lineup points per slate -1.401  [-3.074, +0.150]  seasons 2023 -0.820, 2024 -1.983; set A -1.873; set B -0.930
+  P(best >= 200) -0.00231  [-0.02315, +0.02083]; set A -0.00463; set B +0.00000
+
+
+== HIS RULE on P(>= 1 big seat) per arm (better on both draws AND seats >= 0.80; information):
+  RUSH      PAPER ONLY: draw A -0.05152 is not > 0; draw B -0.04001 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.02857 (FAILS -0.015)  |  under no true effect about one time in four to one in three
+  PASS      PAPER ONLY: draw A -0.04098 is not > 0; draw B -0.01383 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.02721 (FAILS -0.015)  |  under no true effect about one time in four to one in three
+  TGT       PAPER ONLY: draw A -0.04497 is not > 0; draw B -0.01009 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.01620 (FAILS -0.015)  |  under no true effect about one time in four to one in three
+
+== THE PICK (pre-stated): among the arms passing HIS RULE on P(>= 1 big seat) -- better on both draws AND the pooled seats ratio >= 0.80 (guard 1 printed, not gating) -- the largest pooled gain; none -> keep the live book
+  RUSH       P(>=1 big) pooled -0.04576 (A -0.05152, B -0.04001); seats 0.890; guard 1 lower -0.02857  ->  does not pass: P(>= 1 big seat) not better on both draws
+  PASS       P(>=1 big) pooled -0.02741 (A -0.04098, B -0.01383); seats 0.888; guard 1 lower -0.02721  ->  does not pass: P(>= 1 big seat) not better on both draws
+  TGT        P(>=1 big) pooled -0.02753 (A -0.04497, B -0.01009); seats 0.931; guard 1 lower -0.01620  ->  does not pass: P(>= 1 big seat) not better on both draws
+  PICK: none -- keep the live book
+
+  LIVE row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  RUSH row-rule solves re-solved without the rules: 4 of 11236; ownership-cap re-solves 4; over 432 slate-banks
+  PASS row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  TGT row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  LIVE         v2: P(>=1 big) 0.40966  expected big seats 0.59425  P(>=2) 0.14029  entry pct 0.50404  |  l02: P(>=1 big) 0.44048  |  the best real lineup: mean 179.10  P(best >= 200) 0.1273
+               book: projection per row 124.59  salary 49969  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.18  predicted ownership per row 94.4%  distinct QBs 8.2  non-DST players 51.0  rows with 2+ TEs 0.0  low-owned per row 0.653  same-team receiver pair rows 1.2  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  RUSH         v2: P(>=1 big) 0.36390  expected big seats 0.52870  P(>=2) 0.12292  entry pct 0.49011  |  l02: P(>=1 big) 0.39553  |  the best real lineup: mean 176.69  P(best >= 200) 0.1065
+               book: projection per row 123.97  salary 49967  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.2  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.23  predicted ownership per row 91.9%  distinct QBs 8.4  non-DST players 51.2  rows with 2+ TEs 0.0  low-owned per row 0.667  same-team receiver pair rows 1.4  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  PASS         v2: P(>=1 big) 0.38225  expected big seats 0.52789  P(>=2) 0.11455  entry pct 0.48920  |  l02: P(>=1 big) 0.41135  |  the best real lineup: mean 177.04  P(best >= 200) 0.1111
+               book: projection per row 123.70  salary 49968  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.24  predicted ownership per row 92.5%  distinct QBs 7.4  non-DST players 51.7  rows with 2+ TEs 0.0  low-owned per row 0.698  same-team receiver pair rows 1.5  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  TGT          v2: P(>=1 big) 0.38213  expected big seats 0.55314  P(>=2) 0.12685  entry pct 0.49588  |  l02: P(>=1 big) 0.41158  |  the best real lineup: mean 177.70  P(best >= 200) 0.1250
+               book: projection per row 124.42  salary 49969  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.6  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.22  predicted ownership per row 94.2%  distinct QBs 8.5  non-DST players 49.9  rows with 2+ TEs 0.0  low-owned per row 0.651  same-team receiver pair rows 1.2  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+```
+
+**Reading.**
+- **Every floor is worse, on both draws.**
+
+| Arm − LIVE | P(≥ 1 big seat) | Set A / B | Expected big seats | Guard 1 | Mean best | P(best ≥ 200) |
+|---|---|---|---|---|---|---|
+| RUSH (RBs ≥ 13 carries) | **−4.6 [−9.3, −0.4], WORSE** | −5.2 / −4.0 | ×0.89 | fails (−0.0286) | −2.4 [−5.1, −0.1] | −2.1 |
+| PASS (QBs ≥ 32 attempts) | −2.7 [−9.2, +3.5] | −4.1 / −1.4 | ×0.89 | fails (−0.0272) | −2.1 | −1.6 |
+| TGT (WRs / TEs ≥ 4.5 targets) | −2.8 [−7.6, +1.7] | −4.5 / −1.0 | ×0.93 | fails (−0.0162) | −1.4 | −0.2 |
+
+- **PICK: none -- keep the live book.** Study 113 is not run.
+- **RUSH is the only verdict of WORSE among studies 100–115** (its interval excludes 0): dropping RBs under 13 carries a game
+  removes the cheap, low-volume backs the big wins draw on, as study 106's projection floor did (−2.7). The other two floors
+  point the same way, with every finish slipping (guard 1 fails for all three).
+- **Live, each floor would bite harder** (13 / 14 / 21 of his 26 Week-4 lineups touched), so the live cost would likely be
+  larger. No production switch is needed. His "min touchdowns" and "min red-zone targets" could not be tested as floors (no
+  dose between none and most of the book).
+- **In plain words:** requiring a minimum number of carries, pass attempts or targets made the book worse every time; the
+  running-back version clearly so. The big wins come partly from cheap players without much usage who have a big day.
