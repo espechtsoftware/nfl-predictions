@@ -88,6 +88,9 @@ with the higher pooled gain.
 - **A game-situation version (RB or QB + 2):** if one passes, its switch is built overnight and left OFF. Using it needs one
   setting, the laptop's Week-4 check, and a paper-arm update from the lab reviewer (without it, the integrity check refuses the
   new switch). A version that fails is not built.
+- **An RB version and a QB + 2 version together:** not allowed by the switches tonight — study 97 read them separately, and
+  separately-read rules have not added up before (studies 93 + 94; study 83's combination −1.9). If you want both, one goes live
+  and the other on paper, or a combined test (about 40 minutes) if the clock allows before 10:28.
 
 ## 4. The rest of last evening (for the record)
 
