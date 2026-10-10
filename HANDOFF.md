@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (13:07 CDT) — outside model: the afternoon page (where the room is; three items that could still change Sunday's chances; a two-week paper rule for W6); docs only
+
+- **His request:** "We are done with all of the experiments. We still have 5 hours until the build ... any ideas that you think can
+  help me win a big prize more often ... boom players, core players, our rules are structured." **The page:**
+  `briefings/2026-week-05/2026-10-10-afternoon-ideas.md` (+ index row), on `review/additional-suggestions-20261010`.
+- **Assessment:** the armed book's best lineup on this season sits 15–45 points under the lines (the 12:58 run: W4 177.9 vs 182.8 / 234.2;
+  W3 162.7 vs 188.2 / 239.8); fifty-odd rules moved ±3 and none moved the ceiling; 114 says every rule helps or is a wash; the
+  9-row players are volume players (carry share 45–73%, route share 78–98%, a cheap high-target TE) — the regulars' core. Nothing to
+  fix in the rules or the core today.
+- **Where the points are, in order:** (1) **O-60**, the late-scratch next-man-up bump — the W2–4 winners' players were next-man-up plays
+  (Schultz, Hockenson, Warren, Flowers); the fix is built (`review/late-scratch-bump-20261008` @ fbad73be, 15 tests, off, not wired),
+  deadline W6; wiring it today is the laptop's and reviewer's call (W4 gates byte for byte with it off); (2) **TOPCAP6 on paper** (≤ 6 rows
+  on the top-total game's QBs): the W4 book has 10 of 26 there and 4 on the game that decided the week; the Milly was won from ranks
+  2–3 in W1 / W3 / W4; every harness coverage read was negative on the lab's own projections; (3) **row 48's TD-odds upside block on
+  paper** (a Sunday-morning file from the 04:30 props; the harness cannot read it).
+- **Process, for W6:** a two-week paper-co-run rule set NOW (before W5's results) for the field-supported arms (HOT1, HOT_WRTE1, VAL4,
+  S2, NOTERM, MS3, TOPCAP6): better than the live book on the big-win chance in both W5 and W6 → adoptable for W7, his decision.
+- **Not suggested:** another harness study this afternoon (a one-in-three false-pass rate, no time for the fresh-draw check).
+- Merge: `git merge --no-ff review/additional-suggestions-20261010` (docs + the reports folder; this branch now includes origin's head).
+
 ## 2026-10-10 (12:58 CDT) — his question: today's armed book's high score in each 2026 week (descriptive, in-sample)
 
 - **His words:** "With the current book that we have have we run it across the four weeks of 2026. I would like to know the
