@@ -169,9 +169,11 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 96 (tonight, decides Week 5 by your rule):** your armed book with and without the QB's own RB as a stack mate (lead 11),
-  the two rules together. Then the Week-4 book check and the paper check; otherwise it goes to paper.
-- **Study 95 (tonight, after 96; information for Week 6):** the shape comparison you asked for — each shape alone, and the mix
-  with one shape removed at a time, against your live mix.
+- **Study 95 (tonight; information for your morning decision on the percentages):** the shape comparison you asked for — each
+  shape alone, and the mix with one shape removed at a time, against your live mix. How its result becomes a suggested mix was
+  written down before it runs.
+- **Study 97 (tonight, after 95):** the shapes by game situation, as you asked — the RB mate only on an expected winner (or a
+  winner in a high-scoring game), the expected winner's RB without his QB or with the trailing QB, and the QB + 2 stacks only in
+  high-scoring games or on their trailing side. Its rule for the morning suggestion was also written down first.
 
 *Updated as each study is read.*
