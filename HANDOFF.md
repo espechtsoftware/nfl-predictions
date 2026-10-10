@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (05:32 CDT) — the Saturday supply at 18:00 MERGED and set (FRIDAY_HEAD d2b2b326; arm 358072b1; the --check passes with 13 units); the outside reviewer's selection-ideas briefing merged (study-list row 93)
+
+- **SAT_SUPPLY_CT** (production/sat-supply-time-20261010 @ `3a254d16`; the reviewer APPROVED all 5 conditions) merged as
+  **`d2b2b326`** = the new FRIDAY_HEAD. The union / host code (union_reselect, sunday_build_host, check_week_runtime, src/)
+  is IDENTICAL to b00c5e43, so the W4 gates stand.
+- **The arm-only commit `358072b1`:** SAT_SUPPLY_CT="18:00", FRIDAY_HEAD d2b2b326.
+  - Every test that reads the arm script: 73 passed (rc 0), captured before the commit.
+  - The production checkout fast-forwarded to 358072b1, clean.
+- **The scratch `--check`** (TERM_ROWS=8 / TERM_SHA filled in a scratch copy only): rc 0, "CHECK DONE (nothing armed): shape
+  mixt, pin f69598b, 13 units".
+  - d12800-sat 18:00, d6400-sat 18:05; the arm must finish by 17:58.
+  - The Sunday units are unchanged (04:30 / 04:45 / 05:00 / 09:10 / 09:12 / 10:33 / 10:36 / 10:40 / 10:46 / 10:47 / 10:50).
+- **Still to set at the evening arm:** TERM_ROWS=8 / TERM_SHA (his final word on the cheap block at arming), plus whatever he
+  adopts today. The reviewer moves s38-prod-pin to d2b2b326 and gates the 18:00 canary.
+- **The briefing** `briefings/2026-week-05/2026-10-10-selection-ideas-from-real-fields.md` (`4d730794`; aggregates only; read
+  in full before merging) is the outside reviewer's answer to his request in their session: "Use the tools you have
+  available (neo4j, bigquery, etc) and suggest any other lineup selection ideas."
+  - Five ideas, each 4 of 4 weeks, recorded as study-list row 93 (THE OUTSIDE REVIEWER'S suggestions): LOW0; popular punts
+    only; QB top-3 totals; no QB + own DST; salary ≥ $49,500.
+  - They are Week-6 candidates unless he moves one ahead today.
+
 ## 2026-10-10 (05:24 CDT) — OPERATOR: the Saturday supply builds move to 18:00, after ONE final arm; study 105 READ (reproduced); the laptop's floor correction (production's --min-proj reads FP's projection in W5)
 
 **His decision, in the laptop's session:**
