@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q, 6r, 6s and 6t before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q, 6r, 6s, 6t, 6u and 6v before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -1150,6 +1150,93 @@ score. Nothing here enters a contest: the money path, its checkout and its files
   - **The integrity gate** pins this module sha in place of 6s's `29f8c095…`, on the live snapshot.
   - **Order:** this amendment; the laptop's ack; the gate pin. If the rule goes live, `s38-prod-pin` moves to the FRIDAY_HEAD that
     carries the flag: 6l's classification reads the union arguments of the `--prod` checkout, and `f5f96468`'s has no such argument.
+
+- **Amendment 6u (2026-10-09, before Week 5's lock; no Week-5 outcome exists): study 94's RBMATE4, followed on paper whether or not it goes live.**
+  - **Why.** His answer on study 94's lead (in the laptop's session; HANDOFF `ad00da5c`): "Try live W5 if built". The option
+    text: "New code tonight, plus a test of it together with one receiver per team and the same checks as before. It goes
+    live at Saturday's 10:28 arming only if all pass, otherwise paper." The paper arms follow every live construction setting
+    (6o, 6q, 6r, 6t). So this rule must be classified, followed and paired if it goes live, and scored on paper if it does not.
+  - **The rule.** On the first 4 C-cell book solves (QB + 1, no bring-back; by identity), the lineup must hold the QB and an
+    RB of the QB's team: an interaction floor of 1 over study 94's (QB, own-team RB) pairs. A slot is used whether the floor
+    holds or is dropped, and an ownership-cap re-solve takes another, as in studies 94 and 96. Study 94's `rb_pairs` is
+    pasted byte for byte (text sha256 `5e961923…`, a test).
+  - **What changes.**
+    - **Classification:** the union argument `--mix-rb-mate-c` (production, the outside reviewer's flag) is classified
+      checked. It is accepted only at 4 and only with `--mix-one-catcher-all` (production refuses it alone). Any other value
+      is a parity mismatch.
+    - **The receipt must agree:** when the flag is declared, `config.union.mix.mix.rb_mate_source.applied` must equal the paper
+      build's own state (applied iff the one-catcher rule applies). When applied, the rule's identity must match: cell `C`,
+      `rows_cap` 4. Anything else stops the build.
+    - **The tiers** (`oc_tiers` with the floor; one call each): on an RBMATE4 slot, [rules + one-catcher] with the floor FIRST,
+      then 6t's tiers ([rules + one-catcher] → [rules] → none; the low arms [low-N + te1 + one-catcher] → [live + one-catcher]
+      → [live] → none). This is study 96's combined order (the floor dropped first, then the one-catcher rule, then the
+      rules). The floor tier is recorded as tier −1, so 6t's tier numbers are unchanged. Without the floor, `oc_tiers` makes
+      6t's calls exactly (a test).
+    - **When live and applied:** every arm that carries the live one-catcher rule carries RBMATE4 too.
+      **MIXT_QA0_NORBMATE** (exploratory) is the armed live book without RBMATE4 (the one-catcher rule kept), the paired
+      paper book, built only while RBMATE4 is live.
+    - **When not live** (and the one-catcher rule is live): **MIXT_QA0_RBMATE** (exploratory) is RBMATE4 on paper on top of
+      the live book. Every other arm is unchanged.
+    - **Never:** NOONECATCH (production refuses RBMATE4 without the one-catcher rule), TODAY and NORR.
+    - Every arm records its book rows holding a (QB, own-team RB) pair. NORBMATE / RBMATE are read against MIXT_QA0, overall
+      and per contest group.
+  - **The first smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6u/`, script `run.sh`
+    `7328adf1bf73`, log `27b709fa4e22`; lab `f798548a`; production FRIDAY_HEAD `462ba341` (no RBMATE4 flag); PYTHONHASHSEED=0;
+    the laptop's W4 ONECATCH receipt `e2b66fb94894…`):
+    - 49 tests pass (rc 0); union-argument mismatches none in both builds.
+    - **RBMATE4 not live (the armed state today):** all 31 arms identical to 6t's armed build (rows + ranks).
+      **MIXT_QA0_RBMATE**: 4 slots, 4 floors held, 0 dropped; QB + own-RB rows 4 → 6 of 26; 6 of 26 rows shared with MIXT_QA0;
+      0 B / C rows with a same-team receiver pair; FP per dealt lineup 140.70 → 140.69. NORBMATE missing (as designed).
+    - **RBMATE4 live** (`--mix-rb-mate-c 4` added; a dry run, so the ONECATCH receipt without an RBMATE4 record is tolerated):
+      **MIXT_QA0 equals the not-live build's MIXT_QA0_RBMATE, and MIXT_QA0_NORBMATE equals its MIXT_QA0** (rows + ranks);
+      TODAY, NORR and NOONECATCH are unchanged; 28 arms carry it (4 slots each; QB2HALF 3, its C rows); RBMATE missing.
+  - **The parity with study 96** (lab `3b74eaa5`): `oc_tiers` takes study 96's slot rule exactly, so an empty pair set still
+    takes the slots and makes the first call without the floor, as `combo_rules` does. A test executes study 96's
+    `combo_rules` text (`66ed0eff…`, nfl2 `3cf3e8eb`) against `oc_tiers` and asserts identical optimize calls and slot records
+    in five cases: the floor holding; the floor dropped; a whole-tier re-solve of the same row (a second slot); no pair; and a
+    dropped floor before a fifth C solve. Three mutations are caught. 50 tests pass.
+  - **The final smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6uv/`, script `run.sh`
+    `69a121cc4cc5`, log `76ce1a6c068b`; lab `6e67ea55` (6u with 6v); production = the laptop's merge check `5c66f156`, which carries
+    the flag; PYTHONHASHSEED=0; the laptop's W4 RBMATE4 check receipt
+    `~/rehearsals/flagcheck-rbmateC4-20261010T010937Z/on/receipt.json`, sha256 `9cd0e39cb77d…`):
+    - 51 tests pass (rc 0); union-argument mismatches none in all three builds.
+    - **RBMATE4 not live:** all 32 arms identical to the first smoke's (31 identical to 6t's armed build).
+    - **RBMATE4 live, with the real receipt:** the receipt agrees (rb_mate_source applied; cell C, rows_cap 4; 59 pairs; 4 slots,
+      4 ruled, 0 re-solved without it). **MIXT_QA0 equals the not-live MIXT_QA0_RBMATE, and MIXT_QA0_NORBMATE equals the not-live
+      MIXT_QA0** (rows + ranks). TODAY, NORR and NOONECATCH are unchanged; 28 arms carry it.
+  - **Week 5:** study 96 read PAPER ONLY (Addendum 193), and his night rules (HANDOFF `543f2695`) keep RB_MATE_C at 0 until his
+    morning word. So in Week 5 MIXT_QA0_RBMATE is the expected arm: RBMATE4 on paper beside his book.
+  - **Code:** lab `3b74eaa5` (`f798548a` and `3b74eaa5`, on 6t's `3de36327`):
+    - `experiments/s38_paper_corun.py` sha256 `183f7dcf227f9b1b9531489318a63174130c95d6e37225f5cb4931429fbc72f7`;
+    - `scripts/s38_score.py` `4f3bdaa3972a08cdcb8d742f912a611ad1005b9cd6e179501c74dd2cc470a981`;
+    - `scripts/s38_report.py` `2aa06f4f40156119564b09557910a8e8a0d22e0d0fe6457fbb9d8931f0ddc7fc`;
+    - `tests/test_s38_paper_corun.py` `b2313f06dce3085f1a3bf864ccc0378cf1b1967fb82a68fa5e56704eaabbc71c` (50 tests);
+    - `scripts/s38_build.py` unchanged (`15373e14…`).
+  - **The integrity gate** pins the module of amendment 6v below (6u and 6v ship together). If RBMATE4 goes live,
+    `s38-prod-pin` moves to the FRIDAY_HEAD that carries its flag.
+- **Amendment 6v (2026-10-09, before Week 5's lock; no Week-5 outcome exists): the paper arms follow live cell quotas with a shape at 0.**
+  - **Why.** His night rules (HANDOFF `543f2695`): he decides the shape percentages in the morning from study 95, whose rule
+    (`92108ea0`) can suggest dropping a shape. Production's `--mix-cell-quotas` now takes a cell at 0 (the laptop's
+    production/cell-quotas-zero-20261009 @ `21fa9d29`, parser only; reviewed by 84). 6j's `live_quotas` refused any value ≤ 0,
+    so a dropped shape would have been a parity mismatch and stopped the paper build.
+  - **What changes.** `live_quotas` takes production's rule: exactly the four MIX cells, every value ≥ 0, at least one > 0, the
+    sum 1 within 1e-9. A cell at 0 gets no rows in either block and stays a cell; a failed cell's quota still passes to A1, as
+    the live book and study 95's NO_x arms do. Every fill path (mix_fill, term_book, the half book) takes its targets from
+    study 18's `allocate` / `interleave` over `S28.QUOTAS`. These are the functions production's `mix_shapes` uses: the bodies
+    are identical, only the docstrings differ. Nothing else changes. MIXT_QA0_QB2HALF keeps its own fixed quotas.
+  - **Tests:** 6j's test moves the zero spec to valid and adds all-zero, negative and NaN specs as invalid. A new test follows
+    zero and one-cell specs and reproduces study 95's census counts per cell from `allocate` per block (live 18 + cheap 8):
+    NO_A1 0 / 6 / 10 / 10, NO_A2 9 / 0 / 9 / 8, NO_B 10 / 6 / 0 / 10, NO_C 10 / 6 / 10 / 0. The laptop's production W4 builds at
+    those quotas gave the same counts (~/rehearsals/quotacheck-20261010T011001Z).
+  - **The smoke** (the same run as 6u's final smoke, its third build: `--mix-cell-quotas` at study 95's NO_A2 floats
+    `A1=0.3488372093023256,A2=0.0,B=0.32558139534883723,C=0.32558139534883723`): mismatches none; **no quota-following arm holds
+    an A2 row**; MIXT_QA0's cells A1 9 / B 9 / C 8 (the known answer 9 / 0 / 9 / 8); MIXT_QA0_QB2HALF (its own quotas) identical
+    to the armed build.
+  - **Code:** lab `6e67ea55` (on 6u's `3b74eaa5`): `experiments/s38_paper_corun.py` sha256 `0656a38e6cf3556c09c4f50ee9ba37f814b3132de33431ff44a41ce7b6845ada`;
+    `tests/test_s38_paper_corun.py` `6ade15bd9304273996c43caf60a1f7e2cef27b61b2400417616040b019a5e529` (51 tests); `scripts/s38_score.py`, `scripts/s38_report.py` and
+    `scripts/s38_build.py` unchanged.
+  - **The integrity gate** pins this module sha (`0656a38e…`) in place of 6t's `b34b5468…`, on the live snapshot. **Order:**
+    6u and 6v; the laptop's ack; the gate pin.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
