@@ -1,6 +1,6 @@
 # Preregistration: study 97, the shapes by game script — the RB mate on the expected winner, and the QB + 2 stacks in shootouts and on their trailing side, on his live Week-5 book, in the harness (DRAFT 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (20:05 CDT)** by the outside reviewer; code done (13 tests), the smoke waiting for a machine gap. The
+**Status: DRAFT 2026-10-09 (20:05 CDT; smoke done 20:22)** by the outside reviewer; code and smoke done (§5). The
 reviewer reviews, runs the binding census and FREEZES; the laptop acks. **Information for his morning decision; nothing changes
 overnight.**
 - **Banks and seed:** **3124–3135** (set A 3124–3129, set B 3130–3135; sims bases 3174–3185, fields 3824–3835), seed 20261142 —
@@ -98,7 +98,21 @@ eight listed edits, a test asserts it); **every arm is his live Week-5 construct
 ## 5. Smoke, census and integrity
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke: the unit tests, the mechanics smoke (2023 W3, 2023 W11,
   2024 W10), the binding census, the full-path smoke (reader exit and line count only).
-- **The smoke:** (waiting for a machine gap; filled in when it ends).
+- **The smoke (DONE 20:22 CDT in the gap the reviewer named, before study 95's run; bank 1406; 2023 W3, 2023 W11, 2024 W10;
+  PYTHONHASHSEED=0; `results_bank1406.jsonl` `e0f6620c…`; code `af07583e`):** 17 unit tests pass; every arm 41 rows within the
+  armed caps, 8 term rows, in the pool; **0 row-rule and ownership-cap fallbacks in every arm** (78 of 78); **ONECATCH ruled 42 of
+  42 B / C solves in every arm**; **every RBMATE-type arm 12 slots used, 12 floors ruled, 0 dropped** (FAVRB_OPPQB4 on B slots);
+  the scenarios per slate-bank: FAV 8.7 teams, FAVHI 3.0, HIGH 8.0, DOGHI 4.0; floor pairs RBMATE4 126.0, FAV 50.0, FAVHI 20.0,
+  NAKED 1167.3, OPPQB 40.0; no empty pair set and no slate without an eligible QB; **QB2_SHOOT's bans ruled 36 of 36; QB2_DOGHI's
+  ruled 31 of 36, dropped 5 (13.9%; flagged by the census: the trailing sides of high-total games hold about 4 starting QBs, so
+  under the QB cap of 5 and the ownership cap some QB + 2 rows fall back to the unrestricted QB, by design, recorded)**; THE
+  BINDING: QB + 2 rows from a high-total game LIVE 7.0 → QB2_SHOOT 12.0 of 12; from its trailing side LIVE 1.7 → QB2_DOGHI 10.3;
+  C rows with the FAVHI QB LIVE 0.3 → RBMATE4_FAVHI 4.0; QB + own-RB rows LIVE 3.3 → RBMATE4_FAV 7.3; rows shared with LIVE:
+  RBMATE4 5.67, FAV 5.00, FAVHI 6.00, NAKED 13.67 (LIVE already holds about 22 rows with a FAV RB away from his QB, so NAKED's
+  floor binds less), OPPQB 2.00, SHOOT 6.00, DOGHI 3.33 (none dealt identical); projection per row vs LIVE −0.08 to +0.07 except
+  QB2_DOGHI −0.91; **LIVE identical to study 95's LIVE (the outside reviewer's 95 smoke) on 3 of 3 slate-banks**; the full path:
+  the reader exited 0 (122 lines; 166 with the two-draw path on a copy); only the census, the exit codes and the line counts were
+  read.
 - **Code:** nfl2 `production/s97-game-script-20261009` @ `af07583e` (branched from study 96's census `0a09750a`):
   `experiments/s97_game_script.py` `7df6f324…` (pins s96 `0363a84f…`); `scripts/s97_drive.py` `5dff66b7…`; `scripts/s97_census.py`
   `346b403f…`; **`scripts/s97_report.py` (the reader) `e5827c73…`** (seed 20261142); `tests/test_s97_game_script.py` `61f20b91…` (17).
