@@ -374,15 +374,13 @@ fixed before study 102 was read).
    (−4.1 / −1.4), 11% fewer; **4.5 targets −2.8** (−4.5 / −1.0), 7% fewer; the average finish lower in all three, and the 200+
    rate lower too. Like the projection floor (study 106), removing low-volume players removes the cheap ones the big wins draw on.
    The fresh-draw check (study 113) is not run (READ `2525ef14`, lab `a4fd70e9`).
-5b. **Study 116 — a receptions floor for running backs** (your "minimum number of receptions for a running back"): running
-   now (ends about 11:30). Two doses, set before any result by the same rule as the other floors: at least **2.0** receptions a
-   game (changes about 8 of your 26 lineups) and at least **1.5** (about 5); a back with no game yet this season is kept. **Your
-   decision, made before the read:** if it passes and its fresh-draw check (116b) confirms, the floor goes into your Week-5
-   entries. **Plainly:** the idea came from the past slates' real scores (the backs the carries floor removed were the pass
-   catchers who outscored their replacements), so a pass means "consistent with the idea", not proof. Your follow-up — keep
-   the backup when the pass-catching lead back is ruled Out — is study 116c, run only if 116 picks; it may change little (about
-   3 backups a week across 2023–24).
-6. **Last, as you asked (study 114; frozen, held by your "Hold 114 until after" until study 116 and its checks are read):** "Did we try what you had planned of removing one rule at a time to see if it was really
+5b. **Study 116 — a receptions floor for running backs** (your "minimum number of receptions for a running back"): **READ — no
+   pass; nothing goes in this week.** Against your armed book: at least **2.0** receptions a game −1.4 (−1.2 / −1.6), worse on
+   both opponent sets, the average finish lower; at least **1.5** +0.3 (+1.4 / −0.7), 5% more expected big wins, better on one
+   set only. As the pass-catcher reasoning expected, it costs far less than the carries floor (−4.6), but it does not pass your
+   rule, so by your decision it does not go into Week 5, and the fresh-draw check (116b) and your backup-back follow-up (116c)
+   are not run (READ `cbb4e8e1`, lab `78c67c61`). The 1.5 floor is a small lean, like "no low-owned player", for the leads log.
+6. **Last, as you asked (study 114; frozen, held by your "Hold 114 until after"; running now that study 116 is read):** "Did we try what you had planned of removing one rule at a time to see if it was really
    helpful? That in my opinion should be the last thing we do after we've tried the other experiments." The shapes were done
    this way (study 95: removing A1, B or C hurt; A2 changed nothing). Study 114 removes each live **rule** in turn from your
    full armed book: the 35% cap with the ownership limit (as one), the one-TE limit, the one-low-owned limit, the cheap block,
