@@ -11,12 +11,13 @@ arming side.
 
 **Already armed for Week 5 (your decisions):** Fantasy Points' projections; the winners' shape mix 30 / 14 / 28 / 28; the 35%
 player cap with the ownership limit (+15); at most one TE and one player under 3% per lineup; one receiver per team in the
-QB + 1 lineups; the cheap +2 block (entered at the arming, TERM_ROWS = 8).
+QB + 1 lineups; the cheap +2 block (entered at the arming, TERM_ROWS = 8); **and, since this morning, the RB with his QB for
+the expected winner of a high-scoring game** (your "Yes, it seems the RB one should be adopted").
 
 | If you choose… | What changes before 10:28 | Status of the pieces |
 |---|---|---|
 | **Keep everything as armed** | nothing; arm as is | ready |
-| **The RB with his QB, only for the expected winner of a high-scoring game** (studies 97 + 99) | one arm setting: RB_MATE_C = 4 and RB_MATE_SCOPE = favhi | merged and left off; checked on your Week-4 book (Buffalo, Houston, San Francisco; 4 of 4 lineups); the paper comparison follows it |
+| **The RB with his QB, only for the expected winner of a high-scoring game** (studies 97 + 99) | **DONE: your decision this morning; set in the arm** (RB_MATE_C = 4, RB_MATE_SCOPE = favhi) | checked on your Week-4 book (Buffalo, Houston, San Francisco; 4 of 4 lineups); the arm's check passes; the paper comparison follows it |
 | **A different shape mix** (studies 95 + 98 say keep today's) | one arm setting: MIX_QUOTAS = your split (any share, 0% to 100%) | merged; every tested split already built once on your Week-4 book |
 | **Rows sharing at most 3 players** (study 100's pick) | **not suggested: study 101 did not confirm it** (a little worse on a fresh draw) | scored on paper this Sunday instead, so the real results test it |
 | **Full game stacks (QB + 2 + 2 from the opponent) in 8 lineups** (study 102) | **not suggested: worse** (the best lineup about 1.7 points lower, clearly below zero) | built and reviewed, not merged |
@@ -24,7 +25,20 @@ QB + 1 lineups; the cheap +2 block (entered at the arming, TERM_ROWS = 8).
 | **The whole book built for high scores** (studies 102 + 103, information) | not suggested: **more 200+ lineups on all four opponent sets (15.5% vs 12.3%; 16.4% vs 14.1%) but fewer big wins on all four** | the trade your 200+ goal runs into; no production switch yet |
 
 **Anything not tested together stays apart:** an RB version with a full-game-stack version, for example, only with a combined
-test (study 104 runs it overnight if both hold).
+test. (Study 104 would have run that combination; it was not run, because study 103 did not confirm the high-score cheap block.)
+
+**Still running this morning** (each is reported when read; the morning page lists them too):
+- **Study 105:** how many 200+ lineups each step of "more lineups built for high scores" buys, and what it costs (information for
+  Week 6).
+- **Studies 106 → 107 → 108:** your projection floor (8 / 10 / 12; a passing floor re-checked on a fresh draw; then your
+  per-position floors). Every arm now includes the RB rule you adopted, so a passing floor is measured on the book you enter.
+- **Study 109:** your recency fade (2 points off when the last game was twice the average; also at 1.6 times).
+- **Last, as you asked:** each live rule removed one at a time from the full armed book.
+
+**The arming time.** 10:28 keeps Saturday's 10:30 test build (its receipt check and the paper comparison's check) and the
+backup supply for Sunday. A test that passes later can still go in by a re-arm on Saturday afternoon or evening. The hard
+stop is Saturday night, before Sunday's early builds. The plan: arm at 10:28 with what you have decided, and re-arm only if
+a later result passes and you want it.
 
 **The arming itself (the laptop):** set the cheap block (TERM_ROWS = 8), apply your choices, run the check before 10:28, then
 arm. By 11:00 the first build's receipt must show every chosen rule applied; then the reviewer's paper-comparison check.
