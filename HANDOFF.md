@@ -12,6 +12,53 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (05:24 CDT) — OPERATOR: the Saturday supply builds move to 18:00, after ONE final arm; study 105 READ (reproduced); the laptop's floor correction (production's --min-proj reads FP's projection in W5)
+
+**His decision, in the laptop's session:**
+- His words: "I think we should postpone the supply build if we can".
+- The laptop's question: "Saturday's supply build is the test run of your armed rules (about 2.5 hours of the machine, now set for 10:30). When should it run instead?"
+- **His answer: "18:00, after a final arm (Recommended)".** The option text: experiments get the machine until about 17:30; the
+  laptop arms ONCE around 17:55 with his final settings, so the test run checks the exact book he enters; it ends about 20:30,
+  leaving the night to fix anything before Sunday's 04:30 builds; a small reviewed change to the arm script's fixed times;
+  the morning data collection as usual.
+- **The mechanism** (the reviewer prefers it to a manual stop / start; their 5 conditions):
+  - SAT_SUPPLY_CT / SAT_FALLBACK_CT in arm_week_timers.sh. The defaults are today's 10:30 / 10:35 byte for byte, with a test.
+  - The arm script's time check runs against SAT_SUPPLY_CT, and the arm validates the values: HH:MM; later than now;
+    the fallback after the supply; the supply ≤ 21:00. ARM_LATE is unchanged.
+  - Every test that reads the two scripts is run, with rc + summary.
+  - The s38 gate moves to the evening canary.
+  - Every study ends by about 17:30.
+- **The morning stays:**
+  - the props guard;
+  - the 09:47 refresh (an afternoon re-run after the 15:00 odds, so the evening arm builds on fresh projections);
+  - the FP ownership / projections captures;
+  - the R14 sweep and the OPRK snapshot.
+
+**Study 105 READ** (the reviewer; lab `6ab0b595`; confirmatory census `80b13823` committed before the read). **The laptop
+reproduced both byte for byte:**
+- READ_s105 `efbea1ce` (reader a3633451); census `da679086` (ffe023c2); RAW sha256sum -c OK.
+- **The dose curve, each arm − LIVE** (LIVE's 200+ rate 12.0%):
+
+  | Rows on upside | P(best ≥ 200) | Big wins | Guard 1 |
+  |---|---|---|---|
+  | 13 | +3.2 [+0.5, +6.7] | −1.7 (both draws −) | FAILS |
+  | 18 | −0.9 | −4.5 (both draws −) | FAILS |
+  | 26 | +0.7 | −3.4 (both draws −) | FAILS |
+
+- **Big wins fall at every dose on both opponent sets.** Information for Week 6 (read on the ONECATCH book, before FAVHI).
+
+**The laptop's W4 floor check** (FRIDAY_HEAD b00c5e43, LIVE + FAVHI; `~/rehearsals/minprojcheck-live-20261010T102003Z`; 32 s):
+- **Gates:** ARMED + ONECATCH `293d9465` ✓; LIVE + FAVHI `c605cab6` ✓.
+- **Rows changed:** MINPROJ6 1; MINPROJ8 3; MINPROJ10 23 (sub-$4k skill slots 35 → 9).
+- **MINPROJ12: production REFUSES.** The floor removes every cheap-block player; union_reselect raises "term_rows 8 needs … a
+  term_bonus". The reviewer dropped MINPROJ12 from study 106 (the harness would have built it silently without the block).
+- **CORRECTION of the laptop's earlier claim** (row 89; the 10-10 study 106 entry; the morning page):
+  - With UNION_PROJ_SOURCE=fp, apply_proj_source (union_reselect 1673 → 457) replaces mean_projection with FP's projection
+    BEFORE the floor (survivors 1683; MIX excl 1765). **Production's floor reads FP's projection in W5.**
+  - **Proof:** the minimum FP projection of a book skill slot is 6.35 / 8.28 / 10.61 for floors 6 / 8 / 10.
+  - **For study 106:** the harness floors our model's sim mean (no FP history), so a passing number transfers to production
+    only approximately. The prereg discloses it.
+
 ## 2026-10-10 (05:18 CDT) — OPERATOR: more experiments all day, "make sure any necessary processes happen"; a new study idea, usage floors (study-list row 92)
 
 **His words, in the laptop's session (three messages):**
@@ -127,8 +174,9 @@ first 4 QB + 1 lineups, only for the expected winner of a high-scoring game), me
   almost always carried a sub-$4k punt that boomed (system study Addenda 4 / 5).
 - **On his armed W4 book** (outcome-blind): a floor of 8 on FP's projections touches only 3 of 26 lineups (1 player); a floor of 10
   touches 13 of 26. On our model's projections, 9 and 14.
-- **A production detail:** union_reselect's --min-proj filters on `fr.mean_projection` (OUR model), while the book optimizes on
-  FP's. A live FP-based floor needs a small production change; LIVE_MIN_PROJ also cuts the lab's candidate generation.
+- **A production detail:** ~~union_reselect's --min-proj filters on `fr.mean_projection` (OUR model), while the book optimizes on
+  FP's. A live FP-based floor needs a small production change~~ **WRONG, corrected 10-10 (entry above): with UNION_PROJ_SOURCE=fp the
+  floor reads FP's projection.** LIVE_MIN_PROJ also cuts the lab's candidate generation (on our projections).
 
 **The plan:**
 - **Study 106:** projection floors on the armed construction, on the harness. The reviewer designs (arms suggested
