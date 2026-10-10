@@ -394,8 +394,8 @@ fixed before study 102 was read).
    | One receiver per team (QB + 1 lineups) | +0.0 | +1.6 / −1.5 | 3% more | no clear evidence either way |
 
    Four rules hurt the book when removed (worse on both opponent sets); the other two are a wash. **No removal is suggested**, so
-   the fresh-draw check (114b) is not run (READ `f436c5d8`, lab `d3a523e5`). The cheap block remains your Week-5 trial, reviewed
-   on 10-19 as planned. Today's two clearly-worse results: the carries floor (study 112) and removing the low-owned rule.
+   the fresh-draw check (114b) is not run (READ `f436c5d8`, lab `d3a523e5`). The cheap block remains your Week-5 trial at 8 lineups
+   (your answer after this read: "Keep it on (Recommended)"), reviewed on 10-19 as planned. Today's two clearly-worse results: the carries floor (study 112) and removing the low-owned rule.
 7. **Your question "77, 79 and 81 all looked promising. Do you think any could be adopted?" (the laptop's answer, checked
    against the ledger):** 79 is already live, as one receiver per team (study 93, +2.0). 77 (the QB alone, +1.8 at first) and
    81 (no $5,000+ TE, +4.7 as one of about 35 side comparisons) failed their re-reads: 77 read −1.9, −2.0 and −0.2 afterwards;
