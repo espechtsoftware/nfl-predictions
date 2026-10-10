@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (23:28 CDT) — laptop: the prepared switches for the morning, and the merge order the paper co-run requires
+
+**Prepared tonight (all default off, unmerged unless noted), so each candidate his morning word could pick is a switch:**
+
+| Candidate | Production pieces | Status |
+|---|---|---|
+| ONECATCH | flag `c391fbd0` + wiring `f483644c` | **merged and ARMED** (ONE_CATCHER_ALL=1) |
+| Shape percentages (study 95 / 98) | zero-quota parser `21fa9d29` | **merged** (MIX_QUOTAS, any split) |
+| RBMATE4 (unscoped) | flag `4caff46d` + wiring `77bd55c5` | **merged off**; study 96 PAPER ONLY |
+| RBMATE4_FAVHI (study 97; 99 confirming) | flag review/game-script-scopes-20261010 @ `60f6dbe9` + wiring production/scope-wiring-20261009 @ `2bd5bbff` | approved; W4 check `b6680c2c`; merges only if 99 confirms, after the reviewer's 6w |
+| OWN10 (study 100 arm) | production/own10-allow-20261009 @ `93cfe422` (check_week_runtime + arm accept +10) | unmerged; only if 100 picks it and 101 holds |
+| TAIL_STACK8 (study 102 arm) | flag review/a1-full-stack-20261010 @ `6d4c0457` (the outside reviewer's; includes the audit exemption for named 5-from-one-game rows) + wiring production/a1-full-stack-wiring-20261009 @ `aa44ab39` | approved statically; only if 102 picks it and 103 holds |
+
+**The merge order (the outside reviewer's condition, binding):** the study 38 paper co-run's 6l default-deny refuses any
+union_reselect argument it has not classified, which would make the week invalid. So for any NEW union flag:
+1. the reviewer's s38 amendment classifies it first (6w covers --mix-rb-mate-scope; TAIL_STACK8 would need its own);
+2. then the code merges (flag + wiring together; the wiring alone at 1 would hit an unknown flag);
+3. then FRIDAY_HEAD moves, the laptop's W4 gates run on it, and the reviewer moves s38-prod-pin and re-runs the gate;
+4. then the arm-only commit sets the switch.
+
+The zero-quota parser and OWN10 add no new union flag, so they need no classification.
+
 ## 2026-10-09 (23:00 CDT) — OPERATOR, in the laptop's session: "It sounds like you're giving up on the high scores. That's not what I want."
 
 **His words, verbatim:** "It sounds like you're giving up on the high scores. That's not what I want."
