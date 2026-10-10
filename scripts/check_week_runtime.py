@@ -267,6 +267,12 @@ def main():
              "no cover / half rows, no bring-back top WR, no winner select)")
     # his 10-09 decision (study 94's RBMATE4): the QB's own RB in the first 4 C rows, only on top of ONECATCH (study 96)
     _rm = os.environ.get("UNION_MIX_RB_MATE_C", "")
+    # study 102's TAIL_STACK8 (default off): the A1 rows as full game stacks, only on ONECATCH, with the live quotas, no RB mate
+    _a1 = os.environ.get("UNION_MIX_A1_FULL_STACK", "")
+    if _a1 not in ("", "0") and (_a1 != "1" or _oc != "1" or os.environ.get("UNION_MIX_RB_MATE_C", "") not in ("", "0")
+                                 or os.environ.get("UNION_MIX_CELL_QUOTAS", "") or os.environ.get("MAX_PER_GAME", "4") not in ("", "4")):
+        fail(f"UNION_MIX_A1_FULL_STACK={_a1!r} must be 1, with UNION_MIX_ONE_CATCHER_ALL=1, no RB mate, no cell quotas and the per-game "
+             "cap 4 (study 102 read it on the live quotas without an RB mate; untested otherwise)")
     if _rm not in ("", "0") and (_rm != "4" or _oc != "1"):
         fail(f"UNION_MIX_RB_MATE_C={_rm!r} must be 4 (study 94's tested value), with UNION_MIX_ONE_CATCHER_ALL=1 (study 96 read the two "
              "together)")

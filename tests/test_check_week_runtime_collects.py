@@ -391,3 +391,19 @@ def test_his_rbmate_rides_only_on_onecatch(tmp_path):
     assert any(f.startswith(msg + "'8' must be 4") for f in _failures(_run(env)))
     env = fresh("d"); env.update(live, UNION_MIX_ONE_CATCHER_ALL="0", UNION_MIX_RB_MATE_C="4")
     assert any(f.startswith(msg + "'4' must be 4 (study 94's tested value), with UNION_MIX_ONE_CATCHER_ALL=1") for f in _failures(_run(env)))
+
+
+def test_study102s_a1_full_stack_rides_only_on_onecatch_without_an_rb_mate_or_quotas(tmp_path):
+    """Study 102's TAIL_STACK8: UNION_MIX_A1_FULL_STACK=1 needs ONECATCH, no RB mate, no cell quotas, the per-game cap 4."""
+    def fresh(name):
+        d = tmp_path / name; d.mkdir(); return _healthy(d)
+
+    live = dict(UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix", UNION_MAIN_CAP="0.35", UNION_MAIN_OWN_CAP_DELTA="15",
+                UNION_MIX_ROW_RULES="te1_low1", UNION_MIX_ONE_CATCHER_ALL="1", UNION_MIX_FILL="rr")
+    msg = "UNION_MIX_A1_FULL_STACK="
+    env = fresh("a"); env.update(live, UNION_MIX_A1_FULL_STACK="1")
+    assert not any(f.startswith(msg) for f in _failures(_run(env)))
+    for i, bad in enumerate((dict(UNION_MIX_ONE_CATCHER_ALL="0"), dict(UNION_MIX_RB_MATE_C="4"),
+                             dict(UNION_MIX_CELL_QUOTAS="A1=0.4,A2=0.1,B=0.25,C=0.25"), dict(MAX_PER_GAME="5"), dict(UNION_MIX_A1_FULL_STACK="2"))):
+        env = fresh(f"b{i}"); env.update(live, UNION_MIX_A1_FULL_STACK="1"); env.update(bad)
+        assert any(f.startswith(msg) for f in _failures(_run(env))), bad
