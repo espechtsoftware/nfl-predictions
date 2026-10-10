@@ -135,7 +135,7 @@ reviewer and updated as each study is read.
 - **Study 98 tested that suggested mix on a fresh set of simulated opponents: +0.6, a coin flip** (one set flat at −0.0,
   the other +1.1). It failed your rule. So nothing tonight says to change your shape mix: keep 30 / 14 / 28 / 28.
 
-### 13. The QB's own RB only when his team is the expected winner of a high-scoring game (study 97) — *passed your rule; re-checked tonight on a fresh draw (study 99)*
+### 13. The QB's own RB only when his team is the expected winner of a high-scoring game (studies 97, 99) — *passed your rule twice: the one game-situation change that held up*
 - **Study 97 (36 past slates, two random opponent sets), your request to test the shapes by game situation:** the RB mate in 4
   QB-plus-one lineups, but only for the expected winner (by 3+) of a game in the slate's top third of totals: **+0.9** against
   your book (set A +0.5, set B +1.3; about 10% more expected big wins) and **+2.3** against the RB mate everywhere. It passed your
@@ -144,7 +144,11 @@ reviewer and updated as each study is read.
 - **The other versions did nothing:** the RB mate everywhere −1.4 (again, as study 96), only on expected winners −0.2, the
   favorite's RB without his QB +0.3 (your book already has that in most lineups), the trailing QB with the favorite's RB −0.7,
   QB + 2 only from high-scoring games −0.7.
-- **Study 99 tonight** re-reads it on a fresh draw before it is offered; the switch is being built off, ready only if you choose it.
+- **Study 99 re-read it on a fresh set of simulated opponents: +3.4** against your book (sets +5.8 / +0.9; about 18% more
+  expected big wins) and +2.8 against the RB mate everywhere. It passed your rule again: across the two studies it was ahead
+  on all four opponent sets. Its best lineup also reached 200 a little more often (15.0% vs 11.1% of slates here). Still not
+  separable from zero on its own. The switch is built and checked on your Week-4 book (it chose BUF, HOU and SF), and is OFF
+  until you say so.
 
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
@@ -194,7 +198,6 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 99 (tonight):** lead 13 re-read on a fresh draw.
 - **Study 100 (tonight, your "scores over 200" request):** a sweep of the settings that could raise the book's best lineup.
 
 *Updated as each study is read.*
