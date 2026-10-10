@@ -16,7 +16,7 @@ something is successful, we'll discuss in the morning how we want to use it."
   both opponent sets), although every lineup got its RB. It stays off (RB_MATE_C = 0) unless you choose a version below.
 - **Already armed for Week 5 (your decisions):** Fantasy Points' projections, the winners' shape mix, the cheap +2 block, the
   35% cap with the ownership limit (+ 15), at most one TE and one player under 3% per lineup, and one receiver per team in the
-  QB + 1 lineups.
+  QB + 1 lineups. (The cheap +2 block is entered at Saturday's arming, as designed: TERM_ROWS = 8.)
 
 **How to read the numbers:** "+2.0" means about 2 more slates in 100 with a big win, on the test model (36 past slates of
 2023–24, scored on their real results, against two separate random sets of opponents, "A" and "B"). **Your rule** for a change:
@@ -144,12 +144,33 @@ counts as "held" only if it passes the same rule again.
 ## 3. What it would take to use each
 
 - **A new shape mix:** one setting at arming (MIX_QUOTAS), built and tested; any share including 0% or 100%.
-- **A game-situation version (RB or QB + 2):** if one passes, its switch is built overnight and left OFF. Using it needs one
-  setting, the laptop's Week-4 check, and a paper-arm update from the lab reviewer (without it, the integrity check refuses the
-  new switch). A version that fails is not built.
+- **The RB version for the expected winner of a high-scoring game:** its switch is built, reviewed and checked on your Week-4
+  book, but **not yet merged**. **If study 99 confirms it on the fresh draw,** it is merged tonight (left off), the lab reviewer's
+  paper-arm update lands, and using it is one setting this morning (RB_MATE_C = 4 with RB_MATE_SCOPE = favhi). **If study 99
+  does not confirm it, it is not built for use this week.** [99: ]
+- **No QB + 2 version passed,** so none was built.
 - **An RB version and a QB + 2 version together:** not allowed by the switches tonight — study 97 read them separately, and
   separately-read rules have not added up before (studies 93 + 94; study 83's combination −1.9). If you want both, one goes live
   and the other on paper, or a combined test (about 40 minutes) if the clock allows before 10:28.
+
+## 3b. Raising the ceiling: five variations of your book (study 100) and the check of its pick (study 101)
+
+Your note: "keep trying different variations … scores over 200 fairly regularly". Five one-setting variations of your book, each
+read on its **best real lineup** (the average per slate) with the 200+ rate beside it; the rule fixed before the run picks the
+largest gain that is positive on both opponent sets without costing big wins; study 101 re-runs the pick on a fresh draw.
+
+| Version | Best lineup vs your book | Set A | Set B | 200+ rate (yours: [ ]) | Big wins | Picked? |
+|---|---|---|---|---|---|---|
+| QB cap 3 (no QB in more than 3 lineups) | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |
+| Overlap 3 (at most 3 shared players between lineups) | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |
+| No cheap +2 block | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |
+| Ownership cap + 10 (instead of + 15) | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |
+| More bring-back lineups (A1 37 / A2 7 / B 42 / C 14) | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |
+
+**The pick:** [ ] — **on a fresh draw (study 101):** [ ]
+
+**Using a pick:** QB cap 3, no cheap block and the bring-back mix are morning settings (QB_CAP_ROWS / TERM_ROWS / MIX_QUOTAS);
+overlap 3 also needs the lab reviewer's paper-arm update; ownership + 10 needs a prepared production change (built, unmerged).
 
 ## 4. The rest of last evening (for the record)
 
