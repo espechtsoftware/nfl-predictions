@@ -14,7 +14,8 @@
 - **Code: study 117's frozen module, census, driver and reader, byte for byte** (nfl2 `production/s117-two-stars-20261010`;
   the shas as frozen in study 117); new banks. The reader prints all of study 117's lines; **ONLY the pick's line vs LIVE
   decides.**
-- **Banks (the laptop's reservation; the full-set check: CLEAN):** **4352–4363** (set A 4352–4357, set B 4358–4363; sims bases
+- **Banks (the laptop's reservation; the laptop's full-set check (761 used or reserved banks, every {b, b+50,
+  b+700}) and the text scans of both repositories: CLEAN, 10-10):** **4352–4363** (set A 4352–4357, set B 4358–4363; sims bases
   4402–4413, fields 5052–5063).
 - **The reader's seed** is study 117's (20261165): the same bootstrap resamples, so the intervals are correlated with 117's.
   The pass rule below uses point estimates only.

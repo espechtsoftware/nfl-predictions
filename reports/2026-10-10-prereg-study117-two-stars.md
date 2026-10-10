@@ -7,7 +7,8 @@
   has only four $8,000+ RB / WR (no TE) — 36 star slots under the 0.35 cap against the 52 that two stars on all 26 rows
   needs — **"Paper this week, test for W6 (Recommended)"**. This week STAR2_8 (and STAR2 where it fits) go on paper in study 38
   (the lab reviewer's amendment); **this study runs for Week 6** (after Sunday's canary, or Monday).
-- **Banks and seed (the laptop's reservation; the full-set check: CLEAN):** **4340–4351** (set A 4340–4345, set B 4346–4351;
+- **Banks and seed (the laptop's reservation; the laptop's full-set check (761 used or reserved banks, every {b, b+50,
+  b+700}) and the text scans of both repositories: CLEAN, 10-10):** **4340–4351** (set A 4340–4345, set B 4346–4351;
   sims bases 4390–4401, fields 5040–5051); the reader's bootstrap seed **20261165**.
 
 ## 1. Why
