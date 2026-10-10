@@ -76,7 +76,16 @@ book** (the package, te1 / low1, the cheap +2 block, ONECATCH and the adopted FA
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke and the census (the unit tests, the mechanics smoke 2023 W3
   / 2023 W11 / 2024 W10, the census with `--ref97`, the full path: reader exit and line count only), in the gap the lab reviewer
   names (about 08:30).
-- **The smoke:** (filled in when done).
+- **The smoke (DONE 10-10, 08:23:43–08:25:38 CDT, in the gap the lab reviewer named after the laptop's study-110 reproduction;
+  bank 1406; 2023 W11, 2024 W10, 2023 W3; PYTHONHASHSEED=0; code `197282bc`; `results_bank1406.jsonl` `31488b6f…`):**
+  - the unit tests 10 passed;
+  - every arm 41 rows within the package's caps; row rules 78 of 78 ruled, none infeasible; RB-mate slots 12 of 12 and
+    ONECATCH 42 of 42, none dropped, every arm; **LIVE identical to study 97's RBMATE4_FAVHI, rows and dealing, on 3 of 3**;
+  - **the mask:** FADE2_WRTE flags QB / RB / WR / TE 0 / 0 / 9.7 / 2.0 per slate-bank; study 109's flag unmasked gives 2.3 / 7.0
+    / 9.7 / 2.0, so the WR / TE counts are 109's own;
+  - **the binding:** HOT_WRTE1's rows with 2+ hot WR / TE: LIVE 3.67 (max 7) → 0; FADE2_WRTE: LIVE's rows holding a hot WR / TE
+    13.7 (min 7) → its own 0.3; dealt identical to LIVE 0.000 for both;
+  - the full path: the reader exited 0 (41 lines; 52 two-draw). Only the census, the exit codes and the line counts were read.
 - **Code:** nfl2 `production/s115-wrte-recency-20261010` @ `197282bc` (off study 109's `65edc3c0`, whose module is the frozen
   `996077e6`):
   - `experiments/s115_wrte_recency.py` `4f195d69…` (pins s109 `996077e6…`)
