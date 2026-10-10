@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (06:24 CDT) — study 109 (recency fade + HOT1) FROZEN and ACKED; GO after the 110 smoke
+
+- **Frozen** (the reviewer, 06:20; prereg `66c655b8`, sha f60d354e; lab `0ddcfdb7`). Arms LIVE / FADE2 / FADE2_16 / HOT1, FAVHI in
+  every arm; banks 3506–3517; seed 20261151; information for Week 6 unless one passes and he chooses. 109b re-checks a pick
+  (banks 3872–3883, clean).
+- **The laptop's ack:**
+  - every sha matches (module 996077e6, census 30514577, reader 99b66dd8, drive f1845246, tests 2f94cce8, binding census
+    2afd805d / 8743757f);
+  - 10 tests passed;
+  - the census re-run (bank 1406, --ref97) is IDENTICAL (0 mechanics differences; the text identical, build time masked).
+- **The binding census:** LIVE == 97's FAVHI on 36 / 36. FADE2 flags 20.2 players per slate-bank (17.3 of 26 LIVE rows hold
+  one); FADE2_16 34.5 (21.4); HOT1 rows with 2+ hot 8.14 → 0.
+- **The order:** the outside reviewer's 110 smoke (about 15 min) → the 109 run (about 35–40 min).
+
 ## 2026-10-10 (06:14 CDT) — study 106 READ: his floor of 8 is WORSE on both draws, so the pick is none; 107 and 108 not run (reproduced byte for byte)
 
 - **Study 106** (the reviewer; lab `960c320c`; confirmatory census `7e20e971` committed before the read; 432 / 432 rows).
