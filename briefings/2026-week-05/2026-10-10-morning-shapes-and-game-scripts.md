@@ -380,15 +380,22 @@ fixed before study 102 was read).
    set only. As the pass-catcher reasoning expected, it costs far less than the carries floor (−4.6), but it does not pass your
    rule, so by your decision it does not go into Week 5, and the fresh-draw check (116b) and your backup-back follow-up (116c)
    are not run (READ `cbb4e8e1`, lab `78c67c61`). The 1.5 floor is a small lean, like "no low-owned player", for the leads log.
-6. **Last, as you asked (study 114; frozen, held by your "Hold 114 until after"; running now that study 116 is read):** "Did we try what you had planned of removing one rule at a time to see if it was really
-   helpful? That in my opinion should be the last thing we do after we've tried the other experiments." The shapes were done
-   this way (study 95: removing A1, B or C hurt; A2 changed nothing). Study 114 removes each live **rule** in turn from your
-   full armed book: the 35% cap with the ownership limit (as one), the one-TE limit, the one-low-owned limit, the cheap block,
-   one receiver per team, and the RB version. A removal is suggested only if your book does better without it on both
-   opponent sets; with six removals one or two can pass by chance, so a suggested removal is re-checked on a fresh draw (study
-   114b) before it reaches you. **Only two can be switched off for tonight as things stand** (the cheap block, the RB version);
-   the others are tied together in the arming script, so removing one of them would wait for Week 6. Every study ends by about
-   17:30, **before your 18:00 final arm.**
+6. **Last, as you asked (study 114): each live rule removed one at a time — READ: keep every rule.** "Did we try what you had
+   planned of removing one rule at a time to see if it was really helpful?" Your full armed book against the same book with one
+   rule taken out (the same 36 past slates, two random opponent sets):
+
+   | Rule removed | Big wins (slates in 100) | Set A / set B | Expected big wins | Verdict |
+   |---|---|---|---|---|
+   | At most one player under 3% owned | **−5.1** (interval −8.7 to −1.9) | −7.2 / −3.1 | 15% fewer | **clearly helping** |
+   | The 35% cap with the ownership limit | −3.9 | −2.3 / −5.4 | 2% fewer | helping (and the 200+ rate falls from 13.4% to 8.8% without it) |
+   | At most one TE | −3.2 | −4.2 / −2.3 | about the same | helping |
+   | The RB with his QB on favored high-total teams | −2.2 | −1.6 / −2.7 | 10% fewer | helping |
+   | The cheap +2 block | −0.4 | −1.6 / +0.8 | 3% more | no clear evidence either way |
+   | One receiver per team (QB + 1 lineups) | +0.0 | +1.6 / −1.5 | 3% more | no clear evidence either way |
+
+   Four rules hurt the book when removed (worse on both opponent sets); the other two are a wash. **No removal is suggested**, so
+   the fresh-draw check (114b) is not run (READ `f436c5d8`, lab `d3a523e5`). The cheap block remains your Week-5 trial, reviewed
+   on 10-19 as planned. Today's two clearly-worse results: the carries floor (study 112) and removing the low-owned rule.
 7. **Your question "77, 79 and 81 all looked promising. Do you think any could be adopted?" (the laptop's answer, checked
    against the ledger):** 79 is already live, as one receiver per team (study 93, +2.0). 77 (the QB alone, +1.8 at first) and
    81 (no $5,000+ TE, +4.7 as one of about 35 side comparisons) failed their re-reads: 77 read −1.9, −2.0 and −0.2 afterwards;
