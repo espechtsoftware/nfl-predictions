@@ -259,7 +259,8 @@ reviewer and updated as each study is read.
 - **More rules from your real Weeks 1–4 fields (study 110), each worse on both random opponent sets:** the QB only from the
   slate's three highest-total games **−3.6** (9% fewer expected big wins; the average finish lower); at most 4 of 8 players from
   the top value tenth **−2.9** (8% fewer) — it goes on paper in Week 5 so the real results can still decide it; no QB with his
-  own defense plus at least $49,500 of salary **−0.6** (the salary floor never bound; it moves 1 lineup of your real book).
+  own defense plus at least $49,500 of salary **−0.6** (the floor did change lineups on some past slates, where the book's
+  lowest lineup was $49,300; on your real Week-4 book the rule moves 1 lineup).
 
 - **Your 10-09 evening question — correlations that could give an edge (three quick screens on your real Weeks 1–4; the plan
   was written down before any result was read):**
