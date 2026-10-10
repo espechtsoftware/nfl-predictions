@@ -12,6 +12,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (05:35 CDT) — outside model: the night reviewed, a fresh winner-pattern screen of the W1–4 fields, the next tests; his week-level scoring idea logged (docs only; nothing armed)
+
+- **His request (this session, ~05:00):** "review the latest changes and experiments that were made overnight ... Look at patterns of
+  winners and suggest some other lineup selection changes we can test." **The page:**
+  `briefings/2026-week-05/2026-10-10-winner-patterns-and-next-tests.md` (+ index row). Branch `review/winner-patterns-20261010`,
+  docs + `reports/2026-10-10-winner-patterns/` (the screen's script and aggregate tables), off `f7701e58`. FRIDAY_HEAD untouched.
+- **The screen** (BigQuery, server-side; 1.32M Millionaire lineups + 12,219 lineups in the 4444 / 555 / 333 / FFWC contests; features
+  from the T-70 frames; within-user MH odds by week; the Sunday book rebuilt on W4 from the laptop's `minprojcheck` LIVE dir):
+  - **hot players** (last game ≥ 2× the trailing average): the top 1% carry 0.4–0.8 per lineup vs the field's 0.9–1.6 (W2–4);
+    within user a hot player cut the odds of a top-1% finish to 0.46 / 0.57 / 0.33 in W2 / W3 / W4; his contests' top 3 0.47 vs our
+    1.41; **the Sunday book 0.96 per lineup, 20 of 26 lineups**;
+  - **value density** (top-tenth projection per dollar): the Sunday book 4.5 of 8 (12 lineups at 5–7) vs winners 2.9–3.5; the payoff
+    flips by week (4+ value players −10 vs projection in W2 and W4, +9 to +25 in W1 and W3);
+  - **salary spread** higher among the top 1% in all four weeks (within-user odds 1.6 / 7.9 / 7.7 / 3.0);
+  - QB rank lower among winners in 3 of 4 weeks; QB + own RB worse within user in 3 of 4 (a FAVHI watch item for Monday);
+  - the top 0.1% use RB-only bring-backs MORE than the field (45% vs 26%): no receiver-bring-back rule;
+  - the ownership features of this run did not join and are not reported.
+- **Suggested, in order:** (1) run study 109 before the floors and add a HOT1 row rule (at most one hot player per lineup, the
+  te1/low1 vehicle); (2) a value cap (≤ 4 top-tenth value players per lineup; harness + the W1–4 real-field replay, his 10-06 rule);
+  (3) a salary-spread floor as a paper arm; (4) for 106–108: no uniform floor of 10 (on the armed book it removes 26 of 35 sub-$4k
+  slots and halves the stars), RB-only if any, no TE floor; (5) a QB-rank cap on paper; (6) FAVHI's premise watched on Monday.
+- **Logged for him:** study-list row 93, his week-level scoring-forecast idea ("more of a research project for the future").
+- **For the laptop:** nothing to do unless he picks one; each item names its vehicle (`row_rule_sets`), test and production path.
+  Merge: `git merge --no-ff review/winner-patterns-20261010` (docs + a reports folder; no code under src/ or scripts/).
+
 ## 2026-10-10 (05:24 CDT) — OPERATOR: the Saturday supply builds move to 18:00, after ONE final arm; study 105 READ (reproduced); the laptop's floor correction (production's --min-proj reads FP's projection in W5)
 
 **His decision, in the laptop's session:**
