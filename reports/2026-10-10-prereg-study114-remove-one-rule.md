@@ -1,12 +1,13 @@
-# Preregistration: study 114, each live rule removed one at a time from his full armed Week-5 book, in the harness (DRAFT 2026-10-10)
+# Preregistration: study 114, each live rule removed one at a time from his full armed Week-5 book, in the harness (DRAFT 2026-10-10; FROZEN 2026-10-10)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer; the design is the lab reviewer's
-(its calls of 10-10 morning). The lab reviewer reviews, runs the binding census, freezes, runs and reads; the laptop acks and
-reproduces. **A suggested removal goes to study 114b** (the fresh-draw check), whose preregistration is committed before this
-study's READ.
-- **Banks and seed (the laptop's reservation):** **3860–3871** (set A 3860–3865, set B 3866–3871; sims bases 3910–3921, fields
-  4560–4571); the reader's bootstrap seed **20261157**. The laptop's full-set check (677 used or reserved banks, every {b, b+50,
-  b+700}): CLEAN; the text scans of both repositories (banks, sims bases, fields, seed): CLEAN, 10-10.
+**Status: FROZEN 2026-10-10 (10:27 CDT)** by the lab reviewer, after the outside reviewer's DRAFT and code, the smoke and the
+binding census, before any scored bank. The text changed at the freeze in this status block and §6 (the binding census) only.
+The laptop acks. **A suggested removal goes to study 114b** (its preregistration committed before this READ).
+- **Banks 3860–3871** (set A 3860–3865, set B 3866–3871; sims bases 3910–3921, fields 4560–4571), the reader's bootstrap seed
+  **20261157**. The laptop's full-set check (677 used or reserved banks, every {b, b+50, b+700}) was CLEAN; the text scans of both repositories
+  (banks, sims bases, fields, seed) were CLEAN, 10-10.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run, recorded in `RUN_ENV_s114.txt` committed with the
+  confirmatory census. The run starts from lab `eb981cbb` on production/s114-remove-one-20261010 (results/s114/).
 
 ## 1. Why
 - **The operator, 10-10 morning, in the laptop's session (verbatim; study list row 91):** "Did we try what you had planned of
@@ -113,6 +114,18 @@ listed edits, a test asserts it). s96 / s97 are brought in byte for byte (`0363a
     to LIVE 0.000 for every arm but NO_ONECATCH (0.333); none above 0.80;
   - the full path: the reader exited 0 (93 lines; 124 two-draw, with one decision-rule block). Only the census, the exit
     codes and the line counts were read.
+- **The binding census (DONE 10-10, 10:22:42–10:26:50 CDT; the lab reviewer's; outcome-blind; bank 1406, 36 slate-banks of
+  2023–24; PYTHONHASHSEED=0; code `1aef50c4`; lab `eb981cbb`: `CENSUS_s114_binding.txt` `a1615a74…`,
+  `census_mechanics_bank1406.jsonl` `a68bc84c…`):**
+  - the unit tests 13 passed; every arm 26 book rows within its caps; **0 row-rule and 0 ownership-cap fallbacks** in all 7
+    arms (936 of 936 ruled); ONECATCH 504 of 504 (NO_ONECATCH off by design); RB-mate slots 144 of 144 (NO_FAVHI 0);
+  - **LIVE identical to study 97's RBMATE4_FAVHI and NO_FAVHI identical to study 97's LIVE, rows and dealing, each on 36 of 36**;
+  - **every removal is real** (the REMOVED? line, LIVE → the arm): NO_TE1 rows with 2+ TEs 0 → 14.89; NO_LOW1 rows with 2+
+    low-owned 0 → 7.39; NO_CHEAP term rows 8 → 0; NO_PACKAGE the most-used player 9 → 13 rows with 11.7 players over the
+    ownership cap; NO_ONECATCH B / C rows with two catchers of one team 0 → 2.69; NO_FAVHI rows with a FAVHI pair 4.25 → 1.19
+    and RB-mate slots 0;
+  - rows shared with LIVE 4.42 (NO_TE1) to 15.50 (NO_CHEAP) of 26; dealt identical ≤ 0.194 (NO_ONECATCH); projection per row vs
+    LIVE +2.52 (NO_PACKAGE), the others within ±0.45.
 - **Code:** nfl2 `production/s114-remove-one-20261010` @ `1aef50c4` (the test fix; `cf798c56` before it) (off study 102's frozen `969f4d3d`; s96 / s97 byte for byte):
   - `experiments/s114_remove_one.py` `a7496843…` (pins s95 `46b80611…`, s97 `7df6f324…`)
   - `scripts/s114_drive.py` `49da9b8e…`
