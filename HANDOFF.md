@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (04:28 CDT) — laptop: the pins for the morning (FRIDAY_HEAD 5faf2f05; s38 gate module 9a82569c); the morning page merged; study 105 (dose-response, W6 information) in progress
+
+**The state for Saturday's arming** (the runbook in HANDOFF `7a8f137c`, with these pins):
+- **FRIDAY_HEAD = `5faf2f05`** (the FAVHI scope merged off). The W4 gates pass on it (off `a4ab2839`, armed + ONECATCH `293d9465`).
+  The evening `--check` passes on it (11 units with ARM_LATE=1; 13 on Saturday before 10:28).
+- **Study 38 gate:** module **`9a82569c…`** (6x, acked; lab `233ed9fa`), s38-prod-pin **`5faf2f05`**.
+  - The reviewer's gate re-run passed on 5faf2f05 for RB mate off / favhi / all.
+  - 6x adds MIXT_QA0_MS3 (overlap 3) on paper in W5, following every live setting.
+- **The arm now:** ONE_CATCHER_ALL=1; RB_MATE_C=0, RB_MATE_SCOPE=all; MIX_QUOTAS empty (the live 30 / 14 / 28 / 28); MAX_SHARED 4;
+  TERM_ROWS / TERM_SHA set at Saturday's arming.
+- **His morning decision** (the page, `briefings/2026-week-05/2026-10-10-morning-shapes-and-game-scripts.md`, merged
+  `3da931db`): whether to turn on FAVHI (RB_MATE_C=4 + RB_MATE_SCOPE=favhi, an arm-only commit; W4 check `b6680c2c`).
+  Everything else stays as armed.
+- **Not suggested** (all recorded): the suggested shape mix (98), OVERLAP3 (101), CEIL_BLOCK8 (103), TAIL_STACK8 (102 / 103),
+  CEIL_ALL (more 200+, fewer big wins, 4 / 4 sets).
+- **Study 105** (the CEIL dose-response, information for Week 6, no pick): banks 3420–3431, seed 20261148 (scan clean); the
+  outside reviewer drafting, the reviewer's census / freeze, then the laptop's ack. The run must end well before 10:28.
+- **To send him at a decent morning hour, not overnight:** the morning page and the decision sheet.
+
 ## 2026-10-10 (04:14 CDT) — study 103 READ: CEIL_BLOCK8 did NOT hold, so study 104 is not run; CEIL_ALL's trade consistent on 4 of 4 opponent sets
 
 - **Study 102**, reproduced byte for byte by the laptop: READ_s102 `3a992f7f`, census `f53a9f7b`. Records merged `7cf1a31a`
