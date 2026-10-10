@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (07:08 CDT) — study 109 READ: the recency fade and HOT1 are all WORSE, so the pick is none; 109b not run (reproduced byte for byte)
+
+- **Study 109** (the reviewer; lab `fb004daf`; confirmatory census `781765df` committed before the read; 432 / 432 rows).
+  **The laptop reproduced both byte for byte:** READ_s109 `169cc082` (reader 99b66dd8); census `a5b19df8` (30514577); RAW
+  sha256sum -c OK.
+- **Each arm − LIVE (FAVHI in all):**
+  - **FADE2** (his −2 at 2×): P(≥ 1 big) −4.7 [−10.6, +1.1], worse on both draws (A −5.7 / B −3.7); seats ×0.80; guard 1
+    FAILS; mean best −1.7.
+  - **FADE2_16** (at 1.6×): −5.2, worse on both (A −4.0 / B −6.3); seats ×0.79 (< 0.80); guard 1 FAILS; mean best −2.3.
+  - **HOT1** (at most one hot player per lineup; his "Add both today"): −1.8, worse on both (A −2.5 / B −1.2); seats ×0.90;
+    guard 1 passes; mean best +0.0.
+  - **PICK: none, keep the live book.**
+- **109b** (the fresh-draw check) is not run; banks 3872–3883 stay unused. Study-list rows 90 and 95 are updated.
+- **For him, in plain words:** taking points off players who just had a big game made the book clearly worse (about 5 fewer
+  slates in 100 with a big win, about 20% fewer expected big wins). Limiting a lineup to one such player was slightly worse.
+  In the test model, last week's big game carries real information. The real-field pattern (the research page) did not hold
+  up as a rule on his book.
+- **Next on the machine:** the reviewer's 110 binding census → the freeze → the laptop's ack → the 110 run.
+
 ## 2026-10-10 (06:24 CDT) — study 109 (recency fade + HOT1) FROZEN and ACKED; GO after the 110 smoke
 
 - **Frozen** (the reviewer, 06:20; prereg `66c655b8`, sha f60d354e; lab `0ddcfdb7`). Arms LIVE / FADE2 / FADE2_16 / HOT1, FAVHI in
