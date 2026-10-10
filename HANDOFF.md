@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:19 CDT) — OPERATOR: two hand lineups from the laptop too; all four agent-picked lineups logged PRIVATELY (sha pinned here, pre-lock) for his Monday judgment
+
+- **His words (verbatim):** "I would like you to manually select 2 lineups for me as well and I'll enter them myself.  Then please log
+  which lineups you selected and which the research agent selected so I can judge them on Monday." (His four hand entries go into a
+  $4,444 qualifier outside the plan.)
+- **The log:** `~/private/manual-lineups/w05.json` sha256 **`3e012b80d93c35f82f2aedf73e95bff4152d3c4a7af364ab61d511b36524c2aa`** (the
+  research agent's R1 / R2, sent by nfl-predictions-d9 exactly as given to him, and the laptop's L1 / L2; DK ids, salaries, slots,
+  inputs, methods). The laptop's picker: `~/private/manual-lineups/pick_w05.py` sha256 `acd3572c…25a9`. **Rosters are NOT in this
+  public repo until after Sunday's lock** (the research agent's point; its own 14:03 entry recorded shapes only).
+- **Validation:** all four on the 13:54 CDT DK pull of group 154468: positions right, salaries 49,600–49,800, no OUT / IR / D / Q.
+- **Methods, in one line each:** research = hand-built from the matchup read (DET passing + ARI TE; CIN stack + MIA + two $8k+ from
+  SF–SEA). Laptop = an optimizer on FP's projection re-scaled half-way toward the Vegas implied team totals, with QB + 2 stack + a
+  bring-back, one TE, no DST against own players, ≤ 1 sub-$4k skill player, ≤ 3 players shared with each other lineup (L1: ARI passing
+  + DET RB bring-back; L2: NE stack + LV WR bring-back).
+- **Monday:** publish the four rosters; score each with DK's FPTS; its finish in his qualifier and where it would place in the
+  Millionaire, beside the book's 26 and study 38's paper arms; an R-vs-L read (four lineups: information only).
+
 ## 2026-10-10 (14:10 CDT) — study 38 6z5 (STAR2 / STAR2_8 on paper) acked; the canary gate = lab 0ee35848 vs prod 83d68f63
 
 - **6z5** (lab `0ee35848`: module cc067ca3, build 45d3b7cb, score e1861919, report 439028b3, tests 345854f2 (61); prereg
