@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (05:39 CDT) — the DK ingest loop was DOWN about 25.5 h (restarted 05:37; O-65; a data-gap row); study 106 FROZEN, the laptop's ack in progress
+
+- **Found while checking his "make sure any necessary processes happen (such as data collection)":**
+  - `nfl-host-dk-ingest.service` failed Fri 10-09 04:07 CDT on a transient ConnectionError to api.draftkings.com.
+  - The loop exits on one failed cycle, and the unit's start limit (3 per hour) stopped the retries.
+  - No hourly DK pulls for 154468 from Fri 07:59Z.
+- **Fixed for now:** api.draftkings.com answers HTTP 200; `host_ingest_dk_loop.sh --check` OK; `systemctl --user reset-failed`
+  + `start` at 05:37. The first cycle loaded the 10:37Z salary pull (102 pulls in all) and 7,922 contest fills; the next
+  cycle is hourly.
+- **Recorded:** OPEN-DEFECTS **O-65** (the loop must survive a failed cycle; a fault-injection check; a staleness alert;
+  deadline the W6 arming). README data deficiency log row 2026-10-10. Until fixed, the laptop checks the unit and the newest
+  pull at every session start, before arming and on Sunday morning.
+- **Not affected:** the Sunday T-70 pulls (10:33 / 10:47) are their own timers.
+- **Study 106 FROZEN** (the reviewer, 05:36; prereg `04202376`, sha b8ebd365; lab 39aca9da; LIVE / MINPROJ8, FAVHI in both).
+  - **The laptop:** every sha matches (module 45a8d3dd, drive 8d5b58e5, census b37bfb73, reader 37b6e471, tests 2f5ed26a,
+    binding census 7c209df5 / 0d8a9edb); 9 tests passed (rc 0).
+  - The census re-run (--ref97) waits for the outside reviewer's 109 smoke runs to end.
+
 ## 2026-10-10 (05:33 CDT) — OPERATOR: "queue the experiments" from the outside reviewer's selection-ideas briefing (row 93 becomes his, for today)
 
 **His words, in the laptop's session:** "Read briefings/2026-week-05/2026-10-10-selection-ideas-from-real-fields.md and queue the experiments"
