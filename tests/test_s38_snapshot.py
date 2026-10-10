@@ -214,6 +214,27 @@ def test_the_paper_matchup_block_file_is_copied_as_paper_mblock_beside_the_live_
     assert r3.returncode == 0 and not any(p.name.startswith("paper-mblock") for p in (tmp_path / "dest3").iterdir())
 
 
+def test_the_paper_hot_file_is_copied_as_paper_hot_with_its_sha_beside_the_others(tmp_path):
+    """Study 38 amendment 6y (10-10; the operator, relaying the researcher: a HOT1 paper arm): S38_PAPER_HOT_FILE (written by
+    reports/2026-10-10-paper-hot/paper_hot_flags.py as ~/private/paper-corun/hot/w05.csv) is copied as paper-hot-<basename>
+    with its sha in MANIFEST.txt; a named but missing file is refused; unset copies nothing."""
+    import os
+    ud, out = _setup(tmp_path)
+    hot = tmp_path / "w05.csv"
+    hot.write_text('# {"what": "hot flags (study 109\'s HOT1)"}\ndk_player_id,gsis_id,name,pos,last_week,last_pts,prior_mean,prior_n,hot\n1,a,A,WR,4,30.0,10.0,4,1\n')
+    keys = ("S38_PAPER_TERM_FILE", "S38_PAPER_DVP_FILE", "S38_PAPER_FACTOR_FILE", "S38_PAPER_MBLOCK_FILE", "S38_PAPER_HOT_FILE")
+    base = {k: v for k, v in os.environ.items() if k not in keys}
+    r = _run(tmp_path, ud, out, tmp_path / "dest", env=dict(base, S38_PAPER_HOT_FILE=str(hot)))
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert (tmp_path / "dest" / "paper-hot-w05.csv").read_bytes() == hot.read_bytes()
+    manifest = (tmp_path / "dest" / "MANIFEST.txt").read_text()
+    assert hashlib.sha256(hot.read_bytes()).hexdigest() in manifest and "paper-hot-w05.csv" in manifest and str(hot) in manifest
+    r2 = _run(tmp_path, ud, out, tmp_path / "dest2", env=dict(base, S38_PAPER_HOT_FILE=str(tmp_path / "none.csv")))
+    assert r2.returncode == 1 and "S38_PAPER_HOT_FILE" in r2.stdout and not (tmp_path / "dest2").exists()
+    r3 = _run(tmp_path, ud, out, tmp_path / "dest3", env=base)
+    assert r3.returncode == 0 and not any(p.name.startswith("paper-hot") for p in (tmp_path / "dest3").iterdir())
+
+
 def test_a_package_week_copies_the_own_cap_file_and_generates_none(tmp_path):
     """Study 38 amendment 6o (10-09, his W5 package): a union with --main-own-cap-delta > 0 read --main-own-cap-source;
     the snapshot copies that file as named (sha and source in MANIFEST.txt) and runs no ownership export (no env needed)."""
