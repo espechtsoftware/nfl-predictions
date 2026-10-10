@@ -348,7 +348,8 @@ fixed before study 102 was read).
    - **the QB from a top-3-total game:** −3.6, worse on both sets;
    - **at most 4 top-value players per lineup** (added this morning): −2.9, worse on both — it goes on paper in Week 5 so your
      real results can still decide it;
-   - **no QB with his own defense plus $49,500:** −0.6 (the salary floor never came into play).
+   - **no QB with his own defense plus $49,500:** −0.6, worse on both sets (the salary floor changed lineups on some past
+     slates, where your book's lowest lineup was $49,300; the book was unchanged on about half of them).
    - Nothing passed, so the fresh-draw check (study 111) is not run (study 110's READ `763ae1fb`, lab `73efac12`). The two
      leans are in the leads log for a fresh draw later.
 5. **Study 112 — usage floors** (your minimum rush attempts, pass attempts, targets, touchdowns and red-zone targets): one floor
