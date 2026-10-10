@@ -319,16 +319,18 @@ fixed before study 102 was read).
    **Every dose cost big wins on both opponent sets; the 200+ gain jumps around** (+3 at 13 lineups, −1 at 18, +1 at all 26;
    the same all-26 version read +3.2 and +2.3 in studies 102 / 103), so there is no "sweet spot" that buys 200+ lineups without
    giving up big wins. Read on your book before the RB version (study 105's READ `efbea1ce`, lab `6ab0b595`).
-2. **Study 106 — a projection floor** (your "no player with a projected score less than 8"): floors of 8 / 10 / 12 against your
-   book; a passing floor is re-checked on a fresh draw (study 107), and only then **your per-position floors** (study 108).
-   Production's floor today filters on our own projections, not Fantasy Points', so a live FP floor needs a small change first.
+2. **Study 106 — a projection floor** (your "no player with a projected score less than 8"): floors of 8 and 10 against your
+   armed book (with the RB version); a passing floor is re-checked on a fresh draw (study 107), and only then **your
+   per-position floors** (study 108). **A live floor is one existing setting and uses Fantasy Points' projections** (the ones
+   your book is built on); the test uses our model's (the only history it has), so a passing floor's number transfers only
+   approximately. On your real Week-4 book an FP floor of 8 changes 3 of 26 lineups and 10 changes 23 (the laptop's check). A
+   floor of 12 is not tested: with the cheap block on, production refuses it (it removes every cheap-block player).
 3. **Study 109 — a recency fade** (your "2 point reduction in the projection when the players last game was twice the
-   average"): at 2.0× and 1.6×, on every lineup.
+   average"): at 2.0× and 1.6×, on every lineup of your armed book (with the RB version).
 4. **Last, as you asked:** "Did we try what you had planned of removing one rule at a time to see if it was really helpful?
    That in my opinion should be the last thing we do after we've tried the other experiments." The shapes were done this way
    (study 95: removing A1, B or C hurt; A2 changed nothing). Removing each live **rule** from the full armed book is not done
-   yet; it comes after the studies above, probably after the Saturday arming (a dropped rule would go through the Saturday
-   re-arm).
+   yet; it comes after the studies above, **before your 18:00 final arm** (every study ends by about 17:30).
 
 ## 4. The rest of last evening (for the record)
 
