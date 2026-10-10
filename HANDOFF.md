@@ -30,7 +30,8 @@
 **The plan:**
 - **Study 106:** projection floors on the armed construction, on the harness. The reviewer designs (arms suggested
   MINPROJ8 / 10 / 12 so each binds), the outside reviewer codes; his rule on big seats; mean best and P(best ≥ 200) printed.
-- **If it's successful: study 107**, per-position floors (QB / RB / WR / TE separately), his second instruction.
+- **Final numbering (agreed with the reviewer):** 106 at floors 8 / 10 / 12 → **107** = 106's pick on a fresh draw (design
+  committed before 106's READ) → **108** = his per-position floors (QB / RB / WR / TE separately), only if 107 holds.
 - Both are information for his decision, read and reproduced before the morning if the machine allows (study 105 runs first).
 
 ## 2026-10-10 (04:28 CDT) — laptop: the pins for the morning (FRIDAY_HEAD 5faf2f05; s38 gate module 9a82569c); the morning page merged; study 105 (dose-response, W6 information) in progress
