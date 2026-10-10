@@ -105,6 +105,7 @@ stop() { say "ARM STOPPED: $*"; exit 1; }
 [[ "$RB_MATE_C" == 0 || ( "$RB_MATE_C" == 4 && "$ONE_CATCHER_ALL" == 1 ) ]] || stop "RB_MATE_C=$RB_MATE_C: 0, or 4 with ONE_CATCHER_ALL=1 (study 96)"
 [[ "$RB_MATE_SCOPE" == all || ( "$RB_MATE_SCOPE" =~ ^(fav|favhi|naked|oppqb)$ && "$RB_MATE_C" == 4 ) ]] || stop "RB_MATE_SCOPE=$RB_MATE_SCOPE: all, or fav / favhi / naked / oppqb with RB_MATE_C=4 (study 97)"
 [[ "$QB2_SCOPE" == off || ( "$QB2_SCOPE" =~ ^(high|doghi)$ && "$ONE_CATCHER_ALL" == 1 ) ]] || stop "QB2_SCOPE=$QB2_SCOPE: off, or high / doghi with ONE_CATCHER_ALL=1 (study 97)"
+[[ "$QB2_SCOPE" == off || "$RB_MATE_C" == 0 ]] || stop "QB2_SCOPE=$QB2_SCOPE with RB_MATE_C=$RB_MATE_C: untested together (study 97 read them apart); one of them, or a co-run first"
 [[ "$MIX_FILL" == group || ( ( "$MIX_FILL" == value || "$MIX_FILL" == rr ) && "$SHAPE" == mixt ) ]] || stop "MIX_FILL=$MIX_FILL: group, or value / rr with SHAPE=mixt"
 [[ "$MIX_COVER" =~ ^[0-8]$ && ( "$MIX_COVER" == 0 || "$SHAPE" == mixt ) ]] || stop "MIX_COVER=$MIX_COVER: 0..8, and not 0 only with SHAPE=mixt"
 [[ "$MIX_RS" == 0 || ( "$MIX_RS" =~ ^(9|13|17)$ && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_COVER" == 0 ) ]] || stop "MIX_RS=$MIX_RS: 0, or 9 / 13 / 17 with SHAPE=mixt, MIX_FILL=rr and MIX_COVER=0"

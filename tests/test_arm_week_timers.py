@@ -482,3 +482,5 @@ def test_study97s_scopes_ride_only_on_their_base_and_a_refused_rb_scope_never_wi
     assert "UNION_MIX_RB_MATE_SCOPE=$RB_MATE_SCOPE UNION_MIX_QB2_SCOPE=$QB2_SCOPE" in arm
     assert '[[ "$RB_MATE_SCOPE" == all || ( "$RB_MATE_SCOPE" =~ ^(fav|favhi|naked|oppqb)$ && "$RB_MATE_C" == 4 ) ]]' in arm
     assert '[[ "$QB2_SCOPE" == off || ( "$QB2_SCOPE" =~ ^(high|doghi)$ && "$ONE_CATCHER_ALL" == 1 ) ]]' in arm
+    assert '[[ "$QB2_SCOPE" == off || "$RB_MATE_C" == 0 ]] || stop' in arm                       # untested together
+    assert host.index("if (( RB_MATE_ON )); then") < host.index('UNION_ARGS+=(--mix-qb2-scope "$QB2_SCOPE_V")')

@@ -565,7 +565,9 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   # high-total game; doghi = its trailing side), ONLY on top of ONECATCH and the row rules (as 97 read it); else LOUDLY off.
   QB2_SCOPE_V="${UNION_MIX_QB2_SCOPE:-off}"
   if [[ "${UNION_MAIN:-mean}" == "mix" && "$QB2_SCOPE_V" != off ]]; then
-    if (( ONE_CATCHER_ON )) && [[ "$QB2_SCOPE_V" =~ ^(high|doghi)$ ]]; then
+    if (( RB_MATE_ON )); then                                # untested together (study 97 read them apart): fail closed
+      qb2_scope_alert "the RB mate is on for this run; the QB2 scope and the RB mate were never read together"
+    elif (( ONE_CATCHER_ON )) && [[ "$QB2_SCOPE_V" =~ ^(high|doghi)$ ]]; then
       UNION_ARGS+=(--mix-qb2-scope "$QB2_SCOPE_V")
       echo "QB2 SCOPE for $RUN_TAG: ON, $QB2_SCOPE_V (the A1 / A2 book rows' QBs from the scenario's games; with ONECATCH and the row rules)"
     else

@@ -404,8 +404,12 @@ def test_study97s_scopes_ride_only_on_their_base(tmp_path):
     rs, q2 = "UNION_MIX_RB_MATE_SCOPE=", "UNION_MIX_QB2_SCOPE="
     env = fresh("a"); env.update(live, UNION_MIX_RB_MATE_SCOPE="all", UNION_MIX_QB2_SCOPE="off")
     assert not any(f.startswith(rs) or f.startswith(q2) for f in _failures(_run(env)))
-    env = fresh("b"); env.update(live, UNION_MIX_RB_MATE_C="4", UNION_MIX_RB_MATE_SCOPE="favhi", UNION_MIX_QB2_SCOPE="doghi")
+    env = fresh("b"); env.update(live, UNION_MIX_RB_MATE_C="4", UNION_MIX_RB_MATE_SCOPE="favhi")
     assert not any(f.startswith(rs) or f.startswith(q2) for f in _failures(_run(env)))
+    env = fresh("b2"); env.update(live, UNION_MIX_QB2_SCOPE="doghi")
+    assert not any(f.startswith(rs) or f.startswith(q2) for f in _failures(_run(env)))
+    env = fresh("b3"); env.update(live, UNION_MIX_RB_MATE_C="4", UNION_MIX_RB_MATE_SCOPE="favhi", UNION_MIX_QB2_SCOPE="doghi")
+    assert any(f.startswith(q2 + "'doghi' with UNION_MIX_RB_MATE_C='4': untested together") for f in _failures(_run(env)))
     env = fresh("c"); env.update(live, UNION_MIX_RB_MATE_SCOPE="fav")                       # no RB mate
     assert any(f.startswith(rs + "'fav'") for f in _failures(_run(env)))
     env = fresh("d"); env.update(live, UNION_MIX_RB_MATE_C="4", UNION_MIX_RB_MATE_SCOPE="blowout")
