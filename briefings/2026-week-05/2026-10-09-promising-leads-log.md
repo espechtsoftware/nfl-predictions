@@ -173,6 +173,11 @@ reviewer and updated as each study is read.
   higher and big wins lower on all four opponent sets** — a consistent trade, not a gain by your rule (which counts big wins).
 - **Only the 8 cheap-block lineups built that way:** a tiny gain in study 102 (+0.2 points on the best lineup), which **did not
   hold** on study 103's fresh set (one set below zero). So the combination with lead 13 (study 104) was not run.
+- **Study 105, how much of the book on upside (13, 18 or all 26 lineups):** every amount cost big wins on both opponent sets
+  (13 lineups: about 2 fewer slates in 100 with a big win; 18: about 4.5 fewer; all 26: about 3.4 fewer), and each one's average
+  finish slipped. What it bought in 200+ lineups was not reliable: about 3 more slates in 100 at 13 lineups, none at 18, and 1
+  at all 26 on this set (all 26 read +3 and +2 in studies 102 / 103). **There is no amount that gets more 200+ lineups without
+  giving up big wins.** (Read on your book before the RB version was added.)
 - **Not usable in Week 5 either way:** production has no switch for it yet (it needs an upside score around Fantasy Points'
   projections); Week 6 at the earliest.
 
@@ -222,6 +227,12 @@ reviewer and updated as each study is read.
   and no more 200+ lineups (11.8% vs 12.3%). The field's 200+ lineups often look like this after the games, but building them
   before the games costs. The production switch for it stays unmerged.
 
+- **No player projected under 8 (study 106, your question):** tested on your armed book with the RB version included. **Worse on
+  both random opponent sets:** about 2.7 fewer slates in 100 with a big win, 12% fewer expected big wins, a lower average finish,
+  and the best lineup 1.5 points lower. The floor removes the cheap and less-owned players the big wins draw on. So the re-check
+  and the per-position floors (your follow-up, "if it's successful") were not run. In production a floor of 8 on Fantasy Points'
+  projections would touch only 3 of your 26 lineups, a smaller dose of the same thing.
+
 - **Your 10-09 evening question — correlations that could give an edge (three quick screens on your real Weeks 1–4; the plan
   was written down before any result was read):**
   - *Defense strength normalized like DVOA:* already in our model (each defense's points allowed to a position, adjusted for
@@ -237,7 +248,12 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 105 (information for Week 6):** how the trade in lead 15 grows with the number of lineups built on upside — 13, 18
-  and all 26 against your book — so that you can see how many extra 200+ slates each lost big win buys.
+- **Study 109 (your idea: fade a player by 2 points after a big previous week),** plus **at most one "hot" player per lineup** (your
+  "add both today"): being set up now.
+- **Study 110 (the selection ideas you queued from your real fields):** no low-owned players at all; the QB from the top-3 game
+  totals; the cheap block only on popular punts; no QB with his own defense plus at least $49,500 of salary; at most 4 top-value
+  players per lineup (your "add both today").
+- **Study 112 (your usage floors):** minimum rush attempts, pass attempts, targets, touchdowns and red-zone targets per game.
+- **Last, by your order (study 114):** removing one live rule at a time from your armed book.
 
 *Updated as each study is read.*
