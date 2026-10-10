@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (00:40 CDT) — laptop: FAVHI merged OFF at FRIDAY_HEAD `5faf2f05`; the W4 gates pass on it; study 38 6w acked; the evening --check passes
+
+- **Study 38 amendment 6w** (+ the --mix-a1-full-stack classification) acked and merged (`aa7cf291`).
+  - Lab `2f102325`, module `e7038cba…`; 52 tests passed against the favhi merge.
+  - The smoke: 32 / 32 arms == 6uv; the FAVHI receipt agrees (BUF / HOU / SF).
+  - The gate pin moves to `e7038cba…`.
+- **Merged default off:** the FAVHI scope flag `60f6dbe9` + the laptop's wiring `2bd5bbff` → `5faf2f05` (32 modules: 432 passed, 3
+  skipped). **FRIDAY_HEAD = `5faf2f05`** (arm commit after it; RB_MATE_C=0, RB_MATE_SCOPE=all).
+- **The W4 known-answer gates on `5faf2f05`** (00:40): OFF == `a4ab2839`; ARMED + ONECATCH == `293d9465`.
+  - The reviewer moved s38-prod-pin to `5faf2f05` and re-runs the gate check.
+- **The evening `--check`** (a scratch copy with TERM_ROWS=8 / TERM_SHA, ARM_LATE=1) at `aa7cf291`:
+  - step 0 OK;
+  - the dose line: one catcher per team 1; RB mate in C rows 0 (scope all); package 0.35 / 15; row rules te1_low1; term block 8;
+  - 11 units, "CHECK DONE", rc 0;
+  - the units carry UNION_MIX_ONE_CATCHER_ALL=1, UNION_MIX_RB_MATE_C=0, UNION_MIX_RB_MATE_SCOPE=all.
+- **His morning switch, if he says yes to FAVHI:** an arm-only commit with RB_MATE_C=4 and RB_MATE_SCOPE=favhi. Then
+  `--check` before 10:28 and arm; the canary receipt must show rb_mate_source applied with scope favhi.
+- **The A1 full-stack wiring** is re-applied on `5faf2f05` (production/a1-full-stack-wiring-20261010 @ `e7a9bd26`, approved,
+  unmerged) to match the outside reviewer's rebased flag `4c3cad58`. It merges only if 102 picks it and 103 holds. If 104
+  passes, the pair refusal opens in three places together: the arm stop, check_week_runtime and the host.
+
 ## 2026-10-10 (00:27 CDT) — study 99 READ: RBMATE4_FAVHI CONFIRMED on a fresh draw; its 200+ rate up on both reads; production merges default off after 6w
 
 - **Study 99** (the reviewer; study 97's frozen code on banks 3198–3209; lab `79387d43`, READ_s99 `9a796eb1`; confirmatory census
