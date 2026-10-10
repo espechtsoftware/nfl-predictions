@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:22 CDT) — OPERATOR: Sunday pre-lock check of his four hand lineups added to the schedule (10:30 inactives, the Henderson pivot, the Arizona roof)
+
+- **His words (verbatim):** "please add to your schedule to check for any concerns about those 4 lineups prior to lock.  including
+  re-check both stacks against the 10:30 inactives, the Henderson pivot if Stevenson sits, and the Arizona roof".
+- **The step** (arming checklist, Sunday + Monday): `~/private/manual-lineups/check_w05.py` (read-only; private) at **~11:00 CT** (after
+  the 10:47 pull; report before the 12:00 lock) and **~13:40 CT** (late-window inactives + the Cardinals' roof by web check; report
+  before 15:05 for late swap). Test run now (13:54 pull): all 36 players active; Stevenson **Q** (NE plays at 12:00, so the 10:30
+  inactives decide it); Henderson (NE RB, 1287837, $5,000) active — the pivot would replace R1's Dobbins at the same salary;
+  DET–ARI kicks at 15:25 CT; the schedule table carries no roof value.
+- **Monday:** publish the four rosters (after lock), score them beside the book.
+
 ## 2026-10-10 (14:19 CDT) — OPERATOR: two hand lineups from the laptop too; all four agent-picked lineups logged PRIVATELY (sha pinned here, pre-lock) for his Monday judgment
 
 - **His words (verbatim):** "I would like you to manually select 2 lineups for me as well and I'll enter them myself.  Then please log

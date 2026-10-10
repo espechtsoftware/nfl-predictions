@@ -311,6 +311,19 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
 - **The arming message to him names the one-game risk** (the reviewer's pre-mortem follow-up, 10-06): if Saturday's Week-5 build puts most of the book's QBs in one game (Week 4's MIXT replay: 91% in JAX–CIN; the historical slates 25–35%), say so in plain words before lock, with the share and the game.
 
 ## Sunday 10-11
+- **His four hand-entered lineups: the pre-lock check** (the operator 10-10: "please add to your schedule to check for any concerns
+  about those 4 lineups prior to lock. including re-check both stacks against the 10:30 inactives, the Henderson pivot if
+  Stevenson sits, and the Arizona roof"; R1 / R2 the research agent's, L1 / L2 the laptop's; private log
+  `~/private/manual-lineups/w05.json` sha 3e012b80). Read-only, seconds: `cd $HOME/projects/nfl-predictions &&
+  .venv/bin/python ~/private/manual-lineups/check_w05.py` (the newest DK pull of group 154468; every player's status and
+  kickoff; flags OUT / IR / D / Q; the Stevenson -> Henderson pivot for R1's RB2 Dobbins, same $5,000; the DET-ARI reminder).
+  1. **~11:00 CT** (after the 10:47 T-70 pull and the hourly DK loop): run it; tell him in chat before the 12:00 lock what
+     needs a swap (an inactive starter; the pivot if Stevenson is OUT); the 12:00 players lock then.
+  2. **~13:40 CT** (the late-window inactives post about 13:35; DET-ARI kicks at 15:25, LAC-DEN 15:05, SF-SEA 15:25): run
+     it again AND check the Cardinals' roof decision (a web check: open or closed for DET-ARI). If OPEN with the ~23 mph
+     forecast, R1 (DET passing) and L1 (ARI passing) lose their premise: tell him before 15:05 so a late swap is
+     possible. Late swap replaces only players whose games have not started.
+  3. Record both runs' FLAGS lines in HANDOFF (no rosters before lock).
 - The T-70 build on the post-10:30 salary pull; FP projections (refusal → ours, loud); the ownership chain FP → LAG
   0.10 → none; WS/MIX spares and the house fallback for late scratches (`ddd470ed`).
 - Any manual relayout passes `ENTER_LAYOUT=head` (O-34).
@@ -338,6 +351,10 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
     (integrity). Never force a census (`--smoke` and `--union` are mechanics only, never a record).
 
 ## Monday 10-12
+- **His four hand-entered lineups (R1 / R2 research, L1 / L2 laptop):** publish the rosters (after lock) from
+  `~/private/manual-lineups/w05.json` (check its sha 3e012b80 first); score each with DK's FPTS; its finish in his $4,444
+  qualifier (from the entries export) and where it would place in the Millionaire; beside the book's 26 rows and study
+  38's paper arms. Information only (four lineups).
 - **FIRST: the cheap +2 block, on vs off, for his Week-6 decision** (the operator 10-07: "Let's keep it on for week 5 and see how it compares for deciding what to do week 6"). From study 38's scoring on the real W5 results:
   - MIXT_QA0 (his live book, the cheap block on) vs MIXT_QA0_NOTERM (the same construction without it): P(≥ 1 big seat),
     expected big seats, and the realized big seats / tickets in his priority contests;
