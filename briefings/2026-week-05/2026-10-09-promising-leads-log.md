@@ -125,13 +125,15 @@ reviewer and updated as each study is read.
   paper (scored on the real Week-5 fields beside your book); the switch stays off. The game-script versions (the back only
   on an expected winner, or a winner in a high-scoring game) are study 97, tonight.
 
-### 12. Your shape mix (study 95) — *it holds up; the pre-written rule suggests a little more A1, on weak evidence*
+### 12. Your shape mix (studies 95, 98) — *it holds up; keep 30 / 14 / 28 / 28*
 - **Study 95 (36 past slates, two random opponent sets), on your armed book:** removing A1 (−2.0), B (−2.5) or C (−1.2) made
   the book worse on both opponent sets; removing A2 changed nothing (+0.1). A book of only B (−4.5) or only C (−3.7) was
   worse on both sets (not separable from zero); only A1 (−0.5) or only A2 (+1.0) was mixed. No version passed your rule.
 - **The rule written before the run** turns that into: A1 39% / A2 12% / B 24% / C 24% (two more A1 lineups, one fewer A2 and
   C), because removing A1 hurt on both sets while A1 alone did not. The reading behind it is weak (−2.0, interval −6.9 to +2.8),
   and the new mix itself was not tested — keeping the live mix is just as defensible. Your call in the morning (one setting).
+- **Study 98 tested that suggested mix on a fresh set of simulated opponents: +0.6, a coin flip** (one set flat at −0.0,
+  the other +1.1). It failed your rule. So nothing tonight says to change your shape mix: keep 30 / 14 / 28 / 28.
 
 ### 13. The QB's own RB only when his team is the expected winner of a high-scoring game (study 97) — *passed your rule; re-checked tonight on a fresh draw (study 99)*
 - **Study 97 (36 past slates, two random opponent sets), your request to test the shapes by game situation:** the RB mate in 4
@@ -192,7 +194,6 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 98 (tonight):** the suggested shape mix (A1 39 / A2 12 / B 24 / C 24) against your live mix, on a fresh draw.
 - **Study 99 (tonight):** lead 13 re-read on a fresh draw.
 - **Study 100 (tonight, your "scores over 200" request):** a sweep of the settings that could raise the book's best lineup.
 
