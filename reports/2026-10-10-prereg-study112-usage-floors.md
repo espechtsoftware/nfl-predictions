@@ -1,10 +1,14 @@
-# Preregistration: study 112, usage floors — minimum carries, pass attempts, targets, touchdowns and red-zone targets per game — on his armed Week-5 book, in the harness (DRAFT 2026-10-10)
+# Preregistration: study 112, usage floors — minimum carries, pass attempts, targets, touchdowns and red-zone targets per game — on his armed Week-5 book, in the harness (DRAFT 2026-10-10; FROZEN 2026-10-10)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer; the design is the lab reviewer's
-(decisions of 10-10, about 05:46). The lab reviewer reviews, runs the binding census, freezes, runs and reads; the laptop acks and
-reproduces. **A pick goes to study 113** (the fresh-draw check), whose preregistration is committed before this study's READ.
-- **Banks and seed (the laptop's reservation, full-set clean):** **3604–3615** (set A 3604–3609, set B 3610–3615; sims bases
-  3654–3665, fields 4304–4315); the reader's bootstrap seed **20261155**.
+**Status: FROZEN 2026-10-10 (09:19 CDT)** by the lab reviewer, after the outside reviewer's DRAFT and code, the smoke and the
+binding census, before any scored bank. The text changed at the freeze in this status block and §6 (the binding census) only.
+The laptop acks. **Information for his decision; a pick goes to study 113** (its preregistration committed before this READ).
+- **Banks 3604–3615** (set A 3604–3609, set B 3610–3615; sims bases 3654–3665, fields 4304–4315), the reader's bootstrap seed
+  **20261155**. The laptop's scan was clean: the full set against every used or reserved bank's {b, b + 50, b + 700} (the reserved blocks
+  included), no results file; the text scans (recorded in this file's earlier commits) found only incidental counts, timings and
+  shas, and this study's and study 113's own preregistrations.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run, recorded in `RUN_ENV_s112.txt` committed with the
+  confirmatory census. The run starts from lab `40d0cfda` on production/s112-usage-floors-20261010 (results/s112/).
 
 ## 1. Why
 - **The operator, 10-10 morning, in the laptop's session (verbatim; study list row 92):** "Have we tried anything like “minimum
@@ -148,6 +152,19 @@ game, or no feature row) is kept** and counted.
   - **the 3-slate scan prints RUSH 12 and TGT 4.0 as "differs":** the rule is defined on the 36-slate census (§3: 13 and 4.5);
     on these 3 slates alone it would pick 12 and 4.0. No change: the binding census on the 36 slates confirms the choices;
   - the full path: the reader exited 0 (54 lines; 70 two-draw). Only the census, the exit codes and the line counts were read.
+- **The binding census (DONE 10-10, 09:16:33–09:19:13 CDT; the lab reviewer's; outcome-blind; bank 1406, 36 slate-banks of
+  2023–24; PYTHONHASHSEED=0; code `e111a611`; lab `40d0cfda`: `CENSUS_s112_binding.txt` `03491ed8…`,
+  `census_mechanics_bank1406.jsonl` `328b5cc4…`):**
+  - the unit tests 12 passed; every arm 26 book rows within the package's caps; **0 row-rule and 0 ownership-cap fallbacks** in
+    all 4 arms (936 of 936 ruled); ONECATCH 504 of 504 in every arm; **LIVE identical to study 97's RBMATE4_FAVHI, rows and
+    dealing, on 36 of 36**;
+  - **§3's rule on the 36 slates confirms the chosen thresholds:** RUSH 13 carries (LIVE's rows touched 10.6 of 26), PASS 32
+    attempts (10.5), TGT 4.5 targets (11.4); TD and RZ find no threshold in range (every TD floor 0.05–0.25 touches 21.5; RZ 0.1
+    already 15.7) -- dropped before the freeze, printed for the record;
+  - the floors' pools: RUSH drops 40.4 RBs, PASS 21.6 QBs, TGT 45.4 WRs and 35.2 TEs per slate-bank; the cheap block never empty
+    (termed players min 60 / 60 / 6); spares 14.8 / 15.0 / 15.0 of 15 (RUSH's min 7, production allows a short spare tail);
+  - **disclosed:** FAVHI finds no pair on 1 slate under RUSH and 2 under PASS (the floor removes the favoured teams' RBs or
+    QBs), so the RB-mate floor is re-solved without it in 5 and 9 of 144 slots (LIVE 1, TGT 0).
 - **Code:** nfl2 `production/s112-usage-floors-20261010` @ `e111a611` (off study 106's frozen `afdfad8c`; the placeholders were
   `24a88fb1`; the chosen thresholds and the two dropped arms at `e111a611`):
   - `experiments/s112_usage_floors.py` `16bbe046…` (pins s106 `45a8d3dd…`)
