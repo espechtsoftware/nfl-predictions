@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (16:29 CDT) — OPERATOR (to the outside model): "review all the code for the live that's going live this weekend" — three read-only reviews at `23a108d3`; one BLOCKER (tonight's 18:00 supply units), two HIGH; the laptop has the actions
+
+- **Page:** `briefings/2026-week-05/2026-10-10-sunday-code-review.md` (one table: severity, concern, what to do). Nothing in the
+  production checkout was edited or run; the 41 offline test modules that read the money-path scripts ran in a separate worktree (rc 0).
+- **BLOCKER (verified in code):** `scripts/run_week_build.sh` calls `check_build_inputs.py` without `--max-age-minutes` (default 120;
+  `build_inputs.assess_projections` fails above it). The newest project-slate finished 20:52Z (15:52 CT), so the 18:00 / 18:05
+  Saturday supply units would die in their preflight. **Fix (laptop, adopted 16:35 CT):** `gcloud run jobs execute project-slate
+  --project nfl-predictions-503414 --region us-central1 --wait` at ~16:50 CT, after the 16:40 FP ownership capture; the batch is then
+  ~72 min old at 18:05. Defect for Week 6: the supply move to 18:00 needs a projection-age step (the laptop registers it).
+- **HIGH 1 (adopted):** the Saturday lag file feeds the ownership cap at tilt 0 but the arm only WARNs when the lag step fails; a WARN
+  is treated as a STOP tonight; after the arm the file must exist and pass `scripts/check_ownership_lag.py`. **HIGH 2 (adopted):**
+  TODAY surfaces only the projection source; the Sunday checklist gains `ALERT-*`, `*_not_applied.txt`, `mix_refused.txt`,
+  the seven flags in `union_args.txt`, TODAY's source run = the T-70 union, the receipt fields, a hand check of each replacement row.
+- **MEDIUMs (adopted):** arm by 17:35 (the cut-off check runs after the BigQuery steps); a redo = stop all 13 timers, commit, re-arm;
+  after the final arm only doc commits reach the production checkout (the arm script and `tests/` are not excluded from the HEAD
+  check); confirm the 16:40 FP ownership capture's rc and rows. Week-6 defects to register: own_input WARN→STOP when the own cap is
+  armed; FP session check at arming; spares and replacements re-checked against the row rules (an O-54 letter); TODAY prints the markers.
+- **Checked clean:** the arm's stops, Rev7 (26 rows, no gaps), the Sunday unit times and gates, the FP override gates, the own cap
+  (fp_own_raw, rescale 800, floor(26 × (own/100 + 0.15)), 0.9 coverage, loud fallback), the FAVHI scope, the term block's sha,
+  every refusal since 10-08 a caught exit, the s38 snapshot isolated, the DK loop fix live, no Sunday-deadline defect unfixed.
+- **Next:** the laptop merges this branch (`review/additional-suggestions-20261010`); the operator reads the table before the arm.
+
 ## 2026-10-10 (16:27 CDT) — the research agent's code review of the Sunday path: a BLOCKER for the 18:00 supply (projection age), confirmed; project-slate re-run at ~16:50; its checks adopted
 
 - **BLOCKER (verified in code by the laptop):** `scripts/run_week_build.sh` runs `check_build_inputs.py` without `--max-age-minutes`, so 120
@@ -253,6 +275,18 @@
   17:58 (integration 486abe06+, FRIDAY_HEAD 83d68f63, TERM_ROWS=8); the 18:00 canary checks and the s38 gate (lab fad0cbe2 + 6z5
   if acked, prod pin 83d68f63); Sunday's steps per the checklist (FP captures, the T-70, the hot / TD-block / DvP / factor files,
   the snapshot before 12:00).
+
+## 2026-10-10 (14:03 CDT) — OPERATOR (to the outside model): two hand-built lineups requested from the matchup read; given in chat only (rosters not recorded: public repo, pre-lock)
+
+- **His words:** "could you manually put together one or two lineups for me that you think looking at these matchups for this week look like a
+  good call?" Two lineups were built from the Week-5 main-slate data (DK salaries and statuses at the 13:54 CDT pull of group 154468, FP's
+  10-08 projections and 12:55 ownership, the environment features) and validated for positions, salary and statuses; they were given to him
+  in chat. **They are his hand entries, outside the book and its rules** (the W4 hand-added Millionaire seat is the precedent: the money gate
+  excludes a hand-entry contest without a captured payout ladder). Nothing in the armed book changes.
+- **Shape, for the record:** (1) the Detroit passing stack with the Arizona tight end as the bring-back, a 9%-owned lead back in a good
+  rushing matchup, a cheap Cincinnati receiver, the Chargers' receiver behind the cornerback flag, a cheap favourite's defense (ownership sum
+  about 111); (2) the Cincinnati stack with a Miami bring-back, two $8,000+ players from the late 45.5 game, the same back and receiver
+  (ownership sum about 79).
 
 ## 2026-10-10 (14:00 CDT) — OPERATOR: the qualifiers / booms / matchups page read; two stars -> "Test it now for this week", then (after the slot count) "Paper this week, test for W6"
 
