@@ -161,6 +161,18 @@ reviewer and updated as each study is read.
 - **Not a test:** side comparisons on the same past slates. Your trial is judged on the real Week-5 results, where the book
   without the block is scored on paper beside yours (Monday 10-12, then 10-19).
 
+### 15. Building lineups on their upside instead of their average (study 102) — *more 200+ lineups, fewer big wins; the block form re-checked by study 103*
+- **The idea:** each player counted at his 85th-percentile score (a good day) instead of his average when the lineups are
+  built — the most direct way to aim at your "scores over 200".
+- **Every lineup built that way:** the book's best lineup reached 200 on **15.5% of past slates against 12.3%** for your book,
+  higher on both random opponent sets (+3.2 each). **But big wins fell:** about 3.5 fewer slates in 100 with a big win (both
+  sets worse), 14% fewer expected big wins, and its average finish slipped (a safety check failed). It trades big wins for
+  200+ lineups.
+- **Only the 8 cheap-block lineups built that way:** a tiny gain (+0.2 points on the best lineup, 13.2% at 200+, about 3%
+  fewer expected big wins). The pre-written rule picked it, so **study 103 is re-checking it on a fresh set of opponents now**.
+- **Not usable in Week 5 either way:** production has no switch for it yet (it needs an upside score around Fantasy Points'
+  projections); Week 6 at the earliest.
+
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
   the full game stack (74), two bring-backs (76) — each at or below your book on 2023–24.
@@ -201,6 +213,12 @@ reviewer and updated as each study is read.
   passed your big-win rule once (+1.7) and was mixed on the fresh set (−0.4). In the test model your book's best lineup reaches
   200 on about 12–13% of past slates whatever the setting. (At most 3 shared is planned as a paper version for Week 5.)
 
+- **Full game stacks in the QB + 2 + bring-back lineups (study 102, your "200+" request):** the 8 A1 lineups as QB + 2 of his
+  receivers + 2 opponents (up to 5 from one game) in the slate's top-4 games. **Worse on every measure:** the best lineup −1.7
+  points (an interval clear of zero), about 3 fewer slates in 100 with a big win (both sets worse), 10% fewer expected big wins,
+  and no more 200+ lineups (11.8% vs 12.3%). The field's 200+ lineups often look like this after the games, but building them
+  before the games costs. The production switch for it stays unmerged.
+
 - **Your 10-09 evening question — correlations that could give an edge (three quick screens on your real Weeks 1–4; the plan
   was written down before any result was read):**
   - *Defense strength normalized like DVOA:* already in our model (each defense's points allowed to a position, adjusted for
@@ -216,9 +234,7 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 102 (running now, about 03:35):** building for the ceiling instead of the average — the 8 cheap-block lineups on each
-  player's upside (his 85th-percentile score), the whole book on it, and the A1 lineups as full game stacks (the QB, 2 of his
-  receivers and 2 opponents) in the slate's top-4 games. If the pre-written rule picks one, study 103 re-reads it on a fresh set
-  of opponents, and if it holds, study 104 tries it together with lead 13.
+- **Study 103 (now):** lead 15's 8-lineup version on a fresh set of opponents, by the rule written before study 102 was read.
+  If it holds, study 104 tries it together with lead 13 (the RB for the expected winner of a high-scoring game).
 
 *Updated as each study is read.*
