@@ -1,0 +1,5 @@
+== rbmateFAVHI W4 check at de1a7700; option: --mix-rb-mate-c 4 --mix-rb-mate-scope favhi
+off book a4ab283949254d12; armed book 293d9465eec54e4f; on book c605cab67fd59b6e
+ROW RULES: at most 1 TE and at most 1 skill player under 3% FP projected ownership per main row (55 TEs, 163 low-owned of 235 pool skill players)
+ONE CATCHER: at most one WR / TE per team on the B / C book rows (24 teams); ruled 14, re-solved without it 0; book rows with two WR / TE of one team 12 (B / C 0)
+RB MATE: the QB's own RB on the first 4 C-cell book rows (8 pairs); slots 4, ruled 4, re-solved without it 0

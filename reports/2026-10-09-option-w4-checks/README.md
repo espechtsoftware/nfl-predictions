@@ -272,3 +272,22 @@ morning".
 - **Reading:** every arm builds on his real book, and the projection moves by at most 0.5 per row. Whatever percentages he
   picks can be armed through MIX_QUOTAS once the parser merges.
 
+## Addendum (22:47 run, written 22:48): RBMATE4_FAVHI on top of ONECATCH (study 97's one passing game-script arm)
+
+- **The code under test:** the outside reviewer's `--mix-rb-mate-scope favhi` (review/game-script-scopes-20261010 @
+  `60f6dbe9`) and the laptop's narrowed wiring (production/scope-wiring-20261009 @ `2bd5bbff`), merged on integration as
+  `de1a7700`.
+- **The runner:** `flag_w4_check_armed2.sh`. Gates: OFF == `a4ab2839`; ARMED + ONECATCH == `293d9465`; both reproduced.
+- Verbatim lines: `OUTPUT-rbmate-favhi-on-onecatch.txt`.
+
+| | ARMED (+ ONECATCH) | + RBMATE4_FAVHI |
+|---|---|---|
+| Rows with the QB's own RB | 4 | 7 |
+| Rows changed | | 20 of 26 |
+| FP projection per row | 139.94 | 139.83 (−0.11) |
+| Distinct players | 52 | 52 |
+
+- **The receipt:** scope favhi applied. The expected winners of upper-third-total games on W4's slate: BUF, HOU, SF (8
+  QB–own-RB pairs). Slots C 2 / 6 / 10 / 14 were all ruled, 0 re-solved. ONECATCH stays 14 / 14.
+- **Status:** off (RB_MATE_C=0) until his morning decision, after study 99's confirmation on a fresh draw.
+
