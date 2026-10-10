@@ -27,6 +27,10 @@ reviewer's condition, 10-09 evening). The lab reviewer freezes it (banks and see
   - a picked FAVRB_NAKED4 / FAVRB_OPPQB4 / QB2_SHOOT / QB2_DOGHI is CONFIRMED iff it again beats LIVE by his rule.
   - Every other line is printed by the frozen reader and is information only.
 - **If study 97's §3 rule picks nothing, study 99 is not run** (recorded).
+- **Disclosure (the laptop's scan note):** study 99 re-uses study 97's frozen reader, so its bootstrap seed (20261142) is 97's:
+  the same bootstrap resamples of the same 36 slates. 99's intervals and its guard-1 bound are therefore correlated with 97's
+  beyond the shared slates. **His rule's decision does not use them** — it reads each draw's point estimate and the pooled seats
+  ratio, which depend on the new banks only — but any interval on the morning page is not an independent second interval.
 - **The morning page:** a pick is suggested as "held on a fresh draw" only if CONFIRMED; a pick that fails here is reported as
   "did not hold on a fresh draw" and is not suggested; if study 99 cannot be read before the morning, the page says so.
 
