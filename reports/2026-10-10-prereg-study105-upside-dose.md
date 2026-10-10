@@ -4,8 +4,8 @@
 lab reviewer as **information only**. The lab reviewer reviews, runs the binding census, freezes, runs and reads; the laptop
 acks and reproduces. **No pick rule and no confirmation study:** there is no production switch for an upside objective, so
 nothing from this study can be armed in Week 5. The run must end well before the 10:28 arming.
-- **Banks and seed (the laptop's full-set check: CLEAN against every used or reserved bank, studies 90–104; text scan to
-  follow):** **3420–3431** (set A 3420–3425, set B 3426–3431; sims bases 3470–3481, fields 4120–4131); the reader's bootstrap
+- **Banks and seed (the laptop's full-set check and text scan: CLEAN against every used or reserved bank, studies 90–104;
+  the only context hits the 09-19 "inactive" counts and old shas):** **3420–3431** (set A 3420–3425, set B 3426–3431; sims bases 3470–3481, fields 4120–4131); the reader's bootstrap
   seed **20261148**.
 
 ## 1. Why
