@@ -1,12 +1,18 @@
-# Preregistration: study 116, a receptions floor for running backs, on his armed Week-5 book, in the harness (DRAFT 2026-10-10)
+# Preregistration: study 116, a receptions floor for running backs, on his armed Week-5 book, in the harness (DRAFT 2026-10-10; FROZEN 2026-10-10)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer; the design is the lab reviewer's
-(its calls of 10-10, about 10:25). The lab reviewer reviews, runs the binding census, freezes, runs and reads; the laptop acks
-and reproduces. **A pick goes to study 116b** (the fresh-draw check), whose preregistration is committed before this study's
-READ. **The operator's order (10-10, via the laptop): "Hold 114 until after"** — study 114 stays frozen and unrun until 116
-(and 116b) read.
-- **Banks and seed (the laptop's reservation; the full-set check: CLEAN):** **4008–4019** (set A 4008–4013, set B 4014–4019;
-  sims bases 4058–4069, fields 4708–4719); the reader's bootstrap seed **20261161**.
+**Status: FROZEN 2026-10-10 (10:50 CDT)** by the lab reviewer, after the outside reviewer's DRAFT and code, the smoke and the
+binding census, before any scored bank. The text changed at the freeze in this status block and §6 (the binding census) only.
+The laptop acks. **Information for his decision; a pick goes to study 116b** (its preregistration committed before this READ).
+**The operator's order (10-10, via the laptop): "Hold 114 until after"** — study 114 stays frozen and unrun until 116 (and
+116b) read.
+- **Banks 4008–4019** (set A 4008–4013, set B 4014–4019; sims bases 4058–4069, fields 4708–4719), the reader's bootstrap seed
+  **20261161**. The laptop's full-set check (749 used or reserved banks, every {b, b+50, b+700}) was CLEAN; the text scans of both repositories
+  (banks, sims bases, fields, seeds of 116 and 116b) were CLEAN -- hits only in this study's own files and preregistrations. One
+  disclosure: study 104's reserved fields 4108–4119 (the b + 700 of its banks 3408–3419) are 116b's banks; study 104 was never run
+  and is recorded NOT RUN (study 103 did not hold CEIL_BLOCK8), so no seed is reused, and 104's reservation must never run as it
+  stands.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run, recorded in `RUN_ENV_s116.txt` committed with the
+  confirmatory census. The run starts from lab `d2e0d237` on production/s116-rec-floor-20261010 (results/s116/).
 
 ## 1. Why
 - **The operator, 10-10, in the laptop's session (verbatim; study list row 97):** "Let's try another experiment where we have a
@@ -112,6 +118,20 @@ sets, the cheap block's term and the FAVHI pairs (112's `usage_pool` = 106's `ar
   LIVE == study 97's RBMATE4_FAVHI on 36 of 36; RBs dropped 32.7 / 25.6 per slate-bank, mostly under $5,000, prior targets 1.12
   / 0.87; FAVHI pairs at minimum 1 / 2 on a slate, the RB-mate floor re-solved without them in 4 / 2 of 144 slots. **No
   re-smoke was needed:** the code does not change, so the smoke at the placeholders above is the smoke at the choices.
+- **The binding census (DONE 10-10, 10:35:14–10:37:42 CDT; the lab reviewer's; outcome-blind; bank 1406, 36 slate-banks of
+  2023–24; PYTHONHASHSEED=0; code `1d58fbbc`; lab `d2e0d237`: `CENSUS_s116_binding.txt` `d8d0cbe2…`,
+  `census_mechanics_bank1406.jsonl` `fd437301…`):**
+  - the unit tests 12 passed; every arm 26 book rows within the package's caps; **0 row-rule and 0 ownership-cap fallbacks** in
+    all 3 arms (936 of 936 ruled); ONECATCH 504 of 504 in every arm; **LIVE identical to study 97's RBMATE4_FAVHI, rows and
+    dealing, on 36 of 36**;
+  - **§3's rule on the 36 slates confirms the placeholders:** REC 2.0 receptions per game (LIVE's rows touched 8.3 of 26) and
+    REC_LOW 1.5 (4.9) -- the scan 1.0: 1.5; 1.5: 4.9; 2.0: 8.3; 2.5: 14.9; 3.0: 18.6. No code change; the smoke at the
+    placeholders is the smoke at the chosen values;
+  - the floors drop 32.7 / 25.6 RBs per slate-bank (under $5k 23.5 / 19.5, $5–7k 8.0 / 5.6, $7k+ 1.1 / 0.6), with mean prior
+    targets per game 1.12 / 0.87; the cheap block never empty (88.0 termed); rows shared with LIVE 10.11 / 14.39, dealt identical
+    0.083 / 0.222;
+  - **disclosed:** FAVHI pairs fall to 8.0 / 9.9 per slate-bank (min 1 / 2; LIVE 17.9), and the RB-mate floor is re-solved
+    without it in 4 / 2 of 144 slots (LIVE 1).
 - **Code:** nfl2 `production/s116-rec-floor-20261010` @ `1d58fbbc` (off study 112's `262be08b`, whose module is the frozen
   `16bbe046`):
   - `experiments/s116_rec_floor.py` `429b7ee5…` (pins s112 `16bbe046…`)
