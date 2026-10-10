@@ -10,9 +10,10 @@ something is successful, we'll discuss in the morning how we want to use it."
   or C was worse on both opponent sets. The rule fixed beforehand suggested a small shift (A1 39% / A2 12% / B 24% / C 24%), but
   on a fresh draw (study 98) it was no better on one of the two opponent sets (+0.6 overall, a coin flip), so it is not
   suggested.
-- **Game situations (study 97):** one version passed — **the QB's own RB in 4 QB + 1 lineups, only when his team is the expected
-  winner of a high-scoring game** (+0.9, better on both opponent sets, ×1.10 expected big wins); small and not clear of chance;
-  re-run on a fresh draw by study 99. The shootout QB + 2 did not pass (−0.7); the trailing-side QB + 2 was clearly worse (−5.0).
+- **Game situations (studies 97 and 99): one version passed, and it HELD on a fresh draw** — **the QB's own RB in 4 QB + 1
+  lineups, only when his team is the expected winner of a high-scoring game.** Study 97 +0.9 (×1.10 expected big wins), study 99
+  +3.4 (×1.18): better on all four opponent sets. Still not clear of chance on its own; your call. The shootout QB + 2 did not
+  pass (−0.7, then +0.5 split); the trailing-side QB + 2 was worse both times (−5.0, −5.6).
 - **The RB stack mate, unconditioned (study 96): paper only.** On top of the one-receiver-per-team rule it read −0.5 (worse on
   both opponent sets), although every lineup got its RB. It stays off (RB_MATE_C = 0) unless you choose a version below.
 - **Raising the ceiling (studies 100–103, your "200+" notes):** [ ]
@@ -136,12 +137,25 @@ lineup's average was 175.6–178.2 across all versions — on the ceiling every 
 Buffalo, Houston and San Francisco (the expected winners of the high-scoring games), all 4 lineups got their RB, at 0.11 projected
 points per lineup.
 
-**How much to trust it:** small and not clear of zero; of the eleven comparisons two passed — both are this one version (against
-your book and against the plain RB version, so they move together) — about what chance alone gives. Study 99 re-runs it on a fresh
-draw.
+**Re-run on a fresh draw of the same past slates (study 99, committed before study 97 was read): it HELD.** Both lines it had
+to pass, passed again:
 
-**Each pick re-run on a fresh draw of the same past slates (study 99, committed before study 97 was read):** [ ] — a pick
-counts as "held" only if it passes the same rule again.
+| Study 99 (fresh opponents and simulations, same 36 past slates) | vs | Set A | Set B | Big wins | Your rule |
+|---|---|---|---|---|---|
+| **RB with his QB, only the expected winner of a high-scoring game** | **your book: +3.4 (−0.4 to +7.4)** | **+5.8** | **+0.9** | **×1.18** | **passes again** |
+| the same | the plain RB version: +2.8 (−0.4 to +6.2) | +2.8 | +2.8 | ×1.17 | passes again |
+| RB with his QB, the expected winner (by 3+), any game (information) | your book: +1.5 (−1.7 to +4.8) | +2.8 | +0.1 | ×1.06 | passes here (did not in 97) |
+| The plain RB version, every C lineup (information) | your book: +0.6 | +3.0 | −1.9 | ×1.01 | no |
+| QB + 2 only from high-scoring games (information) | your book: +0.5 | +2.0 | −1.0 | ×0.99 | no |
+| QB + 2 only from the trailing side of high-scoring games | your book: **−5.6 (−10.4 to −0.7)** | −2.9 | −8.3 | ×0.85 | **worse again** |
+
+(study 99's READ `9a796eb1`, lab `79387d43`; the frozen reader of study 97 on new banks.)
+
+**How much to trust it now:** across the two studies the expected-winner-of-a-high-scoring-game version is ahead of your book on
+all four opponent sets (+0.9 and +3.4) with 10–18% more expected big wins, and ahead of the plain RB version on all four as well.
+Each single interval still crosses zero, the same 36 past slates were used both times (a fresh draw of opponents, not new games),
+and the test model builds on its own projections, not Fantasy Points'. It is the strongest construction result of the night;
+whether to use it is your call.
 
 **Notes for reading it (the lab reviewer's 36-slate check):**
 - **The "naked" version changed about 7–8 of your 26 lineups on average, and nothing at all on about half the slates** (your
@@ -156,10 +170,11 @@ counts as "held" only if it passes the same rule again.
 ## 3. What it would take to use each
 
 - **A new shape mix:** one setting at arming (MIX_QUOTAS), built and tested; any share including 0% or 100%.
-- **The RB version for the expected winner of a high-scoring game:** its switch is built, reviewed and checked on your Week-4
-  book, but **not yet merged**. **If study 99 confirms it on the fresh draw,** it is merged tonight (left off), the lab reviewer's
-  paper-arm update lands, and using it is one setting this morning (RB_MATE_C = 4 with RB_MATE_SCOPE = favhi). **If study 99
-  does not confirm it, it is not built for use this week.** [99: ]
+- **The RB version for the expected winner of a high-scoring game (study 99 confirmed it):** its switch is built, reviewed and
+  checked on your Week-4 book (Buffalo, Houston and San Francisco; all 4 lineups got their RB, −0.11 projected points per
+  lineup). Tonight, in order: the lab reviewer's paper-arm update, then the switch is merged **left off**, then the laptop's
+  Week-4 checks at the merged state. **Using it is one setting at arming (RB_MATE_C = 4 with RB_MATE_SCOPE = favhi), only if
+  you say yes;** leaving it off keeps today's book.
 - **No QB + 2 version passed,** so none was built.
 - **An RB version and a QB + 2 version together:** not allowed by the switches tonight — study 97 read them separately, and
   separately-read rules have not added up before (studies 93 + 94; study 83's combination −1.9). If you want both, one goes live
