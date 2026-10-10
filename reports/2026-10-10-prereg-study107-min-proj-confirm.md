@@ -13,7 +13,7 @@
 ## 2. The design (no new code)
 - **Code: study 106's frozen module, census, driver and reader, byte for byte** (nfl2 `production/s106-min-proj-20261010`; the
   shas as frozen in study 106); new banks. The reader prints all of study 106's lines; **ONLY the pick's line vs LIVE decides.**
-- **Banks (the laptop's full-set check: CLEAN; text scan to follow):** **3494–3505** (set A 3494–3499, set B 3500–3505; sims
+- **Banks (the laptop's full-set check and text scan: CLEAN; the only real mention this file):** **3494–3505** (set A 3494–3499, set B 3500–3505; sims
   bases 3544–3555, fields 4194–4205). The reader's bootstrap seed is study 106's (20261149), the same resamples, so the intervals
   are correlated with 106's; the pass rule below uses point estimates only.
 - **THE PASS RULE (fixed now):** the pick − LIVE on P(≥ 1 big seat) is **better on both draws AND the pooled expected big seats

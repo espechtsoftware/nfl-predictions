@@ -4,8 +4,8 @@
 call, following the laptop's plan. The lab reviewer reviews, runs the binding census, freezes, runs and reads; the laptop acks and
 reproduces. **Information for his decision; a pick goes to study 107**, whose preregistration is committed before this study's
 READ.
-- **Banks and seed (the laptop's full-set check: CLEAN against every used or reserved bank, studies 90–105; text scan to
-  follow):** **3482–3493** (set A 3482–3487, set B 3488–3493; sims bases 3532–3543, fields 4182–4193); the reader's bootstrap
+- **Banks and seed (the laptop's full-set check and text scan: CLEAN against every used or reserved bank, studies 90–105;
+  the only hits salaries, timings, counts, player ids or hex):** **3482–3493** (set A 3482–3487, set B 3488–3493; sims bases 3532–3543, fields 4182–4193); the reader's bootstrap
   seed **20261149**.
 
 ## 1. Why
