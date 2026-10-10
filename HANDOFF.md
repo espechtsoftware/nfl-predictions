@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (00:53 CDT) — CORRECTION (laptop): FAVHI was NOT "the one version that raised the ceiling on both reads"
+
+The laptop's line in the study 99 entry (and in its message to the outside reviewer, which reached the morning page) was false.
+Its own per-arm tables contradict it:
+- **Study 97** (LIVE 0.118): every arm was above LIVE on P(best ≥ 200).
+- **Study 99** (LIVE 0.111): FAVHI 0.150, FAV 0.137, RBMATE4 0.125, OPPQB 0.127 and SHOOT 0.116 were all above it.
+- So FAV, RBMATE4, OPPQB and SHOOT also beat LIVE on both reads.
+- The correct statement: FAVHI's 200+ rate was a little higher than LIVE's on both reads, as were several other versions'; the
+  rate is noisy at about 12%.
+- The page was fixed by the outside reviewer (review/morning-onepager-20261010 @ `9c0ce93a`); the reviewer caught it.
+- FAVHI's case rests on his big-seat rule (studies 97 and 99), not on the ceiling count.
+
 ## 2026-10-10 (00:40 CDT) — laptop: FAVHI merged OFF at FRIDAY_HEAD `5faf2f05`; the W4 gates pass on it; study 38 6w acked; the evening --check passes
 
 - **Study 38 amendment 6w** (+ the --mix-a1-full-stack classification) acked and merged (`aa7cf291`).
@@ -45,7 +57,7 @@
 - **The 200+ rate** (descriptive, the real points of the 26 rows):
   - FAVHI 15.0% vs LIVE 11.1% in 99 (mean best 178.9 vs 176.8);
   - 12.7% vs 11.8% in 97;
-  - the one version tonight that raised the book's ceiling on both reads.
+  - [CORRECTED below: not "the one version" -- FAV, RBMATE4, OPPQB and SHOOT were also above LIVE on both reads.]
 - **In plain words for him:** the RB stacked with his own QB only when that team is the expected winner of a high-scoring game
   read +0.9 (97) and +3.4 (99), better on all four opponent sets, with 10–18% more expected big wins and a higher 200+ rate.
   Not clear of zero on its own; the morning decision is his.
