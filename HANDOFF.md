@@ -12,6 +12,39 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (19:55 CDT) — OPERATOR: the night's working rules (no prompts overnight; shape percentages and RBMATE4's use decided in the morning; game-script versions to test)
+
+**His words, in the outside reviewer's session at about 19:45 CDT, relayed verbatim:**
+
+> we're going to decide the percentages of each of the successful shapes first thing in the morning. I want the team working throughout the night without my input so don't be prompting me during the night. If something is successful, we'll discuss in the morning how we want to use it.
+>
+> But I want to discuss the RB stack in the works. That seems like something we'll want to apply to games where the RB we select is on the team expected to be blowing out the other team or on the winning side of a shootout. Since in those cases I believe the RB gets more carries and perhaps more goal line action (research that).
+>
+> Similarly, stacks with a WR and QB make sense both in games expected to be shootouts and shootouts where the team is expected to be trailing since they'll have to be throwing to catch up. Please research all of that and after testing the shapes in general like you're doing, test them in those scenarios. My hope is that by morning you'll have suggestions on which of the tested arms should be used in which situations and in what percentages. Please let the other agents know how I would like things to work
+
+**How the team works tonight (his rules, as the three agents apply them):**
+1. **No prompts or questions to him overnight**, from any agent. Decisions wait for the morning, and everything is
+   prepared so that they can be made quickly.
+2. **RBMATE4:** "If something is successful, we'll discuss in the morning how we want to use it."
+   - Study 96, the flag merge, the W4 check and 6u are all completed and prepared.
+   - **RB_MATE_C stays 0 until his morning decision, before the 10:28 arming.** He also wants to discuss applying the RB
+     stack by game script.
+   - This supersedes, for tonight, the "live at Saturday's arming if all pass" of his earlier answer ("Try live W5 if
+     built", HANDOFF `ad00da5c`).
+   - ONECATCH stays armed as decided (`ee92d15b`).
+3. **The machine order:**
+   - 96's run (now);
+   - 95's run (the shapes, about 90 min);
+   - **study 97**, the game-script versions. The outside reviewer designs it from research on seasons OUTSIDE 2023–24,
+     so the harness read stays clean. Its banks are 3124–3135, seed 20261142, being scanned by the laptop;
+   - then any follow-up that fits before morning.
+4. **By morning: a one-page suggestion** of which tested arms to use in which game situations, and at what percentages,
+   with every result's caveats. The outside reviewer writes it; the laptop and the reviewer check it.
+5. **Ready by morning (the laptop):** whatever he picks must be armable before 10:28.
+   - shape percentages, including 0% for a dropped shape (production's --mix-cell-quotas today requires every cell > 0);
+   - RBMATE4 on or off;
+   - a game-script version only if it is tested, built and checked.
+
 ## 2026-10-09 (19:35 CDT) — laptop: RBMATE4 built and reviewed (flag + wiring); study 96 running (the W5 money path, ahead of 95); study 95 acked
 
 - **The RBMATE4 production flag:** review/rb-mate-c-20261009 @ `4caff46d` (the outside reviewer's; `--mix-rb-mate-c 4`;
