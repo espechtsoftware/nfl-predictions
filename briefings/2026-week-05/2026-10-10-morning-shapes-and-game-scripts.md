@@ -340,10 +340,17 @@ fixed before study 102 was read).
    - The 200+ rate barely moved in any of them. Nothing passed, so the fresh-draw check (109b) is not run (study 109's READ
      `169cc082`, lab `fb004daf`). In the test model the players coming off a big game are still worth their projection; the
      pros' habit of fading them did not translate into more big wins here.
-4. **Study 110 — rules from your real Weeks 1–4 fields** (the ideas page you queued): no low-owned player at all; the QB from
-   one of the slate's three highest-total games; the cheap block only on popular cheap players; no QB with his own defense and
-   at least $49,500 of salary. **Added this morning ("Add both today"):** at most 4 of a lineup's 8 players from the top tenth by
-   value. A pick is re-checked on a fresh draw (study 111).
+4. **Study 110 — rules from your real Weeks 1–4 fields** (the ideas page you queued): **READ — none passed your rule; keep
+   your book as is.** Against your armed book (with the RB version):
+   - **no low-owned player at all:** +0.3 (−0.3 / +0.8), but 11% more expected big wins and the best lineup +1.1 points — a
+     small lean, not a pass (one opponent set just below zero); it changes 4 of your 26 real lineups;
+   - **the cheap block only on popular cheap players:** +1.0 (+2.3 / −0.2), 5% more expected big wins — better on one set only;
+   - **the QB from a top-3-total game:** −3.6, worse on both sets;
+   - **at most 4 top-value players per lineup** (added this morning): −2.9, worse on both — it goes on paper in Week 5 so your
+     real results can still decide it;
+   - **no QB with his own defense plus $49,500:** −0.6 (the salary floor never came into play).
+   - Nothing passed, so the fresh-draw check (study 111) is not run (study 110's READ `763ae1fb`, lab `73efac12`). The two
+     leans are in the leads log for a fresh draw later.
 5. **Study 112 — usage floors** (your minimum rush attempts, pass attempts, targets, touchdowns and red-zone targets): one floor
    per version, each from this season's games before the slate only; a pick is re-checked on a fresh draw (study 113). The
    levels were set by a rule written down before any result: each floor changes about 8–15 of your 26 lineups. **That gives at
