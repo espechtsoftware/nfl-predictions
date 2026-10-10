@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:23 CDT) — OPERATOR: the laptop's L2 revised (no Gibbs) after his Arizona run-defense question; the private log's new sha 519c8271
+
+- **His question (verbatim):** "do you have any concerns that draft kings lists arizona 3rd vs the run?" The laptop's answer: the matchup
+  rank is four games of points allowed (weak by our out-of-sample history; it agrees with our own run-EPA read), the real concern was
+  Gibbs in BOTH laptop lineups; L2 re-solved with Gibbs banned under the same method (market-adjusted 153.8 vs 153.9; FP ownership
+  sum 96 vs 115). **His answer: "Swap L2, no Gibbs (Recommended)".**
+- **The private log** `~/private/manual-lineups/w05.json` now sha256 **`519c827190cc34222f8b0f124cfcc9055613f0553145167eb622676c352b24a5`**
+  (previous `3e012b80…` kept as `w05.v1-3e012b80.json`; the old L2 under `laptop_agent.superseded` with the reason; the picker
+  `pick_w05_alt.py` `3af47bc8…`). The new L2 is active at the 13:54 pull, $50,000; `check_w05.py` FLAGS none.
+
 ## 2026-10-10 (14:22 CDT) — OPERATOR: Sunday pre-lock check of his four hand lineups added to the schedule (10:30 inactives, the Henderson pivot, the Arizona roof)
 
 - **His words (verbatim):** "please add to your schedule to check for any concerns about those 4 lineups prior to lock.  including
