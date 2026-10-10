@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (14:59 CDT) — OPERATOR: a quick DST-touchdown test (done: own DST TDs don't persist) and a DK-rank study (accuracy prereg + s38 6z6 paper block, in progress)
+
+- **His words (verbatim):** "Can we do a quick study using the DK rankings that we have (which I believe is only one week so probably not
+  great yet) and see if it is accurate at all for projecting?  With that a paper study would be good.  Also, do we consider touchdowns from
+  defenses when selecting defenses?  Can we do a quick test of that?" (He offered to install statsmodels; not needed — a bootstrap — and
+  the production venv stays untouched before the arm.)
+- **DST touchdowns (row 105, `reports/2026-10-10-dst-touchdowns/`):** 1,824 team-weeks 2022–2026: own DST TDs so far +0.2 pts [−3.5, +4.1]
+  (no persistence); opponent's implied total +4.9 [+0.7, +8.1], spread +4.6 [+1.0, +8.4], opponent's giveaways +3.8 [+0.5, +7.9]. No
+  change. (Side fact: NE has the most giveaways in 2026, 2.5 a game; TEN 0.75.)
+- **DK's rank (row 106):** the lab reviewer's 6z6 MIXT_QA0_OPRKBLOCK8 (paper; the outside reviewer's file generator; the laptop's
+  `S38_PAPER_OPRK_FILE` on production/s38-oprk-snapshot-20261010 @ `b1f2324e`, test_s38_snapshot 17 passed, in review); the stop rule:
+  everything by 16:45 or Week 6. The accuracy prereg (Monday read) is the laptop's next draft.
+
 ## 2026-10-10 (14:51 CDT) — OPERATOR: his four hand lineups ENTERED ("ok I locked that in"); logged privately, sha 94209e54
 
 - **His words (verbatim):** "ok I locked that in.  Please log what we've entered". The Texans question before it ("texans haven't score
