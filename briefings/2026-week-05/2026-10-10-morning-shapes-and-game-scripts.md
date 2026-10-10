@@ -242,7 +242,8 @@ pick on a fresh draw.
 | Every lineup built on upside | −0.5 (−3.2 to +2.2) | −0.2 | −0.8 | **15.5%** (+3.2 on both sets) | **−3.5 (−3.1 / −3.9), ×0.86** | no (big wins worse on both; its finishes slip) |
 | The 8 QB + 2 + bring-back lineups as full game stacks (QB + 2 + 2 from the opponent, 5 from one game) in the 4 highest-total games | **−1.7 (−3.0 to −0.3)** | −1.8 | −1.5 | 11.8% | −3.2 (−2.6 / −3.9), ×0.90 | no (worse on everything) |
 
-(study 102's READ `3a992f7f`, lab `2ec19654`. Your book's best lineup averaged 177.2 points.)
+(study 102's READ `3a992f7f`, lab `2ec19654`; reproduced byte for byte by the laptop. Your book's best lineup averaged
+177.2 points.)
 
 **What it says, plainly:**
 - **Building every lineup on upside does what you asked for, at a price.** The best lineup reached 200 on about 3 more slates
