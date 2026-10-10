@@ -1,7 +1,6 @@
 # Preregistration: study 96, the QB's own RB as a stack mate (RBMATE4) together with one receiver per team (ONECATCH), on his armed Week-5 book, in the harness — his Week-5 decision (DRAFT 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (19:19 CDT)** by the outside reviewer; code done, the smoke waiting for the first gap after study 95's
-run. The reviewer reviews, runs the binding census and FREEZES; the laptop acks. **This read decides Week 5 by his rule.**
+**Status: DRAFT 2026-10-09 (19:19 CDT; smoke done 19:29)** by the outside reviewer; code and smoke done (§5). The reviewer reviews, runs the binding census and FREEZES; the laptop acks. **This read decides Week 5 by his rule.**
 - **Banks and seed:** **3112–3123** (set A 3112–3117, set B 3118–3123; sims bases 3162–3173, fields 3812–3823), seed 20261141 —
   the laptop's full-set check is clean against 698 used banks, study 95's included; its text-scan tally follows.
 
@@ -54,7 +53,14 @@ spares, Rev6, his live cell quotas.
 ## 5. Smoke, census and integrity
 - BLAS threads pinned; PYTHONHASHSEED=0; bank 1406 only for the smoke: the unit tests, the mechanics smoke (2023 W3, 2023 W11,
   2024 W10), the binding census, the full-path smoke (reader exit and line count only).
-- **The smoke:** (the first gap after study 95's run; filled in when it ends).
+- **The smoke (DONE 19:29 CDT; 96 moved ahead of 95's run as the Week-5 money path; bank 1406; 2023 W3, 2023 W11, 2024 W10;
+  PYTHONHASHSEED=0; `results_bank1406.jsonl` `55f99a07…`; code `3cf3e8eb`):** 12 unit tests pass; both arms 41 rows within the armed
+  caps, 8 term rows, in the pool; **0 row-rule and ownership-cap fallbacks** (78 of 78 each); **ONECATCH ruled on every B / C
+  book solve, none dropped** (42 of 42 in both arms); **RBMATE: slots used 12 (4 per slate-bank), floors ruled 12, dropped 0**;
+  QB + own-RB rows ONECATCH 3.3 → ONECATCH_RBMATE4 6.3; the (QB, own RB) pairs per slate-bank 126.0 (min 105); rows shared with
+  ONECATCH 5.67 of 26, dealt identical 0.000; projection per row vs ONECATCH +0.05; **ONECATCH's rows and dealing identical to
+  study 95's LIVE (the reviewer's 95 smoke) on 3 of 3 slate-banks**; the full path: the reader exited 0 (24 lines; 28 with the
+  two-draw path on a copy); only the census, the exit codes and the line counts were read.
 - **Code:** nfl2 `production/s96-onecatch-rbmate-20261009` @ `3cf3e8eb` (branched from study 95's census `65c2407c`):
   `experiments/s96_onecatch_rbmate.py` `0363a84f…` (pins s94 `2eb7835b…`; `combo_rules` text `66ed0eff…`); `scripts/s96_drive.py`
   `ef706189…`; `scripts/s96_census.py` `f9c9e7c7…`; **`scripts/s96_report.py` (the reader) `a7cdf787…`** (seed 20261141);
