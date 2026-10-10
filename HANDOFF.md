@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (10:20 CDT) — study 112 READ: every usage floor worse on both draws, no pick, 113 not run (reproduced byte for byte); s38 6z + 6z2 acked, the canary gate at 0b3aa516; study 114's smoke next
+
+- **Study 112** (the reviewer; lab `a4fd70e9`; confirmatory census `023c1d0f` committed before the read). **The laptop reproduced
+  both byte for byte** (10:09:05–10:09:16): READ_s112 `2525ef14` (reader 8c8991a9); census `023c1d0f`; the 12 raw files pass
+  `sha256sum -c`.
+  - **RUSH 13** (RBs under 13 carries per game leave): −4.6 [−9.3, −0.4] **WORSE**, A −5.2 / B −4.0; seats ×0.89; guard 1 fails.
+  - **PASS 32** (QBs under 32 attempts): −2.7, A −4.1 / B −1.4; seats ×0.89; guard 1 fails.
+  - **TGT 4.5** (WRs / TEs under 4.5 targets): −2.8, A −4.5 / B −1.0; seats ×0.93; guard 1 fails.
+  - The best lineup is lower in all three (−2.4 / −2.1 / −1.4 points). No pick; **113 NOT RUN** (banks 3616–3627 unused).
+    Touchdown and red-zone floors were dropped before the freeze (no threshold in range). Production gets no usage-floor flag.
+- **Records merged:** Addendum 207 (its verbatim block cmp-identical to READ_s112) with prereg 113 NOT RUN
+  (review/s102-prereg-20261009 @ `495c9099`); the morning page's item 5 (`c1dcd685`); the leads log (`1bc371c6`, 112 closed).
+- **s38 6z + 6z2 acked.** The laptop's smoke reproduction (10:09:22–10:14:17; lab `0b3aa516`, prod `7a20dd74`; 58 tests rc 0):
+  books.json byte-identical to the reviewer's (armedFH `095d3766`, armedFH-nohot `32784580`); HOT_WRTE1 0 rows with 2+ hot WR /
+  TE; without the hot file HOT1 and HOT_WRTE1 missing and the other 35 arms identical. The 6z / 6z2 text in the study-38
+  prereg (review/s38-6n-20261009 @ `1887361b`, file `caa749636846`) matches the code. **The 18:00 canary gate's lab checkout
+  (s38-6u) is at `0b3aa516` (module 1420932a); the prod pin stays `7a20dd74`.**
+- **Machine:** the outside reviewer's 114 smoke (the remove-one-rule study, last by his word).
+- **Next:** 114, and 114b only if a removal passes; about 15:30 the afternoon refresh (after the 15:00 odds); about 16:45 FP
+  ownership; the 17:55 arm; the 18:00 canary with the hot file and the snapshot.
+
 ## 2026-10-10 (09:56 CDT) — the morning data steps done: FP ownership, the props guard, the refresh, the proof lines; 6z2 (HOT_WRTE1 on paper) pushed; study 112 running
 
 - **FP projected ownership** (08:55): rc 0; W5 now has 3 captures, the newest 13:55:12Z with 1,147 rows.

@@ -50,7 +50,10 @@ change that makes the time a setting was reviewed and merged; the arm script is 
    players" and "popular punts only" were close but mixed; the top-3-game QB and the value cap were clearly worse; the hygiene
    rule changes almost nothing. The value cap goes on paper this Sunday (your "if negative"), beside the hot-player cap.**
 4b. **Added at your word: the hot-player rule on WR/TE only (study 115), for THIS week if it passes.**
-5. Your usage floors (carries, pass attempts, targets, touchdowns, red-zone targets), with a re-check if one passes.
+5. ~~Your usage floors (carries, pass attempts, targets, touchdowns, red-zone targets)~~ **READ: every floor made the book
+   worse on both sets of opponents (13 carries for RBs clearly worse, about 5 fewer slates in 100 with a big win; 32 pass
+   attempts and 4.5 targets about 3 fewer). Touchdowns and red-zone targets could not be set without removing most
+   players. Not used; the re-check (113) is not run.**
 6. **Last, as you asked:** each live rule removed one at a time.
 
 **Data collection today:** the DraftKings salary loop was found down since Friday 04:07 and restarted at 05:37 (logged);
