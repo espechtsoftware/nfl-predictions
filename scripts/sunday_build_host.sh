@@ -556,6 +556,24 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   elif [[ "${UNION_MAIN:-mean}" == "mix" && "$RB_SCOPE" != all ]]; then
     rb_mate_alert "UNION_MIX_RB_MATE_SCOPE=$RB_SCOPE without UNION_MIX_RB_MATE_C=4"
   fi
+  rb_rec_alert() {                                          # study 116's RB receptions floor not applied: the book stands without it
+    printf '%s run %s: RB REC FLOOR NOT APPLIED: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$1" | tee -a "$OUT/ALERT-rb-rec-floor-not-applied-$RUN_TAG.txt"
+    printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+      "!!! RB REC FLOOR NOT APPLIED for $RUN_TAG: $1 -- the book stands without it" \
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  }
+  # Study 116's RB receptions floor (the operator 10-10: "Please try it now and only of successful include it this week";
+  # successful = "116 and re-check pass"): RBs under UNION_MIX_MIN_RB_REC (1.5 or 2.0) receptions per game (the file
+  # UNION_MIX_RB_REC_SOURCE) leave the pool with the --min-proj floor. Off = unset or 0. MIX main only.
+  RB_REC_ON=0
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_MIN_RB_REC:-0}" != "0" ]]; then
+    if [[ "${UNION_MIX_MIN_RB_REC}" =~ ^(1\.5|2\.0|2)$ && -s "${UNION_MIX_RB_REC_SOURCE:-}" ]]; then
+      UNION_ARGS+=(--mix-min-rb-rec "$UNION_MIX_MIN_RB_REC" --mix-rb-rec-source "$UNION_MIX_RB_REC_SOURCE"); RB_REC_ON=1
+      echo "RB REC FLOOR for $RUN_TAG: ON (RBs under $UNION_MIX_MIN_RB_REC receptions per game leave the pool; $(basename "$UNION_MIX_RB_REC_SOURCE"))"
+    else
+      rb_rec_alert "UNION_MIX_MIN_RB_REC=${UNION_MIX_MIN_RB_REC} is not 1.5 / 2.0, or the file UNION_MIX_RB_REC_SOURCE='${UNION_MIX_RB_REC_SOURCE:-}' is missing or empty"
+    fi
+  fi
   # Study 48b's winner-likeness order (operator 10-07: "Test tonight, aim for Week 5"; default off): FP's projected
   # ownership (the term's FP export when there is one, else this run's own capture + export) and the players' prior-game
   # touchdowns / attempts (scripts/winner_like_inputs.py), then the union re-orders the main book by study 48's frozen
@@ -672,6 +690,12 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   if (( RB_MATE_ON )) && grep -q 'RB MATE SCOPE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     rb_mate_alert "the union refused the scope (the RB mate is off): $(grep -h 'RB MATE SCOPE NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
+  if (( RB_REC_ON )) && grep -q 'RB REC FLOOR NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
+    rb_rec_alert "the union refused it: $(grep -h 'RB REC FLOOR NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
+  fi
+  if (( RB_REC_ON )) && [[ "$UNION_MAIN_EFFECTIVE" != "mix" ]]; then
+    rb_rec_alert "the MIX main was refused; the house fallback ($UNION_MAIN_EFFECTIVE) has no receptions floor"
+  fi
   if (( OWN_CAP_ON )) && grep -q 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     own_cap_alert "the union refused it: $(grep -h 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
@@ -682,6 +706,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" "$UNION_DIR/row_rules_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" "$UNION_DIR/one_catcher_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-rb-mate-not-applied-$RUN_TAG.txt" "$UNION_DIR/rb_mate_not_applied.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/ALERT-rb-rec-floor-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-rb-rec-floor-not-applied-$RUN_TAG.txt" "$UNION_DIR/rb_rec_floor_not_applied.txt"
   # the projection source travels with the union dir, so the upload sheet can name it (the outside review 10-06, (1b))
   [[ -n "$UNION_DIR" && -f "$OUT/proj_fp-$RUN_TAG.txt" ]] && cp "$OUT/proj_fp-$RUN_TAG.txt" "$UNION_DIR/proj_source_log.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/proj_source_fallback-$RUN_TAG.txt" ]] && cp "$OUT/proj_source_fallback-$RUN_TAG.txt" "$UNION_DIR/proj_source_fallback.txt"

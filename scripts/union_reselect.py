@@ -149,8 +149,9 @@ def game_cap_ok(ids: list[str], game_of: dict[str, str], cap: int | None) -> boo
 
 
 def survivors(sat_cands: pd.DataFrame, t70: pd.DataFrame, t70_rosters: set[frozenset], min_proj: float, cap: int | None,
-              dk_status: pd.DataFrame | None) -> tuple[list[list[str]], list[int], dict]:
-    """Saturday candidates that survive the T-70 information; returns (rosters, saturday cand index, counts)."""
+              dk_status: pd.DataFrame | None, rb_rec_low: set[str] | frozenset = frozenset()) -> tuple[list[list[str]], list[int], dict]:
+    """Saturday candidates that survive the T-70 information; returns (rosters, saturday cand index, counts). rb_rec_low: study
+    116's RBs below the receptions floor (empty = off)."""
     ids_t70 = set(t70.id.astype(str))
     gone = unavailable_ids(t70, dk_status)
     proj = dict(zip(t70.id.astype(str), pd.to_numeric(t70.mean_projection, errors="coerce")))
@@ -167,6 +168,8 @@ def survivors(sat_cands: pd.DataFrame, t70: pd.DataFrame, t70_rosters: set[froze
             counts["dropped_unavailable"] += 1; continue
         if any(i in low for i in ids):
             counts["dropped_below_min_proj"] += 1; continue
+        if rb_rec_low and any(i in rb_rec_low for i in ids):
+            counts["dropped_below_rb_rec"] += 1; continue
         if not game_cap_ok(ids, game_of, cap):
             counts["dropped_game_cap"] += 1; continue
         if frozenset(ids) in t70_rosters:
@@ -631,6 +634,70 @@ def rb_mate_scope_teams(scope: str, t70: pd.DataFrame, pool_ids: set[str]) -> tu
         return None, (f"no (QB, own RB) pair of the expected winners of the high-total games (FAVHI {sorted(teams)}; the high-total "
                       f"cut {sets['high_cut']}) in the pool")
     return teams, None
+
+
+RB_REC_VALUES = (1.5, 2.0)           # study 116's two pre-fixed doses (REC_LOW, REC); 0 = off
+RB_REC_GAMES = 4
+RB_REC_COLS = ("gsis_id", "rec_games", "rec_sum", "rec_per_game")
+
+
+def rb_rec_low_ids(source: Path, t70: pd.DataFrame, threshold: float) -> tuple[set[str], dict]:
+    """Study 116's RB receptions floor (the operator 10-10: "Let's try another experiment where we have a minimum number of
+    receptions for a running back"; nfl2 experiments/s116_rec_floor.py): the frame ids of the RBs whose receptions per game -- the
+    mean over his last up-to-4 stat-line games of this season before the week, read from the file written by
+    reports/2026-10-10-rb-receptions/rb_rec_file.py -- are BELOW `threshold` (strict: a back at the threshold stays). Matched on the
+    frame's gsis_id; an RB absent from the file (no game yet) or without a gsis_id is kept. Refuses (SystemExit 'RB REC FLOOR
+    REFUSED: ...') on a missing file, a missing or non-JSON metadata line, games != 4, a season / week that is not the frame's, a
+    missing column, no data rows, a non-finite number, a repeated gsis_id, rec_games outside 1..4, or a rec_per_game that is not
+    rec_sum / rec_games."""
+    def refuse(why: str):
+        raise SystemExit(f"RB REC FLOOR REFUSED: {why}")
+    if source is None or not Path(source).is_file():
+        refuse(f"the receptions file {source} does not exist")
+    name = Path(source).name
+    lines = Path(source).read_text().splitlines()
+    if not lines or not lines[0].startswith("# "):
+        refuse(f"{name} has no metadata line")
+    try:
+        meta = json.loads(lines[0][2:])
+    except ValueError:
+        refuse(f"{name}: the metadata line is not JSON")
+    if not isinstance(meta, dict) or meta.get("games") != RB_REC_GAMES:
+        refuse(f"{name}: metadata games = {meta.get('games') if isinstance(meta, dict) else meta!r}, not {RB_REC_GAMES}")
+    for key in ("season", "week"):
+        got = set(pd.to_numeric(t70[key], errors="coerce").dropna().astype(int)) if key in t70.columns else set()
+        if not isinstance(meta.get(key), int) or got != {meta[key]}:
+            refuse(f"{name}: {key} {meta.get(key)!r} is not the frame's {sorted(got)}")
+    d = pd.read_csv(source, skiprows=1, dtype={"gsis_id": str})
+    missing = [c for c in RB_REC_COLS if c not in d.columns]
+    if missing:
+        refuse(f"{name} lacks {missing}")
+    if d.empty:
+        refuse(f"{name} has no data rows")
+    num = d[["rec_games", "rec_sum", "rec_per_game"]].apply(pd.to_numeric, errors="coerce")
+    if not np.isfinite(num.to_numpy(float)).all():
+        refuse(f"{name}: a non-finite number")
+    if d["gsis_id"].isna().any() or d["gsis_id"].duplicated().any():
+        refuse(f"{name}: a missing or repeated gsis_id")
+    if not num["rec_games"].isin(range(1, RB_REC_GAMES + 1)).all():
+        refuse(f"{name}: rec_games outside 1..{RB_REC_GAMES}")
+    if not np.allclose(num["rec_per_game"], num["rec_sum"] / num["rec_games"], rtol=0, atol=1e-9):
+        refuse(f"{name}: a rec_per_game that is not rec_sum / rec_games")
+    rpg = dict(zip(d["gsis_id"].astype(str), num["rec_per_game"].astype(float)))
+    rbs = t70[t70.pos.astype(str) == "RB"]
+    gs = rbs["gsis_id"] if "gsis_id" in rbs.columns else pd.Series([None] * len(rbs), index=rbs.index)
+    low, kept = set(), 0
+    for i, g in zip(rbs.id.astype(str), gs):
+        v = rpg.get(str(g)) if g is not None and pd.notna(g) else None
+        if v is None:
+            kept += 1
+        elif v < threshold:
+            low.add(i)
+    dks = dict(zip(t70.id.astype(str), t70["dk_player_id"])) if "dk_player_id" in t70.columns else {}
+    return low, {"applied": True, "path": str(source), "sha256": sha256_file(Path(source)), "season": meta["season"],
+                 "week": meta["week"], "threshold": threshold, "file_rows": int(len(d)), "pool_rbs": int(len(rbs)),
+                 "kept_no_prior": kept, "dropped_ids": sorted(low),
+                 "dropped_dk_ids": sorted(k for k in (_dk_text(dks.get(i)) for i in low) if k is not None)}
 
 
 def one_catcher_line(block: dict | None) -> str:
@@ -1493,6 +1560,13 @@ def main(argv: list[str] | None = None) -> int:
                     help="study 97 (default all = every (QB, own RB) pair, today's --mix-rb-mate-c): favhi = only the QBs of the "
                          "expected winners (margin = 2 x implied - total >= 3) of the slate's high-total games (>= its 2/3 "
                          "quantile); needs --mix-rb-mate-c 4; a refused scope (no lines, no such pair) turns the RB mate OFF, LOUDLY")
+    ap.add_argument("--mix-min-rb-rec", type=float, default=0.0,
+                    help="study 116's RB receptions floor (default 0 = off; only 1.5 or 2.0, its two pre-fixed doses): an RB whose "
+                         "receptions per game (his last up-to-4 stat-line games this season, from --mix-rb-rec-source) is below "
+                         "this leaves the pool, with the --min-proj floor (before the caps, row-rule sets, term and RB-mate "
+                         "pairs); a refused file builds WITHOUT it, LOUDLY")
+    ap.add_argument("--mix-rb-rec-source", type=Path, default=None,
+                    help="with --mix-min-rb-rec: the receptions file (reports/2026-10-10-rb-receptions/rb_rec_file.py)")
     ap.add_argument("--mix-one-catcher-all", action="store_true",
                     help="study 93's ONECATCH (default off): every B / C (QB + 1) BOOK solve, the live and the term block alike, "
                          "holds at most ONE WR / TE of every team, in one solve with the row rules; infeasible -> re-solved with "
@@ -1601,6 +1675,11 @@ def main(argv: list[str] | None = None) -> int:
                          "--mix-rs-rows / --mix-bring-back-top-wr / --winner-select")
     if a.mix_rb_mate_scope != "all" and a.mix_rb_mate_c != 4:
         raise SystemExit(f"--mix-rb-mate-scope {a.mix_rb_mate_scope} needs --mix-rb-mate-c 4 (study 97 read the scope on the RB mate)")
+    if a.mix_min_rb_rec not in (0.0,) + RB_REC_VALUES or (a.mix_min_rb_rec and (a.main != "mix" or a.mix_rb_rec_source is None)):
+        raise SystemExit(f"--mix-min-rb-rec {a.mix_min_rb_rec:g}: 0 (off), or {' / '.join(f'{v:g}' for v in RB_REC_VALUES)} "
+                         "(study 116's doses) with --main mix and --mix-rb-rec-source")
+    if a.mix_rb_rec_source is not None and not a.mix_min_rb_rec:
+        raise SystemExit("--mix-rb-rec-source is read only with --mix-min-rb-rec 1.5 or 2")
     if a.mix_rb_mate_c not in (0, 4) or (a.mix_rb_mate_c and not a.mix_one_catcher_all):
         raise SystemExit("--mix-rb-mate-c takes 0 or 4 (study 96's tested value) and needs --mix-one-catcher-all (it was read only on "
                          "top of ONECATCH)")
@@ -1677,12 +1756,24 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("T-70 banks do not match the T-70 frame's rows")
     dk = pd.read_csv(a.dk_status, dtype=str) if a.dk_status else None
     cap = a.max_per_game if a.max_per_game > 0 else None
+    rb_rec_low: set[str] = set()                         # study 116: the RBs below the receptions floor leave with --min-proj's
+    rb_rec_meta: dict | None = None
+    if a.mix_min_rb_rec:
+        try:
+            rb_rec_low, rb_rec_meta = rb_rec_low_ids(a.mix_rb_rec_source, fr, a.mix_min_rb_rec)
+            print(f"RB REC FLOOR: RBs under {a.mix_min_rb_rec:g} receptions per game leave the pool -- {len(rb_rec_low)} of "
+                  f"{rb_rec_meta['pool_rbs']} frame RBs ({rb_rec_meta['kept_no_prior']} kept with no game yet; "
+                  f"{Path(a.mix_rb_rec_source).name} {rb_rec_meta['sha256'][:8]})", flush=True)
+        except SystemExit as exc:
+            rb_rec_low, rb_rec_meta = set(), {"applied": False, "not_applied": str(exc), "threshold": a.mix_min_rb_rec,
+                                              "path": str(a.mix_rb_rec_source)}
+            print(f"\n!!! RB REC FLOOR NOT APPLIED: {exc} -- the book is built without it\n", flush=True)
 
     # the pool: T-70 rows (the same T-70 rules applied defensively: a clean T-70 build drops nothing here), Saturday
     # survivors, optional PMO rows
-    t70_rosters, t70_idx, t70_counts = survivors(t70["cands"], fr, set(), a.min_proj, cap, dk)
+    t70_rosters, t70_idx, t70_counts = survivors(t70["cands"], fr, set(), a.min_proj, cap, dk, rb_rec_low)
     t70_set = {frozenset(r) for r in t70_rosters}
-    sat_rosters, sat_idx, counts = survivors(sat["cands"], fr, t70_set, a.min_proj, cap, dk)
+    sat_rosters, sat_idx, counts = survivors(sat["cands"], fr, t70_set, a.min_proj, cap, dk, rb_rec_low)
     counts["t70_pool"] = t70_counts.pop("saturday_pool"); t70_counts.pop("unavailable_players", None)
     counts["t70_dropped"] = {k: v for k, v in t70_counts.items() if k.startswith("dropped")}
     rosters = t70_rosters + sat_rosters
@@ -1696,7 +1787,7 @@ def main(argv: list[str] | None = None) -> int:
         gone = unavailable_ids(fr, dk)
         proj_all = dict(zip(fr.id.astype(str), pd.to_numeric(fr.mean_projection, errors="coerce")))
         pos_all = dict(zip(fr.id.astype(str), fr.pos.astype(str)))
-        excl = gone | {i for i in proj_all if pos_all[i] in SKILL and not (proj_all[i] >= a.min_proj)}
+        excl = gone | {i for i in proj_all if pos_all[i] in SKILL and not (proj_all[i] >= a.min_proj)} | rb_rec_low
         existing = t70_set | {frozenset(r) for r in sat_rosters}
         xcap = max(1, int(a.pmo_cap_share * a.pmo)) if a.pmo_cap_share > 0 else None
         pm = pmo_rows(fr, excl, a.pmo, a.mean_max_shared, cap, a.min_salary, existing, exposure_cap=xcap)
@@ -1710,7 +1801,7 @@ def main(argv: list[str] | None = None) -> int:
             import field_sleeve as FS
             proj_f = dict(zip(fr.id.astype(str), pd.to_numeric(fr.mean_projection, errors="coerce")))
             pos_f = dict(zip(fr.id.astype(str), fr.pos.astype(str)))
-            excl_f = set(unavailable_ids(fr, dk)) | {i for i in proj_f if pos_f[i] in SKILL and not (proj_f[i] >= a.min_proj)}
+            excl_f = set(unavailable_ids(fr, dk)) | {i for i in proj_f if pos_f[i] in SKILL and not (proj_f[i] >= a.min_proj)} | rb_rec_low
             src = a.sleeve_own_source or a.main_own_source
             if src is None or not Path(src).is_file():
                 raise ValueError(f"no ownership file ({src})")
@@ -1762,7 +1853,7 @@ def main(argv: list[str] | None = None) -> int:
         gone = unavailable_ids(fr, dk)
         proj_all = dict(zip(fr.id.astype(str), pd.to_numeric(fr.mean_projection, errors="coerce")))
         pos_all = dict(zip(fr.id.astype(str), fr.pos.astype(str)))
-        excl = gone | {i for i in proj_all if pos_all[i] in SKILL and not (proj_all[i] >= a.min_proj)}
+        excl = gone | {i for i in proj_all if pos_all[i] in SKILL and not (proj_all[i] >= a.min_proj)} | rb_rec_low
         xcap = main_exposure_cap(a.main_cap_share, a.entries)
         cap_share_used = a.main_cap_share
         own_cap, own_cap_meta = None, None
@@ -1865,6 +1956,13 @@ def main(argv: list[str] | None = None) -> int:
                 mix_meta["rb_mate_source"] = rm_meta
             if rm_c:
                 print(rb_mate_line(mix_meta.get("rb_mate")), flush=True)
+            if rb_rec_meta is not None:                      # study 116 (the format agreed with the lab reviewer 10-10)
+                mix_meta["rb_rec_floor_source"] = {k: rb_rec_meta[k] for k in
+                                                   ("applied", "path", "sha256", "season", "week", "threshold", "file_rows",
+                                                    "not_applied") if k in rb_rec_meta}
+                if rb_rec_meta.get("applied"):
+                    mix_meta["rb_rec_floor"] = {k: rb_rec_meta[k] for k in
+                                                ("threshold", "pool_rbs", "kept_no_prior", "dropped_ids", "dropped_dk_ids")}
             if bb_cells:
                 print(bring_back_top_wr_line(mix_meta.get("bring_back_top_wr")), flush=True)
             if a.term_block_rows:

@@ -46,7 +46,14 @@ RB_MATE_C=4                         # LIVE (his 10-10 decision in the laptop's s
 RB_MATE_SCOPE=favhi                 # LIVE with RB_MATE_C=4: favhi = only the expected winner of a high-total game (studies 97 + 99,
                                     # passed his rule twice; W4 check b6680c2c: BUF / HOU / SF, 4 / 4 rows); all = study 94's pairs
                                     # (PAPER ONLY, study 96) -- never armed
-MIX_FILL=rr                         # the MIX fill order (study 42; his 10-06 evening yes, "Use round-robin"): the cells in
+RB_REC_MIN=""                       # study 116's RB receptions floor (the operator 10-10: "Please try it now and only of successful
+                                    # include it this week"; successful = "116 and re-check pass (Recommended)"): 2.0 or 1.5 = RBs
+                                    # under it (receptions per game, his last up-to-4 games) leave the pool; "" = off. Set only to
+                                    # the value 116 picked, after 116b holds
+RB_REC_FILE=""                      # with RB_REC_MIN: the W5 receptions file (reports/2026-10-10-rb-receptions/rb_rec_file.py),
+                                    # exactly ~/private/paper-corun/rbrec/w05.csv (one file for the live rule and study 38)
+RB_REC_SHA=""                       # its sha256, pinned (the arm refuses a mismatch)
+MIX_FILL=rr                        # the MIX fill order (study 42; his 10-06 evening yes, "Use round-robin"): the cells in
                                     # turn, a row per shape for the top QBs (the outside reviewer's arm; NO DIFFERENCE on
                                     # P(>=1 big), +9% expected seats). group = the earlier book; value is NOT to be armed
 MIX_COVER=0                         # study 43's coverage rows (one A1 row in each of the top-N games by total, built
@@ -111,6 +118,13 @@ _c=$(( 10#${SUPPLY%:*} * 60 + 10#${SUPPLY#*:} - 2 )); CUTOFF=$(printf '%02d%02d'
   || stop "ONE_CATCHER_ALL=$ONE_CATCHER_ALL: 0, or 1 with ROW_RULES=te1_low1, his package (OWN_CAP_DELTA=15), SHAPE=mixt, MIX_FILL=rr, MIX_COVER=0, MIX_RS=0, no BRING_BACK_TOP_WR and WINNER_SELECT=0 (the union refuses the rest)"
 [[ "$RB_MATE_C" == 0 || ( "$RB_MATE_C" == 4 && "$ONE_CATCHER_ALL" == 1 ) ]] || stop "RB_MATE_C=$RB_MATE_C: 0, or 4 with ONE_CATCHER_ALL=1 (study 96)"
 [[ "$RB_MATE_SCOPE" == all || ( "$RB_MATE_SCOPE" == favhi && "$RB_MATE_C" == 4 ) ]] || stop "RB_MATE_SCOPE=$RB_MATE_SCOPE: all, or favhi with RB_MATE_C=4 (study 97)"
+[[ -z "$RB_REC_MIN" || ( "$RB_REC_MIN" =~ ^(1\.5|2\.0)$ && "$SHAPE" == mixt && "$RB_REC_SHA" =~ ^[0-9a-f]{64}$ \
+      && "$(sha256sum "$RB_REC_FILE" 2>/dev/null | cut -c1-64)" == "$RB_REC_SHA" ) ]] \
+  || stop "RB_REC_MIN=$RB_REC_MIN: empty (off), or 1.5 / 2.0 (study 116's doses) with SHAPE=mixt and RB_REC_FILE (absolute) pinned by RB_REC_SHA"
+[[ -z "$RB_REC_MIN" || "$RB_REC_FILE" == "$HOME/private/paper-corun/rbrec/w05.csv" ]] \
+  || stop "RB_REC_FILE=$RB_REC_FILE: with RB_REC_MIN it must be ~/private/paper-corun/rbrec/w05.csv (one file for the live rule and study 38)"
+[[ -z "$RB_REC_MIN" ]] || head -1 "$RB_REC_FILE" | grep -q -E '^# \{.*"season": 2026, "week": 5, "games": 4' \
+  || stop "RB_REC_FILE=$RB_REC_FILE: its metadata line is not season 2026, week 5, games 4"
 [[ "$MIX_FILL" == group || ( ( "$MIX_FILL" == value || "$MIX_FILL" == rr ) && "$SHAPE" == mixt ) ]] || stop "MIX_FILL=$MIX_FILL: group, or value / rr with SHAPE=mixt"
 [[ "$MIX_COVER" =~ ^[0-8]$ && ( "$MIX_COVER" == 0 || "$SHAPE" == mixt ) ]] || stop "MIX_COVER=$MIX_COVER: 0..8, and not 0 only with SHAPE=mixt"
 [[ "$MIX_RS" == 0 || ( "$MIX_RS" =~ ^(9|13|17)$ && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_COVER" == 0 ) ]] || stop "MIX_RS=$MIX_RS: 0, or 9 / 13 / 17 with SHAPE=mixt, MIX_FILL=rr and MIX_COVER=0"
@@ -184,6 +198,7 @@ arm_env() {
   if [[ "$SHAPE" == mixt ]]; then e+=(UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_MIX_FILL=$MIX_FILL UNION_MIX_COVER_GAMES=$MIX_COVER UNION_MIX_RS_ROWS=$MIX_RS UNION_WINNER_ORDER=$WINNER_ORDER UNION_WINNER_SELECT=$WINNER_SELECT UNION_PRIORITY_ORDER=$PRIORITY_ORDER UNION_MIX_BRING_BACK_TOP_WR=$BRING_BACK_TOP_WR UNION_MIX_BRING_BACK_TOP_WR_ROWS=$BRING_BACK_TOP_WR_ROWS UNION_TERM_BLOCK_ROWS=$TERM_ROWS UNION_TERM_BLOCK_SOURCE=$P/$TERM_FILE UNION_TERM_BLOCK_TILT=0.20 UNION_TERM_BLOCK_CAP=$TERM_CAP UNION_TERM_BLOCK_SHA256=$TERM_SHA); [[ -n "$MIX_QUOTAS" ]] && e+=(UNION_MIX_CELL_QUOTAS=$MIX_QUOTAS) || u+=(-u UNION_MIX_CELL_QUOTAS); else u+=(-u UNION_MIX_CELL_QUOTAS -u UNION_PRIORITY_ORDER -u UNION_MIX_PORTFOLIO -u UNION_MIX_FILL -u UNION_MIX_COVER_GAMES -u UNION_MIX_RS_ROWS -u UNION_WINNER_ORDER -u UNION_WINNER_SELECT -u UNION_TERM_BLOCK_ROWS -u UNION_TERM_BLOCK_SOURCE -u UNION_TERM_BLOCK_TILT -u UNION_TERM_BLOCK_CAP -u UNION_TERM_BLOCK_SHA256); e+=(UNION_MAIN=pmo_x50); fi
   if [[ -n "$QB_CAP_ROWS" ]]; then e+=(UNION_MAIN_QB_CAP_ROWS=$QB_CAP_ROWS UNION_MAIN_QB_CAP_K=$QB_CAP_K); else u+=(-u UNION_MAIN_QB_CAP_ROWS -u UNION_MAIN_QB_CAP_K); fi
   if [[ -n "$SAT_SUPPLY_CT" ]]; then e+=(SAT_SUPPLY_CT=$SAT_SUPPLY_CT); u+=(-u SAT_FALLBACK_CT); else u+=(-u SAT_SUPPLY_CT -u SAT_FALLBACK_CT); fi
+  if [[ -n "$RB_REC_MIN" ]]; then e+=(UNION_MIX_MIN_RB_REC=$RB_REC_MIN UNION_MIX_RB_REC_SOURCE=$RB_REC_FILE); else u+=(-u UNION_MIX_MIN_RB_REC -u UNION_MIX_RB_REC_SOURCE); fi
   env "${u[@]}" "${e[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head PROD_ARMED_HEAD=$(git -C "$P" rev-parse HEAD) \
     D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \
     LEV_CBC_THREADS=8 EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00 \

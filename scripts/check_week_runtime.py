@@ -274,6 +274,15 @@ def main():
     _rs = os.environ.get("UNION_MIX_RB_MATE_SCOPE", "")
     if _rs not in ("", "all") and (_rs != "favhi" or _rm != "4"):
         fail(f"UNION_MIX_RB_MATE_SCOPE={_rs!r} must be all or favhi (the one scope study 97 passed), and favhi only with UNION_MIX_RB_MATE_C=4")
+    # study 116's RB receptions floor (the operator 10-10: live only if 116 and its re-check pass): 1.5 or 2.0, MIX main, a file
+    _rf = os.environ.get("UNION_MIX_MIN_RB_REC", "")
+    if _rf not in ("", "0") and (_rf not in ("1.5", "2.0", "2") or os.environ.get("UNION_MAIN") != "mix"):
+        fail(f"UNION_MIX_MIN_RB_REC={_rf!r} must be 1.5 or 2.0 (study 116's doses), with UNION_MAIN=mix")
+    _rsrc = os.environ.get("UNION_MIX_RB_REC_SOURCE", "")
+    if _rf not in ("", "0") and not (_rsrc and os.path.isfile(_rsrc) and os.path.getsize(_rsrc) > 0):
+        fail(f"UNION_MIX_MIN_RB_REC={_rf} needs UNION_MIX_RB_REC_SOURCE, an existing non-empty receptions file (got {_rsrc!r})")
+    if _rsrc and _rf in ("", "0"):
+        fail(f"UNION_MIX_RB_REC_SOURCE={_rsrc!r} is read only with UNION_MIX_MIN_RB_REC 1.5 or 2.0")
     if os.environ.get("UNION_MIX_QB2_SCOPE", "") not in ("", "off"):
         fail("UNION_MIX_QB2_SCOPE is not built (no QB + 2 scope passed study 97): unset it")
     _fill = os.environ.get("UNION_MIX_FILL", "")
