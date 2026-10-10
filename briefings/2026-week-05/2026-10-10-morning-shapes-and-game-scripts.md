@@ -261,7 +261,7 @@ pick on a fresh draw.
 
 **The pick on a fresh draw (study 103): it did NOT hold.** The cheap-block lineups on upside against your book: best lineup +0.3
 (A +0.7, **B −0.0**), big wins −1.0 (A +1.1, B −3.0), ×0.95 — its tiny gain in study 102 was the luck of that draw (study 103's
-READ `4d0b354d`, lab `463d5050`).
+READ `4d0b354d`, lab `463d5050`; reproduced byte for byte by the laptop).
 
 | Study 103 (fresh opponents and simulations, same 36 past slates) | Best lineup vs your book | Set A | Set B | 200+ rate (yours: 14.1% on this draw) | Big wins: pooled (A / B), expected |
 |---|---|---|---|---|---|
