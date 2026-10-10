@@ -1,12 +1,15 @@
-# Preregistration: study 109, a recency fade — 2 points off a player whose last game was about twice his average — and at most one such player per lineup, on his live book, in the harness (DRAFT 2026-10-10, information for Week 6)
+# Preregistration: study 109, a recency fade — 2 points off a player whose last game was about twice his average — and at most one such player per lineup, on his live book, in the harness (DRAFT 2026-10-10; FROZEN 2026-10-10; information for Week 6)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer; the design is the laptop's, agreed by
-the lab reviewer. The lab reviewer reviews, runs the binding census, freezes, runs and reads; the laptop acks and reproduces.
-**Information for Week 6 at the earliest** (there is no production switch for a projection fade; HOT1 has a known production
-path, `row_rule_sets`, but no switch yet); no confirmation study is planned, since a pick would need one before any use.
-- **Banks and seed (the laptop's full-set check: CLEAN against every used or reserved bank, studies 90–108; text scan to
-  follow):** **3506–3517** (set A 3506–3511, set B 3512–3517; sims bases 3556–3567, fields 4206–4217); the reader's bootstrap
-  seed **20261151**.
+**Status: FROZEN 2026-10-10 (06:20 CDT)** by the lab reviewer, after the outside reviewer's DRAFT and code, the smoke and the
+binding census, before any scored bank. The text changed at the freeze in this status block and §5 (the binding census) only.
+The laptop acks. **Information for Week 6** (no production switch for a projection fade); his rule printed per arm.
+- **Banks 3506–3517** (set A 3506–3511, set B 3512–3517; sims bases 3556–3567, fields 4206–4217), the reader's bootstrap seed
+  **20261151**. The laptop's scan was clean: the full set against every used or reserved bank's {b, b + 50, b + 700} (617 used banks across
+  both repositories, the reserved blocks included), no results file; the text scans found only counts ("inactive" fields in
+  09-19 evidence), coverage numbers and drive-log timings (incidental); the seed 20261151 only in this study's own
+  preregistration, reader and test.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run, recorded in `RUN_ENV_s109.txt` committed with the
+  confirmatory census. The run starts from lab `0ddcfdb7` on production/s109-recency-fade-20261010 (results/s109/).
 
 ## 1. Why
 - **The operator, 10-10 early morning, in the laptop's session (verbatim):** "I believe the pros fade players with a big
@@ -113,6 +116,14 @@ FAVHI through 96's `combo_rules`, 89's `own_caps`; QB cap 5, overlap 4, the chea
   - **Fixed after HOT1, before any run:** the census's parity expected te1 / low1 on every arm, so HOT1's recorded rules would
     have stopped it at the first row. It now mirrors the module's rules per arm (a test asserts it) and checks HOT1's recorded
     flag and count. The same defect was found in study 110 first; 106 and 112 were swept and agree.
+- **The binding census at the freeze** (the lab reviewer's; outcome-blind; bank 1406; 36 slate-banks of 2023-24; PYTHONHASHSEED=0;
+  10 tests pass; lab `0ddcfdb7` on production/s109-recency-fade-20261010: `CENSUS_s109_binding.txt` `2afd805d…`,
+  `census_mechanics_bank1406.jsonl` `8743757f…`): 0 row-rule / ownership-cap fallbacks in all 4 arms; ONECATCH 504 of 504 and
+  RB-mate slots 144 of 144 in every arm; **LIVE identical to study 97's RBMATE4_FAVHI, rows and dealing, on 36 of 36
+  slate-banks**; **the fade binds:** FADE2 flags 20.2 skill players per slate-bank (QB / RB / WR / TE 2.4 / 5.1 / 8.9 / 3.9; LIVE's
+  book rows holding one 17.3 of 26, the arm's own 5.9), FADE2_16 34.5 (21.4 / 9.4); **HOT1 binds:** rows with 2+ hot players 8.14
+  per book in LIVE (max 18) → 0.00 (max 0), hot per row 1.11 → 0.74; low-owned per row LIVE 0.641, FADE2 0.714, FADE2_16 0.748,
+  HOT1 0.679.
 - **Code:** nfl2 `production/s109-recency-fade-20261010` @ `96745acd` (off study 102's frozen `969f4d3d`; s65 brought in byte for
   byte from `cf53ef1`, s96 / s97 from `3cf3e8eb` / `af07583e`; HOT1 at `3587f594`, the census fix at `96745acd`):
   - `experiments/s109_recency_fade.py` `996077e6…` (pins s95 `46b80611…`, s65 `7667c963…`, s97 `7df6f324…`)
