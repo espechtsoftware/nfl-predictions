@@ -1439,6 +1439,61 @@ score. Nothing here enters a contest: the money path, its checkout and its files
   - **The integrity gate** pins this module sha in place of 6z's `9b5cb251…`; the production pin stays FRIDAY_HEAD (`7a20dd74`).
   - **Order:** this amendment; the laptop's ack (one reproduction covers 6z and 6z2); the gate pin.
 
+- **Amendments 6z3 and 6z4 (2026-10-10, before Week 5's lock; no Week-5 outcome exists): the top-game cap and the TD-value
+  block on paper.**
+  - **Why.** The operator: "Read 2026-10-10-afternoon-ideas.md on review/additional-suggestions-20261010 and queue these" (the
+    outside model's page, `3cc045cb`), items 2 and 3. Item 1 (O-60) went to Week 6 by his answer ("Week 6, rebuilt
+    (Recommended)"); item 4 (the two-week rule) is a separate amendment, put to him before any Week-5 result.
+  - **6z3, MIXT_QA0_TOPCAP6** (exploratory): his live construction (`FOLLOW_QA0`) with **at most 6 book rows whose QB plays in
+    the slate's top-total game**.
+    - The top-total game is study 110's frozen `top_total_games(pool, 1)`, pasted byte for byte (text sha `086ef835…`; a test
+      compares it): the pool's highest median game_total over the games with a QB in the pool, ties included.
+    - The bound, `top_cap()`: a CapBuilder layer in own_caps' pattern. It subclasses the current builder, so it nests inside
+      the ownership cap and the row rules. Once 6 book rows (build order) hold a QB of that game, every QB of that game is banned
+      in the remaining book solves. Infeasible means the same solve without the ban, recorded. Spares are never touched.
+    - **Why on paper:** the page's real-field screen (the Millionaire won from the 2nd- or 3rd-highest total in Weeks 1, 3 and
+      4), against every harness game-coverage read (studies 16, 24, 43, 47: flat or worse). The real field arbitrates.
+  - **6z4, MIXT_QA0_TDBLOCK8** (exploratory): 6i's pattern with a second PAPER block file.
+    - It is his live construction with the 8-row TD-value block **in place of** any live block (6b's frozen block parameters:
+      8 rows, tilt 0.20, cap 2.0, coverage gate 0.5); reference MIXT_QA0_NOTERM, and the reader also prints it against
+      MIXT_QA0.
+    - The file: the snapshot's `paper-tdblock-*.csv`, written by production's `scripts/td_value_block_file.py` (10-07, row 48;
+      the reviewer's format, timing and harm screen, `reports/2026-10-07-td-block-harm-screen.md`). It is the term-block format
+      own_bonus reads: td_res = the anytime-TD price's residual on salary within position; b_td = clip(z, 0, 2) for RB / WR /
+      TE under $7,000.
+    - Sunday: the writer runs on the T-70 union frame with `--as-of 2026-10-11T10:00:00Z` (05:00 CT, after the 04:30 props
+      pull; inside its 3-hour max age), before the snapshot (`S38_PAPER_TDBLOCK_FILE`).
+    - No file, or a refused one, means the arm is missing (recorded).
+    - **The prior, stated plainly:** the 10-07 Weeks 2–4 in-sample replay (HANDOFF 10-07; screen `f61aa4cc`) read TDBLOCK8's
+      P(≥ 1 big seat) at W2 .0313 / W3 .0178 / W4 .4047 against LIVE's .0413 / .0016 / .4336. It was below LIVE in Weeks 2 and
+      4, so NOT ENTERED by its frozen screen; the matchup + TD combination (MTDBLOCK8) was enterable in-sample, carried by Week 4.
+      The page's "the one upside signal that held" refers to the field screen, not this replay.
+  - The scorer scores both arms. The reader prints them on the 6r line, with contest groups and expected big seats. Information
+    only. The build manifest records the top-total game and its QBs (`paper_topcap`), the TD file's application
+    (`paper_tdblock`), and per arm the book rows on the top game's QBs (`topqb_rows`) and the cap's ruled / plain solves.
+  - **The smoke** (dry run on Week 4's frozen copies; `~/private/paper-corun/smoke-w4-amend6z34/`, script `run.sh` `50e3e6987fb3`,
+    log `861a35697ceb`; lab `fad0cbe2`; production = `s38-prod-pin` `7a20dd74`; PYTHONHASHSEED=0; the laptop's Week-4 FAVHI
+    receipt `80cf84f1…`, `paper-hot-w04.csv` `58aa89a4…`, and the 10-07 replay's TD file `tdup-w4.csv` `4fc6f632…`):
+    - 60 tests pass (rc 0); union-argument mismatches none in both builds.
+    - **All 37 arms of 6z2's smoke build identical** (rows + ranks); TOPCAP6 and TDBLOCK8 built (39 arms). A 15-second
+      overlap with two laptop union builds (13:30:58–13:31:13) is disclosed; the identities held.
+    - The top-total game on Week 4: JAX–CIN (2 QBs in the pool). **TOPCAP6: 6 book rows on its QBs** (MIXT_QA0: 10); the cap
+      ruled 40 later book solves, 0 fell back; 14 rows shared with MIXT_QA0; FP 140.58 vs 140.57 per dealt lineup; no fallback
+      row.
+    - **TDBLOCK8:** the file applied (108 players with a term, none capped, coverage 1.0); 8 term rows; 18 rows shared with
+      MIXT_QA0, 16 with NOTERM; FP 140.76 vs 140.57; no fallback row.
+    - **Without the TD file:** TDBLOCK8 missing ("no paper TD-value block file"); every other arm identical to the build with it
+      (38 arms).
+  - **Code:** lab `fad0cbe2` (on 6z2's `0b3aa516`; pushed to production/s38-paper-corun-20261006):
+    - `experiments/s38_paper_corun.py` sha256 `5efb6de63be81353e0daad9ba53f8c1c45ef567711bb187ffb78c480e5bc6c2e`;
+    - `scripts/s38_build.py` `45d3b7cb8653d31b0a22337a06966fc119016b95abc58e0532dafefb60466ac3` (the paper-tdblock glob);
+    - `scripts/s38_score.py` `dc87670616276a48eb1d9e97296846f4fa62e1cc601b57d338edcb490af50f6f`;
+    - `scripts/s38_report.py` `c54f9a2337cedc870b52e112f932ac2087b53cb30a67f5e528c41db6b2e9ea2c`;
+    - `tests/test_s38_paper_corun.py` `cf3c26803edfa1a2130b79b39131e396d1f15f49b24c861f17f39577993e77df` (60 tests).
+  - **The integrity gate** pins this module sha in place of 6z2's `1420932a…`. The production pin moves with FRIDAY_HEAD when the
+    snapshot's `S38_PAPER_TDBLOCK_FILE` merges, after a byte check of the files the gate reads from the production checkout.
+  - **Order:** this amendment; the laptop's ack (a reproduction of the smoke); the gate pin.
+
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
 - **Study 37** (Addendum 142): the regulars' structure (about 11 QB stacks and a steep player curve, their own tier
