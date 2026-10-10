@@ -382,11 +382,11 @@ def test_his_package_rides_into_the_units_and_the_week5_arm_pairs_the_two_caps()
     assert 'cp "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt" "$UNION_DIR/own_cap_not_applied.txt"' in host
     arm = (root / "arm_week5_saturday.sh").read_text()
     import re
-    pair = re.search(r'\nMAIN_CAP="(0\.35|0\.5)" .*?\nOWN_CAP_DELTA=(0|15) ', arm, re.S)
-    assert pair and pair.groups() in (("0.5", "0"), ("0.35", "15")), "the arm carries his package whole, or today's book"
+    pair = re.search(r'\nMAIN_CAP="(0\.35|0\.5)" .*?\nOWN_CAP_DELTA=(0|10|15) ', arm, re.S)
+    assert pair and pair.groups() in (("0.5", "0"), ("0.35", "15"), ("0.35", "10")), "the arm carries his package whole, or today's book"
     assert "UNION_MAIN_OWN_CAP_DELTA=$OWN_CAP_DELTA" in arm
-    assert ('[[ ( "$MAIN_CAP" == 0.5 && "$OWN_CAP_DELTA" == 0 ) || ( "$MAIN_CAP" == 0.35 && "$OWN_CAP_DELTA" == 15 && "$SHAPE" == mixt ) ]]'
-            in arm)
+    assert ('[[ ( "$MAIN_CAP" == 0.5 && "$OWN_CAP_DELTA" == 0 ) || ( "$MAIN_CAP" == 0.35 && ( "$OWN_CAP_DELTA" == 15 || "$OWN_CAP_DELTA" == 10 ) '
+            '&& "$SHAPE" == mixt ) ]]' in arm)
 
 
 def test_his_test2_row_rules_ride_into_the_units_only_with_the_package():
@@ -405,7 +405,7 @@ def test_his_test2_row_rules_ride_into_the_units_only_with_the_package():
     arm = (root / "arm_week5_saturday.sh").read_text()
     assert '\nROW_RULES="" ' in arm or '\nROW_RULES="te1_low1" ' in arm
     assert "UNION_MIX_ROW_RULES=$ROW_RULES" in arm
-    assert '[[ -z "$ROW_RULES" || ( "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 ) ]]' in arm
+    assert '[[ -z "$ROW_RULES" || ( "$ROW_RULES" == te1_low1 && ( "$OWN_CAP_DELTA" == 15 || "$OWN_CAP_DELTA" == 10 ) ) ]]' in arm
 
 
 def test_his_onecatch_rides_into_the_units_only_on_top_of_the_row_rules():
@@ -428,7 +428,7 @@ def test_his_onecatch_rides_into_the_units_only_on_top_of_the_row_rules():
     arm = (root / "arm_week5_saturday.sh").read_text()
     assert "\nONE_CATCHER_ALL=0 " in arm or "\nONE_CATCHER_ALL=1 " in arm
     assert "UNION_MIX_ONE_CATCHER_ALL=$ONE_CATCHER_ALL" in arm
-    assert ('[[ "$ONE_CATCHER_ALL" == 0 || ( "$ONE_CATCHER_ALL" == 1 && "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 '
+    assert ('[[ "$ONE_CATCHER_ALL" == 0 || ( "$ONE_CATCHER_ALL" == 1 && "$ROW_RULES" == te1_low1 && ( "$OWN_CAP_DELTA" == 15 || "$OWN_CAP_DELTA" == 10 ) '
             '&& "$SHAPE" == mixt && "$MIX_FILL" == rr \\\n      && "$MIX_COVER" == 0 && "$MIX_RS" == 0 && -z "$BRING_BACK_TOP_WR" '
             '&& "$WINNER_SELECT" == 0 ) ]]') in arm
 

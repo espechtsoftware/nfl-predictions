@@ -244,18 +244,19 @@ def main():
     # the ownership cap at +15 points, on the mix -- and the flat 35% never runs alone
     _ocd = os.environ.get("UNION_MAIN_OWN_CAP_DELTA", "")
     _mcap = os.environ.get("UNION_MAIN_CAP", "")
-    if _ocd not in ("", "0") and (_ocd != "15" or os.environ.get("UNION_MAIN") != "mix" or _mcap != "0.35"):
-        fail(f"UNION_MAIN_OWN_CAP_DELTA={_ocd!r} is his package only: 15 with UNION_MAIN=mix and UNION_MAIN_CAP=0.35 "
+    _pkg_deltas = ("10", "15")                          # 15 = his package; 10 = study 90's / 100's +10 (only on his decision)
+    if _ocd not in ("", "0") and (_ocd not in _pkg_deltas or os.environ.get("UNION_MAIN") != "mix" or _mcap != "0.35"):
+        fail(f"UNION_MAIN_OWN_CAP_DELTA={_ocd!r} is his package only: 15 (or 10) with UNION_MAIN=mix and UNION_MAIN_CAP=0.35 "
              f"(got UNION_MAIN={os.environ.get('UNION_MAIN')!r}, UNION_MAIN_CAP={_mcap!r})")
     if _mcap == "0.35" and _ocd in ("", "0"):
         fail("UNION_MAIN_CAP=0.35 without the ownership cap: the flat 35% never runs alone (his rule; Addendum 186)")
     # his 10-09 test 2 (study 91): the row rules ride only on his package (they read its ownership file)
     _rr = os.environ.get("UNION_MIX_ROW_RULES", "")
-    if _rr not in ("", "0") and (_rr != "te1_low1" or os.environ.get("UNION_MAIN") != "mix" or _ocd != "15"):
+    if _rr not in ("", "0") and (_rr != "te1_low1" or os.environ.get("UNION_MAIN") != "mix" or _ocd not in _pkg_deltas):
         fail(f"UNION_MIX_ROW_RULES={_rr!r} must be te1_low1, with UNION_MAIN=mix and his package (UNION_MAIN_OWN_CAP_DELTA=15)")
     # his 10-09 decision (study 93's ONECATCH): one WR / TE per team on the QB + 1 rows, only on top of the row rules
     _oc = os.environ.get("UNION_MIX_ONE_CATCHER_ALL", "")
-    if _oc not in ("", "0") and (_oc != "1" or _rr != "te1_low1" or os.environ.get("UNION_MAIN") != "mix" or _ocd != "15"):
+    if _oc not in ("", "0") and (_oc != "1" or _rr != "te1_low1" or os.environ.get("UNION_MAIN") != "mix" or _ocd not in _pkg_deltas):
         fail(f"UNION_MIX_ONE_CATCHER_ALL={_oc!r} must be 1, with UNION_MIX_ROW_RULES=te1_low1, UNION_MAIN=mix and his package "
              "(UNION_MAIN_OWN_CAP_DELTA=15)")
     # the union refuses the whole run (SystemExit) on these, so they must fail here, on Saturday, not in Sunday's union

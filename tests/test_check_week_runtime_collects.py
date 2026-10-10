@@ -321,8 +321,10 @@ def test_his_package_is_armed_only_whole_and_the_flat_35_never_alone(tmp_path):
     assert any(f.startswith(alone) for f in _failures(_run(env)))
     env = fresh("b"); env.update(UNION_MAIN_CAP="0.5", UNION_MAIN_OWN_CAP_DELTA="15", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
     assert any(f.startswith(pkg + "'15' is his package only") for f in _failures(_run(env)))
-    env = fresh("c"); env.update(UNION_MAIN_CAP="0.35", UNION_MAIN_OWN_CAP_DELTA="10", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
-    assert any(f.startswith(pkg + "'10' is his package only") for f in _failures(_run(env)))
+    env = fresh("c"); env.update(UNION_MAIN_CAP="0.35", UNION_MAIN_OWN_CAP_DELTA="12", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
+    assert any(f.startswith(pkg + "'12' is his package only") for f in _failures(_run(env)))
+    env = fresh("c10"); env.update(UNION_MAIN_CAP="0.35", UNION_MAIN_OWN_CAP_DELTA="10", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
+    assert not any(f.startswith(pkg) for f in _failures(_run(env)))        # +10: study 90 / 100's variant, only on his decision
     env = fresh("d"); env.update(UNION_MAIN_CAP="0.35", UNION_MAIN_OWN_CAP_DELTA="15", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
     found = _failures(_run(env))
     assert not any(f.startswith(alone) or f.startswith(pkg) for f in found), found
