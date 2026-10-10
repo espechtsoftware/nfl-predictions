@@ -38,8 +38,12 @@ sets, the cheap block's term and the FAVHI pairs (112's `usage_pool` = 106's `ar
   same season**, strictly before the slate's week (nflverse weekly `receptions`; study 112's PASS path and window). A player
   with no prior game this season (Week 1 always) is **kept** and counted. Other positions and DSTs are never removed.
 - **How production would read it:** there is no `receptions_l4` in the usage table; production would take `receptions` from
-  `nfl_features.player_week_actuals` over the same window. **The two sources agree exactly:** 3,009 of 3,009 running-back weeks
-  of 2023–24 (checked 10-10).
+  `nfl_features.player_week_actuals` over the same window. **The two sources agree exactly** where both have a stat line:
+  3,009 of 3,009 running-back weeks of 2023–24 (the outside reviewer, 10-10), and every RB-week of 2025 (1,575) and 2026
+  Weeks 1–5 (370) (the laptop, 10-10).
+  - **The equivalence condition:** `player_week_actuals` also carries salary-listed inactive rows with receptions 0
+    (`has_stat_line` false). A production mean must **skip those rows** (as feature 015 does for DK points), or a missed game
+    counts as zero catches. nflverse weekly has no such rows, so the harness's window counts games with a stat line only.
 - **LIVE** — his armed book.
 - **REC** — RBs with receptions per game **below X_REC** leave.
 - **REC_LOW** — RBs with receptions per game **below X_REC_LOW** leave.
@@ -66,8 +70,8 @@ sets, the cheap block's term and the FAVHI pairs (112's `usage_pool` = 106's `ar
 - **Multiplicity:** two doses on the same 36 slates as studies 89–115.
 - **What a pass would mean (pre-stated):** "consistent with the idea on the same slates" (§1). It is put to him as in-sample
   harness evidence, with the study 38 paper arm as the recommended route. Production has no receptions floor: a default-off
-  switch (the `excl` pool filter on a pre-lock receptions file), its tests, the Week-4 check and study 38's classification
-  would be needed. Arming is his decision.
+  switch (the `excl` pool filter on a pre-lock receptions file, its mean over stat-line games only, §2), its tests, the Week-4
+  check and study 38's classification would be needed. Arming is his decision.
 
 ## 5. Honest limits and the census
 - **The harness builds on its own simulated means;** his book uses Fantasy Points' projections. The floor removes the same
