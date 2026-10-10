@@ -14,7 +14,7 @@
 - **Code: study 110's frozen module, census, driver and reader, byte for byte** (nfl2 `production/s110-field-ideas-20261010`;
   the shas as frozen in study 110); new banks. The reader prints all of study 110's lines; **ONLY the pick's line vs LIVE
   decides.**
-- **Banks (the laptop's full-set check: CLEAN; text scan to follow):** **3592–3603** (set A 3592–3597, set B 3598–3603; sims
+- **Banks (the laptop's full-set check: CLEAN; the text scan of both repositories: CLEAN, 10-10):** **3592–3603** (set A 3592–3597, set B 3598–3603; sims
   bases 3642–3653, fields 4292–4303).
 - **The reader's seed** is study 110's (20261153): the same bootstrap resamples, so the intervals are correlated with 110's. The
   pass rule below uses point estimates only. (The laptop reserved seed 20261154 for this study; the frozen reader's own seed is

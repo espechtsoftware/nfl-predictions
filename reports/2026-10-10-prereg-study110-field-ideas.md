@@ -5,8 +5,8 @@ the outside reviewer's briefing (`briefings/2026-week-05/2026-10-10-selection-id
 queued for today**: "Read briefings/2026-week-05/2026-10-10-selection-ideas-from-real-fields.md and queue the experiments" (study
 list row 93). The lab reviewer reviews, runs the binding census, freezes, runs and reads; the laptop acks and reproduces. **A pick
 goes to study 111** (the fresh-draw check), whose preregistration is committed before this study's READ.
-- **Banks and seed (the laptop's full-set check: CLEAN against every used or reserved bank, studies 90–109; text scan to
-  follow):** **3580–3591** (set A 3580–3585, set B 3586–3591; sims bases 3630–3641, fields 4280–4291); the reader's bootstrap
+- **Banks and seed (the laptop's full-set check: CLEAN against every used or reserved bank, studies 90–109; the text scan of
+  both repositories for the banks, sims bases, fields and seeds: CLEAN, 10-10):** **3580–3591** (set A 3580–3585, set B 3586–3591; sims bases 3630–3641, fields 4280–4291); the reader's bootstrap
   seed **20261153**.
 
 ## 1. Why
