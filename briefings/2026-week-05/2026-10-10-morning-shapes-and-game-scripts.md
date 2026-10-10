@@ -222,6 +222,12 @@ big-win pass did not repeat either** (−0.4: A +0.3, B −1.0). **Suggested: ke
 Nothing to arm from studies 100 / 101. Overlap 3 is planned for the Week-5 paper co-run (the lab reviewer's study 38 amendment,
 its smoke after study 102's run), so Sunday's real results will score it anyway, at no cost to your book.
 
+**About the cheap +2 block (your Week-5 trial; information, not a test):** studies 100 and 101 also built your book without the
+block. Without it the test model gave ×1.05 (study 100) and ×1.14 (study 101) expected big wins, with big wins −1.0 / +3.5 and
+then +3.8 / +1.9 across the four opponent sets; study 53 had read the block at about 6% fewer expected big wins. That is a
+5–13% cost, inside the trial's stop line (0.80× the unblocked book's expected big wins). The trial is judged on the real Week-5
+results, where your book without the block is scored on paper beside it (Monday's review).
+
 ## 3c. Building for the ceiling: three new constructions (study 102) and the check of its pick (study 103)
 
 Your note: "It sounds like you're giving up on the high scores. That's not what I want." Three new ways of building your book,
