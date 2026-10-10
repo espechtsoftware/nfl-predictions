@@ -12077,3 +12077,224 @@ secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier fi
   small edge was the luck of the first draw. Building every lineup on upside shows the same trade on every opponent set tested:
   the best lineup reaches 200 on about 2–3 more slates in 100, but about 3 fewer slates in 100 have a big win, and big wins are
   what he plays for. The live settings stand; nothing from tonight's ceiling studies (100–103) changes the Week-5 book.
+
+## Addendum 202 (2026-10-10): study 105 (the upside build's dose-response -- 13, 18 and all 26 book rows on each player's simulated 85th percentile against his live book, in the harness; information only, for Week 6): every dose of the upside build costs big wins on both draws (13 rows ×0.94, 18 ×0.86, all 26 ×0.90; guard 1 fails at each), while the 200+ gain is not monotone (+3.2 [+0.5, +6.7] at 13 rows, −0.9 at 18, +0.7 at 26): no amount buys 200+ lineups without the big-win cost; information for Week 6
+
+**Setup.**
+- **Why:** studies 102 and 103 (Addenda 200 / 201) read building every lineup on the 85th percentile (CEIL_ALL) on four opponent
+  sets: P(best ≥ 200) higher on all four, P(≥ 1 big seat) lower on all four (expected big seats ×0.86 / ×0.88; guard 1 failing
+  both times); the 8 cheap-block rows alone (CEIL_BLOCK8) did not hold. His goal includes "scores over 200 fairly regularly"
+  (HANDOFF `f68ebf50`); his decision rule counts big wins. This study draws the trade as a curve: how much 200+ rate each step
+  of "more lineups on upside" buys, and what it costs in big wins. The laptop's proposal, agreed by the lab reviewer as
+  **information only** (no pick rule, no confirmation: production has no switch for an upside objective).
+- **The arms** (study 102's harness exactly; every arm his live Week-5 construction; the arms nest): **LIVE**; **CEIL_ROWS13**
+  (102's CEIL_BLOCK8 -- the 8 cheap-block rows on p85 + the cheap term -- plus the first 5 live-block rows in build order on
+  p85: book solves j = 0–4, the live block being solved first); **CEIL_ROWS18** (the same with the first 10, j = 0–9);
+  **CEIL_ALL** (102's exactly). The first-rows switch sits beneath every rule tier (entered before 93's lead_rules) and restores
+  the objective after each solve. The 8-row point is studies 102 / 103's CEIL_BLOCK8 (quoted, not re-run).
+- **The read:** each arm − LIVE, two draws and pooled: P(best ≥ 200), the mean best real lineup points, P(≥ 1 big seat), the
+  expected big seats ratio, guard 1, and the trade ratio ΔP(best ≥ 200) / −ΔP(≥ 1 big seat) (pooled; "no big-win cost" when the
+  big-win change is not negative). No pick, no verdict for arming; his rule's lines printed as information.
+- **Preregistration:** `reports/2026-10-10-prereg-study105-upside-dose.md` (DRAFT by the outside reviewer `a2a8da5c`, committed
+  before any code ran; FROZEN `4b112a10`, 10-10 04:34 CDT, before any scored bank). The smoke caught one test defect (a
+  text assertion that matched the reader's `_PICK` variable), fixed before the freeze (`2d03ee58`, test only).
+- **Code:** nfl2 `2d03ee58` (off study 102's frozen `969f4d3d`): module `21412869…` (pins s102 `ca7f4399…`); drive `4d7320a2…`;
+  census `ffe023c2…`; reader `a3633451…`; tests `c341d94d…` (9).
+- **Panel:** banks 3420–3431 (A 3420–3425, B 3426–3431; sims 3470–3481, fields 4120–4131), B 20,000, seed 20261148,
+  PYTHONHASHSEED=0; the laptop's scan was clean.
+- **Census** (binding, bank 1406; lab `7e3877cf`; the laptop's re-run identical, with `--ref102`): 0 fallbacks in all 4 arms;
+  ONECATCH 504 of 504 everywhere; the dose binds 0 / 5 / 10 / 0 distinct solves on p85 (min = max); LIVE and CEIL_ALL identical
+  to study 102's, rows and dealing, on 36 of 36; flex WR / RB 15.2 / 10.8 → 18.5 / 7.5 → 19.3 / 6.7 → 22.9 / 3.1; rows shared
+  with LIVE 1.06 / 0.94 / 0.69 of 26; projection per row vs LIVE +0.00 / −0.05 / −0.24.
+- **Read:** the reader `a3633451`; READ `efbea1ce` (lab `6ab0b595`). The confirmatory census (`da679086`, raw shas `94ce9f66`,
+  RUN_ENV `06bd6dd9`; lab `80b13823`) was committed before the READ: 0 row-rule / ownership-cap fallbacks in all 4 arms;
+  ONECATCH 6,048 of 6,048 in every arm; the dose 0 / 5 / 10 / 0 distinct solves on p85 on every slate-bank.
+- **Reproduced byte-identically by the laptop** at `6ab0b595` (PYTHONHASHSEED=0): the raw files 3420–3431 pass `sha256sum -c`
+  against `RAW_s105_run.sha256`; the READ is `efbea1ce` and the confirmatory census `da679086` (cmp-identical).
+- **Disclosed after the freeze:** he adopted FAVHI at about 05:00 (during this run); this study's book is his pre-FAVHI armed
+  book (FAVHI changes 4 C rows per book), so the post-selection law limits the transfer; studies 106 and 109 carry FAVHI.
+
+**Reader output (verbatim):**
+```
+STUDY 105 READER  sha256 a3633451046a90565d036999fbea91ff1bc20e6f8389f502d117b634468f1ce0
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [3420, 3421, 3422, 3423, 3424, 3425, 3426, 3427, 3428, 3429, 3430, 3431]  sets {'pooled': [3420, 3421, 3422, 3423, 3424, 3425, 3426, 3427, 3428, 3429, 3430, 3431], 'A': [3420, 3421, 3422, 3423, 3424, 3425], 'B': [3426, 3427, 3428, 3429, 3430, 3431]}  B 20000  seed 20261148  comparisons (('CEIL_ROWS13', 'LIVE'), ('CEIL_ROWS18', 'LIVE'), ('CEIL_ALL', 'LIVE')) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 93 / 92 / 91 / 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["LIVE", "CEIL_ROWS13", "CEIL_ROWS18", "CEIL_ALL"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"CEIL_ALL": 0.35, "CEIL_ROWS13": 0.35, "CEIL_ROWS18": 0.35, "LIVE": 0.35}, "delta": 0.15, "low_pct": 3.0, "one_catcher": "every arm: study 93's ONECATCH (lead_rules onepc)", "own_arms": ["LIVE", "CEIL_ROWS13", "CEIL_ROWS18", "CEIL_ALL"], "quotas": {"CEIL_ALL": [0.3, 0.14, 0.28, 0.28], "CEIL_ROWS13": [0.3, 0.14, 0.28, 0.28], "CEIL_ROWS18": [0.3, 0.14, 0.28, 0.28], "LIVE": [0.3, 0.14, 0.28, 0.28]}, "row_rules": {"CEIL_ALL": ["te1", "low1"], "CEIL_ROWS13": ["te1", "low1"], "CEIL_ROWS18": ["te1", "low1"], "LIVE": ["te1", "low1"]}, "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "settings": {"CEIL_ALL": {"cheap_term": true, "first_live_p85": 0, "p85_rows": "all", "rows_on_p85": 26}, "CEIL_ROWS13": {"cheap_term": true, "first_live_p85": 5, "p85_rows": "block", "rows_on_p85": 13}, "CEIL_ROWS18": {"cheap_term": true, "first_live_p85": 10, "p85_rows": "block", "rows_on_p85": 18}, "LIVE": {"cheap_term": true, "first_live_p85": 0, "p85_rows": "none", "rows_on_p85": 0}}, "skill_sum": 800.0, "source": "blend_pct"}, {"CEIL_ALL": [9, 6], "CEIL_ROWS13": [9, 6], "CEIL_ROWS18": [9, 6], "LIVE": [9, 6]}, "5f4e1fb9977d349183adc3457782b131673a8bcf06bf3e850af2c149c52bfd4d", "37980da6506df0a799e97b5dae29e670228398cb405be01a3c93cc47f2c7e252", "9cde18bd221e52069b449044a37720996ffb0efafac88202d44f02a7dc898aa8", "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== CEIL_ROWS13 vs LIVE  [information; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.01664  [-0.06007, +0.02168] (two-sided 0.95)  seasons 2023 -0.07387, 2024 +0.04058
+  GUARD 1 mean entry pct -0.00880  one-sided lower -0.01659  (must exceed -0.015)
+  GUARD 2 expected big seats 0.49906 vs 0.53245  ratio 0.937  (must be >= 0.80)
+  CEIL_ROWS13 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3420, 3421, 3422, 3423, 3424, 3425]: -0.02648  [-0.08668, +0.03263]  seasons 2023 -0.07515, 2024 +0.02218
+  set B [3426, 3427, 3428, 3429, 3430, 3431]: -0.00681  [-0.05932, +0.04589]  seasons 2023 -0.07259, 2024 +0.05898
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.02648 < 0; set B -0.00681 < 0  (set A -0.02648, set B -0.00681, the difference -0.01968; seats ratio 0.937)
+  EXPLORATORY the l02 field (pooled): -0.01912  [-0.06344, +0.01966]
+  CEILING (the pick statistic) mean best real lineup points per slate +0.220  [-1.248, +1.759]  seasons 2023 -1.762, 2024 +2.203; set A -0.467; set B +0.907
+  P(best >= 200) +0.03241  [+0.00463, +0.06713]; set A +0.02778; set B +0.03704
+
+== CEIL_ROWS18 vs LIVE  [information; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.04480  [-0.09820, +0.00738] (two-sided 0.95)  seasons 2023 -0.08092, 2024 -0.00868
+  GUARD 1 mean entry pct -0.01210  one-sided lower -0.02211  (must exceed -0.015)
+  GUARD 2 expected big seats 0.45657 vs 0.53245  ratio 0.857  (must be >= 0.80)
+  CEIL_ROWS18 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3420, 3421, 3422, 3423, 3424, 3425]: -0.05573  [-0.12367, +0.01200]  seasons 2023 -0.09607, 2024 -0.01540
+  set B [3426, 3427, 3428, 3429, 3430, 3431]: -0.03387  [-0.09685, +0.02570]  seasons 2023 -0.06576, 2024 -0.00197
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.05573 < 0; set B -0.03387 < 0  (set A -0.05573, set B -0.03387, the difference -0.02187; seats ratio 0.857)
+  EXPLORATORY the l02 field (pooled): -0.04549  [-0.10061, +0.00942]
+  CEILING (the pick statistic) mean best real lineup points per slate -0.974  [-2.839, +0.883]  seasons 2023 -2.254, 2024 +0.305; set A -1.688; set B -0.261
+  P(best >= 200) -0.00926  [-0.04398, +0.02083]; set A +0.00000; set B -0.01852
+
+== CEIL_ALL vs LIVE  [information; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.03433  [-0.08951, +0.02062] (two-sided 0.95)  seasons 2023 -0.07331, 2024 +0.00465
+  GUARD 1 mean entry pct -0.01813  one-sided lower -0.02940  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48055 vs 0.53245  ratio 0.903  (must be >= 0.80)
+  CEIL_ALL dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3420, 3421, 3422, 3423, 3424, 3425]: -0.06103  [-0.13200, +0.00923]  seasons 2023 -0.11990, 2024 -0.00216
+  set B [3426, 3427, 3428, 3429, 3430, 3431]: -0.00762  [-0.06264, +0.04686]  seasons 2023 -0.02671, 2024 +0.01146
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.06103 < 0; set B -0.00762 < 0  (set A -0.06103, set B -0.00762, the difference -0.05341; seats ratio 0.903)
+  EXPLORATORY the l02 field (pooled): -0.03759  [-0.09360, +0.01821]
+  CEILING (the pick statistic) mean best real lineup points per slate -1.139  [-3.031, +0.959]  seasons 2023 -1.997, 2024 -0.281; set A -1.937; set B -0.340
+  P(best >= 200) +0.00694  [-0.02546, +0.04167]; set A -0.00926; set B +0.02315
+
+
+== HIS RULE on P(>= 1 big seat) per arm (better on both draws AND seats >= 0.80; information):
+  CEIL_ROWS13 PAPER ONLY: draw A -0.02648 is not > 0; draw B -0.00681 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.01659 (FAILS -0.015)  |  under no true effect about one time in four to one in three
+  CEIL_ROWS18 PAPER ONLY: draw A -0.05573 is not > 0; draw B -0.03387 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.02211 (FAILS -0.015)  |  under no true effect about one time in four to one in three
+  CEIL_ALL  PAPER ONLY: draw A -0.06103 is not > 0; draw B -0.00762 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.02940 (FAILS -0.015)  |  under no true effect about one time in four to one in three
+
+== THE DOSE CURVE (information only; each arm - LIVE; pooled, set A / set B; no pick, nothing to arm):
+  rows on p85 of 26 | P(best >= 200) points | mean best points | P(>= 1 big seat) points | seats ratio | guard 1 lower | trade ratio dP200 / -dP1big
+   8 (studies 102 / 103's CEIL_BLOCK8, quoted, not re-run): READ_s102 3a992f7f, READ_s103 4d0b354d
+  13 CEIL_ROWS13  +3.24 (+2.78 / +3.70) | +0.220 (-0.467 / +0.907) | -1.66 (-2.65 / -0.68) | 0.937 | -0.01659 (FAILS -0.015) | +1.95
+  18 CEIL_ROWS18  -0.93 (+0.00 / -1.85) | -0.974 (-1.688 / -0.261) | -4.48 (-5.57 / -3.39) | 0.857 | -0.02211 (FAILS -0.015) | -0.21
+  26 CEIL_ALL     +0.69 (-0.93 / +2.31) | -1.139 (-1.937 / -0.340) | -3.43 (-6.10 / -0.76) | 0.903 | -0.02940 (FAILS -0.015) | +0.20
+
+  LIVE row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; book solves on p85 by the first-rows switch 0 (distinct j; the block / all by the objective); over 432 slate-banks
+  CEIL_ROWS13 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; book solves on p85 by the first-rows switch 2160 (distinct j; the block / all by the objective); over 432 slate-banks
+  CEIL_ROWS18 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; book solves on p85 by the first-rows switch 4320 (distinct j; the block / all by the objective); over 432 slate-banks
+  CEIL_ALL row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; book solves on p85 by the first-rows switch 0 (distinct j; the block / all by the objective); over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  LIVE         v2: P(>=1 big) 0.36759  expected big seats 0.53245  P(>=2) 0.11965  entry pct 0.50363  |  l02: P(>=1 big) 0.39944  |  the best real lineup: mean 177.07  P(best >= 200) 0.1204
+               book: projection per row 124.68  salary 49971  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.21  predicted ownership per row 94.5%  distinct QBs 8.3  non-DST players 50.9  rows with 2+ TEs 0.0  low-owned per row 0.654  same-team receiver pair rows 1.2  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  CEIL_ROWS13  v2: P(>=1 big) 0.35094  expected big seats 0.49906  P(>=2) 0.10867  entry pct 0.49482  |  l02: P(>=1 big) 0.38032  |  the best real lineup: mean 177.29  P(best >= 200) 0.1528
+               book: projection per row 124.67  salary 49969  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.20  predicted ownership per row 94.6%  distinct QBs 8.3  non-DST players 50.1  rows with 2+ TEs 0.0  low-owned per row 0.618  same-team receiver pair rows 1.5  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  CEIL_ROWS18  v2: P(>=1 big) 0.32279  expected big seats 0.45657  P(>=2) 0.10085  entry pct 0.49153  |  l02: P(>=1 big) 0.35395  |  the best real lineup: mean 176.10  P(best >= 200) 0.1111
+               book: projection per row 124.60  salary 49970  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.19  predicted ownership per row 94.6%  distinct QBs 8.2  non-DST players 50.1  rows with 2+ TEs 0.0  low-owned per row 0.617  same-team receiver pair rows 1.7  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  CEIL_ALL     v2: P(>=1 big) 0.33326  expected big seats 0.48055  P(>=2) 0.10972  entry pct 0.48549  |  l02: P(>=1 big) 0.36185  |  the best real lineup: mean 175.93  P(best >= 200) 0.1273
+               book: projection per row 124.42  salary 49971  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.20  predicted ownership per row 94.4%  distinct QBs 8.4  non-DST players 49.9  rows with 2+ TEs 0.0  low-owned per row 0.608  same-team receiver pair rows 1.6  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+```
+
+**Reading.**
+- **The dose curve** (each arm − LIVE; LIVE's 200+ rate 12.0% on this draw; P(≥ 1 big seat) in points):
+
+| Rows on p85 | P(best ≥ 200) | Mean best lineup | P(≥ 1 big seat) | Expected big seats | Guard 1 | Trade ratio |
+|---|---|---|---|---|---|---|
+| 8 (studies 102 / 103's CEIL_BLOCK8) | +0.9 / +0.5 | +0.20 / +0.35 | −0.4 / −1.0 | ×0.97 / ×0.95 | passes | -- |
+| 13 | **+3.2 [+0.5, +6.7]** (A +2.8, B +3.7) | +0.22 | −1.7 (A −2.6, B −0.7) | ×0.94 | fails (−0.0166) | +1.95 |
+| 18 | −0.9 (A 0.0, B −1.9) | −0.97 | −4.5 (A −5.6, B −3.4) | ×0.86 | fails (−0.0221) | −0.21 |
+| 26 | +0.7 (A −0.9, B +2.3) | −1.14 | −3.4 (A −6.1, B −0.8) | ×0.90 | fails (−0.0294) | +0.20 |
+
+- **Big wins fall at every dose of 13 rows or more, on both draws,** and guard 1 fails at each (the mean entry percentile slips).
+- **The 200+ rate is not monotone in the dose:** +3.2 at 13 rows (the one interval clear of zero), −0.9 at 18, +0.7 at all 26;
+  the same CEIL_ALL read +3.2 and +2.3 in studies 102 / 103, and LIVE's own rate moved 12.3 → 14.1 → 12.0% across the three
+  draws. One interval clear of zero among three arms on an endpoint this noisy is not a finding by itself.
+- **On his pre-FAVHI book** (disclosed above); information for Week 6, nothing to arm.
+- **In plain words:** building more of the book on players' upside costs big wins at every amount tried, on both sets of
+  simulated opponents. What it buys in 200+ lineups is not reliable -- about 3 more slates in 100 at 13 lineups, none at 18, and
+  1 to 3 at all 26 depending on the draw. There is no amount that gets more 200+ lineups without giving up big wins.
+
+## Addendum 203 (2026-10-10): study 106 (his question "no player with a projected score less than 8" -- a projection floor of 8 on his armed Week-5 book with the adopted FAVHI, in the harness): the floor is worse -- P(≥ 1 big seat) −2.7 [−7.7, +2.0], worse on both draws, expected big seats ×0.88, guard 1 fails, the book's best lineup −1.5: keep the live book; studies 107 and 108 not run
+
+**Setup.**
+- **His words** (10-10 early morning, the laptop's session): "Have you tried any kind of rules like "no player with a projected
+  score less than 8"", then "Maybe start with that and if it's successful, try different min projections per position" (study
+  list row 89). Neither ledger had a projection floor above 1 point.
+- **The arms** (study 95's harness, his armed Week-5 construction -- the package + te1 / low1 + ONECATCH + the adopted FAVHI RB
+  mate, adopted at about 05:00 during the design): **LIVE** (floor 1, production's --min-proj 1.0) and **MINPROJ8** (skill players,
+  QBs included, DSTs exempt, with the harness's simulated mean below 8 leave the pool before every rule is computed -- the
+  ownership caps on the rescaled-once predictions, the row-rule sets, the cheap block's term and its coverage gate, FAVHI's pairs
+  -- as production's `excl` feeds them).
+- **Pre-freeze changes, disclosed:** FAVHI put into every arm after his adoption (the post-selection law); MINPROJ12 dropped
+  (production refuses it: the floor empties the cheap block); MINPROJ10 dropped (the harness's floor 10 emptied the cheap block on
+  some slates, production's refusal, and its ONECATCH drops exceeded 5%); a short spare tail allowed as production allows it.
+- **The scale, disclosed:** production's --min-proj floors Fantasy Points' projection in Week 5 (apply_proj_source runs before the
+  floor), one existing setting; the harness floors its own simulated mean, which sits below FP's. On his Week-4 book FP-8 touches
+  3 of 26 rows and FP-10 23 of 26; the harness's 8 touches 12.1 of 26 of LIVE's rows -- between the two -- so a pass transfers
+  to an FP floor only approximately.
+- **The read and the pick:** his rule on MINPROJ8 − LIVE (P(≥ 1 big seat) better on both draws AND the pooled seats ratio ≥ 0.80;
+  guard 1 printed, not gating); mean best and P(best ≥ 200) printed. One comparison (under no effect it passes about one time in
+  three or four). A pass goes to study 107 (the same comparison on a fresh draw, its design committed before this READ).
+- **Preregistration:** `reports/2026-10-10-prereg-study106-min-proj.md` (DRAFT by the outside reviewer; FROZEN `04202376`, 10-10
+  05:36 CDT, before any scored bank).
+- **Code:** nfl2 `afdfad8c` (off study 102's frozen `969f4d3d`; s96 / s97 byte for byte): module `45a8d3dd…` (pins s95
+  `46b80611…`, s97 `7df6f324…`); drive `8d5b58e5…`; census `b37bfb73…`; reader `37b6e471…`; tests `2f5ed26a…` (9).
+- **Panel:** banks 3482–3493 (A 3482–3487, B 3488–3493; sims 3532–3543, fields 4182–4193), B 20,000, seed 20261149,
+  PYTHONHASHSEED=0; the laptop's scan was clean.
+- **Census** (binding, bank 1406; lab `39aca9da`; the laptop's re-run identical, with `--ref97`): 0 fallbacks in both arms; ONECATCH 504 of 504;
+  RB-mate slots 144 of 144 in both arms; LIVE identical to study 97's RBMATE4_FAVHI on 36 of 36; the floor binds (pool 250.9 →
+  102.6 skill players; LIVE rows touched 12.1 of 26); the cheap block never empty (4.8 termed players per slate-bank); FAVHI pairs
+  4.4 (min 1).
+- **Read:** the reader `37b6e471`; READ `0a75e37c` (lab `960c320c`). The confirmatory census (`0f48eacc`, raw shas `fbe23b79`,
+  RUN_ENV `47e2935f`; lab `7e20e971`) was committed before the READ: 0 row-rule / ownership-cap fallbacks in both arms; ONECATCH
+  6,048 of 6,048 in both; RB-mate slots 1,728 of 1,728 in both (ruled 1,716 / 1,692); the floor binds (LIVE's book rows holding a
+  dropped player 11.7 of 26); the cheap block never empty (4.9 termed players per slate-bank).
+- **Reproduced byte-identically by the laptop** at `960c320c` (PYTHONHASHSEED=0): the raw files 3482–3493 pass `sha256sum -c`
+  against `RAW_s106_run.sha256`; the READ is `0a75e37c` and the confirmatory census `0f48eacc` (cmp-identical).
+
+**Reader output (verbatim):**
+```
+STUDY 106 READER  sha256 37b6e471e096c26f62683cf584ca8736915c31245d3a1a03ae7de5e65557e475
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [3482, 3483, 3484, 3485, 3486, 3487, 3488, 3489, 3490, 3491, 3492, 3493]  sets {'pooled': [3482, 3483, 3484, 3485, 3486, 3487, 3488, 3489, 3490, 3491, 3492, 3493], 'A': [3482, 3483, 3484, 3485, 3486, 3487], 'B': [3488, 3489, 3490, 3491, 3492, 3493]}  B 20000  seed 20261149  comparisons (('MINPROJ8', 'LIVE'),) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 93 / 92 / 91 / 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["LIVE", "MINPROJ8"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"LIVE": 0.35, "MINPROJ8": 0.35}, "delta": 0.15, "floors": {"LIVE": 1.0, "MINPROJ8": 8.0}, "low_pct": 3.0, "one_catcher": "every arm: study 93's ONECATCH (lead_rules onepc)", "own_arms": ["LIVE", "MINPROJ8"], "quotas": {"LIVE": [0.3, 0.14, 0.28, 0.28], "MINPROJ8": [0.3, 0.14, 0.28, 0.28]}, "row_rules": {"LIVE": ["te1", "low1"], "MINPROJ8": ["te1", "low1"]}, "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "skill_sum": 800.0, "source": "blend_pct"}, {"LIVE": [9, 6], "MINPROJ8": [9, 6]}, "5f4e1fb9977d349183adc3457782b131673a8bcf06bf3e850af2c149c52bfd4d", "37980da6506df0a799e97b5dae29e670228398cb405be01a3c93cc47f2c7e252", "9cde18bd221e52069b449044a37720996ffb0efafac88202d44f02a7dc898aa8", "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== MINPROJ8 vs LIVE  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.02684  [-0.07677, +0.02040] (two-sided 0.95)  seasons 2023 -0.03268, 2024 -0.02099
+  GUARD 1 mean entry pct -0.00404  one-sided lower -0.01639  (must exceed -0.015)
+  GUARD 2 expected big seats 0.50264 vs 0.56969  ratio 0.882  (must be >= 0.80)
+  MINPROJ8 dealt identical to LIVE: 0.002 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3482, 3483, 3484, 3485, 3486, 3487]: -0.02652  [-0.08006, +0.02101]  seasons 2023 -0.03165, 2024 -0.02139
+  set B [3488, 3489, 3490, 3491, 3492, 3493]: -0.02716  [-0.08515, +0.02828]  seasons 2023 -0.03371, 2024 -0.02060
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.02652 < 0; set B -0.02716 < 0  (set A -0.02652, set B -0.02716, the difference +0.00064; seats ratio 0.882)
+  EXPLORATORY the l02 field (pooled): -0.02342  [-0.07274, +0.02337]
+  CEILING (the pick statistic) mean best real lineup points per slate -1.476  [-3.673, +0.643]  seasons 2023 -1.879, 2024 -1.073; set A -2.169; set B -0.783
+  P(best >= 200) -0.01620  [-0.05324, +0.01620]; set A -0.02315; set B -0.00926
+
+
+== HIS RULE on P(>= 1 big seat) per arm (better on both draws AND seats >= 0.80; information):
+  MINPROJ8  PAPER ONLY: draw A -0.02652 is not > 0; draw B -0.02716 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.01639 (FAILS -0.015)  |  under no true effect about one time in four to one in three
+
+== THE PICK (pre-stated): among the arms passing HIS RULE on P(>= 1 big seat) -- better on both draws AND the pooled seats ratio >= 0.80 (guard 1 printed, not gating) -- the largest pooled gain; none -> keep the live book
+  MINPROJ8   P(>=1 big) pooled -0.02684 (A -0.02652, B -0.02716); seats 0.882; guard 1 lower -0.01639  ->  does not pass: P(>= 1 big seat) not better on both draws
+  PICK: none -- keep the live book
+
+  LIVE row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  MINPROJ8 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  LIVE         v2: P(>=1 big) 0.39098  expected big seats 0.56969  P(>=2) 0.12975  entry pct 0.50354  |  l02: P(>=1 big) 0.42076  |  the best real lineup: mean 178.70  P(best >= 200) 0.1366
+               book: projection per row 124.57  salary 49969  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.18  predicted ownership per row 94.4%  distinct QBs 8.3  non-DST players 51.2  rows with 2+ TEs 0.0  low-owned per row 0.655  same-team receiver pair rows 1.3  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+  MINPROJ8     v2: P(>=1 big) 0.36415  expected big seats 0.50264  P(>=2) 0.10936  entry pct 0.49950  |  l02: P(>=1 big) 0.39734  |  the best real lineup: mean 177.22  P(best >= 200) 0.1204
+               book: projection per row 124.56  salary 49971  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.3  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.26  predicted ownership per row 93.5%  distinct QBs 8.6  non-DST players 49.8  rows with 2+ TEs 0.0  low-owned per row 0.592  same-team receiver pair rows 1.4  book rows A1 / A2 / B / C 8.0 / 4.0 / 7.0 / 7.0
+```
+
+**Reading.**
+- **The floor is worse.** MINPROJ8 − LIVE (FAVHI in both): P(≥ 1 big seat) **−2.7 [−7.7, +2.0]**, worse on both draws (A −2.65,
+  B −2.72); expected big seats ×0.88; guard 1 fails (the mean entry percentile's one-sided lower bound −0.0164); the book's mean
+  best real lineup −1.5 [−3.7, +0.6]; P(best ≥ 200) −1.6 (13.7% → 12.0%). His rule does not pass; **PICK: none -- keep the live
+  book.** Study 107 is not run, nor study 108 (his per-position floors were conditional on a success).
+- **The mechanism, descriptively:** the floor removes about half the skill pool (250.8 → 102.5 players; QB / RB / WR / TE 21.5 /
+  33.9 / 51.8 / 41.1 per slate-bank) and with it most of the cheap block's players (87.9 → 4.9 termed); the book keeps its shape
+  (flex WR / RB 15.0 / 11.0 in both) but loses the low-projection, low-owned players (low-owned per row 0.655 → 0.592) that the big
+  wins draw on -- the punt-winner pattern of Addenda 4 / 5 read the other way.
+- **On his real book:** production's floor of 8 (on Fantasy Points' projections) touches only 3 of 26 lineups on his Week-4 book
+  (the laptop's check) -- a lighter dose of the same thing; nothing here suggests arming it.
+- **In plain words:** keeping every player projected under 8 points out of the book made it worse: fewer slates with a big win on
+  both sets of simulated opponents, and a lower best lineup. The cheap and less-owned players the floor removes are part of how
+  the book wins big.
