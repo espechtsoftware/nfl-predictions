@@ -1,13 +1,14 @@
-# Preregistration: study 110, four lineup rules from his real Weeks 1–4 fields and a value cap, on his armed Week-5 book, in the harness (DRAFT 2026-10-10)
+# Preregistration: study 110, four lineup rules from his real Weeks 1–4 fields and a value cap, on his armed Week-5 book, in the harness (DRAFT 2026-10-10; FROZEN 2026-10-10)
 
-**Status: DRAFT 2026-10-10** (the times are this file's commits) by the outside reviewer; the design is the lab reviewer's, on
-the outside reviewer's briefing (`briefings/2026-week-05/2026-10-10-selection-ideas-from-real-fields.md`), which **the operator
-queued for today**: "Read briefings/2026-week-05/2026-10-10-selection-ideas-from-real-fields.md and queue the experiments" (study
-list row 93). The lab reviewer reviews, runs the binding census, freezes, runs and reads; the laptop acks and reproduces. **A pick
-goes to study 111** (the fresh-draw check), whose preregistration is committed before this study's READ.
-- **Banks and seed (the laptop's full-set check: CLEAN against every used or reserved bank, studies 90–109; the text scan of
-  both repositories for the banks, sims bases, fields and seeds: CLEAN, 10-10):** **3580–3591** (set A 3580–3585, set B 3586–3591; sims bases 3630–3641, fields 4280–4291); the reader's bootstrap
-  seed **20261153**.
+**Status: FROZEN 2026-10-10 (07:13 CDT)** by the lab reviewer, after the outside reviewer's DRAFT and code, the smoke and the
+binding census, before any scored bank. The text changed at the freeze in this status block and §5 (the binding census) only.
+The laptop acks. **Information for his decision; a pick goes to study 111** (its preregistration committed before this READ).
+- **Banks 3580–3591** (set A 3580–3585, set B 3586–3591; sims bases 3630–3641, fields 4280–4291), the reader's bootstrap seed
+  **20261153**. The laptop's scan was clean: the full set against every used or reserved bank's {b, b + 50, b + 700} (the reserved blocks
+  included), no results file; the text scans (recorded in this file's earlier commits) found only incidental counts, timings and
+  shas, and this study's and study 111's own preregistrations.
+- **Run environment:** PYTHONHASHSEED=0 for the census and the scored run, recorded in `RUN_ENV_s110.txt` committed with the
+  confirmatory census. The run starts from lab `00ec8dcf` on production/s110-field-ideas-20261010 (results/s110/).
 
 ## 1. Why
 - The briefing tabulated 1.66 million real lineups from his Weeks 1–4 contests. Five patterns held in all four weeks; four become
@@ -126,6 +127,20 @@ Each arm makes one change:
 - **Fixed before any run (found while adding VAL4):** the census's parity expected te1 / low1 on every arm, so LOW0's recorded
   rules would have stopped it at the first row. It now mirrors the module's rules per arm (a test asserts it). The class was
   swept: study 109 had the same defect (fixed); 106 and 112 agree.
+- **The binding census at the freeze** (the lab reviewer's; outcome-blind; bank 1406; 36 slate-banks of 2023-24; PYTHONHASHSEED=0;
+  15 tests pass; lab `00ec8dcf` on production/s110-field-ideas-20261010: `CENSUS_s110_binding.txt` `a491151b…`,
+  `census_mechanics_bank1406.jsonl` `ee05420e…`): **LIVE identical to study 97's RBMATE4_FAVHI, rows and dealing, on 36 of 36
+  slate-banks**; ONECATCH 504 of 504 in every arm; 0 ownership-cap re-solves. **Each arm binds** (LIVE → the arm, per book):
+  - **LOW0:** rows with a low-owned player 16.67 → 0.03; 1 of 936 row-rule solves re-solved without the rules (the tier's
+    production fallback), and the FAVHI floor re-solved without it in 12 of 144 slots (LIVE 1): disclosed, the arm's own mechanics.
+  - **QBTOP3:** the QB in the top-3 games (3.2 per slate) 14.69 → 25.81 of 26; book-rule solves 929 ruled + 7 re-solved plain
+    (0.7%, the fallback); 32.4 QBs banned per slate.
+  - **POPPUNT:** the block applied on every slate, popular cheap players with a term 5.1 per slate (min 1); rows with a termed
+    cheap player 15.14 → 16.22.
+  - **HYGIENE:** QB + own DST rows 0.86 → 0.00; **the $49,500 floor never binds** (LIVE's lowest book salary is $49,700), so the
+    arm reads the QB–DST ban alone (on his real Week-4 book it touches 1 of 26 rows; the laptop's count).
+  - **VAL4:** rows with 5+ top-value players 13.36 → 0.00; top-value players per row 4.13 → 3.71.
+  - RB-mate slots 144 of 144 in every arm.
 - **Code:** nfl2 `production/s110-field-ideas-20261010` @ `083f11e2` (off study 102's frozen `969f4d3d`; VAL4 and the census fix
   at `083f11e2`):
   - `experiments/s110_field_ideas.py` `7cbbd46c…` (pins s95 `46b80611…`, s97 `7df6f324…`)

@@ -76,7 +76,11 @@ listed edits, a test asserts it). s96 / s97 are brought in byte for byte (`0363a
     does not rise above LIVE is flagged before the freeze;
   - the row-rule and ownership-cap fallbacks; ONECATCH's dropped solves; the RB mate's slots (4 per book; NO_FAVHI 0);
   - rows shared with LIVE and dealt identity (> 0.80 = a dead lever);
-  - LIVE == study 97's RBMATE4_FAVHI and NO_FAVHI == study 97's LIVE (`--ref97`).
+  - LIVE == study 97's RBMATE4_FAVHI and NO_FAVHI == study 97's LIVE (`--ref97`). **Both must hold on every slate-bank:** study
+    97's LIVE is 93's `lead_rules` with ONECATCH, the package (the 0.35 cap and the ownership cap + 15), te1 / low1 and the cheap
+    block, under the same pool, simulations and caps, so FAVHI is the only difference (checked in the code, 10-10). 97 builds on
+    the default shape quotas and this study on `quotas(LIVE_Q)`; they are the same mix (studies 109, 110 and 115's LIVE equal
+    97's RBMATE4_FAVHI on 36 of 36). A difference would be a defect, not an expected change.
   - Per-slate fields stay outside the blocks the reader compares.
 
 ## 5. Production (if a removal holds on the fresh draw)
