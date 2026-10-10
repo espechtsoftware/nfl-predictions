@@ -26,3 +26,9 @@
 ## 3. Integrity
 - The laptop's full-set bank check and text scan before the freeze; the lab reviewer's census (study 100's census on bank 1406,
   equal by construction); PYTHONHASHSEED=0; one heavy job at a time.
+- **Disclosure (the laptop's text scan, 10-09):** the 09-19 production evidence file
+  `reports/reviews/evidence/2026-09-19-refreshed-hsim-trace-results.json` (in history) used production hsim pilot seeds 3326 /
+  3327 / 3328 / 3330, inside this study's block 3322–3333. **Not a collision:** the harness seeds every stream through
+  `nfl2.pipeline.slate_seed` = bank × 1,000,003 + season × 100 + week (the same law as `ctxcore/d800.py`'s `slate_seed_law`), so
+  no lab stream is seeded with the bare bank number. Every other hit of the scan is this study's own files (preregistrations,
+  reader, shas, timings).
