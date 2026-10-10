@@ -99,7 +99,12 @@ sets, the cheap block's term and the FAVHI pairs (112's `usage_pool` = 106's `ar
     → 20.0; the rule picks REC 2.0 and REC_LOW 1.5 here;
   - the full path: the reader exited 0 (41 lines; 52 two-draw). Only the census, the exit codes and the line counts were
     read.
-- **The chosen thresholds:** (filled in from the binding census, then the re-smoke at them).
+- **The chosen thresholds: REC 2.0, REC_LOW 1.5 — the placeholders, confirmed by the lab reviewer's binding census** (10-10,
+  10:35:14–10:37:42 CDT; bank 1406, the 36 slates, lab `d2e0d237`, `CENSUS` `d8d0cbe2…`): LIVE's rows touched 1.5 → 4.9, 2.0 →
+  8.3, 2.5 → 14.9 (REC: 2.0 is in [8, 15] and nearest 2.0; REC_LOW: 1.5 is the largest value below it in [3, 8)); 0 fallbacks;
+  LIVE == study 97's RBMATE4_FAVHI on 36 of 36; RBs dropped 32.7 / 25.6 per slate-bank, mostly under $5,000, prior targets 1.12
+  / 0.87; FAVHI pairs at minimum 1 / 2 on a slate, the RB-mate floor re-solved without them in 4 / 2 of 144 slots. **No
+  re-smoke was needed:** the code does not change, so the smoke at the placeholders above is the smoke at the choices.
 - **Code:** nfl2 `production/s116-rec-floor-20261010` @ `1d58fbbc` (off study 112's `262be08b`, whose module is the frozen
   `16bbe046`):
   - `experiments/s116_rec_floor.py` `429b7ee5…` (pins s112 `16bbe046…`)
@@ -107,4 +112,4 @@ sets, the cheap block's term and the FAVHI pairs (112's `usage_pool` = 106's `ar
   - `scripts/s116_census.py` `2d585066…`
   - **`scripts/s116_report.py` (the reader) `29acee51…`** (seed 20261161)
   - `tests/test_s116_rec_floor.py` `e56aa896…` (12)
-  - The module's thresholds change to the rule's choices before the freeze; the code line is then updated.
+  - The rule's choices equal the placeholders, so the code line stands.
