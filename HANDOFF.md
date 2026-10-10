@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (07:45 CDT) — OPERATOR: "Read" the outside model's second page (merged with one correction); the WR / TE recency test "today for this week" (study 115, row 96)
+
+- **His request:** "Read" `briefings/2026-week-05/2026-10-10-additional-suggestions.md` (review/additional-suggestions-20261010
+  @ 8f8756cb).
+- **The laptop read it and merged it** (`735740dd`, `55134bac`).
+  - **Reproduced on the W4 armed book:** hot WR / TE 1.08 per lineup (22; 6 with two), hot RB 0.42 (10); FP ownership 20%+ 2.42
+    (7 with none), under 5% 0.69 (1 with 3+), under 3% 0.15, slate sum 890. The ownership sum of 129 includes the DST (119 over
+    the 8 skill players).
+  - The ownership join is now fixed (SUM per name). Addendum 90 (Gumbel null) is confirmed.
+  - **Corrected:** the week-type idea is row 94, not 93.
+- **The laptop's question:** "The page suggests testing the hot-player rule on WR/TE only (at most one hot WR/TE per lineup, and a -2 fade on hot WR/TE only), since real fields show the effect only at those positions. How should it run?"
+- **His answer: "Test today for this week".**
+- **The plan:**
+  - study 115, LIVE / HOT_WRTE1 / FADE2_WRTE (109's module with a position mask, FAVHI in every arm, two draws, his rule; banks
+    3946–3957, seed 20261159; full-set clean, text scans running);
+  - 115b on a fresh draw (3984–3995), before the 17:55 arm;
+  - the rule removal (114) stays last;
+  - the laptop pre-builds HOT_WRTE1's default-off switch, matched to the DRAFT after the lab reviewer's static review;
+  - study-list row 96.
+
 ## 2026-10-10 (07:36 CDT) — laptop: TODAY'S RUNBOOK to the 18:00 arm and the canary (his decision "18:00, after a final arm")
 
 **Morning (data; the laptop):**
