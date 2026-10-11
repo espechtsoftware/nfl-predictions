@@ -12,6 +12,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (20:24 CDT) — OPERATOR: the plan is now **Rev8** (his revised entries): the $4,444 Showdown-ticket satellite withdrawn, two more entries in one $4,444 qualifier and one in the other; installed before the 21:00 build (no code change, no re-arm)
+
+- **His words:** "I just finally realized what the difference is of the 4444 and the 4444 showdown contest. Since I don't play showdown
+  games, I'm now going to withdraw from the 4444 showdown qualifier and replace it with a normal 4444 qualifier" ... "I entered two
+  additional entries into one of the existing 4,444 qualifiers and one into the other existing one" ... "It also includes the 8 manual
+  entries". His revised export (DKEntries-Week5-Rev3_Final, kept privately under `~/private/week5-entries/`, never committed): 61 entries
+  over 34 contests.
+- **Rev8 = Rev7 with sat9 (the 10-12 $4444 Showdown MEGA Millionaire satellite) removed, sat 1 -> 3 entries, sat2 1 -> 2** (keep = entries;
+  every other row byte-identical). `~/week5-sunday/contests.json` sha256 **ef5acefe0431e6dc82b836dca1e4a98236a04cf137ca8660fdab9c963e4cf7db**
+  (copy contests.json.rev8-ef5acefe; Rev7 kept as contests.json.rev7-6ce16979). Checked against the export: every plan contest's count
+  equal (55 entries over 28 contests); the 6 other contests hold his hand lineups (the filler only touches plan contests, so they stay
+  as entered). Rev7 would have made Sunday's filler REFUSE (sat9 configured with no entries; sat 3 entries for 1 lineup).
+- **What it changes:** rows_needed (head) stays **26** (K, the QB-cap calibration and the arm's K check unchanged); plan_weights at ranks 1-2
+  3 / 4 -> 4 / 5 (55 entries), so the dealing moves (sat ranks 1-2, 22; sat2 1-2; sat3 1; supersat 3-4; milly 17-18; the supersat pins and
+  FFWC row 2 unchanged). **W4 with every armed rule** (`~/rehearsals/rev8-w4-*`): Rev7 c97ea74e vs Rev8 4b4754f2 -- **the same 26 lineups**
+  (12 at the same rank), the same cells 8 / 4 / 7 / 7, FP per row identical, every rule applied, nothing resolved without.
+- **Checks on Rev8:** check_week_runtime.check_contests ok; the 21:00 unit's pre-checks under its env rc 0 (book_entries 26; runtime
+  preflight ok; lab API 20 calls match); check_build_inputs rc 0. The arm's PLAN_SHA (Rev7) is checked only at arm time; the arm script is
+  NOT edited (that would trip PROD_ARMED_HEAD). The contest details file contest-details-20261006-rev2.json covers every Rev8 id.
+- **Study 38 (the lab reviewer):** the converter tiers by payout details, not names; each snapshot carries its own contests.json and plan
+  sha, so the canary (now Rev8) and Sunday are self-consistent.
+- **Hand lineups:** 6 of 8 are in the export (L1, L2, N1, N2, N3 in 11-1 Midseason Main Event satellites; N4 in a 1-3 Ultimate Main Event
+  satellite); **R1 / R2 are not** -- asked him. Private log w05.json -> 21d5b6f9.
+- **Sunday:** the filler runs on DKEntries-Week5-Rev3_Final (or any later export he shares) with Rev8.
+
 ## 2026-10-10 (19:51 CDT) — project-slate re-run done (O-67); the supply preflight PASSES for 21:00
 
 - **project-slate** 19:48:10–19:50:28 (project-slate-889x6, succeededCount 1); newest projections 00:50:16Z (19:50 CT) -> ~70 / 75 min old
