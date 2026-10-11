@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (19:11 CDT) — ARMED on his typed go ("Go!", 19:07 in the laptop's session): 13 timers at 0696c9b3, with the exclusion file, the band cap and the B / C QB cap; **PROD_ARMED_HEAD 0696c9b3 -- only doc commits reach the production checkout until lock**
+
+- **The arm** (`bash scripts/arm_week5_saturday.sh`, 19:07:39–19:10:17, rc 0): ARMED (mixt), 13 timers, checkout 0696c9b3 clean, term block 8
+  rows (cheap2-w5.csv sha 5941678b4b37, cap 2.0); ownership_lag.csv 367 players, OWNERSHIP LAG OK (sum 474, max 28.0%; no WARN);
+  ownership_lags.csv 830; chosen-dose.env 0 / 4800; FP projections captured (saturday-arm).
+- **The five build units** (d12800-sat 21:00, d6400-sat 21:05, d12800-sun 05:00, d3200 09:10, t70 10:50) each carry
+  UNION_DK_STATUS=$HOME/week5-sunday/dk-status-w05.csv, UNION_MIX_MAX_BAND=1, UNION_MIX_BAND=5300:6000, UNION_MIX_QB_MAX_SALARY=6400,
+  UNION_MIX_QB_MAX_SALARY_CELLS=B,C, UNION_MIX_ROW_RULES=te1_low1, UNION_MAIN=mix (checked in the arm log line by line). The exclusion file
+  sha256 still 1ac591e4... (read-only) -- **it must stay unchanged until the s38 snapshot.**
+- **The 21:00 unit's own pre-checks** (run_week_build.sh --check under its exact env): `week runtime preflight ok` (role build, group 154468,
+  26 entries, layout head, clone f69598ba); `lab API check: 20 calls in 4 money-path scripts match`.
+- **The supply input preflight by hand (19:12):** the only FAILs are the projection batch (147 min) and the market monitor (148 min) ages;
+  chosen-dose and the rest pass. **The 19:48 project-slate run (background) fixes the ages**; re-run the preflight after it.
+- **Next:** 19:48 project-slate -> the preflight by hand (must pass) -> 21:00 / 21:05 supply -> the canary (~23:30): the receipt's
+  exclusions (no file id in any row or spare; dk_status the pinned path), band_cap applied (<= 1 per row), qb_salary_cap applied
+  (0 B / C rows with a QB over $6,400), row rules / ONECATCH / RB mate / term 8 / cap 0.35; the paper files (hot, TD within 3 h of the
+  props, OPRK, boom); `s38_snapshot.sh` with all S38_PAPER_* -> the lab reviewer's gate (857a8266 / ab482243).
+
 ## 2026-10-10 (19:00 CDT) — Rule 2 MERGED (FRIDAY_HEAD ab482243); the arm's settings committed (d1cacc1a) and `--check` passes; NOT ARMED -- waiting for his typed go
 
 - **Rule 2 merged:** production/qb-salary-cap-20261010 @ 6065b9f2 -> integration merge **ab48224330eb2ba8c3f91c1b3a1b8b040f9e86bd**
