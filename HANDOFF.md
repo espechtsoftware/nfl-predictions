@@ -12,6 +12,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (20:30 CDT) — OPERATOR: R1 / R2 dropped ("literally forget about those other two"); the hand-lineup set is the SIX in his export
+
+- **His words:** "I don't know what I did with those 2 lineups. I don't want to put more in, so let's just go with the 6 manual ones and
+  literally forget about those other two so I don't kick myself if they score big! :)"
+- **Rule (Sunday checks and Monday's read alike):** R1 / R2 are not entered and are **never checked, scored or mentioned**. The set is
+  L1 / L2 (laptop) and N1-N4 (research, second set). Private log w05.json -> **c432174c13ed866b**; `check_w05.py` covers the six (the
+  R1-only Henderson pivot removed; the DET-ARI roof check stays for L1). The checklist's Sunday and Monday steps updated (no rosters).
+
 ## 2026-10-10 (20:24 CDT) — OPERATOR: the plan is now **Rev8** (his revised entries): the $4,444 Showdown-ticket satellite withdrawn, two more entries in one $4,444 qualifier and one in the other; installed before the 21:00 build (no code change, no re-arm)
 
 - **His words:** "I just finally realized what the difference is of the 4444 and the 4444 showdown contest. Since I don't play showdown

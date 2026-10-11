@@ -342,17 +342,18 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
   the upload, review every row unsteered; log per row 'logical' or 'concern' + a one-line reason in the fixed categories (late negative
   news; a stack missing its key piece; a backup QB / role change; weather / roof; no realistic path to a big score) to
   `~/private/agent-review/w05.json`; its sha into HANDOFF before 12:00. **No row changes** beyond the existing OUT / inactive rules.
-- **His four hand-entered lineups: the pre-lock check** (the operator 10-10: "please add to your schedule to check for any concerns
+- **His SIX entered hand lineups: the pre-lock check** (the operator 10-10: "please add to your schedule to check for any concerns
   about those 4 lineups prior to lock. including re-check both stacks against the 10:30 inactives, the Henderson pivot if
-  Stevenson sits, and the Arizona roof"; R1 / R2 the research agent's, L1 / L2 the laptop's; private log
-  `~/private/manual-lineups/w05.json` sha 94209e54: the final L1 / L2 and the four as ENTERED). Read-only, seconds: `cd $HOME/projects/nfl-predictions &&
+  Stevenson sits, and the Arizona roof"; since 20:3x CT the six in his Rev3_Final export: L1 / L2 the laptop's, N1-N4 the research
+  agent's second set; **R1 / R2 dropped at his word ("literally forget about those other two") -- never checked, scored or mentioned**;
+  private log `~/private/manual-lineups/w05.json`, check its sha in HANDOFF). Read-only, seconds: `cd $HOME/projects/nfl-predictions &&
   .venv/bin/python ~/private/manual-lineups/check_w05.py` (the newest DK pull of group 154468; every player's status and
-  kickoff; flags OUT / IR / D / Q; the Stevenson -> Henderson pivot for R1's RB2 Dobbins, same $5,000; the DET-ARI reminder).
+  kickoff; flags OUT / IR / D / Q; the DET-ARI roof reminder; the R1-only Henderson pivot removed).
   1. **~11:00 CT** (after the 10:47 T-70 pull and the hourly DK loop): run it; tell him in chat before the 12:00 lock what
-     needs a swap (an inactive starter; the pivot if Stevenson is OUT); the 12:00 players lock then.
+     needs a swap (an inactive starter; N2's flex Meyers / Treadwell is his call); the 12:00 players lock then.
   2. **~13:40 CT** (the late-window inactives post about 13:35; DET-ARI kicks at 15:25, LAC-DEN 15:05, SF-SEA 15:25): run
      it again AND check the Cardinals' roof decision (a web check: open or closed for DET-ARI). If OPEN with the ~23 mph
-     forecast, R1 (DET passing) and L1 (ARI passing) lose their premise: tell him before 15:05 so a late swap is
+     forecast, L1 (ARI passing) loses its premise: tell him before 15:05 so a late swap is
      possible. Late swap replaces only players whose games have not started.
   3. Record both runs' FLAGS lines in HANDOFF (no rosters before lock).
 - The T-70 build on the post-10:30 salary pull; FP projections (refusal → ours, loud); the ownership chain FP → LAG
@@ -382,10 +383,11 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
     (integrity). Never force a census (`--smoke` and `--union` are mechanics only, never a record).
 
 ## Monday 10-12
-- **His four hand-entered lineups (R1 / R2 research, L1 / L2 laptop):** publish the rosters (after lock) from
-  `~/private/manual-lineups/w05.json` (check its sha 94209e54 first; v1–v6 kept as w05.v*.json; verify the four against the entries export); score each with DK's FPTS; its finish in his $4,444
-  qualifier (from the entries export) and where it would place in the Millionaire; beside the book's 26 rows and study
-  38's paper arms. Information only (four lineups).
+- **His SIX entered hand lineups (L1 / L2 laptop; N1-N4 research, second set; R1 / R2 DROPPED at his word -- do not score or
+  mention them):** publish the rosters (after lock) from `~/private/manual-lineups/w05.json` (check its sha in HANDOFF first; earlier
+  versions kept as w05.v*.json; verify the six against the entries export, contests in its entries_export_rev3_final.found); score each
+  with DK's FPTS; its finish in its own contest (11-1 Midseason Main Event / 1-3 Ultimate Main Event satellites) and where it would
+  place in the Millionaire; beside the book's 26 rows and study 38's paper arms. Information only (six lineups).
 - **FIRST: the cheap +2 block, on vs off, for his Week-6 decision** (the operator 10-07: "Let's keep it on for week 5 and see how it compares for deciding what to do week 6"). From study 38's scoring on the real W5 results:
   - MIXT_QA0 (his live book, the cheap block on) vs MIXT_QA0_NOTERM (the same construction without it): P(≥ 1 big seat),
     expected big seats, and the realized big seats / tickets in his priority contests;
