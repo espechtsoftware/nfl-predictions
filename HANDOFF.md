@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (22:49 CDT) — Saturday builds OK (supply only: no union); a REHEARSAL union on tonight's W5 supply with every armed rule PASSES; canary snapshot taken
+
+- **21:00 D12800 / 21:05 D6400** (Rev8 read: sat x3, sat2 x2, no sat9): both Result=success, exit 0, ~22:29; preflights OK (projections
+  70 / 75 min); no ALERT files. **Both are the Saturday supply** ("this build IS the Saturday supply (UNION_SAT_DOSE): no union for it"),
+  so tonight's live builds never run the union. The first live union is Sunday's **09:10 D3200** (0 / 4800); the T-70 at 10:50.
+- **The rehearsal** (the A3 pattern): the armed d3200 unit's exact env with OUT = `~/rehearsals/w5-satnight-union-20261011T033113Z/out`
+  (seeded: Rev8, chosen-dose, class model, ownership files), CLONE = a fresh nfl2 worktree at f69598ba
+  (`~/projects/.nfl2-worktrees/rehearsal-satnight-20261011T033113Z`), UNION_SATURDAY_RUN = tonight's 21:00 run (read-only). First try
+  refused correctly by the preflight (projections 161 min old) -> project-slate 22:31-22:35 (project-slate-vtqtn) -> **host rc 0
+  (22:35-22:44)**, build audit OK 13 + union audit OK 16; OWN CAP / ROW RULES / ONE CATCHER / RB MATE favhi / **BAND CAP** / **QB SALARY
+  CAP** all ON. Union `20261011T034238437654Z-union-f69598b`.
+- **Canary read** (`~/.cache/laptop-agent/w5-sat-night/canary_w5.py`): **PASS** -- exclusion file unchanged; receipt dk_status the pinned
+  path; band_cap applied (13 pool band players), every row <= 1; qb_salary_cap applied (3 of 22 pool QBs over $6,400; ruled 14), **0 B /
+  C rows with a QB over $6,400** (A1 / A2: 5); row rules / ONECATCH / RB mate (4 / 4; qb_teams DET / NE / SEA) / cell_bounds: nothing
+  resolved without; 26 rows (8 / 4 / 7 / 7); **no excluded player in book.csv and in none of the 84 upload files**. (book_wemax.csv, the
+  pre-union K90 reference book copied as a sidecar, holds McConkey / Jeanty: expected, never laid out or uploaded.) union_args.txt writes
+  the cells as `B\,C` (printf %q); the union read B, C.
+- **Paper files (exercise; Sunday's are the real ones):** DvP slope +0.585 (152 prior player-weeks, the expected value), factor unmatched
+  0, hot 33, TD (props snapshot 14:32Z), OPRK (fresh capture 03:47Z), boom (generation 03:35Z). **Checklist fix:** the OPRK writer takes
+  NO `--season` argument (`oprk_block_file.py --week 5 --group 154468 ...`); the checklist's Sunday command corrected (it would have
+  failed Sunday).
+- **Snapshot** `~/private/paper-corun/canary-w05-sat` (s38_snapshot.sh rc 0; MANIFEST cf03f39551d65595; contests Rev8 ef5acefe, dk-status
+  1ac591e4, all six paper files) -> the lab reviewer's gate (857a8266 / ab482243).
+
 ## 2026-10-10 (20:38 CDT) — CRASH RECOVERY for tonight (the operator asked: "Is your work in a safe state just in case something crashed on the laptop?")
 
 - **Safe:** the production checkout and every worktree of this session are clean and pushed; the private inputs (`~/week5-sunday/`

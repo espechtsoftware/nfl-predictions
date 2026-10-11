@@ -222,7 +222,7 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 - **The DK opponent-rank block on PAPER (study 38 amendment 6z6, arm MIXT_QA0_OPRKBLOCK8; the operator 10-10: "a paper study would be
   good"):** (1) **~10:35 CT** the capture: `.venv/bin/python reports/2026-10-10-dk-oprk/capture_dk_attributes.py --group 154468 --group
   154470` (and the raw JSON curl, study 8); (2) right after the T-70 union and BEFORE the snapshot, within 3 h of the capture:
-  `.venv/bin/python reports/2026-10-10-oprk/oprk_block_file.py --season 2026 --week 5 --group 154468 --frame <union dir>/frame.parquet
+  `.venv/bin/python reports/2026-10-10-oprk/oprk_block_file.py --week 5 --group 154468 --frame <union dir>/frame.parquet
   --as-of <UTC just after the capture> --out $HOME/private/paper-corun/oprk/w05.csv` (the reviewed writer eaa7ca96); a refusal for
   an old capture (exit 3) = re-run the capture, then the writer; (3) `S38_PAPER_OPRK_FILE=$HOME/private/paper-corun/oprk/w05.csv`
   rides the snapshot invocation. A missing file = MIXT_QA0_OPRKBLOCK8 missing for W5, recorded.
