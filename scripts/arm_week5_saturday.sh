@@ -18,7 +18,7 @@
 set -uo pipefail
 SHAPE="mixt"             # his formal yes 2026-10-06: "yes to the winners' mix with the tilt and the quarterback cap" (the tilt removed by his 10-06 yes)
 FRIDAY_HEAD="ab48224330eb2ba8c3f91c1b3a1b8b040f9e86bd"   # 10-10: + rule 2, the B / C QB salary cap (UNION_MIX_QB_MAX_SALARY / _CELLS; study 38 6z9; reviewed, APPROVED; 6065b9f2). Before: 10-10: + the band cap + the pinned W5 status-exclusion wiring (UNION_MIX_MAX_BAND / UNION_MIX_BAND / UNION_DK_STATUS; study 38 6z8; reviewed, APPROVED; 9cf72591). Before: 10-10: + s38_snapshot.sh S38_PAPER_BOOM_FILE (study 38 6z7; reviewed, APPROVED; e78c77bc). Before: 10-10: + s38_snapshot.sh S38_PAPER_OPRK_FILE (study 38 6z6; reviewed, APPROVED; b1f2324e). Before: 10-10: + s38_snapshot.sh S38_PAPER_TDBLOCK_FILE (study 38 6z4; reviewed, APPROVED; feada447) + the M2 test accepting Saturday's TERM_ROWS; union / host / timers code == 7a20dd74. Before: 10-10: + s38_snapshot.sh S38_PAPER_HOT_FILE (study 38 6y; reviewed, APPROVED; union / host / timers code == c08dadcd). Before: 10-10: + the O-65 DK-loop fix (scripts/host_ingest_dk_loop.sh + its test; reviewed, APPROVED; union / host / timers code == d2b2b326). Before: 10-10: + SAT_SUPPLY_CT (his "18:00, after a final arm"; reviewed, APPROVED; union / host code == b00c5e43). Before: 10-10: + the arm test for FAVHI LIVE (tests only; union code == 5faf2f05). 10-09/10: his package (5eab90f4) + his test-2 row rules (e8c63263 + 58a328b6) + ONECATCH (c391fbd0 + f483644c, LIVE) + the RBMATE4 flag and wiring (4caff46d + 77bd55c5, off) + the zero-quota parser (21fa9d29) + the FAVHI scope (60f6dbe9 + 2bd5bbff, off; studies 97 / 99); A3 cancelled by him
-PLAN_SHA=6ce1697924ef7a21b312e44be05ee606213016375e8c37eed0732863c1e83f58     # Rev7 = Rev6 + the FFWC qualifier's pin row 1 -> 2 (his 10-10 decision on the dealing review: "Move it to row 2 (Recommended)"; Rev6 kept as contests.json.rev6-5f8352ee). Rev6: (his FINAL contest order 10-07; Rev3's contests
+PLAN_SHA=ef5acefe0431e6dc82b836dca1e4a98236a04cf137ca8660fdab9c963e4cf7db     # Rev8 (10-10 20:23, his revised entries: the Showdown-ticket satellite withdrawn, the two $4444 qualifiers 3 + 2 entries; K stays 26). Before: Rev7 = Rev6 + the FFWC qualifier's pin row 1 -> 2 (his 10-10 decision on the dealing review: "Move it to row 2 (Recommended)"; Rev6 kept as contests.json.rev6-5f8352ee). Rev6: (his FINAL contest order 10-07; Rev3's contests
                                     # re-ordered, the same book; installed 10-07 14:38 after the priority screen's pair (ii);
                                     # Rev3 kept as contests.json.rev3-8625de0e)
 CHOSEN_LEV=0; CHOSEN_BOOM=4800                                                # FRIDAY: confirm the Week-5 dose
@@ -161,19 +161,19 @@ git merge-base --is-ancestor "$FRIDAY_HEAD" HEAD || stop "HEAD $(git rev-parse -
 # M3 (the outside review 10-07): the armed code is the code Friday rehearsed -- only docs and this arm script may differ
 CODECHG=$(git diff --name-only "$FRIDAY_HEAD" HEAD | grep -vE '^(HANDOFF\.md|README\.md|scripts/arm_week5_saturday\.sh)$|^(reports|briefings)/' || true)
 [[ -z "$CODECHG" ]] || stop "code changed between FRIDAY_HEAD ${FRIDAY_HEAD:0:12} and HEAD: $(echo $CODECHG)"
-[[ "$(sha256sum $W/contests.json | cut -d' ' -f1)" == "$PLAN_SHA" ]] || stop "$W/contests.json is not the pinned plan (Rev7, $PLAN_SHA)"
+[[ "$(sha256sum $W/contests.json | cut -d' ' -f1)" == "$PLAN_SHA" ]] || stop "$W/contests.json is not the pinned plan (Rev8, $PLAN_SHA)"
 # O-42 (10-07): the class sleeve's model, checked here (also under --check) rather than at the 10:30 build's preflight
 [[ -s $W/class_model.json && -s $W/class_model.json.sha256 ]] || stop "$W/class_model.json or its .sha256 is missing (the class sleeve's model, CLASS_SLEEVE_EVERY=2; O-42)"
 [[ "$(sha256sum $W/class_model.json | cut -c1-64)" == "$CLASS_SHA" && "$(cut -c1-64 $W/class_model.json.sha256)" == "$CLASS_SHA" ]] || stop "$W/class_model.json is not the pinned CLASS_SHA ${CLASS_SHA:0:8} (or its .sha256 disagrees)"
 K=$(PYTHONPATH=src $PY -m nfl_dfs.inference.enter_layout rows-needed $W/contests.json --layout head) || stop "rows-needed failed on the plan"
-[[ "$K" == 26 ]] || stop "rows-needed on the installed plan is $K, not 26 (Rev7 under head)"
+[[ "$K" == 26 ]] || stop "rows-needed on the installed plan is $K, not 26 (Rev8 under head)"
 [[ -z "$QB_CAP_ROWS" || "$K" == "$QB_CAP_K" ]] || stop "the QB cap was calibrated at K $QB_CAP_K, but the plan needs $K rows (study 35: re-calibrate)"
 # the local Milly graph must not run through the build windows (reviewer 10-04, binding: a CHECK, not a habit -- the O-24
 # lesson): its heap and page cache (up to 18 GB) could starve the Sunday builds. ss/ps only, never pgrep -f.
 NEO_PID=$HOME/.local/share/neo4j-milly/run/neo4j.pid
 if [[ -s $NEO_PID ]] && ps -p "$(cat "$NEO_PID")" >/dev/null 2>&1; then stop "the local Neo4j is running (pid $(cat "$NEO_PID")): neo4j-milly stop, then re-run"; fi
 [[ -z "$(ss -ltnH '( sport = :7474 or sport = :7687 )' 2>/dev/null)" ]] || stop "a process listens on 7474/7687 (the local Neo4j?): stop it, then re-run"
-say "step 0 OK: checkout $(git rev-parse --short HEAD) clean; Rev7 installed; class model ${CLASS_SHA:0:8}; K $K; shape $SHAPE; Neo4j not running"
+say "step 0 OK: checkout $(git rev-parse --short HEAD) clean; Rev8 installed; class model ${CLASS_SHA:0:8}; K $K; shape $SHAPE; Neo4j not running"
 if [[ "$CHECK" != --check ]]; then
   # 1-4. Saturday inputs (no LineStar step: retired 10-06)
   PYTHONPATH=src $PY scripts/ownership_sets.py sets --week 5 --group 154468 --out $W/ownership_sets.csv 2>&1 | tail -1 || stop "ownership_sets.py sets failed"
