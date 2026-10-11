@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (22:53 CDT) — The study-38 CANARY GATE PASSES (the lab reviewer, live mode, on the rehearsal snapshot)
+
+- Lab s38-6u @ 857a8266 vs prod s38-prod-pin @ ab482243, PYTHONHASHSEED=0, 22:49:59-22:52:21, rc 0, on `~/private/paper-corun/canary-w05-sat`;
+  output `~/private/paper-corun/gate-w5-canary-sat` (books.json 9de0ad8f, build.txt fcfa68a6, books identity b5950a1e).
+- Union parity mismatches none (shlex reads the host's `B\,C` as B,C); provenance identical (dk-status, FP projections, term block, own
+  cap); band cap, QB cap (6400, B / C), row rules, ONECATCH and the FAVHI RB mate (DET / NE / SEA) each match the receipt; **MIXT_QA0 ==
+  the live union's book (26 / 26 by name)**; 45 arms built (the 4 "same as QA0" missing as expected); every paper file applied; every
+  rule-following arm 0 band-pair rows and 0 B / C over-cap QB rows (NOBAND 6, NOQBSAL 3; TODAY 4 / 2).
+- **Sunday:** the same gate on the T-70 snapshot; the paper files rewritten on the T-70 frame (hot; TD as-of 10:00Z; OPRK within 3 h of the
+  ~10:35 capture; boom after the 10:36 project-slate run); the exclusion file unchanged.
+
 ## 2026-10-10 (22:49 CDT) — Saturday builds OK (supply only: no union); a REHEARSAL union on tonight's W5 supply with every armed rule PASSES; canary snapshot taken
 
 - **21:00 D12800 / 21:05 D6400** (Rev8 read: sat x3, sat2 x2, no sat9): both Result=success, exit 0, ~22:29; preflights OK (projections
