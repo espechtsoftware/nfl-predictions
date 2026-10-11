@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (19:00 CDT) — Rule 2 MERGED (FRIDAY_HEAD ab482243); the arm's settings committed (d1cacc1a) and `--check` passes; NOT ARMED -- waiting for his typed go
+
+- **Rule 2 merged:** production/qb-salary-cap-20261010 @ 6065b9f2 -> integration merge **ab48224330eb2ba8c3f91c1b3a1b8b040f9e86bd**
+  (scripts byte-identical to 6065b9f2; union_reselect sha256/16 da2ecc22f4be7683); arm-only FRIDAY_HEAD 83b5929a. The lab reviewer
+  APPROVED (diff read in full; classification clean; live-receipt build with w4-AQ receipt d526bb53 passed). **Study 38 6z9** prereg
+  review/s38-6n-20261009 @ 89cac1fc (file f2cc4477776c), lab 857a8266 (module 45d4f103, build a260422c, score d100a7bc, report a1822d25,
+  tests a46233cc); **the laptop's ack:** its smoke reproduced at `~/private/paper-corun/smoke-w4-amend6z9-laptop` (44 / 45 arm records
+  identical; only the recorded prod union hash differs, the pin having moved cbd1c49e -> f224e469). **Pins: s38-prod-pin = ab482243,
+  the gate = 857a8266** (the lab reviewer, 18:58).
+- **Tests** reading the arm and the merged scripts: 453 passed, 3 skipped (rc 0). **W4 gate on 83b5929a** (`~/rehearsals/gate-83b5929a-*`):
+  OFF **aa12ac0e**, status + band **b91f1ed0**, + rule 2 **c97ea74e** -- all three known answers.
+- **The arm's settings (arm-only commit d1cacc1a, pushed):** DK_STATUS_FILE=$HOME/week5-sunday/dk-status-w05.csv + DK_STATUS_SHA
+  1ac591e4... (read-only file, unchanged), MAX_BAND=1 BAND=5300:6000, QB_MAX_SALARY=6400 QB_MAX_SALARY_CELLS=B,C. Tests reading the arm
+  + test_s38_snapshot: 92 passed. **`arm_week5_saturday.sh --check` rc 0** (18:59): 13 units; the summary names the exclusions file
+  1ac591e47405, band cap 1 at 5300:6000, QB salary cap 6400 on B,C; supply D12800 21:00, D6400 21:05; the arm by 20:58.
+- **The DK loop (O-65):** nfl-host-dk-ingest active since 05:54; newest 154468 pull 23:54:41Z.
+- **project-slate (O-67):** a background run at 19:48 (projections ~75 min old at 21:05; limit 120).
+- **Paper co-run validity (the lab reviewer):** the live arm must carry all three (status file unchanged on disk until the snapshot;
+  band 5300:6000; B / C QB cap 6400 with the row rules); NOBAND / NOQBSAL pair them on paper.
+- **Next:** **his typed go in the laptop's session** -> `bash scripts/arm_week5_saturday.sh` (by 20:58) -> ownership_lag + check_ownership_lag
+  (any WARN = STOP) -> check_build_inputs.py -> the 21:00 canary (~23:30): receipt shows exclusions (no file id in any row or spare),
+  band_cap applied <= 1 per row, qb_salary_cap applied with 0 B / C QB over 6400, row rules / ONECATCH / RB mate / term 8 / cap 0.35;
+  paper files; s38_snapshot.sh -> the lab reviewer's gate.
+
 ## 2026-10-10 (18:47 CDT) — The band cap MERGED (FRIDAY_HEAD f224e469); rule 2 (the B / C QB salary cap) built and W4-checked, under review; no arm yet (his typed go pending)
 
 - **Rule 1 merged:** production/band-cap-20261010 @ 9cf72591 -> integration merge **f224e4691ea3a8421da8988ba1b1a61f52697ad1**; arm-only
