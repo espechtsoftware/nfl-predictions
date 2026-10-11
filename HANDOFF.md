@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (20:36 CDT) — OPERATOR: the outside reviewer (63) and the research agent (d9) are closed; the lab reviewer (84) is the only other session
+
+- His words: "I've closed a couple of the other chats so there aren't too many responding to everything costing tokens ... The only
+  remaining chat is the Reviewer (not the Outside Reviewer or the Researcher Fable)." Both confirmed nothing unsaved (63: every worktree
+  clean, every commit on origin; no process running).
+- **Roles from now:** the laptop drafts code, runs production and keeps the pages / study list / leads log; the lab reviewer reviews code,
+  owns study 38 and freezes / runs / READs studies. Monday's carry-overs from the closed sessions are on origin: the writer tests
+  (review/oprk-block-file-20261010 @ b27ec857: tests/test_oprk_block_file.py, test_boom_block_file.py) merge Monday; the code review
+  (9ab42b63) and the boom/bust write-up (714f55be) are merged.
+
 ## 2026-10-10 (20:30 CDT) — OPERATOR: R1 / R2 dropped ("literally forget about those other two"); the hand-lineup set is the SIX in his export
 
 - **His words:** "I don't know what I did with those 2 lineups. I don't want to put more in, so let's just go with the 6 manual ones and
