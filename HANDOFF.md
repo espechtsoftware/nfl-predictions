@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (20:38 CDT) — CRASH RECOVERY for tonight (the operator asked: "Is your work in a safe state just in case something crashed on the laptop?")
+
+- **Safe:** the production checkout and every worktree of this session are clean and pushed; the private inputs (`~/week5-sunday/`
+  incl. contests.json Rev8 ef5acefe and the exclusion file 1ac591e4; `~/private/`) are on the WSL disk; the DK loop
+  (nfl-host-dk-ingest) is enabled with linger, so it restarts by itself. The canary readers are copied to
+  `~/.cache/laptop-agent/w5-sat-night/` (canary_w5.py, w4_rule2_check.py, plan_swap_check.py, now_book.sh).
+- **Not safe across a WSL restart: the 13 armed timers are TRANSIENT** (/run/user/1000/systemd/transient) -- a restart erases them.
+  Check: `systemctl --user list-timers 'nfl-week5-*'` (13 listed until 21:00; 11 after the two Saturday supply units fire).
+- **If they are gone -- re-arm:**
+  1. `cd ~/projects/nfl-predictions && git fetch origin && git merge --no-ff origin/production/w5-rearm-rev8 -m "merge the Rev8 re-arm pin"
+     && git push origin production/week3-integration-20260921`. The branch (0324cf08, tests 92 passed) only moves the arm's PLAN_SHA to
+     Rev8 ef5acefe (the installed plan); without it the arm STOPS ("contests.json is not the pinned plan"). **Never merge it while the
+     current arm stands** (the arm script is code: the builds would refuse, PROD_ARMED_HEAD).
+  2. `systemctl --user is-active nfl-host-dk-ingest` (restart per O-65 if not).
+  3. Before 20:58: `bash scripts/arm_week5_saturday.sh --check`, then `bash scripts/arm_week5_saturday.sh` (13 timers; exclusions / band /
+     QB cap are in the arm's settings). After 20:58: one more arm-only edit `SAT_SUPPLY_CT=""` and `ARM_LATE=1 bash
+     scripts/arm_week5_saturday.sh` (11 timers; tonight's Saturday supply and canary are lost; Sunday 05:00 is the first build) -- tell
+     the operator.
+  4. Re-run the 21:00 unit checks (run_week_build.sh --check under the unit's env) and check_build_inputs.py; projections must be <= 120
+     min old at any supply (project-slate otherwise).
+
 ## 2026-10-10 (20:36 CDT) — OPERATOR: the outside reviewer (63) and the research agent (d9) are closed; the lab reviewer (84) is the only other session
 
 - His words: "I've closed a couple of the other chats so there aren't too many responding to everything costing tokens ... The only
