@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (19:16 CDT) — Four more hand lineups logged (private): the research agent's second set N1-N4, entered by the operator ~19:1x
+
+- Relayed by nfl-predictions-d9 at the operator's request (19:15: "let the laptop know the additional lineups I entered manually so it can add
+  them to its list"); built 18:46 on the winners' salary profile; contests his choice (lower-dollar). Logged in
+  `~/private/manual-lineups/w05.json` (previous 94209e54 kept as w05.v7-94209e54.json) -> **sha256 fa2a9be6378343b2...**; rosters stay private
+  until after lock. The laptop's check: all 36 ids / salaries / teams / slots match the 23:54Z DK pull; no DK status; none in the exclusion
+  file. `check_w05.py` now covers all eight (R1-2, L1-2, N1-4) at the Sunday ~11:00 / ~13:40 checks; N2's flex (Meyers vs Treadwell) is his
+  call after the inactives. Monday's judgment: three sets plus the book.
+
 ## 2026-10-10 (19:11 CDT) — ARMED on his typed go ("Go!", 19:07 in the laptop's session): 13 timers at 0696c9b3, with the exclusion file, the band cap and the B / C QB cap; **PROD_ARMED_HEAD 0696c9b3 -- only doc commits reach the production checkout until lock**
 
 - **The arm** (`bash scripts/arm_week5_saturday.sh`, 19:07:39–19:10:17, rc 0): ARMED (mixt), 13 timers, checkout 0696c9b3 clean, term block 8
