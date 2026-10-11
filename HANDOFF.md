@@ -12,6 +12,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-10 (19:51 CDT) — project-slate re-run done (O-67); the supply preflight PASSES for 21:00
+
+- **project-slate** 19:48:10–19:50:28 (project-slate-889x6, succeededCount 1); newest projections 00:50:16Z (19:50 CT) -> ~70 / 75 min old
+  at the 21:00 / 21:05 supply (limit 120).
+- **`check_build_inputs.py` by hand (19:50):** rc 0, `OK build inputs for 2026 week 5` -- projections 438 rows (skill 408), market monitor OK
+  (batch 00:50:02Z, props 177 / model-only 231), tabpfn rows 826, files ok (chosen-dose included).
+- **Next:** 21:00 D12800 / 21:05 D6400 -> the canary (~23:30) -> s38_snapshot.sh -> the lab reviewer's gate.
+
 ## 2026-10-10 (19:16 CDT) — Four more hand lineups logged (private): the research agent's second set N1-N4, entered by the operator ~19:1x
 
 - Relayed by nfl-predictions-d9 at the operator's request (19:15: "let the laptop know the additional lineups I entered manually so it can add
