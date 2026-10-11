@@ -37,6 +37,23 @@
   satellite); **R1 / R2 are not** -- asked him. Private log w05.json -> 21d5b6f9.
 - **Sunday:** the filler runs on DKEntries-Week5-Rev3_Final (or any later export he shares) with Rev8.
 
+## 2026-10-10 (20:24 CDT) — outside model: the boom/bust/salary-band analysis behind tonight's two new row rules, written up and committed for reference (docs only)
+
+- **Page:** `briefings/2026-week-05/2026-10-10-boom-bust-and-salary-bands.md`. The operator's request ("think about what could be
+  done right now to allow us to choose better boom players") led, across the evening, to the exclusion file, the band cap
+  (`UNION_MIX_MAX_BAND` / `UNION_MIX_BAND`, at most one RB/WR/TE priced \$5,300-\$6,000 per row) and the QB salary cap by cell
+  (`UNION_MIX_QB_MAX_SALARY` / `_CELLS`, no QB over \$6,400 on the B/C rows) -- all three armed at 0696c9b3 (19:07-19:10 CT).
+- **What the page records:** the boom-model finding (p_20_plus is calibrated but adds nothing beyond the mean projection; 60 of 73
+  games of 25+ points came from the top-20%-projected band; width, not ranking, decided boom capture in Weeks 1-3's books); the
+  bust finding (Questionable players busted 42-45% of the time against 27% for everyone else; O-68); the full salary-band screen
+  of the top finishers in his contests and the Millionaire, Weeks 1-4 (the \$4,000-4,499 and \$5,000-5,999 dead zones, the
+  \$8,000+ signal, the quarterback-price gap that led to rule 2); and the five Week-4 checks (A-D, the cap of one) with their
+  bars, results and receipts.
+- **Why it is committed now:** useful reference for Week 6 (the five items in the page's §6.5: the O-68 repair, a top-band
+  coverage rule, the bands replayed on Weeks 1-3, the boom block's Monday read, the exclusion file's missing runtime hash check)
+  and for anyone asking why these two rules exist. Nothing in it changes the armed book; the arm is already in force and
+  reported separately.
+
 ## 2026-10-10 (19:51 CDT) — project-slate re-run done (O-67); the supply preflight PASSES for 21:00
 
 - **project-slate** 19:48:10–19:50:28 (project-slate-889x6, succeededCount 1); newest projections 00:50:16Z (19:50 CT) -> ~70 / 75 min old
